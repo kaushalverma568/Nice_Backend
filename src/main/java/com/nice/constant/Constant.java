@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -33,5 +33,13 @@ public final class Constant {
 	public static final long OTP_VALIDITY_TIME_IN_MIN = 30;
 	public static final String SORT_TYPE_ASC = "ASC";
 	public static final String SORT_TYPE_DESC = "DESC";
+
+	public static final String CAN_VIEW = "CAN_VIEW";
+	public static final String CAN_VIEW_LIST = "CAN_VIEW_LIST";
+	public static final String CAN_EDIT = "CAN_EDIT";
+	public static final String CAN_ADD = "CAN_ADD";
+	public static final String CAN_DELETE = "CAN_DELETE";
+	public static final String CAN_IMPORT = "CAN_IMPORT";
+	public static final String CAN_EXPORT = "CAN_EXPORT";
 
 }

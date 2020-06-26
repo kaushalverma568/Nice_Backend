@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Data
 public class SubCategoryDTO implements Serializable {
@@ -17,11 +17,11 @@ public class SubCategoryDTO implements Serializable {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -5496728237067871831L;
+	private static final long serialVersionUID = 37214841390343202L;
 
 	private Long id;
 
-	@NotBlank(message = "{subCategory.name.not.null}")
+	@NotBlank(message = "{name.not.null}")
 	private String name;
 
 	@NotNull(message = "{category.id.not.null}")

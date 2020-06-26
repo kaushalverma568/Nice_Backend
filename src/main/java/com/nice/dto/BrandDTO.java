@@ -9,17 +9,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ *
+ * @author : Kody Technolab Pvt. Ltd.
+ * @date : 26-06-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CategoryDTO implements Serializable {
+public class BrandDTO implements Serializable {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -5856731878659821928L;
+	private static final long serialVersionUID = -3245547957010391991L;
 
 	private Long id;
 
@@ -29,4 +30,8 @@ public class CategoryDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
+	/**
+	 * field used to set message at the time of import
+	 */
+	private String uploadMessage;
 }

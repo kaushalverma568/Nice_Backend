@@ -1,0 +1,27 @@
+package com.nice.dto;
+
+import java.io.Serializable;
+
+import lombok.Data;
+
+/**
+ *
+ * @author : Kody Technolab Pvt. Ltd.
+ * @date : 26-06-2020
+ */
+@Data
+public class CategoryResponseDTO implements Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -3975990947198518915L;
+
+	private Long id;
+
+	private String name;
+
+	private Boolean active;
+
+	private String image;
+}

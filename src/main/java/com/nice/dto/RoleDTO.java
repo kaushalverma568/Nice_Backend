@@ -2,7 +2,6 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -10,23 +9,25 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date : 25-Dec-2019
  */
+
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CategoryDTO implements Serializable {
+public class RoleDTO implements Serializable {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -5856731878659821928L;
+	private static final long serialVersionUID = -5563304250511176544L;
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
+	@NotNull(message = "{name.not.null}")
 	private String name;
+
+	private String description;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
-
 }
