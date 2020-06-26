@@ -1,0 +1,254 @@
+package com.nice.controller;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nice.config.UserAwareUserDetails;
+import com.nice.dto.CustomerDTO;
+import com.nice.dto.CustomerResponseDTO;
+import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
+import com.nice.locale.MessageByLocaleService;
+import com.nice.mapper.CustomerMapper;
+import com.nice.model.Customer;
+import com.nice.response.GenericResponseHandlers;
+import com.nice.service.CustomerService;
+import com.nice.validator.CustomerValidator;
+
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 25-Jun-2020
+ */
+@RequestMapping(path = "/customer")
+@RestController
+public class CustomerController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerController.class);
+
+	/**
+	 * Locale message service - to display response messages from Property file
+	 */
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
+	@Autowired
+	private CustomerService customerService;
+
+	/**
+	 * validator - to apply/check any type of validation regarding customers
+	 */
+
+	@Autowired
+	private CustomerValidator customerValidator;
+
+	@Autowired
+	private TokenStore tokenStore;
+
+	/**
+	 * Bind validator with object using 'BindingResult' in method
+	 *
+	 * @param binder
+	 */
+
+	@InitBinder
+	public void initialiseBinder(final WebDataBinder binder) {
+		binder.addValidators(customerValidator);
+	}
+
+	@Autowired
+	public CustomerMapper customerMapper;
+
+	/**
+	 * Add customer
+	 *
+	 * @param  userId
+	 * @param  customerDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws MessagingException
+	 * @throws IOException
+	 * @throws GeneralSecurityException
+	 */
+	@PostMapping
+	public ResponseEntity<Object> addCustomer(@RequestBody @Valid final CustomerDTO customerDTO, final BindingResult result)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add customer");
+		List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error("customers validation failed");
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		Long id = customerService.addCustomer(customerDTO, false);
+		LOGGER.info("Outside add customer ");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(id)
+				.setMessage(messageByLocaleService.getMessage("customer.create.message", null)).create();
+	}
+
+	/**
+	 * Update customer
+	 *
+	 * @param  userId
+	 * @param  customerDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping
+	public ResponseEntity<Object> updateCustomer(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CustomerDTO customersDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update customer {}", customersDTO);
+
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error("Customers validation failed");
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		final Customer resultCustomers = customerService.updateCustomer(customersDTO);
+		LOGGER.info("Outside update customer {}", customersDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.update.message", null))
+				.setData(resultCustomers).create();
+	}
+
+	/**
+	 * Get customer details based on id
+	 *
+	 * @param  customerId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/{customerId}")
+	public ResponseEntity<Object> getCustomer(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId)
+			throws NotFoundException {
+		final CustomerResponseDTO customerResponseDTO = customerService.getCustomer(customerId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.detail.message", null))
+				.setData(customerResponseDTO).create();
+	}
+
+	/**
+	 * Get list of customer based on parameter
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getCustomerList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException, ValidationException {
+		final Page<Customer> resultCustomers = customerService.getCustomerList(pageNumber, pageSize, activeRecords, searchKeyword);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.list.message", null))
+				.setData(customerMapper.toDtos(resultCustomers.getContent())).setHasNextPage(resultCustomers.hasNext())
+				.setHasPreviousPage(resultCustomers.hasPrevious()).setTotalPages(resultCustomers.getTotalPages()).setPageNumber(resultCustomers.getNumber() + 1)
+				.setTotalCount(resultCustomers.getTotalElements()).create();
+	}
+
+	/**
+	 * Change status of customer(active/deActive)
+	 *
+	 * @param  userId
+	 * @param  customerId
+	 * @param  active
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/status/{customerId}")
+	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId,
+			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside change status of customer for id {} and status {}", customerId, active);
+		String userName = customerService.changeStatus(customerId, active);
+		if (userName != null) {
+			revokeToken(userName);
+		}
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.update.message", null))
+				.create();
+	}
+
+	/**
+	 * This API is used for verify Phone as well as change Phone.
+	 *
+	 * @param  userId
+	 * @param  otp
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/verify/phone/{customerId}")
+	public ResponseEntity<Object> verifyPhoneNumber(@RequestHeader("Authorization") final String accessToken, @RequestHeader(name = "userId") final Long userId,
+			@PathVariable("customerId") final Long customerId, @RequestParam(name = "mobile") final String mobile, @RequestParam(name = "otp") final String otp)
+			throws NotFoundException, ValidationException {
+		customerService.verifyPhoneNumber(customerId, mobile, otp, userId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("verify.user", null)).create();
+	}
+
+	/**
+	 * export customer list
+	 *
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
+	 * @return
+	 * @throws IOException
+	 */
+	@GetMapping("/export/list")
+	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
+			throws IOException {
+		customerService.exportCustomerList(activeRecords, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.list.message", null))
+				.create();
+	}
+
+	/**
+	 * revoke token for the user
+	 *
+	 * @param userName
+	 * @param userId
+	 */
+	private void revokeToken(final String userName) {
+		Long userId = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId();
+		LOGGER.info("Revoking token for user {} by userId {}", userName, userId);
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("kody-client", userName);
+		for (OAuth2AccessToken token : tokens) {
+			tokenStore.removeAccessToken(token);
+		}
+		LOGGER.info("Successfully Revoked token for user {} by userId {}", userName, userId);
+	}
+}
