@@ -13,6 +13,13 @@ public final class Constant {
 		super();
 	}
 
+	/**
+	 * DB Encryption Salt
+	 */
+	public static final String KEY_ENCRYPTION_SALT = "kody_encryption_key";
+	public static final String PAYMENT_GATEWAY_USER_NAME = "PAYMENT_GATEWAY_USER_NAME";
+	public static final String PAYMENT_GATEWAY_SECRET = "PAYMENT_GATEWAY_SECRET";
+
 	public static final String GRANT_TYPE = "password";
 	public static final String COUNTRY = "Country";
 	public static final String STATE = "State";

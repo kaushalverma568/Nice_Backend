@@ -75,15 +75,6 @@ public class CustomerAddress extends CommonModel {
 	@JoinColumn(name = "city_id")
 	private City city;
 
-	@Column(name = "state_name")
-	private String stateName;
-
-	@Column(name = "city_name")
-	private String cityName;
-
-	@Column(name = "pincode_value")
-	private String pincodeValue;
-
 	@Column(name = "default_address")
 	private boolean defaultAddress;
 

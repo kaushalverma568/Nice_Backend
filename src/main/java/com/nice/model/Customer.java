@@ -59,7 +59,7 @@ public class Customer extends CommonModel {
 	private String status;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "birthdate")
+	@Column(name = "birth_date")
 	private Date birthdate;
 
 }
