@@ -14,7 +14,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Role {
 
-	CUSTOMER("CUSTOMER"), SUPER_ADMIN("SUPER_ADMIN"), ADMIN("ADMIN"), MANAGER("MANAGER");
+	CUSTOMER("CUSTOMER"), SUPER_ADMIN("SUPER_ADMIN"), ADMIN("ADMIN"), MANAGER("MANAGER"), DELIVERY_BOY("DELIVERY_BOY");
 
 	String statusValue;
 

@@ -3,9 +3,12 @@
  */
 package com.nice.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -33,6 +36,56 @@ public final class Constant {
 	public static final long OTP_VALIDITY_TIME_IN_MIN = 30;
 	public static final String SORT_TYPE_ASC = "ASC";
 	public static final String SORT_TYPE_DESC = "DESC";
+	public static final String ADMIN = "Admin";
+	public static final String DELIVERY_BOY = "Delivery Boy";
+
+	/**
+	 * @return the adminRoles
+	 */
+	public static List<String> getAdminRoles() {
+		return ADMIN_ROLES;
+	}
+
+	private static final List<String> ADMIN_ROLES = Arrays.asList("ADMIN", "SUPER_ADMIN", "MANAGER");
+
+	/**
+	 * Settings Flags:
+	 */
+
+	private static String sendSMS = "false";
+	private static String sendEmail = "false";
+	private static String smsApiKey = "default";
+
+	/**
+	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public static void setSettingsValue(final String key, final String value) {
+		if ("SEND_SMS".equalsIgnoreCase(key)) {
+			sendSMS = value;
+		} else if ("SEND_EMAIL".equalsIgnoreCase(key)) {
+			sendEmail = value;
+		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
+			smsApiKey = value;
+		}
+	}
+
+	/**
+	 * @param  key
+	 * @return
+	 */
+	public static String getSettingsValue(final String key) {
+		if ("SEND_SMS".equalsIgnoreCase(key)) {
+			return sendSMS;
+		} else if ("SEND_EMAIL".equalsIgnoreCase(key)) {
+			return sendEmail;
+		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
+			return smsApiKey;
+		}
+		return null;
+	}
 
 	public static final String CAN_VIEW = "CAN_VIEW";
 	public static final String CAN_VIEW_LIST = "CAN_VIEW_LIST";
@@ -41,5 +94,8 @@ public final class Constant {
 	public static final String CAN_DELETE = "CAN_DELETE";
 	public static final String CAN_IMPORT = "CAN_IMPORT";
 	public static final String CAN_EXPORT = "CAN_EXPORT";
+
+	public static final String CLIENT_ID = "kody-client";
+	public static final String SECRET_ID = "kody-secret";
 
 }

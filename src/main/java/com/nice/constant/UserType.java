@@ -9,5 +9,5 @@ package com.nice.constant;
  */
 public enum UserType {
 
-	CUSTOMER, USERS, DELIVERY_BOY, POS_USER
+	CUSTOMER, USER, DELIVERY_BOY, POS_USER
 }
