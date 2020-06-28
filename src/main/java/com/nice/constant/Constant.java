@@ -38,6 +38,8 @@ public final class Constant {
 	public static final String SORT_TYPE_DESC = "DESC";
 	public static final String ADMIN = "Admin";
 	public static final String DELIVERY_BOY = "Delivery Boy";
+	public static final String BANNER = "Banner";
+	public static final int MAX_BANNER_IMAGES = 3;
 
 	/**
 	 * @return the adminRoles

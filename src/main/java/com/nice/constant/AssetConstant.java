@@ -22,4 +22,5 @@ public final class AssetConstant {
 	public static final String CATEGORY = "/category/";
 	public static final String SUB_CATEGORY = "/sub category/";
 	public static final String BRAND = "/brand/";
+	public static final String SLIDER_IMAGES = "/slider_images/";
 }
