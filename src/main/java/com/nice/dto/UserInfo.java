@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Mar-2020
+ * @date   : 29-Jun-2020
  */
 @Data
 public class UserInfo implements Serializable {

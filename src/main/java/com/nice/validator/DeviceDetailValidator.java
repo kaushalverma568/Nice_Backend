@@ -11,6 +11,10 @@ import com.nice.dto.DeviceDetailDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.DeviceDetailService;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 @Component
 public class DeviceDetailValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeviceDetailValidator.class);

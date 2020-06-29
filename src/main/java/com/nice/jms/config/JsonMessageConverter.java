@@ -10,14 +10,17 @@ import org.springframework.jms.support.converter.MessageConverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 public class JsonMessageConverter implements MessageConverter {
 
 	@Autowired
 	private ObjectMapper mapper;
 
 	/**
-	 * Converts message to JSON. Used mostly by
-	 * {@link org.springframework.jms.core.JmsTemplate}
+	 * Converts message to JSON. Used mostly by {@link org.springframework.jms.core.JmsTemplate}
 	 */
 	@Override
 	public javax.jms.Message toMessage(final Object object, final Session session) throws JMSException {

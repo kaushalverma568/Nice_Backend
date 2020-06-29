@@ -37,11 +37,14 @@ import com.nice.constant.Constant;
 import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserOtpTypeEnum;
+import com.nice.constant.UserType;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UserInfo;
+import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.UnAuthorizationException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.UserLogin;
@@ -49,6 +52,10 @@ import com.nice.response.GenericResponseHandlers;
 import com.nice.service.UserLoginService;
 import com.nice.util.OauthTokenUtil;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 @RestController
 @RequestMapping(value = "/user/login")
 public class UserLoginController {
@@ -134,7 +141,7 @@ public class UserLoginController {
 	 */
 	@GetMapping("/verify/email/{userId}")
 	public ModelAndView verifyEmail(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp)
-			throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException {
+			throws ValidationException, NotFoundException {
 		try {
 			userLoginService.verifyUser(userId, otp);
 			/**
@@ -217,7 +224,7 @@ public class UserLoginController {
 	 */
 	@PostMapping("/social")
 	public ResponseEntity<Object> socialLogin(@RequestBody @Valid final SocialLoginDto socialLoginDto, final BindingResult result)
-			throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException {
+			throws ValidationException, NotFoundException {
 		LOGGER.info(" Inside social Login for email {} ", socialLoginDto.getEmail());
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -244,4 +251,44 @@ public class UserLoginController {
 		}
 		LOGGER.info("Successfully Revoked token for user {}", userName);
 	}
+
+	@PostMapping("/admin/login")
+	public ResponseEntity<Object> adminLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+			throws ValidationException, NotFoundException, UnAuthorizationException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		userLoginDto.setUserType(UserType.USER.name());
+		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
+	}
+
+	@PostMapping("/customer/login")
+	public ResponseEntity<Object> customerLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+			throws ValidationException, NotFoundException, UnAuthorizationException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		userLoginDto.setUserType(UserType.CUSTOMER.name());
+		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
+	}
+
+	@PostMapping("/app/login")
+	public ResponseEntity<Object> deliveryBoyLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+			throws ValidationException, NotFoundException, UnAuthorizationException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		userLoginDto.setUserType(UserType.DELIVERY_BOY.name());
+		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
+	}
+
 }

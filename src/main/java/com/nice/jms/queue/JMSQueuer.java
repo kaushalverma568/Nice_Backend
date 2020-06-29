@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import com.nice.dto.Notification;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date   : 19-Feb-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
  */
 @Service
 public class JMSQueuer {

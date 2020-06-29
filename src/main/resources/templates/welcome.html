@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Untitled Document</title>
+    <style>
+        body {
+            /* background-color: #f2f2f2; */
+        }
+
+        table{
+            position: relative;
+        }
+
+        table {
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+        /* body>table{
+            max-width: 600px;
+            margin: 0px auto;
+        } */
+    </style>
+</head>
+
+<body>
+    <table background="{{grocerusBigLogo}}"  width="100%" border="0" bgcolor="#ffffff" cellspacing="0" cellpadding="0" style="max-width: 600px;margin: 0 auto;min-height: 380px;">
+        <tbody>
+            <tr>
+           	 <td style="color: #ffffff;font-size: 18px; line-height: 24px;font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;padding: 20px 20px 0 20px;">
+
+	            	<p style="font-size: 14px;">Welcome <span>{{customerName}}</span>,</p>
+
+	                <p style="font-size: 14px;">{{applicationName}} made grocery shopping easy with a wide range of options in every category exclusively handpicked for you. Join our online supermarket and enjoy your grocery shopping with us!</p>
+
+	               <p style="font-size: 14px;">For more info do visit: <a style="color: #5fd93a" href="{{customerUrl}}">{{customerUrl}}</a></p>
+
+                </td>
+
+                <td align="left" valign="top" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;padding: 0 15px 0 0;">
+                    <img src="{{grocerusLogo}}" alt="{{applicationName}}" style="margin-top: 20px;width: 150px;"> 
+                </td>
+                
+            </tr>
+            <tr>
+                <td colspan="2" align="left" style="color: #c1c0c0;font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;padding: 0 10px 0px 20px;">
+                	<p style="font-size: 14px;margin: 0 0 4px 0;">Thanks & Regards,</p>
+                	<span style="display: block;margin: 0 0 2px 0;">{{applicationName}} Customer Support.</span>
+                    <span style="display: block;margin: 0 0 2px 0;">Customer-care : {{customerCareContact}}</span>
+                    <span style="display: block;margin: 0 0 2px 0;">e-mail : {{customerCareEmail}}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

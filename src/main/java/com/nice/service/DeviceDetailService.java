@@ -9,6 +9,10 @@ import com.nice.dto.DeviceDetailDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.model.DeviceDetail;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 @Component
 public interface DeviceDetailService {
 	/**

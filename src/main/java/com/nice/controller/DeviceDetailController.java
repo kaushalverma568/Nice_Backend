@@ -29,9 +29,8 @@ import com.nice.service.DeviceDetailService;
 import com.nice.validator.DeviceDetailValidator;
 
 /**
- * @author      : Kody Technolab PVT. LTD.
- * @date        : 23-Mar-2020
- * @description : Discount Related APIs
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/device/details")
 @RestController

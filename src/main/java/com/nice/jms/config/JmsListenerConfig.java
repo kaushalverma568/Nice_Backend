@@ -9,6 +9,10 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 @EnableJms
 @Configuration
 public class JmsListenerConfig implements JmsListenerConfigurer {

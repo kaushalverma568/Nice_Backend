@@ -23,10 +23,6 @@ public class Notification extends CommonModel {
 
 	private Long customerId;
 
-	private Long orderId;
-
-	private Long taskId;
-
 	private String type;
 
 	private String otp;

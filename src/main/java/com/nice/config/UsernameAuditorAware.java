@@ -23,6 +23,10 @@ public class UsernameAuditorAware implements AuditorAware<Long> {
 			return Optional.ofNullable(2L);
 		}
 
-		return Optional.ofNullable(((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId());
+		if (authentication.getPrincipal().equals("anonymousUser")) {
+			return Optional.ofNullable(2L);
+		}
+
+		return Optional.ofNullable(((UserAwareUserDetails) authentication.getPrincipal()).getUser().getId());
 	}
 }

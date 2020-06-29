@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Dec-2019
+ * @date   : 29-Jun-2020
  */
 @Entity
 @Table(name = "users")

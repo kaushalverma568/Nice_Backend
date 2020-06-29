@@ -20,6 +20,10 @@ import com.nice.repository.DeviceDetailRepository;
 import com.nice.service.DeviceDetailService;
 import com.nice.service.UserLoginService;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
+ */
 @Service("deviceDetailService")
 @Transactional(rollbackOn = Throwable.class)
 public class DeviceDetailServiceImpl implements DeviceDetailService {

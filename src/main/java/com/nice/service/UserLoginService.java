@@ -4,10 +4,13 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UserInfo;
+import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.UnAuthorizationException;
 import com.nice.exception.ValidationException;
 import com.nice.model.UserLogin;
 
@@ -164,4 +167,12 @@ public interface UserLoginService {
 	 * @throws ValidationException
 	 */
 	void updateEmailForAdmin(String email) throws ValidationException;
+
+	/**
+	 * @param  userLoginDto
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
+	 */
+	LoginResponse checkUserLogin(UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException;
 }

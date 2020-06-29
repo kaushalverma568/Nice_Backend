@@ -9,11 +9,19 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +29,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
@@ -31,13 +43,16 @@ import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.LoginResponse;
 import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UserInfo;
+import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.BaseRuntimeException;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.UnAuthorizationException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
@@ -53,7 +68,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -134,11 +149,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		else if (!optUserLogin.get().getActive().booleanValue()) {
 			if (optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())) {
 				Customer customer = null;
-				// try {
-				// customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
-				// } catch (final NotFoundException e) {
-				// LOGGER.error("Customer not found for customer Id: {} ", optUserLogin.get().getEntityId());
-				// }
+				try {
+					customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
+				} catch (final NotFoundException e) {
+					LOGGER.error("Customer not found for customer Id: {} ", optUserLogin.get().getEntityId());
+				}
 				/**
 				 * If user status is deactivate: then send related message
 				 */
@@ -447,6 +462,52 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage("email.can.not.update", null));
 			}
 		}
+	}
+
+	@Override
+	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
+		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
+		return getAuthToken(url, userLoginDto);
+	}
+
+	private LoginResponse getAuthToken(final String url, final UserLoginDto userLoginDto) throws NotFoundException, UnAuthorizationException {
+
+		RestTemplate restTemplate = null;
+		LoginResponse result = null;
+		MultiValueMap<String, String> map = null;
+		HttpHeaders headers = null;
+
+		ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
+
+		restTemplate = new RestTemplate(requestFactory);
+
+		String plainCreds = Constant.CLIENT_ID + ":" + Constant.SECRET_ID;
+		byte[] plainCredsBytes = plainCreds.getBytes();
+		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		String base64Creds = new String(base64CredsBytes);
+
+		headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+		headers.add("Authorization", "Basic " + base64Creds);
+
+		map = new LinkedMultiValueMap<>();
+		map.add("grant_type", Constant.GRANT_TYPE);
+		map.add("username", userLoginDto.getUserName().concat("!!").concat(userLoginDto.getUserType()));
+		map.add("password", userLoginDto.getPassword());
+
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+		String outhURL = url + "oauth/token";
+		ResponseEntity<LoginResponse> response = restTemplate.postForEntity(outhURL, request, LoginResponse.class);
+		result = response.getBody();
+		if (result.getStatus() == (HttpStatus.UNAUTHORIZED.value())) {
+			throw new UnAuthorizationException(result.getMessage());
+		}
+		UserInfo userInfo = getUserInfo(userLoginDto.getUserName());
+		BeanUtils.copyProperties(userInfo, result);
+		result.setUserId(userInfo.getId());
+
+		return result;
 	}
 
 }

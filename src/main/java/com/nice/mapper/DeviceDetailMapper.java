@@ -11,7 +11,7 @@ import com.nice.model.DeviceDetail;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jan-2020
+ * @date   : 29-Jun-2020
  */
 @Component
 public class DeviceDetailMapper {

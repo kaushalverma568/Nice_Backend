@@ -35,8 +35,8 @@ import com.nice.util.EmailUtil;
 import net.sf.jasperreports.engine.JRException;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date   : 19-Feb-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {

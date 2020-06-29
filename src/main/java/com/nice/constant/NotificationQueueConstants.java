@@ -10,13 +10,13 @@ public final class NotificationQueueConstants {
 		super();
 	}
 
-	public static final String GENERAL_QUEUE = "Grocerus General Queue";
+	public static final String GENERAL_QUEUE = "Nice General Queue";
 	public static final String CUSTOMER_REGISTRATION = "Customer Registration";
 	public static final String EMAIL_VERIFICATION = "Email Verification";
 	public static final String FORGOT_PASSWORD = "Forgot Password";
 	public static final String PLACE_ORDER = "Place Order";
 	public static final String PAYMENT_CONFIRMATION = "Payment Confirmation";
-	public static final String NON_NOTIFICATION_QUEUE = "Grocerus Non Notification Queue";
+	public static final String NON_NOTIFICATION_QUEUE = "Nice Non Notification Queue";
 	public static final String SEND_OTP = "Send OTP";
 	public static final String SMS_QUEUE = "Grocerus SMS Queue";
 	public static final String ORDER_DELIVERY_CONFIRMATION = "Order Delivery Confirmation";
