@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -77,6 +78,7 @@ public class ModulesController {
 	 * @throws ValidationException
 	 */
 	@PostMapping()
+	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
 	public ResponseEntity<Object> addModule(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final ModulesDTO moduleDTO,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add module {}", moduleDTO);
@@ -102,6 +104,7 @@ public class ModulesController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping()
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> updateModule(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final ModulesDTO moduleDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update module {}", moduleDTO);
@@ -126,6 +129,7 @@ public class ModulesController {
 	 */
 
 	@GetMapping(value = "/{moduleId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
 	public ResponseEntity<Object> getModule(@RequestHeader("Authorization") final String accessToken, @PathVariable("moduleId") final Long moduleId)
 			throws NotFoundException {
 		ModulesDTO resultres = modulesService.getModule(moduleId);
@@ -144,6 +148,7 @@ public class ModulesController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getModuleList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<Modules> resultRes = modulesService.getModuleList(pageNumber, pageSize, activeRecords);
@@ -165,6 +170,7 @@ public class ModulesController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{moduleId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("moduleId") final Long moduleId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of module of id {} and status {}", moduleId, isActive);

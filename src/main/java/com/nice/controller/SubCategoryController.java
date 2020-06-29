@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -94,6 +95,7 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Masters','CAN_ADD')")
 	public ResponseEntity<Object> addSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
 			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
@@ -120,6 +122,7 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
 	public ResponseEntity<Object> updateSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
 			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
@@ -143,6 +146,7 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{subCategoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_VIEW')")
 	public ResponseEntity<Object> getSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException {
 		LOGGER.info("Inside get sub category for id:{}", subCategoryId);
@@ -162,6 +166,7 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Masters','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getSubCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "categoryId", required = false) final Long categoryId) throws NotFoundException {
@@ -183,6 +188,7 @@ public class SubCategoryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{subCategoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
@@ -202,6 +208,7 @@ public class SubCategoryController {
 	 * @throws ValidationException
 	 */
 	@DeleteMapping("/{subCategoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_DELETE')")
 	public ResponseEntity<Object> deleteSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException, ValidationException {
 		subCategoryService.deleteSubCategory(subCategoryId);
@@ -224,6 +231,7 @@ public class SubCategoryController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
+	@PreAuthorize("hasPermission('Masters','CAN_EXPORT')")
 	public ResponseEntity<Object> exportSubCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
 		subCategoryService.exportSubCategoryList(httpServletResponse);
@@ -241,6 +249,7 @@ public class SubCategoryController {
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Masters','CAN_IMPORT')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {

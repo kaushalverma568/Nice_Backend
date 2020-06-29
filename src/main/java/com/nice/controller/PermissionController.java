@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -81,6 +82,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
 	public ResponseEntity<Object> addPermission(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final PermissionDTO permissionDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add permission {}", permissionDTO);
@@ -105,6 +107,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> updatePermission(@RequestHeader("Authorization") @RequestBody @Valid final PermissionDTO permissionDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update permission {}", permissionDTO);
@@ -129,6 +132,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{permissionId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
 	public ResponseEntity<Object> getPermission(@RequestHeader("Authorization") final String accessToken, @PathVariable("permissionId") final Long permissionId)
 			throws NotFoundException {
 		PermissionResponseDTO resultres = permissionService.getPermission(permissionId);
@@ -149,6 +153,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getPermissionList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "roleId", required = false) final Long roleId, @RequestParam(name = "moduleId", required = false) final Long moduleId)
@@ -171,6 +176,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{permissionId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("permissionId") final Long permissionId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of permission ofr id {} and status {}", permissionId, isActive);

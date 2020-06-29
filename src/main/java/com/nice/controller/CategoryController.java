@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -98,6 +99,7 @@ public class CategoryController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Masters','CAN_ADD')")
 	public ResponseEntity<Object> addCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
 			throws ValidationException, NotFoundException {
@@ -124,6 +126,7 @@ public class CategoryController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
 	public ResponseEntity<Object> updateCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
 			throws ValidationException, NotFoundException {
@@ -148,6 +151,7 @@ public class CategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{categoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_VIEW')")
 	public ResponseEntity<Object> getCategory(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Category ");
@@ -167,6 +171,7 @@ public class CategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Masters','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
@@ -188,6 +193,7 @@ public class CategoryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{categoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of category of id {} and status {}", categoryId, active);
@@ -206,6 +212,7 @@ public class CategoryController {
 	 * @throws ValidationException
 	 */
 	@DeleteMapping("/{categoryId}")
+	@PreAuthorize("hasPermission('Masters','CAN_DELETE')")
 	public ResponseEntity<Object> deleteCategory(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
 			throws NotFoundException, ValidationException {
 		categoryService.deleteCategory(categoryId);
@@ -226,6 +233,7 @@ public class CategoryController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
+	@PreAuthorize("hasPermission('Masters','CAN_EXPORT')")
 	public ResponseEntity<Object> exportCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
 		categoryService.exportCategoryList(httpServletResponse);
@@ -243,6 +251,7 @@ public class CategoryController {
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Masters','CAN_IMPORT')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {

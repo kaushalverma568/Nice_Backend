@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -68,6 +69,7 @@ public class RoleController {
 	}
 
 	@PostMapping
+	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
 	public ResponseEntity<Object> addRole(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final RoleDTO roleDto,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add role {}", roleDto);
@@ -84,6 +86,7 @@ public class RoleController {
 	}
 
 	@PutMapping
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> updateRole(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final RoleDTO roleDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update role {}", roleDTO);
@@ -99,6 +102,7 @@ public class RoleController {
 	}
 
 	@GetMapping("/{roleId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
 	public ResponseEntity<Object> getRole(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId)
 			throws NotFoundException {
 		RoleDTO resultres = roleService.getRole(roleId);
@@ -116,6 +120,7 @@ public class RoleController {
 	 * @return
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getRoleList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<Role> resultRes = roleService.getRoleList(pageNumber, pageSize, activeRecords);
@@ -126,6 +131,7 @@ public class RoleController {
 	}
 
 	@PutMapping("/status/{roleId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of role of id {} and status {}", roleId, isActive);

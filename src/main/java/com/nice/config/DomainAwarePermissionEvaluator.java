@@ -52,7 +52,7 @@ class DomainAwarePermissionEvaluator implements PermissionEvaluator {
 					isAuthorized = permission.get(permissionName);
 				}
 			} catch (final ValidationException e) {
-				LOGGER.info("Validation exception.");
+				LOGGER.info("Validation exception. :{}", e.getMessage());
 			}
 
 			return isAuthorized;

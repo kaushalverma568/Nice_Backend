@@ -173,6 +173,9 @@ public class PermissionServiceImpl implements PermissionService {
 	@Override
 	public Map<String, Boolean> getRoleAndModuleWisePermission(final String role, final String moduleName) throws ValidationException {
 		Permission permission = permissionRepository.getRoleAndModuleWisePermission(role, moduleName);
+		if (permission == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("permission.not.found.role", new Object[] { role, moduleName }));
+		}
 		final Map<String, Boolean> permissionMap = new HashMap<>();
 		permissionMap.put(Constant.CAN_ADD, permission.getCanAdd());
 		permissionMap.put(Constant.CAN_EDIT, permission.getCanEdit());
