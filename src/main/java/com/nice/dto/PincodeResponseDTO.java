@@ -26,5 +26,4 @@ public class PincodeResponseDTO implements Serializable {
 
 	private Boolean active;
 
-	private Boolean isDefault;
 }

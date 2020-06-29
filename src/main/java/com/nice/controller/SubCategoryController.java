@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,9 +44,8 @@ import com.nice.service.SubCategoryService;
 import com.nice.validator.SubCategoryValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/subcategory")
 @RestController
@@ -57,8 +55,7 @@ public class SubCategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SubCategoryController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -88,8 +85,8 @@ public class SubCategoryController {
 	/**
 	 * Add sub category
 	 *
-	 * @param subCategoryDTO
-	 * @param result
+	 * @param  subCategoryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -115,8 +112,8 @@ public class SubCategoryController {
 	/**
 	 * Update sub category
 	 *
-	 * @param subCategoryDTO
-	 * @param result
+	 * @param  subCategoryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -141,7 +138,7 @@ public class SubCategoryController {
 	/**
 	 * Get sub category
 	 *
-	 * @param subCategoryId
+	 * @param  subCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -158,10 +155,10 @@ public class SubCategoryController {
 	/**
 	 * Get sub category List
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -181,8 +178,8 @@ public class SubCategoryController {
 	/**
 	 * Change Status of sub category (Active/DeActive)
 	 *
-	 * @param subCategoryId
-	 * @param active
+	 * @param  subCategoryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -199,31 +196,12 @@ public class SubCategoryController {
 	}
 
 	/**
-	 * Remove sub category By subCategoryId
-	 *
-	 * @param accessToken
-	 * @param subCategoryId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@DeleteMapping("/{subCategoryId}")
-	@PreAuthorize("hasPermission('Sub Category','CAN_DELETE')")
-	public ResponseEntity<Object> deleteSubCategory(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException, ValidationException {
-		subCategoryService.deleteSubCategory(subCategoryId);
-		LOGGER.info("OutSide delete Sub Category for id:{}", subCategoryId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.delete.message", null))
-				.create();
-	}
-
-	/**
 	 * export sub category list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws IOException
@@ -242,9 +220,9 @@ public class SubCategoryController {
 	/**
 	 * Upload sub category
 	 *
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
