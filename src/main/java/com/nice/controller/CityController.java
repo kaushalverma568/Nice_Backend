@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,7 +40,7 @@ import com.nice.validator.CityValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @RequestMapping(path = "/city")
 @RestController
@@ -77,14 +78,15 @@ public class CityController {
 	/**
 	 * Add City
 	 *
-	 * @param  accessToken
-	 * @param  cityDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param cityDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('City','CAN_ADD')")
 	public ResponseEntity<Object> addCity(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CityDTO cityDTO,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add city {}", cityDTO);
@@ -110,14 +112,15 @@ public class CityController {
 	/**
 	 * Update City
 	 *
-	 * @param  accessToken
-	 * @param  cityDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param cityDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('City','CAN_EDIT')")
 	public ResponseEntity<Object> updateCity(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CityDTO cityDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update city {}", cityDTO);
@@ -142,11 +145,12 @@ public class CityController {
 	/**
 	 * Get City Details based on id
 	 *
-	 * @param  cityId
+	 * @param cityId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{cityId}")
+	@PreAuthorize("hasPermission('City','CAN_VIEW')")
 	public ResponseEntity<Object> getCity(@PathVariable("cityId") final Long cityId) throws NotFoundException {
 		final CityResponseDTO cityResponseDTO = cityService.getCity(cityId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.detail.message", null))
@@ -156,15 +160,16 @@ public class CityController {
 	/**
 	 * Get City list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  stateId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param stateId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('City','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCityListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "stateId", required = false) final Long stateId,
@@ -183,14 +188,15 @@ public class CityController {
 	/**
 	 * Change status of city (active/deActive)
 	 *
-	 * @param  accessToken
-	 * @param  cityId
-	 * @param  active
+	 * @param accessToken
+	 * @param cityId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{cityId}")
+	@PreAuthorize("hasPermission('City','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("cityId") final Long cityId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of city for id {} and new status {}", cityId, active);

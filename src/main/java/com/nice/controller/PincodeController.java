@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,7 +40,7 @@ import com.nice.validator.PincodeValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @RequestMapping(path = "/pincode")
 @RestController
@@ -77,15 +78,16 @@ public class PincodeController {
 	/**
 	 * Add Pincode
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  pincodeDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param pincodeDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Pincode','CAN_ADD')")
 	public ResponseEntity<Object> addPincode(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final PincodeDTO pincodeDTO,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add pincode {}", pincodeDTO);
@@ -102,11 +104,12 @@ public class PincodeController {
 	/**
 	 * Get Pincode Details based on id
 	 *
-	 * @param  pincodeId
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{pincodeId}")
+	@PreAuthorize("hasPermission('Pincode','CAN_VIEW')")
 	public ResponseEntity<Object> getPincode(@PathVariable("pincodeId") final Long pincodeId) throws NotFoundException {
 		final PincodeResponseDTO pincodeResponseDTO = pincodeService.getPincode(pincodeId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("pincode.detail.message", null))
@@ -116,15 +119,16 @@ public class PincodeController {
 	/**
 	 * Get Pincode list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  cityId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param cityId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Pincode','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getPincodeListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "cityId", required = false) final Long cityId,
@@ -143,15 +147,16 @@ public class PincodeController {
 	/**
 	 * Change status of pin code (active/deActive)
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  pincodeId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param pincodeId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{pincodeId}")
+	@PreAuthorize("hasPermission('Pincode','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("pincodeId") final Long pincodeId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of pincode for id {} and new status {}", pincodeId, active);
