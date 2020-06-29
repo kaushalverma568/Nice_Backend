@@ -18,6 +18,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.UserOtpMapper;
 import com.nice.model.UserLogin;
@@ -50,8 +51,8 @@ public class OtpServiceImpl implements OtpService {
 	@Autowired
 	private SMSUtil smsUtil;
 
-	// @Autowired
-	// private JMSQueuerService jmsQueuerService;
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtpServiceImpl.class);
 
@@ -106,7 +107,7 @@ public class OtpServiceImpl implements OtpService {
 			notification.setOtp(otp);
 			notification.setEmail(userlogin.getEmail());
 			notification.setType(NotificationQueueConstants.SEND_OTP);
-			// jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 		} else if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(userOtpDto.getType())) {
 			String otpMessage = "OTP for your Raasa application is : ";
 			if (userOtpDto.getPhoneNumber() == null || userOtpDto.getPhoneNumber().isEmpty()) {

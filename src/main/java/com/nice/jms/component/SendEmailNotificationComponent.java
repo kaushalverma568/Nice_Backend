@@ -88,7 +88,7 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		if (NotificationQueueConstants.CUSTOMER_REGISTRATION.equals(emailNotification.getType())) {
 			customerRegistration(emailNotification);
-		} else if (NotificationQueueConstants.FORGOT_PASSWORD.equals(emailNotification.getType())) {
+		} else if (NotificationQueueConstants.FORGOT_PWD.equals(emailNotification.getType())) {
 			forgotPassword(emailNotification);
 		}
 	}

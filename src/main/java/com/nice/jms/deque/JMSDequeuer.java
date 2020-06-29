@@ -40,8 +40,7 @@ public class JMSDequeuer {
 	 */
 	@JmsListener(destination = NotificationQueueConstants.GENERAL_QUEUE)
 	@JsonDeserialize(as = Notification.class)
-	public void receiveAllEmails(@Payload final Notification notification)
-			throws IOException, GeneralSecurityException, MessagingException, NotFoundException/* , JRException */, ValidationException {
+	public void receiveAllEmails(@Payload final Notification notification) throws IOException, GeneralSecurityException, MessagingException, NotFoundException {
 		sendEmailNotificationComponent.sendEmaillNotification(notification);
 	}
 
@@ -57,7 +56,7 @@ public class JMSDequeuer {
 	@JmsListener(destination = NotificationQueueConstants.NON_NOTIFICATION_QUEUE)
 	@JsonDeserialize(as = Notification.class)
 	public void receiveAllNonNotificationEmails(@Payload final Notification notification)
-			throws IOException, GeneralSecurityException, MessagingException, NotFoundException/* , JRException */, ValidationException {
+			throws IOException, GeneralSecurityException, MessagingException, NotFoundException {
 		sendEmailNotificationComponent.sendEmaillNotification(notification);
 	}
 

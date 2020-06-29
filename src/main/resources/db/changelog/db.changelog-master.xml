@@ -37,4 +37,10 @@
 				path="sql-files/1.0/company_insert.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	<changeSet id="6" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/users.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

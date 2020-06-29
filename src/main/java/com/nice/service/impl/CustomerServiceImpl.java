@@ -32,6 +32,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CustomerMapper;
 import com.nice.model.Customer;
@@ -75,8 +76,8 @@ public class CustomerServiceImpl implements CustomerService {
 	@Autowired
 	private ExportCSV exportCSV;
 
-	// @Autowired
-	// private JMSQueuerService jmsQueuerService;
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
 
 	@Override
 	public Long addCustomer(final CustomerDTO customersDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
@@ -127,7 +128,7 @@ public class CustomerServiceImpl implements CustomerService {
 		} else {
 			userLogin.setPassword(customersDTO.getPassword());
 		}
-		userLogin = userLoginService.addUserLogin(userLogin, 1L);
+		userLogin = userLoginService.addUserLogin(userLogin);
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
@@ -165,7 +166,7 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setCustomerId(userId);
 		notification.setEmail(email);
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
-		// jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
 	@Override
@@ -314,12 +315,8 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customerDTO.getEmail());
 		if (optUserLogin.isPresent()) {
-			if (customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
-					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())) {
-				return false;
-			} else {
-				return true;
-			}
+			return (!(customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
+					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())));
 		} else {
 			return false;
 		}

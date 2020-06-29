@@ -18,6 +18,7 @@ import com.nice.model.City;
 import com.nice.model.Pincode;
 import com.nice.repository.PincodeRepository;
 import com.nice.service.CityService;
+import com.nice.service.CustomerAddressService;
 import com.nice.service.PincodeService;
 
 /**
@@ -42,8 +43,8 @@ public class PincodeServiceImpl implements PincodeService {
 	@Autowired
 	private PincodeMapper pincodeMapper;
 
-	// @Autowired
-	// private CustomerAddressService customerAddressService;
+	@Autowired
+	private CustomerAddressService customerAddressService;
 
 	@Override
 	public void addPincode(final PincodeDTO pincodeDTO) throws ValidationException, NotFoundException {
@@ -107,7 +108,7 @@ public class PincodeServiceImpl implements PincodeService {
 			/**
 			 * Delete all the customer address for the pincode
 			 */
-			// customerAddressService.deleteAllAddressByPincode(existingPincode, userId);
+			customerAddressService.deleteAllAddressByPincode(existingPincode);
 
 		} else {
 			if (Boolean.FALSE.equals(existingPincode.getCity().getActive())) {

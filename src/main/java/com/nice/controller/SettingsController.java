@@ -44,6 +44,8 @@ public class SettingsController {
 	 */
 	private static final String VALIDATION_FAILED_FOR_SETTINGS = "Validation Failed for Settings ";
 
+	private static final String SETTING_DETAIL = "settings.detail.message";
+
 	@Autowired
 	private SettingsService settingsService;
 
@@ -132,7 +134,7 @@ public class SettingsController {
 		LOGGER.info("Get Setting for : {}", id);
 		SettingsDto settingsDto = settingsService.getSettingsDetailsById(id);
 		LOGGER.info("Details fetched successfully{}", settingsDto);
-		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage("settings.detail.message", null))
+		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage(SETTING_DETAIL, null))
 				.setStatus(HttpStatus.OK).create();
 	}
 
@@ -163,7 +165,7 @@ public class SettingsController {
 				: settingsService.getSettingsDetailsByNameForNonEncryptedFields(fieldName);
 
 		LOGGER.info("Details fetched successfully{}", settingsDto);
-		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage("settings.detail.message", null))
+		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage(SETTING_DETAIL, null))
 				.setStatus(HttpStatus.OK).create();
 	}
 
@@ -172,7 +174,7 @@ public class SettingsController {
 			throws ValidationException {
 		LOGGER.info("Inside getAll Settings Details");
 		SettingsDto settingsDto = settingsService.getSettingsDetailsByFieldName(fieldName);
-		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage("settings.detail.message", null))
+		return new GenericResponseHandlers.Builder().setData(settingsDto).setMessage(messageByLocaleService.getMessage(SETTING_DETAIL, null))
 				.setStatus(HttpStatus.OK).create();
 	}
 
