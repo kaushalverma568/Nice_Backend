@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,7 +40,7 @@ import com.nice.validator.StateValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @RequestMapping(path = "/state")
 @RestController
@@ -77,14 +78,15 @@ public class StateController {
 	/**
 	 * Add State
 	 *
-	 * @param  accessToken
-	 * @param  stateDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param stateDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('State','CAN_ADD')")
 	public ResponseEntity<Object> addState(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final StateDTO stateDTO,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add state {}", stateDTO);
@@ -111,14 +113,15 @@ public class StateController {
 	/**
 	 * Update State
 	 *
-	 * @param  accessToken
-	 * @param  stateDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param stateDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('State','CAN_EDIT')")
 	public ResponseEntity<Object> updateState(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final StateDTO stateDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update state {}", stateDTO);
@@ -144,11 +147,12 @@ public class StateController {
 	/**
 	 * Get State Details based on id
 	 *
-	 * @param  stateId
+	 * @param stateId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{stateId}")
+	@PreAuthorize("hasPermission('State','CAN_VIEW')")
 	public ResponseEntity<Object> getState(@PathVariable("stateId") final Long stateId) throws NotFoundException {
 		final StateResponseDTO stateResponseDTO = stateService.getState(stateId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("state.detail.message", null))
@@ -158,15 +162,16 @@ public class StateController {
 	/**
 	 * Get state list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  countryId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param countryId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('State','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getStateListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "countryId", required = false) final Long countryId,
@@ -185,14 +190,15 @@ public class StateController {
 	/**
 	 * Change status of state (active/deActive)
 	 *
-	 * @param  accessToken
-	 * @param  stateId
-	 * @param  active
+	 * @param accessToken
+	 * @param stateId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{stateId}")
+	@PreAuthorize("hasPermission('State','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("stateId") final Long stateId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of state for id {} and status {}", stateId, active);
