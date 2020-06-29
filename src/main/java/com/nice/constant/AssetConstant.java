@@ -23,6 +23,7 @@ public final class AssetConstant {
 	public static final String SUB_CATEGORY = "/sub category/";
 	public static final String BRAND = "/brand/";
 	public static final String SLIDER_IMAGES = "/slider_images/";
-	
+
 	public static final String BUSINESS_CATEGORY_DIR = "/business/category";
+	public static final String CUISINE = "/cuisine/";
 }

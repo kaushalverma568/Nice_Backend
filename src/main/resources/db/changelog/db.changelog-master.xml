@@ -44,4 +44,11 @@
 				path="sql-files/1.0/Business_category_and_subscription_plan.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	
+	<changeSet id="7" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/cuisine.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 </databaseChangeLog>
