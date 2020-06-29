@@ -20,6 +20,7 @@ public class CustomerAddressMapper {
 	public CustomerAddressResponseDTO toDto(final CustomerAddress customersAddress) {
 		CustomerAddressResponseDTO customersAddressResponseDTO = new CustomerAddressResponseDTO();
 		BeanUtils.copyProperties(customersAddress, customersAddressResponseDTO);
+		customersAddressResponseDTO.setCustomerId(customersAddress.getCustomer().getId());
 		customersAddressResponseDTO.setCountryId(customersAddress.getCountry().getId());
 		customersAddressResponseDTO.setCountryName(customersAddress.getCountry().getName());
 		if (customersAddress.getState() != null) {

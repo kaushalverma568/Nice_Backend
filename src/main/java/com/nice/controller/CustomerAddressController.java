@@ -135,7 +135,7 @@ public class CustomerAddressController {
 		 * Added to handle the country in this, default it will be 1
 		 */
 		customerAddressDTO.setCountryId(1L);
-
+		customerAddressDTO.setStateId(1L);
 		/**
 		 * Addition for country ends
 		 */

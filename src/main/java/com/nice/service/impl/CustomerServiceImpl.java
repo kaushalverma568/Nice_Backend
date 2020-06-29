@@ -17,9 +17,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.Role;
@@ -292,11 +294,11 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public void verifyPhoneNumber(final Long customerId, final String phoneNumber, final String otp, final Long userId)
-			throws NotFoundException, ValidationException {
+	public void verifyPhoneNumber(final Long customerId, final String phoneNumber, final String otp) throws NotFoundException, ValidationException {
 		if (customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, customerId).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("customer.phone.exists", null));
 		}
+		Long userId = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId();
 		if (otpService.verifyOtp(userId, UserOtpTypeEnum.SMS.name(), otp)) {
 			Customer customer = getCustomerDetails(customerId);
 			customer.setPhoneNumber(phoneNumber);
