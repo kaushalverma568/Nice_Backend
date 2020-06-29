@@ -1,7 +1,5 @@
 package com.nice.service;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 import javax.mail.MessagingException;
@@ -105,19 +103,15 @@ public interface UserLoginService {
 	 * Social login using Facebook and Google
 	 *
 	 * @param  socialLoginDto
+	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws MessagingException
-	 * @throws IOException
-	 * @throws GeneralSecurityException
 	 */
-	SocialLoginDto socialLogin(SocialLoginDto socialLoginDto)
-			throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException;
+	SocialLoginDto socialLogin(SocialLoginDto socialLoginDto) throws ValidationException, NotFoundException;
 
 	/**
 	 * Get user login based on entityId and entityType
 	 *
-	 * @param  email
 	 * @param  entityId
 	 * @param  entityType
 	 * @return
@@ -132,11 +126,8 @@ public interface UserLoginService {
 	 * @param  otp
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws MessagingException
-	 * @throws IOException
-	 * @throws GeneralSecurityException
 	 */
-	void verifyUser(Long userId, String otp) throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException;
+	void verifyUser(Long userId, String otp) throws ValidationException, NotFoundException;
 
 	/**
 	 * Update password based on login user and old password

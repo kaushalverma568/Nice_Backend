@@ -1,7 +1,5 @@
 package com.nice.service.impl;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -291,8 +289,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public SocialLoginDto socialLogin(final SocialLoginDto socialLoginDto)
-			throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException {
+	public SocialLoginDto socialLogin(final SocialLoginDto socialLoginDto) throws ValidationException, NotFoundException {
 		socialLoginDto.setClientId(Constant.CLIENT_ID);
 		socialLoginDto.setClientSecret(Constant.SECRET_ID);
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmail(socialLoginDto.getEmail());
@@ -369,8 +366,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void verifyUser(final Long userId, final String otp)
-			throws ValidationException, NotFoundException, GeneralSecurityException, IOException, MessagingException {
+	public void verifyUser(final Long userId, final String otp) throws ValidationException, NotFoundException {
 		/**
 		 * Here the logic for userOtp verification.</br>
 		 * Here we have check only for Email.
