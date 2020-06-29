@@ -17,16 +17,15 @@ import com.nice.model.Category;
 import com.nice.model.SubCategory;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 public interface SubCategoryService {
 	/**
 	 * persist sub category object
 	 *
-	 * @param subCategoryDTO
-	 * @param image
+	 * @param  subCategoryDTO
+	 * @param  image
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -36,8 +35,8 @@ public interface SubCategoryService {
 	/**
 	 * update sub category
 	 *
-	 * @param subCategoryDTO
-	 * @param image
+	 * @param  subCategoryDTO
+	 * @param  image
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -47,7 +46,7 @@ public interface SubCategoryService {
 	/**
 	 * get DTO object of sub category
 	 *
-	 * @param subCategoryId
+	 * @param  subCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -56,10 +55,10 @@ public interface SubCategoryService {
 	/**
 	 * get list of sub categories
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param allRecords
-	 * @param categoryId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  allRecords
+	 * @param  categoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -68,8 +67,8 @@ public interface SubCategoryService {
 	/**
 	 * change status of sub category (active/deActive)
 	 *
-	 * @param subCategoryId
-	 * @param isActive
+	 * @param  subCategoryId
+	 * @param  isActive
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -78,7 +77,7 @@ public interface SubCategoryService {
 	/**
 	 * check sub category duplication and returning Boolean value.
 	 *
-	 * @param subCategoryDTO
+	 * @param  subCategoryDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -88,8 +87,8 @@ public interface SubCategoryService {
 	/**
 	 * get list of sub categories by category and active
 	 *
-	 * @param category
-	 * @param active
+	 * @param  category
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -99,25 +98,16 @@ public interface SubCategoryService {
 	/**
 	 * get detail object of sub category
 	 *
-	 * @param subCategoryId
+	 * @param  subCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	SubCategory getSubCategoryDetail(Long subCategoryId) throws NotFoundException;
 
 	/**
-	 * delete sub category by sub categoryId
-	 *
-	 * @param subCategoryId
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	void deleteSubCategory(Long subCategoryId) throws NotFoundException, ValidationException;
-
-	/**
 	 * get sub category list by category
 	 *
-	 * @param category
+	 * @param  category
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -127,7 +117,7 @@ public interface SubCategoryService {
 	/**
 	 * export of sub category
 	 *
-	 * @param httpServletResponse
+	 * @param  httpServletResponse
 	 * @throws FileOperationException
 	 * @throws IOException
 	 */
@@ -136,9 +126,8 @@ public interface SubCategoryService {
 	/**
 	 * upload file
 	 *
-	 * @param file
-	 * 
-	 * @param httpServletResponse
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
@@ -146,8 +135,8 @@ public interface SubCategoryService {
 	/**
 	 * get sub category list by active and search keyword
 	 *
-	 * @param active
-	 * @param searchKeyword
+	 * @param  active
+	 * @param  searchKeyword
 	 * @return
 	 */
 	List<SubCategory> getSubCategoryList(Boolean active, String searchKeyword);

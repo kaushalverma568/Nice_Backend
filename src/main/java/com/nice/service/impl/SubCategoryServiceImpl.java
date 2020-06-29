@@ -43,11 +43,10 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 23-Mar-2020
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 23-Mar-2020
  * @description :
  */
-
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
 public class SubCategoryServiceImpl implements SubCategoryService {
@@ -205,14 +204,6 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 		}
 	}
 
-	@Override
-	public void deleteSubCategory(final Long subCategoryId) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside delete Sub Category for id:{}", subCategoryId);
-		SubCategory subCategory = getSubCategoryDetail(subCategoryId);
-		deleteOldImage(subCategory);
-		subCategoryRepository.deleteById(subCategoryId);
-	}
-
 	/**
 	 * upload image of sub category
 	 *
@@ -269,8 +260,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param subCategoryImports
-	 * @param userId
+	 * @param  subCategoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {
