@@ -129,7 +129,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?userId=" + emailNotification.getCustomerId() + "&otp="
 						+ emailNotification.getOtp() + "&userType=" + Constant.CUSTOMER);
 			} else if (Constant.ADMIN.equalsIgnoreCase(emailNotification.getUserType())) {
-				emailParameterMap.put("forgotPasswordUrl", adminUrl + "#/authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
+				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ Constant.ADMIN + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&userId=" + emailNotification.getCustomerId());
 			}
 			emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,

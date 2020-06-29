@@ -152,9 +152,9 @@ public class UserLoginController {
 			 * send email code ends from here
 			 */
 			String message = "Verifcation successfully";
-			return new ModelAndView(REDIRECT + customerUrl + "#/thank-you?message=" + message + TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(REDIRECT + customerUrl + "thank-you?message=" + message + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		} catch (Exception e) {
-			return new ModelAndView(REDIRECT + customerUrl + "#/failed-error?message=" + e.getMessage() + TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(REDIRECT + customerUrl + "failed-error?message=" + e.getMessage() + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		}
 	}
 
