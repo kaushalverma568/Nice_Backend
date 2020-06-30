@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jan-2020
+ * @date   : 30-Jun-2020
  */
 @Data
 public class PasswordDTO implements Serializable {

@@ -33,9 +33,8 @@ import com.nice.validator.HtmlSectionValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jan-2020
+ * @date   : 30-Jun-2020
  */
-
 @RequestMapping(path = "/sections")
 @RestController
 public class HtmlSectionController {
@@ -72,9 +71,9 @@ public class HtmlSectionController {
 	/**
 	 * add section
 	 *
-	 * @param userId
-	 * @param readyMadeSizeDTO
-	 * @param result
+	 * @param  userId
+	 * @param  readyMadeSizeDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -97,9 +96,9 @@ public class HtmlSectionController {
 	/**
 	 * update section
 	 *
-	 * @param userId
-	 * @param sectionDTO
-	 * @param result
+	 * @param  userId
+	 * @param  sectionDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

@@ -14,9 +14,8 @@ import com.nice.service.HtmlSectionService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jan-2020
+ * @date   : 30-Jun-2020
  */
-
 @Component
 public class HtmlSectionValidator implements Validator {
 

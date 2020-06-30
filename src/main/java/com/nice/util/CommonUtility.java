@@ -164,4 +164,8 @@ public class CommonUtility {
 		return Date.from(convetUtilDatetoLocalDate(date).plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	public static Date convertLocalDateToUtilDate(final LocalDate localDate) {
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
 }

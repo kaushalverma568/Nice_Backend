@@ -11,12 +11,6 @@
 			path="sql-files/1.0/initialSchema.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
-	<changeSet id="4" author="het.shah"
-		context="post-process-db-changes">
-		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
-			path="sql-files/1.0/html_section_and_slider_image.sql" relativeToChangelogFile="true"
-			splitStatements="true" stripComments="true" />
-	</changeSet>
 
 	<changeSet id="2" author="ankit.bhimani"
 			context="post-process-db-changes">
@@ -30,6 +24,13 @@
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/device_details.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
+	<changeSet id="4" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/html_section_and_slider_image.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
 	</changeSet>
 	<changeSet id="5" author="ronit.macwan"
 			context="post-process-db-changes">
@@ -55,7 +56,6 @@
 			path="sql-files/1.0/uom.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
-	
 	<changeSet id="9" author="nisha.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -67,6 +67,12 @@
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/cuisine.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="11" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/scheduler_details.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
 </databaseChangeLog>

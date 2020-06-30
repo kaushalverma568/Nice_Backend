@@ -45,5 +45,5 @@ public class CustomerDTO implements Serializable {
 
 	private String password;
 
-	private Date birthdate;
+	private Date birthDate;
 }

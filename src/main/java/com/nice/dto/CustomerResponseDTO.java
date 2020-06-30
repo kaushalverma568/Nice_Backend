@@ -31,8 +31,7 @@ public class CustomerResponseDTO implements Serializable {
 	private Boolean mobileVerified;
 	private Date createdAt;
 	private String status;
-	private String type;
-	private Date birthdate;
+	private Date birthDate;
 	private List<CustomerAddressResponseDTO> addressList;
 
 }
