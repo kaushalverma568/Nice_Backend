@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 06-Jan-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 30-Jun-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

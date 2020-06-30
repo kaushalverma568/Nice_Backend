@@ -11,7 +11,7 @@ import com.nice.service.UsersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 09-Jan-2020
+ * @date   : 30-Jun-2020
  */
 @Component
 public class UsersValidator implements Validator {

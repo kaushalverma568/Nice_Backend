@@ -21,7 +21,7 @@ import com.nice.service.RoleService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 03-Jan-2020
+ * @date   : 30-Jun-2020
  */
 @Component
 public class PermissionValidator implements Validator {

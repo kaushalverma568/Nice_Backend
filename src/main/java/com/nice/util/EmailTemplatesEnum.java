@@ -2,7 +2,7 @@ package com.nice.util;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Jan-2020
+ * @date   : 30-Jun-2020
  */
 public enum EmailTemplatesEnum {
 

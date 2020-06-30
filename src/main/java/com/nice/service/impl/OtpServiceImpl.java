@@ -77,7 +77,7 @@ public class OtpServiceImpl implements OtpService {
 		 */
 		if (!userlogin.isPresent()) {
 			LOGGER.error("user login is not present : {}", userOtpDto);
-			throw new NotFoundException(messageByLocaleService.getMessage("not.found", new Object[] { Constant.USER_LOGIN, userOtpDto.getUserLoginId() }));
+			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserLoginId() }));
 		}
 		/**
 		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a
@@ -140,7 +140,7 @@ public class OtpServiceImpl implements OtpService {
 		Optional<UserLogin> userlogin = userLoginService.getUserLogin(userLoginId);
 		if (!userlogin.isPresent()) {
 			LOGGER.error("No user present for userLogin {} ", userLoginId);
-			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists", new Object[] { userLoginId }));
+			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userLoginId }));
 		}
 
 		Optional<UserOtp> optionalUserOtp = userOtpRepository.findAllByTypeAndUserLogin(type, userlogin.get());
