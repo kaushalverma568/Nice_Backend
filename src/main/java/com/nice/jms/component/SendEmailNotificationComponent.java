@@ -154,7 +154,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
-			emailParameterMap.put("verify", serviceUrl + "user/verify/email/" + emailNotification.getCustomerId() + "?otp=" + emailNotification.getOtp());
+			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getCustomerId() + "?otp=" + emailNotification.getOtp());
 			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
 					EmailConstants.EMAIL_VERIFICATION_TEMPLATE);
 		}
