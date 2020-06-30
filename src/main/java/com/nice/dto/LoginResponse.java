@@ -38,8 +38,6 @@ public class LoginResponse implements Serializable {
 
 	private String lastName;
 
-	private Long storeId;
-
 	private String message;
 
 	private int status;

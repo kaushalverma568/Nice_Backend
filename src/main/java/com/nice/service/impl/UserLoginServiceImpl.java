@@ -68,7 +68,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -129,8 +129,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 */
 		Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a
-		 * superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -259,10 +258,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 			emailParameterMap.put(USER_TYPE, Constant.CUSTOMER);
 		} else if (userType.equalsIgnoreCase(Constant.ADMIN)) {
-
-			if (!Constant.getAdminRoles().contains(userLogin.getRole().toUpperCase())) {
-				throw new ValidationException(messageByLocaleService.getMessage(USER_NOT_EXISTS_EMAIL, new Object[] { email }));
-			}
 			emailParameterMap.put(USER_TYPE, Constant.ADMIN);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
