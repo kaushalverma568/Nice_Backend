@@ -49,7 +49,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -146,8 +146,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -165,7 +165,7 @@ public class CustomerServiceImpl implements CustomerService {
 	private void sendEmail(final String otp, final Long userId, final String email) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
-		notification.setCustomerId(userId);
+		notification.setUserId(userId);
 		notification.setEmail(email);
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
@@ -262,13 +262,15 @@ public class CustomerServiceImpl implements CustomerService {
 			return customerRepository.findByEmailIgnoreCaseAndIdNot(customerDTO.getEmail(), customerDTO.getId()).isPresent();
 		} else {
 			/**
-			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with same name exist or not
+			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with
+			 * same name exist or not
 			 */
 			Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customerDTO.getEmail());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

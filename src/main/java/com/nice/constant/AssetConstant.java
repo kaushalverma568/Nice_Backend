@@ -26,4 +26,7 @@ public final class AssetConstant {
 
 	public static final String BUSINESS_CATEGORY_DIR = "/business/category";
 	public static final String CUISINE = "/cuisine/";
+	public static final String DELIVERY_BOY = "/delivery boy/";
+	public static final String VENDOR = "/vendor/";
+
 }

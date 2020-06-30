@@ -36,7 +36,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -79,7 +79,7 @@ public class SendEmailNotificationComponent {
 	private CustomerService customerService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -154,7 +154,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
-			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getCustomerId() + "?otp=" + emailNotification.getOtp());
+			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?otp=" + emailNotification.getOtp());
 			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
 					EmailConstants.EMAIL_VERIFICATION_TEMPLATE);
 		}
@@ -166,4 +166,5 @@ public class SendEmailNotificationComponent {
 		String sendOtpSubject = applicationName + " : OTP";
 		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailConstants.OTP_VERIFICATION_TEMPLATE);
 	}
+
 }

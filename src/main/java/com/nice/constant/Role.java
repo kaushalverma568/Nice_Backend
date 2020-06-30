@@ -8,13 +8,13 @@ import lombok.Getter;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 @Getter
 @AllArgsConstructor
 public enum Role {
 
-	CUSTOMER("CUSTOMER"), SUPER_ADMIN("SUPER_ADMIN"), ADMIN("ADMIN"), MANAGER("MANAGER"), DELIVERY_BOY("DELIVERY_BOY");
+	CUSTOMER("CUSTOMER"), SUPER_ADMIN("SUPER_ADMIN"), ADMIN("ADMIN"), MANAGER("MANAGER"), DELIVERY_BOY("DELIVERY_BOY"), VENDOR("VENDOR");
 
 	String statusValue;
 
