@@ -80,13 +80,16 @@ public class BusinessCategoryController {
 
 	@PostMapping
 	public ResponseEntity<Object> addBusinessCategory(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image,
+			@RequestParam(name = "image", required = true) final MultipartFile image,
 			@ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("BusinessCategory validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		if(image == null) {
+			throw new ValidationException("file.not.null",null);
 		}
 		BusinessCategoryDTO resultBusinessCategory = businessCategoryService.addBusinessCategory(businessCategoryDTO, image);
 		LOGGER.info("Outside add BusinessCategory {}", resultBusinessCategory);
