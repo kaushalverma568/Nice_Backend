@@ -41,11 +41,12 @@ import com.nice.mapper.SubCategoryMapper;
 import com.nice.model.SubCategory;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.SubCategoryService;
+import com.nice.util.CommonUtility;
 import com.nice.validator.SubCategoryValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 26-06-2020
+ * @date : 26-06-2020
  */
 @RequestMapping(path = "/subcategory")
 @RestController
@@ -55,7 +56,8 @@ public class SubCategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SubCategoryController.class);
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -85,8 +87,8 @@ public class SubCategoryController {
 	/**
 	 * Add sub category
 	 *
-	 * @param  subCategoryDTO
-	 * @param  result
+	 * @param subCategoryDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -102,6 +104,9 @@ public class SubCategoryController {
 			LOGGER.error("sub category validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(image.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage("subcategory.image.required", null));
+		}
 		subCategoryService.addSubCategory(subCategoryDTO, image);
 		LOGGER.info("Outside add sub category ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.create.message", null))
@@ -112,8 +117,8 @@ public class SubCategoryController {
 	/**
 	 * Update sub category
 	 *
-	 * @param  subCategoryDTO
-	 * @param  result
+	 * @param subCategoryDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -129,6 +134,9 @@ public class SubCategoryController {
 			LOGGER.error("sub category validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(image.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage("subcategory.image.required", null));
+		}
 		subCategoryService.updateSubCategory(subCategoryDTO, image);
 		LOGGER.info("Outside update sub category ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.update.message", null))
@@ -138,7 +146,7 @@ public class SubCategoryController {
 	/**
 	 * Get sub category
 	 *
-	 * @param  subCategoryId
+	 * @param subCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -155,10 +163,10 @@ public class SubCategoryController {
 	/**
 	 * Get sub category List
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  userId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -178,8 +186,8 @@ public class SubCategoryController {
 	/**
 	 * Change Status of sub category (Active/DeActive)
 	 *
-	 * @param  subCategoryId
-	 * @param  active
+	 * @param subCategoryId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -198,10 +206,10 @@ public class SubCategoryController {
 	/**
 	 * export sub category list
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws IOException
@@ -220,9 +228,9 @@ public class SubCategoryController {
 	/**
 	 * Upload sub category
 	 *
-	 * @param  accessToken
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param file
+	 * @param httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
