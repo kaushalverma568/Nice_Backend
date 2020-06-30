@@ -42,6 +42,7 @@ public class OtpServiceImpl implements OtpService {
 
 	@Autowired
 	private UserOtpRepository userOtpRepository;
+
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
@@ -69,7 +70,7 @@ public class OtpServiceImpl implements OtpService {
 			userlogin = userLoginService.getUserLoginBasedOnEmail(userOtpDto.getEmail());
 		} else {
 			LOGGER.error("Neither UserId, not userEmail specified to generate OTP");
-			throw new ValidationException("Please specify userId or userEmail to generate the Otp");
+			throw new ValidationException(messageByLocaleService.getMessage("otp.id.email.not.null", null));
 		}
 
 		/**
@@ -109,14 +110,14 @@ public class OtpServiceImpl implements OtpService {
 			notification.setType(NotificationQueueConstants.SEND_OTP);
 			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 		} else if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(userOtpDto.getType())) {
-			String otpMessage = "OTP for your Raasa application is : ";
+			String otpMessage = "OTP for your Nice application is : ";
 			if (userOtpDto.getPhoneNumber() == null || userOtpDto.getPhoneNumber().isEmpty()) {
 				throw new ValidationException(messageByLocaleService.getMessage("user.mobile.required", null));
 			}
 			smsUtil.sendSMS(userOtpDto.getPhoneNumber(), otpMessage + otp);
 		} else {
 			LOGGER.error("Proper Mode not Specifed to generate OTP: Specified mode is - {}", userOtpDto.getType());
-			throw new ValidationException("Please specify proper Mode not Specifed to generate OTP: EMAIL or SMS");
+			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
 		}
 	}
 
@@ -159,19 +160,18 @@ public class OtpServiceImpl implements OtpService {
 						return true;
 					} else {
 						LOGGER.error("{} expired, was generated at {} ", placeHolder, updatedAt);
-						throw new ValidationException(
-								messageByLocaleService.getMessage(placeHolder + " is expired ! Generate a new " + placeHolder + " and try again", null));
+						throw new ValidationException(messageByLocaleService.getMessage("otp.expired.generate.new", new Object[] { placeHolder, placeHolder }));
 					}
 				} else {
 					LOGGER.error("{} is already used before otp:{}", placeHolder, otp);
-					throw new ValidationException(messageByLocaleService.getMessage(placeHolder + " is already used before", null));
+					throw new ValidationException(messageByLocaleService.getMessage("otp.already.used", new Object[] { placeHolder }));
 				}
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("Incorrect " + placeHolder + " ! Use latest generated " + placeHolder, null));
+				throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
 			}
 		} else {
 			LOGGER.error("No record obtained for userLogin {}", userLoginId);
-			throw new ValidationException(placeHolder + " is not generated for this user");
+			throw new ValidationException(messageByLocaleService.getMessage("otp.not.generate", new Object[] { placeHolder }));
 		}
 	}
 }
