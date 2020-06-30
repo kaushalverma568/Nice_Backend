@@ -16,15 +16,15 @@ import com.nice.model.UserLogin;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public interface UserLoginService {
 
 	/**
 	 * Add user login
 	 *
-	 * @param  userLogin
-	 * @param  userId
+	 * @param userLogin
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -33,20 +33,20 @@ public interface UserLoginService {
 	/**
 	 * Update user login
 	 *
-	 * @param  userLogin
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 */
 	UserLogin updateUserLogin(UserLogin userLogin) throws NotFoundException;
 
 	/**
-	 * @param  email
+	 * @param email
 	 * @return
 	 */
 	Optional<UserLogin> getUserLoginBasedOnEmail(String email);
 
 	/**
-	 * @param  userLoginId
+	 * @param userLoginId
 	 * @return
 	 */
 	Optional<UserLogin> getUserLogin(Long userLoginId);
@@ -54,7 +54,7 @@ public interface UserLoginService {
 	/**
 	 * send otp to delivery boy when he/she forgot password
 	 *
-	 * @param  email
+	 * @param email
 	 * @throws ValidationException
 	 * @throws MessagingException
 	 * @throws NotFoundException
@@ -64,8 +64,8 @@ public interface UserLoginService {
 	/**
 	 * generate link for redirect through email
 	 *
-	 * @param  email
-	 * @param  userType
+	 * @param email
+	 * @param userType
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -74,10 +74,10 @@ public interface UserLoginService {
 	/**
 	 * reset password from forgot password
 	 *
-	 * @param  otp
-	 * @param  password
-	 * @param  userId
-	 * @param  type
+	 * @param otp
+	 * @param password
+	 * @param userId
+	 * @param type
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -87,7 +87,7 @@ public interface UserLoginService {
 	/**
 	 * get user login by email
 	 *
-	 * @param  email
+	 * @param email
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -96,7 +96,7 @@ public interface UserLoginService {
 	/**
 	 * get user login by id
 	 *
-	 * @param  userId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -105,7 +105,7 @@ public interface UserLoginService {
 	/**
 	 * Social login using Facebook and Google
 	 *
-	 * @param  socialLoginDto
+	 * @param socialLoginDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -115,8 +115,8 @@ public interface UserLoginService {
 	/**
 	 * Get user login based on entityId and entityType
 	 *
-	 * @param  entityId
-	 * @param  entityType
+	 * @param entityId
+	 * @param entityType
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -125,8 +125,8 @@ public interface UserLoginService {
 	/**
 	 * Verify user using email
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -135,8 +135,8 @@ public interface UserLoginService {
 	/**
 	 * Update password based on login user and old password
 	 *
-	 * @param  passwordDTO
-	 * @param  userId
+	 * @param passwordDTO
+	 * @param userId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -145,7 +145,7 @@ public interface UserLoginService {
 	/**
 	 * get user's basic info
 	 *
-	 * @param  username
+	 * @param username
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -154,25 +154,36 @@ public interface UserLoginService {
 	/**
 	 * Send welcome email
 	 *
-	 * @param  userId
+	 * @param userId
 	 * @throws NotFoundException
 	 */
 	void sendWelComeEmail(Long userId) throws NotFoundException;
 
 	/**
-	 * update email of admin (This method is used for admin to update his/her email from setting menu)
+	 * update email of admin (This method is used for admin to update his/her email
+	 * from setting menu)
 	 *
-	 * @param  email
-	 * @param  userId
+	 * @param email
+	 * @param userId
 	 * @throws ValidationException
 	 */
 	void updateEmailForAdmin(String email) throws ValidationException;
 
 	/**
-	 * @param  userLoginDto
+	 * @param userLoginDto
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws UnAuthorizationException
 	 */
 	LoginResponse checkUserLogin(UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException;
+
+	/**
+	 * get user login based on email and role
+	 *
+	 * @param email
+	 * @param name
+	 * @return
+	 */
+	Optional<UserLogin> getUserLoginBasedOnEmailAndRole(String email, String role);
+
 }
