@@ -134,9 +134,9 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public boolean verifyOtp(final Long userLoginId, final String type, final String otp) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside fetching OTP for userLogin {} with {} for otp {}", userLoginId, type, otp);
-		String placeHolder = "Link";
+		String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
 		if (UserOtpTypeEnum.SMS.name().equals(type)) {
-			placeHolder = "OTP";
+			placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
 		}
 		Optional<UserLogin> userlogin = userLoginService.getUserLogin(userLoginId);
 		if (!userlogin.isPresent()) {
