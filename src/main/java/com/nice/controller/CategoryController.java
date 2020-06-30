@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -44,9 +43,8 @@ import com.nice.service.CategoryService;
 import com.nice.validator.CategoryValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/category")
 @RestController
@@ -60,8 +58,7 @@ public class CategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -91,15 +88,15 @@ public class CategoryController {
 	/**
 	 * Add Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	@PreAuthorize("hasPermission('Masters','CAN_ADD')")
+	@PreAuthorize("hasPermission('Category','CAN_ADD')")
 	public ResponseEntity<Object> addCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
 			throws ValidationException, NotFoundException {
@@ -118,15 +115,15 @@ public class CategoryController {
 	/**
 	 * update Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Category','CAN_EDIT')")
 	public ResponseEntity<Object> updateCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
 			throws ValidationException, NotFoundException {
@@ -145,13 +142,13 @@ public class CategoryController {
 	/**
 	 * Get Category Details based on id
 	 *
-	 * @param categoryId
-	 * @param userId
+	 * @param  categoryId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{categoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_VIEW')")
+	@PreAuthorize("hasPermission('Category','CAN_VIEW')")
 	public ResponseEntity<Object> getCategory(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Category ");
@@ -163,15 +160,15 @@ public class CategoryController {
 	/**
 	 * Get Category list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Masters','CAN_VIEW_LIST')")
+	@PreAuthorize("hasPermission('Category','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
@@ -186,14 +183,14 @@ public class CategoryController {
 	/**
 	 * Change status of Category (active/deActive)
 	 *
-	 * @param categoryId
-	 * @param active
+	 * @param  categoryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{categoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Category','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of category of id {} and status {}", categoryId, active);
@@ -203,37 +200,18 @@ public class CategoryController {
 	}
 
 	/**
-	 * Remove category By categoryId
-	 *
-	 * @param accessToken
-	 * @param categoryId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@DeleteMapping("/{categoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_DELETE')")
-	public ResponseEntity<Object> deleteCategory(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
-			throws NotFoundException, ValidationException {
-		categoryService.deleteCategory(categoryId);
-		LOGGER.info("OutSide delete category for id:{}", categoryId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.delete.message", null))
-				.create();
-	}
-
-	/**
 	 * export category list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
-	@PreAuthorize("hasPermission('Masters','CAN_EXPORT')")
+	@PreAuthorize("hasPermission('Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
 		categoryService.exportCategoryList(httpServletResponse);
@@ -243,15 +221,15 @@ public class CategoryController {
 	/**
 	 * Upload category
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Masters','CAN_IMPORT')")
+	@PreAuthorize("hasPermission('Category','CAN_IMPORT')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {

@@ -21,7 +21,7 @@ import com.nice.service.RoleService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 03-Jan-2020
+ * @date   : 03-Jan-2020
  */
 @Component
 public class PermissionValidator implements Validator {
@@ -29,8 +29,7 @@ public class PermissionValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PermissionValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -53,12 +52,12 @@ public class PermissionValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
+		LOGGER.info("inside validate method");
 		final PermissionDTO permissionDTO = (PermissionDTO) target;
 		Modules module = null;
 		Role role = null;

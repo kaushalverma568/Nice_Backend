@@ -31,6 +31,8 @@ public class SettingsServiceImpl implements SettingsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsServiceImpl.class);
 
+	private static final String SETTING_NOT_FOUND = "settings.not.found.name";
+
 	@Autowired
 	private SettingsRepository settingsRepository;
 
@@ -87,7 +89,7 @@ public class SettingsServiceImpl implements SettingsService {
 	public SettingsDto getSettingsDetailsByFieldName(final String fieldName) throws ValidationException {
 		LOGGER.info("Inside get Settings method, for fieldName: {}", fieldName);
 		Settings settings = settingsRepository.findByFieldNameIgnoreCase(fieldName)
-				.orElseThrow(() -> new ValidationException(messageByLocaleService.getMessage("settings.not.found.name", new Object[] { fieldName })));
+				.orElseThrow(() -> new ValidationException(messageByLocaleService.getMessage(SETTING_NOT_FOUND, new Object[] { fieldName })));
 		return settingsMapper.toDto(settings);
 	}
 
@@ -100,7 +102,7 @@ public class SettingsServiceImpl implements SettingsService {
 		 */
 		Optional<Settings> existingSettings = settingsRepository.findByFieldNameIgnoreCase(fieldName);
 		if (!existingSettings.isPresent()) {
-			throw new NotFoundException(messageByLocaleService.getMessage("settings.not.found.name", new Object[] { fieldName }));
+			throw new NotFoundException(messageByLocaleService.getMessage(SETTING_NOT_FOUND, new Object[] { fieldName }));
 		}
 		/**
 		 * If the return settings field is not encrypted throw exception, this is because wrong parameters have been passed to
@@ -124,7 +126,7 @@ public class SettingsServiceImpl implements SettingsService {
 		LOGGER.info("Inside get non encrypted Settings method, for field: {}", fieldName);
 		Optional<Settings> settings = settingsRepository.findByFieldNameIgnoreCase(fieldName);
 		if (!settings.isPresent()) {
-			throw new NotFoundException(messageByLocaleService.getMessage("settings.not.found.name", new Object[] { fieldName }));
+			throw new NotFoundException(messageByLocaleService.getMessage(SETTING_NOT_FOUND, new Object[] { fieldName }));
 		}
 		/**
 		 * If the return settings field is not encrypted throw exception, this is because wrong parameters have been passed to

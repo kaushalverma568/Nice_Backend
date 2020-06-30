@@ -41,9 +41,8 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -141,8 +140,7 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "category.active" : "category.deactive", null));
 		} else {
 			/**
-			 * deActive All subCategories related to this category at the time of
-			 * deActivating Category
+			 * deActive All subCategories related to this category at the time of deActivating Category
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Category {}", existingCategory);
@@ -162,8 +160,7 @@ public class CategoryServiceImpl implements CategoryService {
 	public Boolean isCategoryExists(final CategoryDTO categoryDTO) {
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name exist or not except it's own
-			 * id
+			 * At the time of update is category with same name exist or not except it's own id
 			 */
 			return categoryRepository.findByNameIgnoreCaseAndIdNot(categoryDTO.getName(), categoryDTO.getId()).isPresent();
 		} else {
@@ -172,18 +169,6 @@ public class CategoryServiceImpl implements CategoryService {
 			 */
 			return categoryRepository.findByNameIgnoreCase(categoryDTO.getName()).isPresent();
 		}
-	}
-
-	@Override
-	public void deleteCategory(final Long categoryId) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside delete Category for id:{}", categoryId);
-		final Category category = getCategoryDetail(categoryId);
-		final List<SubCategory> subCategories = subCategoryService.getSubCategoryListByCategory(category);
-		for (final SubCategory subCategory : subCategories) {
-			subCategoryService.deleteSubCategory(subCategory.getId());
-		}
-		deleteOldImage(category);
-		categoryRepository.deleteById(categoryId);
 	}
 
 	/**
@@ -241,8 +226,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param categoryImports
-	 * @param userId
+	 * @param  categoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {

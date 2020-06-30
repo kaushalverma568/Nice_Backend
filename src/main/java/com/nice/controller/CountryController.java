@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -37,7 +38,7 @@ import com.nice.validator.CountryValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @RequestMapping(path = "/country")
 @RestController
@@ -75,13 +76,14 @@ public class CountryController {
 	/**
 	 * Add Country
 	 *
-	 * @param  accessToken
-	 * @param  countryDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param countryDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Country','CAN_ADD')")
 	public ResponseEntity<Object> addCountry(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CountryDTO countryDTO,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add country {}", countryDTO);
@@ -99,14 +101,15 @@ public class CountryController {
 	/**
 	 * Update Country
 	 *
-	 * @param  accessToken
-	 * @param  countryDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param countryDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Country','CAN_EDIT')")
 	public ResponseEntity<Object> updateCountry(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CountryDTO countryDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update country {}", countryDTO);
@@ -124,11 +127,12 @@ public class CountryController {
 	/**
 	 * Get Country Details based on id
 	 *
-	 * @param  countryId
+	 * @param countryId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{countryId}")
+	@PreAuthorize("hasPermission('Country','CAN_VIEW')")
 	public ResponseEntity<Object> getCountry(@PathVariable("countryId") final Long countryId) throws NotFoundException {
 		final CountryDTO resultCountry = countryService.getCountry(countryId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("country.detail.message", null))
@@ -138,13 +142,14 @@ public class CountryController {
 	/**
 	 * Get Country list
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
+	 * @param pageNumber
+	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Country','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCountryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) throws NotFoundException, ValidationException {
@@ -159,14 +164,15 @@ public class CountryController {
 	/**
 	 * Change status of country (active/deActive)
 	 *
-	 * @param  accessToken
-	 * @param  countryId
-	 * @param  active
+	 * @param accessToken
+	 * @param countryId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{countryId}")
+	@PreAuthorize("hasPermission('Country','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("countryId") final Long countryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of country ofr id {} and status {}", countryId, active);

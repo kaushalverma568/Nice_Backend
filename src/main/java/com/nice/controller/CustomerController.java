@@ -210,10 +210,9 @@ public class CustomerController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/verify/phone/{customerId}")
-	public ResponseEntity<Object> verifyPhoneNumber(@RequestHeader("Authorization") final String accessToken, @RequestHeader(name = "userId") final Long userId,
-			@PathVariable("customerId") final Long customerId, @RequestParam(name = "mobile") final String mobile, @RequestParam(name = "otp") final String otp)
-			throws NotFoundException, ValidationException {
-		customerService.verifyPhoneNumber(customerId, mobile, otp, userId);
+	public ResponseEntity<Object> verifyPhoneNumber(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId,
+			@RequestParam(name = "mobile") final String mobile, @RequestParam(name = "otp") final String otp) throws NotFoundException, ValidationException {
+		customerService.verifyPhoneNumber(customerId, mobile, otp);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("verify.user", null)).create();
 	}
 

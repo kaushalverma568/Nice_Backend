@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,9 +44,8 @@ import com.nice.service.SubCategoryService;
 import com.nice.validator.SubCategoryValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/subcategory")
 @RestController
@@ -57,8 +55,7 @@ public class SubCategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SubCategoryController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -88,14 +85,14 @@ public class SubCategoryController {
 	/**
 	 * Add sub category
 	 *
-	 * @param subCategoryDTO
-	 * @param result
+	 * @param  subCategoryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	@PreAuthorize("hasPermission('Masters','CAN_ADD')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_ADD')")
 	public ResponseEntity<Object> addSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
 			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
@@ -115,14 +112,14 @@ public class SubCategoryController {
 	/**
 	 * Update sub category
 	 *
-	 * @param subCategoryDTO
-	 * @param result
+	 * @param  subCategoryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_EDIT')")
 	public ResponseEntity<Object> updateSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
 			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
@@ -141,12 +138,12 @@ public class SubCategoryController {
 	/**
 	 * Get sub category
 	 *
-	 * @param subCategoryId
+	 * @param  subCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{subCategoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_VIEW')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_VIEW')")
 	public ResponseEntity<Object> getSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException {
 		LOGGER.info("Inside get sub category for id:{}", subCategoryId);
@@ -158,15 +155,15 @@ public class SubCategoryController {
 	/**
 	 * Get sub category List
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Masters','CAN_VIEW_LIST')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getSubCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "categoryId", required = false) final Long categoryId) throws NotFoundException {
@@ -181,14 +178,14 @@ public class SubCategoryController {
 	/**
 	 * Change Status of sub category (Active/DeActive)
 	 *
-	 * @param subCategoryId
-	 * @param active
+	 * @param  subCategoryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{subCategoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
@@ -199,31 +196,12 @@ public class SubCategoryController {
 	}
 
 	/**
-	 * Remove sub category By subCategoryId
-	 *
-	 * @param accessToken
-	 * @param subCategoryId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@DeleteMapping("/{subCategoryId}")
-	@PreAuthorize("hasPermission('Masters','CAN_DELETE')")
-	public ResponseEntity<Object> deleteSubCategory(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException, ValidationException {
-		subCategoryService.deleteSubCategory(subCategoryId);
-		LOGGER.info("OutSide delete Sub Category for id:{}", subCategoryId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.delete.message", null))
-				.create();
-	}
-
-	/**
 	 * export sub category list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws IOException
@@ -231,7 +209,7 @@ public class SubCategoryController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
-	@PreAuthorize("hasPermission('Masters','CAN_EXPORT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportSubCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
 		subCategoryService.exportSubCategoryList(httpServletResponse);
@@ -242,14 +220,14 @@ public class SubCategoryController {
 	/**
 	 * Upload sub category
 	 *
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Masters','CAN_IMPORT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_IMPORT')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {

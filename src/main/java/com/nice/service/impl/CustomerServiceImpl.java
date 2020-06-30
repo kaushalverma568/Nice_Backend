@@ -17,9 +17,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.Role;
@@ -32,6 +34,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CustomerMapper;
 import com.nice.model.Customer;
@@ -75,8 +78,8 @@ public class CustomerServiceImpl implements CustomerService {
 	@Autowired
 	private ExportCSV exportCSV;
 
-	// @Autowired
-	// private JMSQueuerService jmsQueuerService;
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
 
 	@Override
 	public Long addCustomer(final CustomerDTO customersDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
@@ -127,7 +130,7 @@ public class CustomerServiceImpl implements CustomerService {
 		} else {
 			userLogin.setPassword(customersDTO.getPassword());
 		}
-		userLogin = userLoginService.addUserLogin(userLogin, 1L);
+		userLogin = userLoginService.addUserLogin(userLogin);
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
@@ -165,7 +168,7 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setCustomerId(userId);
 		notification.setEmail(email);
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
-		// jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
 	@Override
@@ -291,11 +294,11 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public void verifyPhoneNumber(final Long customerId, final String phoneNumber, final String otp, final Long userId)
-			throws NotFoundException, ValidationException {
+	public void verifyPhoneNumber(final Long customerId, final String phoneNumber, final String otp) throws NotFoundException, ValidationException {
 		if (customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, customerId).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("customer.phone.exists", null));
 		}
+		Long userId = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId();
 		if (otpService.verifyOtp(userId, UserOtpTypeEnum.SMS.name(), otp)) {
 			Customer customer = getCustomerDetails(customerId);
 			customer.setPhoneNumber(phoneNumber);
@@ -314,12 +317,8 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customerDTO.getEmail());
 		if (optUserLogin.isPresent()) {
-			if (customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
-					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())) {
-				return false;
-			} else {
-				return true;
-			}
+			return (!(customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
+					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())));
 		} else {
 			return false;
 		}

@@ -28,7 +28,7 @@ public interface UserLoginService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	UserLogin addUserLogin(UserLogin userLogin, Long userId) throws NotFoundException;
+	UserLogin addUserLogin(UserLogin userLogin) throws NotFoundException;
 
 	/**
 	 * Update user login

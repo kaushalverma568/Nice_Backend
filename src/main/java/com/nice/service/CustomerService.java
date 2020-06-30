@@ -104,7 +104,7 @@ public interface CustomerService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void verifyPhoneNumber(Long customerId, String mobile, String otp, Long userId) throws NotFoundException, ValidationException;
+	void verifyPhoneNumber(Long customerId, String mobile, String otp) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param  customerId

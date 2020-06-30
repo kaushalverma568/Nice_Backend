@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nice.constant.Constant;
 import com.nice.dto.CustomerAddressDTO;
 import com.nice.dto.CustomerAddressResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -129,8 +128,8 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 
 	@Override
 	public CustomerAddress getAddressDetails(final Long addressId) throws NotFoundException {
-		return customerAddressRepository.findById(addressId).orElseThrow(
-				() -> new NotFoundException(messageByLocaleService.getMessage("address.not.found", new Object[] { Constant.CUSTOMER_ADDRESS, addressId })));
+		return customerAddressRepository.findById(addressId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("address.not.found", new Object[] { addressId })));
 	}
 
 	@Override

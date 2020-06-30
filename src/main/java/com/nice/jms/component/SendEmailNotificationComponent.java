@@ -69,6 +69,9 @@ public class SendEmailNotificationComponent {
 	@Value("${email.background}")
 	private String emailBackgroundImage;
 
+	@Value("${service.url}")
+	private String serviceUrl;
+
 	@Autowired
 	private CompanyService companyService;
 
@@ -88,8 +91,12 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		if (NotificationQueueConstants.CUSTOMER_REGISTRATION.equals(emailNotification.getType())) {
 			customerRegistration(emailNotification);
-		} else if (NotificationQueueConstants.FORGOT_PASSWORD.equals(emailNotification.getType())) {
+		} else if (NotificationQueueConstants.FORGOT_PWD.equals(emailNotification.getType())) {
 			forgotPassword(emailNotification);
+		} else if (NotificationQueueConstants.EMAIL_VERIFICATION.equals(emailNotification.getType())) {
+			emailVerification(emailNotification);
+		} else if (NotificationQueueConstants.SEND_OTP.equals(emailNotification.getType())) {
+			sendOtp(emailNotification);
 		}
 	}
 
@@ -137,4 +144,26 @@ public class SendEmailNotificationComponent {
 		}
 	}
 
+	private void emailVerification(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException, NotFoundException {
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		if (emailNotification.getOtp() != null && emailNotification.getEmail() != null) {
+			LOGGER.info("email verification");
+			CompanyResponseDTO company = companyService.getCompany(true);
+			emailParameterMap.put(GROCERUS_LOGO, company.getCompanyImage());
+			emailParameterMap.put(GROCERUS_BIG_LOGO, CommonUtility.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
+			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getCustomerId() + "?otp=" + emailNotification.getOtp());
+			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+					EmailConstants.EMAIL_VERIFICATION_TEMPLATE);
+		}
+	}
+
+	private void sendOtp(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
+		Map<String, String> paramMap = new HashMap<>();
+		paramMap.put("otp", emailNotification.getOtp());
+		String sendOtpSubject = applicationName + " : OTP";
+		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailConstants.OTP_VERIFICATION_TEMPLATE);
+	}
 }

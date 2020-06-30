@@ -22,9 +22,8 @@ import com.nice.repository.HtmlSectionRepository;
 import com.nice.service.HtmlSectionService;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service("sectionService")
 @Transactional(rollbackFor = Throwable.class)
@@ -74,14 +73,8 @@ public class HtmlSectionServiceImpl implements HtmlSectionService {
 			LOGGER.error("Section is not exists for type {} ", type);
 			throw new NotFoundException(messageByLocaleService.getMessage("section.not.found.type", new Object[] { type }));
 		}
-		HtmlSectionDTO sectionDTO = new HtmlSectionDTO();
-		if (section.isEmpty()) {
-			LOGGER.info("passing empty list of section");
-			return sectionDTO;
-		} else {
-			HtmlSection result = section.get();
-			return sectionMapper.toDto(result);
-		}
+		HtmlSection result = section.get();
+		return sectionMapper.toDto(result);
 	}
 
 	@Override

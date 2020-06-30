@@ -187,17 +187,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public UserLogin addUserLogin(final UserLogin userLogin, final Long userId) throws NotFoundException {
+	public UserLogin addUserLogin(final UserLogin userLogin) throws NotFoundException {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getFacebookKey())) {
 			userLogin.setFacebookKey(CommonUtility.generateBcrypt(userLogin.getFacebookKey()));
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getGoogleKey())) {
 			userLogin.setGoogleKey(CommonUtility.generateBcrypt(userLogin.getGoogleKey()));
 		} else {
 			userLogin.setPassword(CommonUtility.generateBcrypt(userLogin.getPassword()));
-		}
-		if (userId != null) {
-			userLogin.setCreatedBy(userId);
-			userLogin.setUpdatedBy(userId);
 		}
 		return userLoginRepository.save(userLogin);
 	}
@@ -286,7 +282,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		notification.setEmail(email);
 		notification.setUserType(userType);
 		notification.setCustomerId(userId);
-		notification.setType(NotificationQueueConstants.FORGOT_PASSWORD);
+		notification.setType(NotificationQueueConstants.FORGOT_PWD);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 

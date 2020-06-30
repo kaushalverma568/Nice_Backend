@@ -37,15 +37,33 @@
 				path="sql-files/1.0/company_insert.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	<changeSet id="6" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/insert_query_role_permission.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="7" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/users.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="8" author="jigar.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/uom.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
 	
-	<changeSet id="6" author="nisha.parmar"
+	<changeSet id="9" author="nisha.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/Business_category_and_subscription_plan.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
 	
-	<changeSet id="7" author="ankit.bhimani"
+	<changeSet id="10" author="ankit.bhimani"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/cuisine.sql" relativeToChangelogFile="true"
