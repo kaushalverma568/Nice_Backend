@@ -256,10 +256,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 			emailParameterMap.put(USER_TYPE, Constant.CUSTOMER);
 		} else if (userType.equalsIgnoreCase(Constant.ADMIN)) {
-
-			if (!Constant.getAdminRoles().contains(userLogin.getRole().toUpperCase())) {
-				throw new ValidationException(messageByLocaleService.getMessage(USER_NOT_EXISTS_EMAIL, new Object[] { email }));
-			}
 			emailParameterMap.put(USER_TYPE, Constant.ADMIN);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
