@@ -14,14 +14,13 @@ import com.nice.service.ModulesService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 03-Jan-2020
+ * @date   : 30-Jun-2020
  */
 @Component
 public class ModulesValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -38,8 +37,7 @@ public class ModulesValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override

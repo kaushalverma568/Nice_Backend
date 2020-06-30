@@ -40,7 +40,7 @@ public class CustomerValidator implements Validator {
 	public void validate(final Object target, final Errors errors) {
 
 		final CustomerDTO customerDTO = (CustomerDTO) target;
-		if (customerDTO != null && customerDTO.getBirthdate() != null && LocalDate.now().compareTo(customerDTO.getBirthdate().toLocalDate()) < 0) {
+		if (customerDTO != null && customerDTO.getBirthDate() != null && LocalDate.now().compareTo(customerDTO.getBirthDate().toLocalDate()) < 0) {
 			errors.rejectValue("birthdate", "409", messageByLocaleService.getMessage("birthdate.less.than.today", null));
 		}
 		/**

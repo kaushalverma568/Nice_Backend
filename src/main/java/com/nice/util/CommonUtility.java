@@ -164,6 +164,10 @@ public class CommonUtility {
 		return Date.from(convetUtilDatetoLocalDate(date).plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	public static Date convertLocalDateToUtilDate(final LocalDate localDate) {
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
 	public static Double distance(final Double lat1, final Double lon1, final Double lat2, final Double lon2) {
 		if ((lat1.equals(lat2)) && (lon1.equals(lon2))) {
 			return 0d;

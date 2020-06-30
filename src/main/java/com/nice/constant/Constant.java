@@ -3,9 +3,6 @@
  */
 package com.nice.constant;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date   : 17-Jun-2020
@@ -40,15 +37,6 @@ public final class Constant {
 	public static final String DELIVERY_BOY = "Delivery Boy";
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
-
-	/**
-	 * @return the adminRoles
-	 */
-	public static List<String> getAdminRoles() {
-		return ADMIN_ROLES;
-	}
-
-	private static final List<String> ADMIN_ROLES = Arrays.asList("ADMIN", "SUPER_ADMIN", "MANAGER");
 
 	/**
 	 * Settings Flags:

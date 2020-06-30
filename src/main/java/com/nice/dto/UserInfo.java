@@ -25,8 +25,6 @@ public class UserInfo implements Serializable {
 
 	private String entityType;
 
-	private Long storeId;
-
 	private String email;
 
 	private String role;
@@ -34,8 +32,6 @@ public class UserInfo implements Serializable {
 	private String firstName;
 
 	private String lastName;
-
-	private String storeName;
 
 	private Boolean canChangePassword;
 
