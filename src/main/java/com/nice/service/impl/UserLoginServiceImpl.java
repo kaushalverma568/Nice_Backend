@@ -68,7 +68,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -129,7 +129,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 */
 		Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -217,6 +218,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public UserLogin getUserLoginDetailBasedOnEmail(final String email) throws NotFoundException {
 		return userLoginRepository.findByEmail(email)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("user.not.found.email", new Object[] { email })));
+	}
+
+	@Override
+	public Optional<UserLogin> getUserLoginBasedOnEmailAndRole(final String email, final String role) {
+		return userLoginRepository.findByEmailAndRole(email, role);
 	}
 
 	@Override
