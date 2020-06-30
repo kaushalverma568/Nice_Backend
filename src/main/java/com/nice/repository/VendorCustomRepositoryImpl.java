@@ -3,6 +3,7 @@
  */
 package com.nice.repository;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,8 +123,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 
 		if (vendorFilterDTO.getSubscriptionEndDate() != null) {
-			predicates.add(criteriaBuilder.equal(vendor.get("subscription_plan_end_date"),
-					CommonUtility.convetUtilDatetoLocalDate(vendorFilterDTO.getSubscriptionEndDate())));
+			predicates.add(criteriaBuilder.equal(vendor.get("subscription_plan_end_date").as(Date.class), vendorFilterDTO.getSubscriptionEndDate()));
 		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {

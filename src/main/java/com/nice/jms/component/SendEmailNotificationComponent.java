@@ -36,7 +36,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -79,7 +79,7 @@ public class SendEmailNotificationComponent {
 	private CustomerService customerService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -97,6 +97,8 @@ public class SendEmailNotificationComponent {
 			emailVerification(emailNotification);
 		} else if (NotificationQueueConstants.SEND_OTP.equals(emailNotification.getType())) {
 			sendOtp(emailNotification);
+		} else if (NotificationQueueConstants.VENDOR_SUBSCRIPTION_EXPIRY_REMINDER.equals(emailNotification.getType())) {
+			subscriptionExpireReminder(emailNotification);
 		}
 	}
 
@@ -156,7 +158,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?otp=" + emailNotification.getOtp());
 			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-					EmailConstants.EMAIL_VERIFICATION_TEMPLATE);
+					EmailTemplatesEnum.EMAIL_VERIFICATION.name());
 		}
 	}
 
@@ -164,7 +166,15 @@ public class SendEmailNotificationComponent {
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put("otp", emailNotification.getOtp());
 		String sendOtpSubject = applicationName + " : OTP";
-		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailConstants.OTP_VERIFICATION_TEMPLATE);
+		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.OTP_VERIFICATION.name());
+	}
+
+	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
+		Map<String, String> paramMap = new HashMap<>();
+		paramMap.put("otp", emailNotification.getOtp());
+		String sendOtpSubject = applicationName + " Subscription Expire Reminder";
+		paramMap.put("message", "Your subscription will expired in 7 days.Renew Your subscription.");
+		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name());
 	}
 
 }
