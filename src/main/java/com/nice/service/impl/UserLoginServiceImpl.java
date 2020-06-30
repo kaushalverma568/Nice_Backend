@@ -1,9 +1,7 @@
 package com.nice.service.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -271,9 +269,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		emailParameterMap.put("userId", String.valueOf(userLogin.getId()));
 		emailParameterMap.put("otp", userOtp.getOtp());
-		final List<String> sendEmailTo = new ArrayList<>();
-		sendEmailTo.add(email);
-
 		sendForgotPasswordLink(userOtp.getOtp(), email, emailParameterMap.get(USER_TYPE), userLogin.getId());
 	}
 
