@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.service.ProductService;
 
@@ -23,7 +24,7 @@ public class ProductValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return ProductRequestDTO.class.equals(clazz);
+		return ProductRequestDTO.class.equals(clazz) || ProductParamRequestDTO.class.equals(clazz);
 	}
 
 	@Override

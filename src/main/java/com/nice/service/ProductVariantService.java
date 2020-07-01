@@ -51,11 +51,10 @@ public interface ProductVariantService {
 	 *
 	 * @param productVariantId
 	 * @param active
-	 * @param userId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void changeStatus(Long productVariantId, Boolean active, Long userId) throws NotFoundException, ValidationException;
+	void changeStatus(Long productVariantId, Boolean active) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param productId
@@ -127,13 +126,10 @@ public interface ProductVariantService {
 	/**
 	 * @param product
 	 * @param active
-	 * @param pincodeId
-	 * @param storeId
-	 * @param isAdmin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active, Long pincodeId, Long storeId, Boolean isAdmin)
+	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active)
 			throws NotFoundException, ValidationException;
 }

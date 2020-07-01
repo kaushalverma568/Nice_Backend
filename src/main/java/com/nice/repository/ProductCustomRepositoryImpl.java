@@ -32,8 +32,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 	 */
 	private static final String AND = " and ";
 
-	private static final String PRODUCT_TABLE_NAME = "nice_product";
-	private static final String PRODUCT_VARIANT_TABLE_NAME = "nice_product_variant";
+	private static final String PRODUCT_TABLE_NAME = "product";
+	private static final String PRODUCT_VARIANT_TABLE_NAME = "product_variant";
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -44,7 +44,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 		StringBuilder sqlQuery = new StringBuilder("select p.* from ").append(PRODUCT_TABLE_NAME).append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME)
 				.append(" pv on p.id=pv.product_id where 1=1 ");
 
-		sqlQuery = addConditions(productParamRequestDTO, sqlQuery, paramMap);
+		addConditions(productParamRequestDTO, sqlQuery, paramMap);
 
 		sqlQuery.append(" group by (p.id)");
 
@@ -63,9 +63,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 	@Override
 	public Long getProductCountBasedOnParams(final ProductParamRequestDTO productParamRequestDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
+		/**
+		 * Param For admin/customer/vendor
+		 */
+
 		StringBuilder sqlQuery = new StringBuilder(" select count(total)as count1 from (select p.id as total ,p.* from ").append(PRODUCT_TABLE_NAME)
 				.append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
-		sqlQuery = addConditions(productParamRequestDTO, sqlQuery, paramMap);
+		addConditions(productParamRequestDTO, sqlQuery, paramMap);
 		sqlQuery.append(" group by(p.id)) as abc");
 
 		Query q = entityManager.createNativeQuery(sqlQuery.toString());
@@ -89,6 +93,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			paramMap.put("productVariantActiveRecords", productParamRequestDTO.getProductVariantActiveRecords());
 		}
 
+		if (productParamRequestDTO.getVendorId() != null) {
+			sqlQuery.append(" and p.vendor_id = :vendorId ");
+			paramMap.put("vendorId", productParamRequestDTO.getVendorId());
+		}
+
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getCategoryIds())) {
 			sqlQuery.append(
 					" and p.category_id in (" + productParamRequestDTO.getCategoryIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
@@ -104,9 +113,14 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 					" and p.brand_id in (" + productParamRequestDTO.getBrandIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
 		}
 
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getCuisineIds())) {
+			sqlQuery.append(
+					" and p.cuisine_id in (" + productParamRequestDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
+		}
+
 		if (productParamRequestDTO.getSearchKeyword() != null) {
-			sqlQuery.append(" and( lower(p.name) like :searchKeyword");
-			paramMap.put("searchKeyword", "'%" + productParamRequestDTO.getSearchKeyword().toLowerCase() + "%' ) ");
+			sqlQuery.append(" and lower(p.name) like :searchKeyword");
+			paramMap.put("searchKeyword", "'%" + productParamRequestDTO.getSearchKeyword().toLowerCase() + "%'");
 		}
 
 		return sqlQuery;

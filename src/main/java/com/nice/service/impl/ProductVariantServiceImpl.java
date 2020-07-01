@@ -168,8 +168,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	@Override
-	public List<ProductVariantResponseDTO> getProductVariantDetailByProduct(final Product product, final Boolean active, final Long pincodeId,
-			final Long storeId, final Boolean isAdmin) throws NotFoundException, ValidationException {
+	public List<ProductVariantResponseDTO> getProductVariantDetailByProduct(final Product product, final Boolean active)
+			throws NotFoundException, ValidationException {
 		List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
 		List<ProductVariant> productVariants = getProductVariantByProduct(product, active);
 		for (ProductVariant productVariant : productVariants) {
@@ -189,7 +189,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		return productVariantResponseDTOList;
 	}
 
-	ProductVariantResponseDTO convertToResponseDto(final ProductVariant productVariant) throws NotFoundException, ValidationException {
+	private ProductVariantResponseDTO convertToResponseDto(final ProductVariant productVariant) {
 		ProductVariantResponseDTO productVariantResponseDTO = new ProductVariantResponseDTO();
 		BeanUtils.copyProperties(productVariant, productVariantResponseDTO);
 		productVariantResponseDTO.setId(productVariant.getId());
@@ -199,6 +199,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurement());
 		productVariantResponseDTO.setUomQuantity(productVariant.getUom().getQuantity());
 		productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		// TODO
+		/**
+		 * Get available qty from inventory and set here, currently set as 0
+		 */
+		productVariantResponseDTO.setAvailableQty(0);
 		return productVariantResponseDTO;
 	}
 
@@ -220,15 +225,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	@Override
-	public void changeStatus(final Long productVariantId, final Boolean active, final Long userId) throws NotFoundException, ValidationException {
+	public void changeStatus(final Long productVariantId, final Boolean active) throws NotFoundException, ValidationException {
 		ProductVariant productVariant = getProductVariantDetail(productVariantId);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (productVariant.getActive().equals(active)) {
 			if (Boolean.TRUE.equals(active)) {
-				throw new ValidationException(messageByLocaleService.getMessage("product.varinat.already.active", null));
+				throw new ValidationException(messageByLocaleService.getMessage("product.variant.already.active", null));
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("product.varinat.already.deactive", null));
+				throw new ValidationException(messageByLocaleService.getMessage("product.variant.already.deactive", null));
 			}
 
 		} else {
@@ -245,7 +250,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 				// posCartService.deleteAllByProductVariant(productVariant.getId());
 			}
 			productVariant.setActive(active);
-			productVariant.setUpdatedBy(userId);
 			productVariantRepository.save(productVariant);
 		}
 	}
@@ -254,7 +258,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active, final Long pincodeId, final Long storeId,
 			final Boolean isAdmin) throws NotFoundException, ValidationException {
 		final Product product = productService.getProductDetail(productId);
-		return getProductVariantDetailByProduct(product, active, pincodeId, storeId, isAdmin);
+		return getProductVariantDetailByProduct(product, active);
 	}
 
 	@Override

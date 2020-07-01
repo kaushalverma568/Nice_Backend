@@ -23,7 +23,7 @@ public class ProductRequestDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
+	@NotBlank(message = "{product.name.not.null}")
 	private String name;
 
 	private String description;
@@ -49,5 +49,7 @@ public class ProductRequestDTO implements Serializable {
 	private Boolean productAvailable;
 
 	private Boolean combo;
+
+	private String productFoodType;
 
 }

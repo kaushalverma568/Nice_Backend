@@ -2,9 +2,9 @@ package com.nice.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.CuisineWiseProductCountDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
@@ -37,21 +37,18 @@ public interface ProductService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addProduct(ProductRequestDTO productRequestDTO, Long userId, MultipartFile image) throws NotFoundException, ValidationException;
+	void addProduct(ProductRequestDTO productRequestDTO, MultipartFile image) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product responseDTO by id
 	 *
 	 * @param productId
-	 * @param isAdmin
 	 * @param uuid
-	 * @param customerId
-	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	ProductResponseDTO getProduct(Long productId, Long customerId, String uuid, Boolean isAdmin, Long pincodeId) throws NotFoundException, ValidationException;
+	ProductResponseDTO getProduct(Long productId, String uuid) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product by id
@@ -66,22 +63,12 @@ public interface ProductService {
 	 * update product
 	 *
 	 * @param productRequestDTO
-	 * @param userId
 	 * @param image
 	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateProduct(ProductRequestDTO productRequestDTO, Long userId, MultipartFile image) throws NotFoundException, ValidationException;
-
-	/**
-	 * get product page
-	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @return
-	 */
-	Page<Product> getProductList(Integer pageNumber, Integer pageSize);
+	void updateProduct(ProductRequestDTO productRequestDTO, MultipartFile image) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product detail list
@@ -97,11 +84,10 @@ public interface ProductService {
 	/**
 	 * @param productId
 	 * @param active
-	 * @param userId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void changeStatus(Long productId, Boolean active, Long userId) throws NotFoundException, ValidationException;
+	void changeStatus(Long productId, Boolean active) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product list based on parameters
@@ -109,13 +95,12 @@ public interface ProductService {
 	 * @param productParamRequestDTO
 	 * @param startIndex
 	 * @param pageSize
-	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductResponseDTO> getProductListBasedOnParams(ProductParamRequestDTO productParamRequestDTO, Integer startIndex, Integer pageSize,
-			Boolean listForAdmin, Long pincodeId) throws NotFoundException, ValidationException;
+	List<ProductResponseDTO> getProductListBasedOnParams(ProductParamRequestDTO productParamRequestDTO, Integer startIndex, Integer pageSize)
+			throws NotFoundException, ValidationException;
 
 	/**
 	 * get product count based on parameters
@@ -128,12 +113,20 @@ public interface ProductService {
 	List<Product> getProductListBasedOnParamsWithoutPagination(ProductParamRequestDTO productParamRequestDTO);
 
 	/**
-	 * @param pageNumber
-	 * @param pageSize
 	 * @param vendorId
 	 * @return
+	 * @throws NotFoundException
 	 */
-	Page<Product> getProductListForVendor(Integer pageNumber, Integer pageSize, Long vendorId);
+	List<CuisineWiseProductCountDTO> getCuisineWiseProductCountList(Long vendorId) throws NotFoundException;
+
+	/**
+	 * @param vendorId
+	 * @param cuisineId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<ProductResponseDTO> getProductListForVendorAndCuisine(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
 
 	/**
 	 * get response of global search
@@ -142,12 +135,5 @@ public interface ProductService {
 	 * @return
 	 */
 	// GlobalSearchResponseDTO getResultOfGlobalSearch(String searchKeyword);
-
-	/**
-	 * get category wise product count list
-	 *
-	 * @return
-	 */
-	// List<CategoryWiseProductCountDTO> getCategoryWiseProductCountList();
 
 }

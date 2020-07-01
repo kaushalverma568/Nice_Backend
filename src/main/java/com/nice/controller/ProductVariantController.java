@@ -158,7 +158,7 @@ public class ProductVariantController {
 			@PathVariable("productVariantId") final Long productVariantId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of productVariant for id {} and new status {}", productVariantId, active);
-		productVariantService.changeStatus(productVariantId, active, userId);
+		productVariantService.changeStatus(productVariantId, active);
 		LOGGER.info("Outside change status of productVariant ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.update.message", null)).create();
