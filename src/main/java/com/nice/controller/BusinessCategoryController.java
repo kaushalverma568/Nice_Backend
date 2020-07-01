@@ -26,14 +26,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.response.GenericResponseHandlers;
 import com.nice.dto.BusinessCategoryDTO;
-import com.nice.model.BusinessCategory;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.BusinessCategoryMapper;
+import com.nice.model.BusinessCategory;
+import com.nice.response.GenericResponseHandlers;
 import com.nice.service.BusinessCategoryService;
+import com.nice.util.CommonUtility;
 import com.nice.validator.BusinessCategoryValidator;
 
 /**
@@ -80,7 +81,7 @@ public class BusinessCategoryController {
 
 	@PostMapping
 	public ResponseEntity<Object> addBusinessCategory(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = true) final MultipartFile image,
+			@RequestParam(name = "image", required = false) final MultipartFile image,
 			@ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -88,8 +89,8 @@ public class BusinessCategoryController {
 			LOGGER.error("BusinessCategory validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if(image == null) {
-			throw new ValidationException("file.not.null",null);
+		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(image.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}
 		BusinessCategoryDTO resultBusinessCategory = businessCategoryService.addBusinessCategory(businessCategoryDTO, image);
 		LOGGER.info("Outside add BusinessCategory {}", resultBusinessCategory);

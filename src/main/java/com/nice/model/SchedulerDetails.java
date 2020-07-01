@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.nice.model;
 
 import javax.persistence.Column;
@@ -17,26 +14,21 @@ import lombok.EqualsAndHashCode;
  * @author : Kody Technolab PVT. LTD.
  * @date   : 30-Jun-2020
  */
+@Table(name = "scheduler_details")
+@Entity
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Entity
-@Table(name = "html_section")
-public class HtmlSection extends CommonModel {
+public class SchedulerDetails extends CommonModel {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 538107667428292595L;
-
+	private static final long serialVersionUID = 1911997813196642757L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Long id;
-
-	@Column(name = "section_value", nullable = false)
-	private String sectionValue;
-
-	@Column(name = "section_type", nullable = false)
-	private String sectionType;
+	@Column(name = "name", nullable = false)
+	private String name;
 
 }
