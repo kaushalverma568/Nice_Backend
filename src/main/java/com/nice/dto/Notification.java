@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -32,4 +32,6 @@ public class Notification extends CommonModel {
 	private String userType;
 
 	private String email;
+
+	private Long vendorId;
 }

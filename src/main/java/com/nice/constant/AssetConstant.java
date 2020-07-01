@@ -28,5 +28,6 @@ public final class AssetConstant {
 	public static final String CUISINE = "/cuisine/";
 	public static final String DELIVERY_BOY = "/delivery boy/";
 	public static final String VENDOR = "/vendor/";
+	public static final String PRODUCT_DIR = "/product/";
 
 }
