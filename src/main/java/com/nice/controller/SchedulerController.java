@@ -1,6 +1,7 @@
 package com.nice.controller;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,10 +16,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.Constant;
 import com.nice.dto.SchedulerDetailDTO;
+import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.model.SchedulerDetails;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.SchedulerDetailsService;
+import com.nice.service.StockDetailsService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -36,6 +43,10 @@ public class SchedulerController {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
+
+	@Autowired
+	private StockDetailsService stockDetailsService;
+	
 	@GetMapping
 	public ResponseEntity<Object> getSchedulerList(@RequestHeader("Authorization") final String accessToken) {
 		LOGGER.info("Inside get Scheduler list");
@@ -45,19 +56,23 @@ public class SchedulerController {
 	}
 
 	@PutMapping("/run/{name}")
-	public ResponseEntity<Object> runScheduler(@RequestHeader("Authorization") final String accessToken, @PathVariable final String name) {
+	public ResponseEntity<Object> runScheduler(@RequestHeader("Authorization") final String accessToken, @PathVariable final String name) throws ValidationException, NotFoundException {
 		final LocalDate runDate = LocalDate.now();
 		LOGGER.info("Inside run Scheduler of discount for date :{}", runDate);
-
-		// SchedulerDetails schedulerDetails = schedulerDetailsService.getLastSchedulerRunDate(name);
-		// /**
-		// * if scheduler is already run after this date then throw exception
-		// */
-		// if (CommonUtility.convetUtilDatetoLocalDate(schedulerDetails.getUpdatedAt()).compareTo(runDate) >= 0) {
-		// throw new ValidationException(messageByLocaleService.getMessage("run.date.invalid", new Object[] { name,
-		// schedulerDetails.getUpdatedAt() }));
-		// }
-		// run scheduler here
+	
+		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name))) {
+			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", null));
+		}
+		SchedulerDetails schedulerDetails = schedulerDetailsService.getLastSchedulerRunDate(name);
+		/**
+		 * if scheduler is already run after this date then throw exception
+		 */
+		if (CommonUtility.convetUtilDatetoLocalDate(schedulerDetails.getUpdatedAt()).compareTo(runDate) >= 0) {
+			throw new ValidationException(messageByLocaleService.getMessage("run.date.invalid", new Object[] { name, schedulerDetails.getUpdatedAt() }));
+		}
+		if (Constant.EXPIRE_STOCK_SCHEDULER.equals(name)) {
+			stockDetailsService.moveQtyToExpiredState(new Date());
+		}
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("scheduler.run.successfully", new Object[] { name }))
 				.setStatus(HttpStatus.OK).create();
 	}

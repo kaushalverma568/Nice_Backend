@@ -96,4 +96,26 @@
 				path="sql-files/1.0/scheduler_details.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	
+	<changeSet id="15" author="nisha.parmar"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/rating_system.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
+	<changeSet id="16" author="nisha.parmar"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/inventory.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
+	<changeSet id="17" author="nisha.parmar"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/expire_stock_scheduler.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
 </databaseChangeLog>

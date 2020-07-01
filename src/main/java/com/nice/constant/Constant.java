@@ -38,6 +38,15 @@ public final class Constant {
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
 
+	
+	public static final String AVAILABLE = "Available";
+	public static final String RESERVED = "Reserved";
+	public static final String DELIVERED = "Delivered";
+	public static final String REPLACED = "Replaced";
+	public static final String RETURNED = "Returned";
+
+	public static final String EXPIRE_STOCK_SCHEDULER = "EXPIRE_STOCK_SCHEDULER";
+	
 	/**
 	 * Settings Flags:
 	 */
