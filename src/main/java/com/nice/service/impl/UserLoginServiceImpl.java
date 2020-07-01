@@ -62,6 +62,7 @@ import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerService;
 import com.nice.service.OtpService;
 import com.nice.service.UserLoginService;
+import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -96,6 +97,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Autowired
 	private CustomerService customerService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@SuppressWarnings("unused")
 	@Override
@@ -381,7 +385,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (otpService.verifyOtp(userId, UserOtpTypeEnum.EMAIL.name(), otp)) {
 			final UserLogin userLogin = getUserLoginDetail(userId);
 			userLogin.setActive(true);
-			customerService.verifyEmail(userLogin.getEntityId());
+			if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+				vendorService.verifyEmail(userLogin.getEntityId());
+			} else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+				customerService.verifyEmail(userLogin.getEntityId());
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", new Object[] {}));
+			}
+
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", new Object[] {}));
 		}

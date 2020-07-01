@@ -267,8 +267,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own
-			 * id
+			 * At the time of update is vendor with same email exist or not except it's own id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail(), vendorDTO.getId()).isPresent();
 		} else {
@@ -308,13 +307,13 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will
-		 * verification pending
+		 * if vendor is verifying his email for first time then his old status will verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
 		}
 		vendor.setIsEmailVerified(true);
+		vendor.setActive(true);
 		vendorRepository.save(vendor);
 	}
 
@@ -369,12 +368,13 @@ public class VendorServiceImpl implements VendorService {
 			/**
 			 * if vendor has active orders then he can not update an email
 			 */
+
+			// TODO
 			if (/* condition here */false) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.order.exist", null));
 			} else {
 				/**
-				 * when vendor updates an email then de active him until email not verified and
-				 * send verification link
+				 * when vendor updates an email then de active him until email not verified and send verification link
 				 */
 				vendor.setIsEmailVerified(false);
 				vendor.setIsOrderServiceEnable(false);
