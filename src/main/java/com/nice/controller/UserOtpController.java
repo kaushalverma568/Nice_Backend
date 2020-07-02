@@ -29,10 +29,11 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.model.UserOtp;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.OtpService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @RestController
 @RequestMapping("/otp")
@@ -47,23 +48,31 @@ public class UserOtpController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserOtpController.class);
 
 	/**
-	 * @param  userLoginId
-	 * @param  type
-	 * @param  otp
-	 * @param  email
+	 * @param userLoginId
+	 * @param type
+	 * @param otp
+	 * @param email
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/verify")
 	public ResponseEntity<Object> verifyOtp(@RequestParam(required = false) final Long userLoginId, @RequestParam(required = true) final String type,
-			@RequestParam(required = true) final String otp, @RequestParam(required = false) final String email) throws ValidationException, NotFoundException {
+			@RequestParam(required = true) final String otp, @RequestParam(required = false) final String email,
+			@RequestParam(required = false) final String userType) throws ValidationException, NotFoundException {
 		Boolean response = null;
 		LOGGER.info("Inside verify OTP method");
 		if (userLoginId != null) {
 			response = otpService.verifyOtp(userLoginId, type, otp);
-		} else if (email != null) {
-			response = otpService.verifyOtp(email, type, otp);
+			/**
+			 * at the time of verify otp with email userType is mandatory
+			 */
+		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(email)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
+				response = otpService.verifyOtp(email, type, otp, userType);
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
+			}
 		} else {
 			LOGGER.error("Validation Exception as improper parameters specified");
 			throw new ValidationException(messageByLocaleService.getMessage("user.login.or.email.mandatory", new Object[] {}));
@@ -75,8 +84,8 @@ public class UserOtpController {
 	}
 
 	/**
-	 * @param  userOtpDto
-	 * @param  result
+	 * @param userOtpDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

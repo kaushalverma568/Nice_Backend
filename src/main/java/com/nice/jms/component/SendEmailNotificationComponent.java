@@ -20,6 +20,7 @@ import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.EmailConstants;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.Notification;
@@ -36,10 +37,15 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
+
+	/**
+	 *
+	 */
+	private static final String RESET_PASSWORD = "resetPassword";
 
 	private static final String APPLICATION_NAME = "applicationName";
 
@@ -79,7 +85,7 @@ public class SendEmailNotificationComponent {
 	private CustomerService customerService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -131,13 +137,25 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
-
+			if (SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailParameterMap.put("OTP", "Your OTP is : " + emailNotification.getOtp());
+				emailParameterMap.put(RESET_PASSWORD, "Reset Password");
+				emailParameterMap.put("or", "or");
+			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailParameterMap.put("OTP", "Your OTP is : " + emailNotification.getOtp());
+				emailParameterMap.put(RESET_PASSWORD, "");
+				emailParameterMap.put("or", "");
+			} else {
+				emailParameterMap.put("OTP", "");
+				emailParameterMap.put(RESET_PASSWORD, "Reset Password");
+				emailParameterMap.put("or", "");
+			}
 			if (Constant.CUSTOMER.equalsIgnoreCase(emailNotification.getUserType())) {
-				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?userId=" + emailNotification.getCustomerId() + "&otp="
-						+ emailNotification.getOtp() + "&userType=" + Constant.CUSTOMER);
-			} else if (Constant.ADMIN.equalsIgnoreCase(emailNotification.getUserType())) {
+				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?otp=" + emailNotification.getOtp() + "&userType="
+						+ Constant.CUSTOMER + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
+			} else if (Constant.USER.equalsIgnoreCase(emailNotification.getUserType())) {
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
-						+ Constant.ADMIN + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&userId=" + emailNotification.getCustomerId());
+						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			}
 			emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
 					EmailTemplatesEnum.RESET_PASSWORD.name());

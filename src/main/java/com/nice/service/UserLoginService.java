@@ -7,6 +7,7 @@ import javax.mail.MessagingException;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
+import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserInfo;
 import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
@@ -50,39 +51,6 @@ public interface UserLoginService {
 	 * @return
 	 */
 	Optional<UserLogin> getUserLogin(Long userLoginId);
-
-	/**
-	 * send otp to delivery boy when he/she forgot password
-	 *
-	 * @param email
-	 * @throws ValidationException
-	 * @throws MessagingException
-	 * @throws NotFoundException
-	 */
-	void forgotPasswordSendOtpForDeliveryBoy(String email) throws ValidationException, NotFoundException, MessagingException;
-
-	/**
-	 * generate link for redirect through email
-	 *
-	 * @param email
-	 * @param userType
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	void forgotPasswordLinkGenerator(String email, String userType) throws ValidationException, NotFoundException;
-
-	/**
-	 * reset password from forgot password
-	 *
-	 * @param otp
-	 * @param password
-	 * @param userId
-	 * @param type
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	String resetPassword(String otp, String password, Long userId, String type) throws ValidationException, NotFoundException;
 
 	/**
 	 * get user login by email
@@ -178,12 +146,46 @@ public interface UserLoginService {
 	LoginResponse checkUserLogin(UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException;
 
 	/**
-	 * get user login based on email and role
+	 * get user login based on email and entityType
 	 *
 	 * @param email
-	 * @param name
+	 * @param entityType
 	 * @return
 	 */
-	Optional<UserLogin> getUserLoginBasedOnEmailAndRole(String email, String role);
+	Optional<UserLogin> getUserLoginBasedOnEmailAndEntityType(String email, String entityType);
+
+	/**
+	 * generate Link or OTP for user on forgot password
+	 *
+	 * @param updatePasswordParameterDTO
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws MessagingException
+	 */
+	void forgotPassword(UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException;
+
+	/**
+	 * reset password from forgot password
+	 *
+	 * @param email
+	 * @param otp
+	 * @param password
+	 * @param type
+	 * @param userType
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String resetPassword(String email, String otp, String password, String type, String userType) throws ValidationException, NotFoundException;
+
+	/**
+	 * get user login based on email and userType
+	 *
+	 * @param email
+	 * @param userType
+	 * @return
+	 * @throws ValidationException
+	 */
+	Optional<UserLogin> getUserLoginBasedOnEmailAndUserType(String email, String userType) throws ValidationException;
 
 }

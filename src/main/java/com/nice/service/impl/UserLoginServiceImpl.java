@@ -1,8 +1,6 @@
 package com.nice.service.impl;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.mail.MessagingException;
@@ -45,6 +43,7 @@ import com.nice.dto.LoginResponse;
 import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
+import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserInfo;
 import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
@@ -66,7 +65,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -76,8 +75,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	 *
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserLoginServiceImpl.class);
-	private static final String USER_NOT_EXISTS_EMAIL = "user.not.exists.email";
-	private static final String USER_TYPE = "userType";
 
 	@Autowired
 	private UserLoginRepository userLoginRepository;
@@ -127,7 +124,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 */
 		Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -218,8 +216,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public Optional<UserLogin> getUserLoginBasedOnEmailAndRole(final String email, final String role) {
-		return userLoginRepository.findByEmailAndRole(email, role);
+	public Optional<UserLogin> getUserLoginBasedOnEmailAndEntityType(final String email, final String entityType) {
+		return userLoginRepository.findByEmailAndEntityType(email, entityType);
 	}
 
 	@Override
@@ -228,71 +226,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userId })));
 	}
 
-	@Override
-	public void forgotPasswordSendOtpForDeliveryBoy(final String email) throws ValidationException, NotFoundException, MessagingException {
-		LOGGER.info("inside delivery boy forgot password");
-		UserLogin userLogin = getUserLoginDetailBasedOnEmail(email);
-		if (!Role.DELIVERY_BOY.getStatusValue().equalsIgnoreCase(userLogin.getRole())) {
-			throw new ValidationException(messageByLocaleService.getMessage(USER_NOT_EXISTS_EMAIL, new Object[] { email }));
-		}
-		final UserOtpDto userOtpDto = new UserOtpDto();
-		userOtpDto.setUserLoginId(userLogin.getId());
-		userOtpDto.setType(UserOtpTypeEnum.SMS.name());
-		userOtpDto.setEmail(userLogin.getEmail());
-		userOtpDto.setPhoneNumber(userLogin.getEmail());
-		final UserOtp userOtp = otpService.generateOtp(userOtpDto);
-
-		otpService.sendOtp(userOtpDto, userOtp.getUserLogin(), userOtp.getOtp());
-
-	}
-
-	@Override
-	public void forgotPasswordLinkGenerator(final String email, final String userType) throws ValidationException, NotFoundException {
-		UserLogin userLogin = getUserLoginDetailBasedOnEmail(email);
-		final Map<String, String> emailParameterMap = new HashMap<>();
-		if (userType.equalsIgnoreCase(Constant.CUSTOMER)) {
-			if (!Constant.CUSTOMER.equalsIgnoreCase(userLogin.getRole())) {
-				throw new ValidationException(messageByLocaleService.getMessage(USER_NOT_EXISTS_EMAIL, new Object[] { email }));
-			}
-			emailParameterMap.put(USER_TYPE, Constant.CUSTOMER);
-		} else if (userType.equalsIgnoreCase(Constant.ADMIN)) {
-			emailParameterMap.put(USER_TYPE, Constant.ADMIN);
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-		}
-
-		final UserOtpDto userOtpDto = new UserOtpDto();
-		userOtpDto.setUserLoginId(userLogin.getId());
-		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setEmail(userLogin.getEmail());
-		final UserOtp userOtp = otpService.generateOtp(userOtpDto);
-
-		emailParameterMap.put("userId", String.valueOf(userLogin.getId()));
-		emailParameterMap.put("otp", userOtp.getOtp());
-		sendForgotPasswordLink(userOtp.getOtp(), email, emailParameterMap.get(USER_TYPE), userLogin.getId());
-	}
-
-	private void sendForgotPasswordLink(final String otp, final String email, final String userType, final Long userId) {
+	private void sendForgotPasswordLink(final String otp, final String email, final String userType, final String sendingType) {
 		final Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setEmail(email);
 		notification.setUserType(userType);
-		notification.setCustomerId(userId);
+		notification.setSendingType(sendingType);
 		notification.setType(NotificationQueueConstants.FORGOT_PWD);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
-	}
-
-	@Override
-	public String resetPassword(final String otp, final String password, final Long userId, final String type) throws ValidationException, NotFoundException {
-		if (otpService.verifyOtp(userId, type, otp)) {
-			final UserLogin userLogin = getUserLoginDetail(userId);
-			userLogin.setPassword(CommonUtility.generateBcrypt(password));
-			userLogin.setUpdatedBy(userId);
-			userLoginRepository.save(userLogin);
-			return messageByLocaleService.getMessage("reset.password.successful", null);
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
-		}
 	}
 
 	@Override
@@ -502,4 +443,86 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		return result;
 	}
 
+	@Override
+	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
+		/**
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
+		 */
+		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
+		} else if ((updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail()))
+				|| (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())
+						&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getPhoneNumber()))) {
+			throw new ValidationException(messageByLocaleService
+					.getMessage(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "email.not.null" : "phone.number.not.null", null));
+		} else {
+			String userName;
+			if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+				userName = updatePasswordParameterDTO.getEmail();
+			} else {
+				userName = updatePasswordParameterDTO.getPhoneNumber();
+			}
+			Optional<UserLogin> userLogin = getUserLoginBasedOnEmailAndUserType(userName, updatePasswordParameterDTO.getUserType());
+			if (userLogin.isPresent()) {
+				/**
+				 * generate OTP
+				 */
+				final UserOtpDto userOtpDto = new UserOtpDto();
+				userOtpDto.setUserLoginId(userLogin.get().getId());
+				userOtpDto.setType(updatePasswordParameterDTO.getType());
+				final UserOtp userOtp = otpService.generateOtp(userOtpDto);
+				if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), updatePasswordParameterDTO.getUserType(),
+							updatePasswordParameterDTO.getSendingType());
+				} else {
+					userOtpDto.setPhoneNumber(updatePasswordParameterDTO.getPhoneNumber());
+					otpService.sendOtp(userOtpDto, userOtp.getUserLogin(), userOtp.getOtp());
+				}
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username",
+						new Object[] { CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail())
+								? updatePasswordParameterDTO.getEmail()
+								: updatePasswordParameterDTO.getPhoneNumber() }));
+			}
+		}
+	}
+
+	@Override
+	public Optional<UserLogin> getUserLoginBasedOnEmailAndUserType(final String email, final String userType) throws ValidationException {
+
+		/**
+		 * when user type is user then check is email is exist for super admin or any
+		 * admin panel users
+		 */
+		if (Constant.USER.equalsIgnoreCase(userType)) {
+			return userLoginRepository.findByEmailAndEntityTypeInOrEmailAndEntityTypeIsNull(email, UserType.ADMIN_PANEL_USER_LIST, email);
+		} else if (Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType)) {
+			return userLoginRepository.findByEmailAndEntityType(email,
+					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
+		}
+	}
+
+	@Override
+	public String resetPassword(final String email, final String otp, final String password, final String type, final String userType)
+			throws ValidationException, NotFoundException {
+		if (!(Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.USER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
+		} else if (otpService.verifyOtp(email, type, otp, userType)) {
+			final Optional<UserLogin> userLogin = getUserLoginBasedOnEmailAndUserType(email, userType);
+			if (userLogin.isPresent()) {
+				userLogin.get().setPassword(CommonUtility.generateBcrypt(password));
+				userLoginRepository.save(userLogin.get());
+				return messageByLocaleService.getMessage("reset.password.successful", null);
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { email }));
+			}
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
+		}
+	}
 }

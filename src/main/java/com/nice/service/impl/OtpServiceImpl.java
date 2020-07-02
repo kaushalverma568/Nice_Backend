@@ -31,7 +31,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -81,8 +81,8 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserLoginId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a
-		 * new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if
+		 * yes update the existing row, if not make a new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndType(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -122,9 +122,9 @@ public class OtpServiceImpl implements OtpService {
 	}
 
 	@Override
-	public boolean verifyOtp(final String email, final String type, final String otp) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside fetching OTP for email {} with {} for otp {}", email, type, otp);
-		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmail(email);
+	public boolean verifyOtp(final String email, final String type, final String otp, final String userType) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside fetching OTP for email {} with {} and userType {} for otp {}", email, type, userType, otp);
+		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndUserType(email, userType);
 		if (userLogin.isPresent()) {
 			return verifyOtp(userLogin.get().getId(), type, otp);
 		}
@@ -151,7 +151,8 @@ public class OtpServiceImpl implements OtpService {
 				if (optionalUserOtp.get().getActive().booleanValue()) {
 					Date updatedAt = optionalUserOtp.get().getUpdatedAt();
 					/**
-					 * Check if the otp is generated only before a specified interval, if not return false
+					 * Check if the otp is generated only before a specified interval, if not return
+					 * false
 					 */
 					if ((System.currentTimeMillis() - updatedAt.getTime()) / 60000 < Constant.OTP_VALIDITY_TIME_IN_MIN) {
 						UserOtp userOtp = optionalUserOtp.get();

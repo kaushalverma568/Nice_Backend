@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.nice.constant.Constant;
 import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserOtpTypeEnum;
@@ -41,6 +40,7 @@ import com.nice.constant.UserType;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
+import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserInfo;
 import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
@@ -54,7 +54,7 @@ import com.nice.util.OauthTokenUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -82,39 +82,33 @@ public class UserLoginController {
 	private TokenStore tokenStore;
 
 	@GetMapping("/forgotPassword")
-	public ResponseEntity<Object> forgotPassword(@RequestParam(name = "email", required = true) final String email,
-			@RequestParam(name = "userType", required = true) final String userType) throws ValidationException, NotFoundException, MessagingException {
-		LOGGER.info("inside forgot password with usertype {}", userType);
-		if (!(userType.equalsIgnoreCase(Constant.CUSTOMER) || userType.equalsIgnoreCase(Constant.ADMIN) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
+	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid final UpdatePasswordParameterDTO updatePasswordParameterDTO, final BindingResult result)
+			throws ValidationException, NotFoundException, MessagingException {
+		LOGGER.info("inside forgot password with UpdatePasswordParameterDTO : {}", updatePasswordParameterDTO);
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (Constant.DELIVERY_BOY.equalsIgnoreCase(userType)) {
-			userLoginService.forgotPasswordSendOtpForDeliveryBoy(email);
-			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-					.setMessage(messageByLocaleService.getMessage("check.message.reset.password", null)).create();
-		} else {
-			userLoginService.forgotPasswordLinkGenerator(email, userType);
-			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-					.setMessage(messageByLocaleService.getMessage("check.email.reset.password", null)).create();
-		}
+		userLoginService.forgotPassword(updatePasswordParameterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(
+				updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "check.email.reset.password" : "check.message.reset.password",
+				null)).create();
 	}
 
-	@PostMapping("/resetPassword/{otp}/{type}/{userType}")
-	public ResponseEntity<Object> forgotPassword(@RequestHeader("userId") final Long userId, @PathVariable("otp") final String otp,
+	@PostMapping("/resetPassword/{email}/{otp}/{type}/{userType}")
+	public ResponseEntity<Object> resetPassword(@PathVariable("email") final String email, @PathVariable("otp") final String otp,
 			@RequestBody final String password, @PathVariable("type") final String type, @PathVariable("userType") final String userType)
 			throws ValidationException, NotFoundException {
-		if (!(Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.ADMIN.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-		}
-		String response = userLoginService.resetPassword(otp, password, userId,
-				"EMAIL".equalsIgnoreCase(type) ? UserOtpTypeEnum.EMAIL.name() : UserOtpTypeEnum.SMS.name());
+
+		String response = userLoginService.resetPassword(email, otp, password,
+				UserOtpTypeEnum.EMAIL.name().equalsIgnoreCase(type) ? UserOtpTypeEnum.EMAIL.name() : UserOtpTypeEnum.SMS.name(), userType);
 		return new GenericResponseHandlers.Builder().setMessage(response).setData(response).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
 	 * Get user info based on token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -130,8 +124,8 @@ public class UserLoginController {
 	 * This method is use to verify the user.</br>
 	 * We verify user through email only
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -161,9 +155,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -173,7 +167,8 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user token
+		 * When password is changed and the user is not super admin, revoke the user
+		 * token
 		 */
 		if (!(Role.SUPER_ADMIN.name().equals(userLogin.getRole()))) {
 			revokeToken(userLogin.getEmail());
@@ -192,9 +187,9 @@ public class UserLoginController {
 	/**
 	 * Update Email For Admin
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -210,11 +205,11 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
-	 * then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add
+	 * that user's information and if exists then will sent generated token.
 	 *
-	 * @param  socialLoginDto
-	 * @param  result
+	 * @param socialLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

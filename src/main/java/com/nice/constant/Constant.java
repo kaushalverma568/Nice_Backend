@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -35,6 +35,7 @@ public final class Constant {
 	public static final String SORT_TYPE_DESC = "DESC";
 	public static final String ADMIN = "Admin";
 	public static final String DELIVERY_BOY = "Delivery Boy";
+	public static final String USER = "USER";
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
 
@@ -47,7 +48,8 @@ public final class Constant {
 	private static String smsApiKey = "default";
 
 	/**
-	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
+	 * Sets the values of static fields</b> The value specified is set for the key
+	 * specified in the arguments</br>
 	 *
 	 * @param key
 	 * @param value
@@ -63,7 +65,7 @@ public final class Constant {
 	}
 
 	/**
-	 * @param  key
+	 * @param key
 	 * @return
 	 */
 	public static String getSettingsValue(final String key) {
