@@ -67,7 +67,11 @@ public class OtpServiceImpl implements OtpService {
 		if (userOtpDto.getUserLoginId() != null) {
 			userlogin = userLoginService.getUserLogin(userOtpDto.getUserLoginId());
 		} else if (userOtpDto.getEmail() != null) {
-			userlogin = userLoginService.getUserLoginBasedOnEmail(userOtpDto.getEmail());
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getUserType())) {
+				userlogin = userLoginService.getUserLoginBasedOnEmailAndUserType(userOtpDto.getEmail(), userOtpDto.getUserType());
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
+			}
 		} else {
 			LOGGER.error("Neither UserId, not userEmail specified to generate OTP");
 			throw new ValidationException(messageByLocaleService.getMessage("otp.id.email.not.null", null));
