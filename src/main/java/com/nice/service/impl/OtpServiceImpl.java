@@ -62,18 +62,21 @@ public class OtpServiceImpl implements OtpService {
 		LOGGER.info("Inside generating OTP for userDTO : {}", userOtpDto);
 		Optional<UserLogin> userlogin = null;
 		/**
-		 * Check if userId or UserEmail is available to generate OTP.
+		 * Check if userId or (UserEmail or phoneNumber) is available to generate OTP.
 		 */
 		if (userOtpDto.getUserLoginId() != null) {
 			userlogin = userLoginService.getUserLogin(userOtpDto.getUserLoginId());
-		} else if (userOtpDto.getEmail() != null) {
+		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getEmail())
+				|| CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getPhoneNumber())) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getUserType())) {
-				userlogin = userLoginService.getUserLoginBasedOnEmailAndUserType(userOtpDto.getEmail(), userOtpDto.getUserType());
+				userlogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(
+						CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail() : userOtpDto.getPhoneNumber(),
+						userOtpDto.getUserType());
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
 			}
 		} else {
-			LOGGER.error("Neither UserId, not userEmail specified to generate OTP");
+			LOGGER.error("Neither UserId, not userName specified to generate OTP");
 			throw new ValidationException(messageByLocaleService.getMessage("otp.id.email.not.null", null));
 		}
 
@@ -98,7 +101,7 @@ public class OtpServiceImpl implements OtpService {
 		userOtp.setActive(true);
 		userOtpRepository.save(userOtp);
 
-		LOGGER.info("Generated new Otp : {} for userId : {}", userOtp.getOtp(), userOtp.getId());
+		LOGGER.info("Generated new Otp : {} for userId : {}", userOtp.getOtp(), userlogin.get().getId());
 		return userOtp;
 
 	}
@@ -126,9 +129,9 @@ public class OtpServiceImpl implements OtpService {
 	}
 
 	@Override
-	public boolean verifyOtp(final String email, final String type, final String otp, final String userType) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside fetching OTP for email {} with {} and userType {} for otp {}", email, type, userType, otp);
-		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndUserType(email, userType);
+	public boolean verifyOtp(final String userName, final String type, final String otp, final String userType) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside fetching OTP for userName {} with {} and userType {} for otp {}", userName, type, userType, otp);
+		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(userName, userType);
 		if (userLogin.isPresent()) {
 			return verifyOtp(userLogin.get().getId(), type, otp);
 		}

@@ -41,9 +41,9 @@ public interface OtpService {
 	boolean verifyOtp(Long userLoginId, String type, String otp) throws ValidationException, NotFoundException;
 
 	/**
-	 * Verify Opt using user email
+	 * Verify Opt using user user name
 	 *
-	 * @param email
+	 * @param userName
 	 * @param type
 	 * @param otp
 	 * @param userType
@@ -51,7 +51,7 @@ public interface OtpService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	boolean verifyOtp(String email, String type, String otp, String userType) throws ValidationException, NotFoundException;
+	boolean verifyOtp(String userName, String type, String otp, String userType) throws ValidationException, NotFoundException;
 
 	/**
 	 * @param userOtpDto

@@ -64,7 +64,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -129,7 +129,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -427,7 +428,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms then phone number is required
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
 		 */
 		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -445,7 +447,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else {
 				userName = updatePasswordParameterDTO.getPhoneNumber();
 			}
-			Optional<UserLogin> userLogin = getUserLoginBasedOnEmailAndUserType(userName, updatePasswordParameterDTO.getUserType());
+			Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, updatePasswordParameterDTO.getUserType());
 			if (userLogin.isPresent()) {
 				/**
 				 * generate OTP
@@ -471,15 +473,17 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public Optional<UserLogin> getUserLoginBasedOnEmailAndUserType(final String email, final String userType) throws ValidationException {
+	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email is exist for super admin or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin
+		 * or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
-			return userLoginRepository.findByEmailAndEntityTypeInOrEmailAndEntityTypeIsNull(email, UserType.ADMIN_PANEL_USER_LIST, email);
+			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
 		} else if (Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType)) {
-			return userLoginRepository.findByEmailAndEntityType(email,
+			return userLoginRepository.findByEmailAndEntityTypeOrPhoneNumberAndEntityType(userName,
+					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name(), userName,
 					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
@@ -487,18 +491,18 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public String resetPassword(final String email, final String otp, final String password, final String type, final String userType)
+	public String resetPassword(final String userName, final String otp, final String password, final String type, final String userType)
 			throws ValidationException, NotFoundException {
 		if (!(Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.USER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-		} else if (otpService.verifyOtp(email, type, otp, userType)) {
-			final Optional<UserLogin> userLogin = getUserLoginBasedOnEmailAndUserType(email, userType);
+		} else if (otpService.verifyOtp(userName, type, otp, userType)) {
+			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, userType);
 			if (userLogin.isPresent()) {
 				userLogin.get().setPassword(CommonUtility.generateBcrypt(password));
 				userLoginRepository.save(userLogin.get());
 				return messageByLocaleService.getMessage("reset.password.successful", null);
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { email }));
+				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { userName }));
 			}
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
@@ -508,7 +512,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber
+		 * and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -521,12 +526,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 
 			/**
-			 * If User login is exist and customer is also exist and registeredVia is OTP of existing userLogin then proceed for
-			 * generation of otp
+			 * If User login is exist and customer is also exist and registeredVia is OTP of
+			 * existing userLogin then proceed for generation of otp
 			 */
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getOtp())) {
 				/**
-				 * If customer's mobile verified false then activate customer and mobile verified true
+				 * If customer's mobile verified false then activate customer and mobile
+				 * verified true
 				 */
 				if (optCustomer.get().getMobileVerified() == null || !optCustomer.get().getMobileVerified()) {
 					optCustomer.get().setMobileVerified(true);
@@ -555,7 +561,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in
+			 * userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
