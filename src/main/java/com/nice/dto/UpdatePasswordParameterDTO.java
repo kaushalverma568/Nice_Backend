@@ -10,9 +10,8 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 02-07-2020
+ * @date   : 02-07-2020
  */
 @Data
 public class UpdatePasswordParameterDTO implements Serializable {
@@ -28,18 +27,17 @@ public class UpdatePasswordParameterDTO implements Serializable {
 	/**
 	 * It could be either customer,user or super_admin
 	 */
-
 	@NotBlank(message = "{user.type.not.null}")
 	private String userType;
 
 	/**
-	 * it could be either sms or email
+	 * it could be either SMS or EMAIL
 	 */
 	@NotBlank(message = "{type.not.null}")
 	private String type;
 
 	/**
-	 * it could be either link,otp or both
+	 * it could be either LINK,OTP or BOTH
 	 */
 	private String sendingType;
 }

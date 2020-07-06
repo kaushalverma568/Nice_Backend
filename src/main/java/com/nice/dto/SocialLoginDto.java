@@ -35,20 +35,4 @@ public class SocialLoginDto implements Serializable {
 	@NotBlank(message = "{registeredVia.name.not.null}")
 	private String registeredVia;
 
-	private String clientId;
-
-	private String clientSecret;
-
-	private Long userId;
-
-	/**
-	 * For email trigger only
-	 */
-	private boolean isNewCustomer;
-
-	/**
-	 * For email purpose only
-	 */
-	private Long customerId;
-
 }

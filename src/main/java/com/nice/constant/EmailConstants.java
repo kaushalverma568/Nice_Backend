@@ -34,5 +34,4 @@ public final class EmailConstants {
 
 	public static final String OTP_VERIFICATION_TEMPLATE = "otp_verification";
 	public static final String FORGOT_CREDS_SUBJECT = "Reset Password";
-	public static final String PLACE_ORDER_SUBJECT = "Order confirmation";
 }

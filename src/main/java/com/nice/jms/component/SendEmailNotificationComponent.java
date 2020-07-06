@@ -37,7 +37,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -85,7 +85,7 @@ public class SendEmailNotificationComponent {
 	private CustomerService customerService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -97,7 +97,7 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		if (NotificationQueueConstants.CUSTOMER_REGISTRATION.equals(emailNotification.getType())) {
 			customerRegistration(emailNotification);
-		} else if (NotificationQueueConstants.FORGOT_PWD.equals(emailNotification.getType())) {
+		} else if (NotificationQueueConstants.FORGOT_PASS.equals(emailNotification.getType())) {
 			forgotPassword(emailNotification);
 		} else if (NotificationQueueConstants.EMAIL_VERIFICATION.equals(emailNotification.getType())) {
 			emailVerification(emailNotification);

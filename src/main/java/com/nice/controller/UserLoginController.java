@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -31,8 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserOtpTypeEnum;
@@ -41,7 +40,6 @@ import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UpdatePasswordParameterDTO;
-import com.nice.dto.UserInfo;
 import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.UnAuthorizationException;
@@ -50,11 +48,10 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.model.UserLogin;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.UserLoginService;
-import com.nice.util.OauthTokenUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -106,26 +103,11 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Get user info based on token
-	 *
-	 * @param accessToken
-	 * @return
-	 * @throws NotFoundException
-	 */
-	@GetMapping(path = "/details")
-	public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") final String accessToken) throws NotFoundException {
-		final String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		final UserInfo userLogin = userLoginService.getUserInfo(username);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(userLogin)
-				.setMessage(messageByLocaleService.getMessage("user.login.detail.message", null)).create();
-	}
-
-	/**
 	 * This method is use to verify the user.</br>
 	 * We verify user through email only
 	 *
-	 * @param userId
-	 * @param otp
+	 * @param  userId
+	 * @param  otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -155,9 +137,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param passwordDTO
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -167,8 +149,7 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user
-		 * token
+		 * When password is changed and the user is not super admin, revoke the user token
 		 */
 		if (!(Role.SUPER_ADMIN.name().equals(userLogin.getRole()))) {
 			revokeToken(userLogin.getEmail());
@@ -177,6 +158,12 @@ public class UserLoginController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("password.update", null)).create();
 	}
 
+	/**
+	 * Logout API : Also revoke access of token
+	 *
+	 * @param  accessToken
+	 * @return
+	 */
 	@GetMapping(path = "/logout")
 	public ResponseEntity<Object> logout(@RequestHeader("Authorization") final String accessToken) {
 		String tokenValue = accessToken.replace("Bearer", "").trim();
@@ -187,9 +174,9 @@ public class UserLoginController {
 	/**
 	 * Update Email For Admin
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param passwordDTO
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -205,35 +192,31 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add
-	 * that user's information and if exists then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
+	 * then will sent generated token.
 	 *
-	 * @param socialLoginDto
-	 * @param result
+	 * @param  socialLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws MessagingException
-	 * @throws IOException
-	 * @throws GeneralSecurityException
+	 * @throws UnAuthorizationException
 	 */
 	@PostMapping("/social")
 	public ResponseEntity<Object> socialLogin(@RequestBody @Valid final SocialLoginDto socialLoginDto, final BindingResult result)
-			throws ValidationException, NotFoundException {
+			throws ValidationException, NotFoundException, UnAuthorizationException {
 		LOGGER.info(" Inside social Login for email {} ", socialLoginDto.getEmail());
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		SocialLoginDto resultSocialLoginDto = userLoginService.socialLogin(socialLoginDto);
-		if (resultSocialLoginDto.isNewCustomer()) {
-			userLoginService.sendWelComeEmail(resultSocialLoginDto.getUserId());
+		UserLoginDto userLoginDto = userLoginService.socialLogin(socialLoginDto);
+		if (userLoginDto.isNewCustomer()) {
+			userLoginService.sendWelComeEmail(userLoginDto.getUserId());
 		}
 
-		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
-		LoginResponse loginResponse = OauthTokenUtil.getAuthToken(url, resultSocialLoginDto);
-		loginResponse.setUserId(resultSocialLoginDto.getUserId());
+		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
 	}
@@ -247,6 +230,16 @@ public class UserLoginController {
 		LOGGER.info("Successfully Revoked token for user {}", userName);
 	}
 
+	/**
+	 * ADMIN & USER Login and generate token
+	 *
+	 * @param  userLoginDto
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
+	 */
 	@PostMapping("/admin/login")
 	public ResponseEntity<Object> adminLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
@@ -255,11 +248,22 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		userLoginDto.setUserType(UserType.USER.name());
+		userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
 	}
 
+	/**
+	 * Customer Login and generate token
+	 *
+	 * @param  userLoginDto
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
+	 */
 	@PostMapping("/customer/login")
 	public ResponseEntity<Object> customerLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
@@ -268,12 +272,23 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		userLoginDto.setUserType(UserType.CUSTOMER.name());
+		userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
 	}
 
-	@PostMapping("/app/login")
+	/**
+	 * Delivery boy Login and generate token
+	 *
+	 * @param  userLoginDto
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
+	 */
+	@PostMapping("/delivery/boy/login")
 	public ResponseEntity<Object> deliveryBoyLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -281,9 +296,51 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		userLoginDto.setUserType(UserType.DELIVERY_BOY.name());
+		userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
+	}
+
+	/**
+	 * Login with OTP for customer
+	 *
+	 * @param  userLoginDto
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
+	 */
+	@PostMapping("/customer/login/otp")
+	public ResponseEntity<Object> customerLoginOtp(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+			throws ValidationException, NotFoundException, UnAuthorizationException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		userLoginDto.setUserType(UserType.CUSTOMER.name());
+		userLoginDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
+		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
+	}
+
+	/**
+	 * API is useful for generate OTP for login. </br>
+	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
+	 *
+	 * @param  phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/customer/generate/otp/{phoneNumber}")
+	public ResponseEntity<Object> generateOtpForLogin(@PathVariable(name = "phoneNumber") final String phoneNumber)
+			throws ValidationException, NotFoundException {
+		String otp = userLoginService.generateOtpForLogin(phoneNumber);
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).setData(otp)
+				.setStatus(HttpStatus.OK).create();
 	}
 
 }

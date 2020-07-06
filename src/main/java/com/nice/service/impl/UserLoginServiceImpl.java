@@ -44,7 +44,6 @@ import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UpdatePasswordParameterDTO;
-import com.nice.dto.UserInfo;
 import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.BaseRuntimeException;
@@ -65,7 +64,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -94,7 +93,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Autowired
 	private CustomerService customerService;
 
-	@SuppressWarnings("unused")
 	@Override
 	public UserDetails loadUserByUsername(final String username) {
 		String actualUser = null;
@@ -119,13 +117,19 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("specify.role", new Object[] {}));
 		}
 
+		Optional<UserLogin> optUserLogin = Optional.empty();
+
+		if (RegisterVia.OTP.getStatusValue().equals(requestVia)) {
+			optUserLogin = userLoginRepository.findByPhoneNumberAndEntityType(actualUser, userType);
+		}
 		/**
 		 * Fetch user based on email(userName)
 		 */
-		Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
+		else {
+			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
+		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a
-		 * superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -174,6 +178,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return new UserAwareUserDetails(actualUser, optUserLogin.get().getGoogleKey(), Arrays.asList(authority), optUserLogin.get());
 		} else if (RegisterVia.FACEBOOK.getStatusValue().equals(requestVia)) {
 			return new UserAwareUserDetails(actualUser, optUserLogin.get().getFacebookKey(), Arrays.asList(authority), optUserLogin.get());
+		} else if (RegisterVia.OTP.getStatusValue().equals(requestVia)) {
+			return new UserAwareUserDetails(actualUser, optUserLogin.get().getOtp(), Arrays.asList(authority), optUserLogin.get());
 		} else {
 			if (optUserLogin.get().getPassword() == null) {
 				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.unauthorized.social", null));
@@ -188,6 +194,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			userLogin.setFacebookKey(CommonUtility.generateBcrypt(userLogin.getFacebookKey()));
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getGoogleKey())) {
 			userLogin.setGoogleKey(CommonUtility.generateBcrypt(userLogin.getGoogleKey()));
+		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getOtp())) {
+			userLogin.setOtp(CommonUtility.generateBcrypt(userLogin.getOtp()));
 		} else {
 			userLogin.setPassword(CommonUtility.generateBcrypt(userLogin.getPassword()));
 		}
@@ -232,44 +240,33 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		notification.setEmail(email);
 		notification.setUserType(userType);
 		notification.setSendingType(sendingType);
-		notification.setType(NotificationQueueConstants.FORGOT_PWD);
+		notification.setType(NotificationQueueConstants.FORGOT_PASS);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
 	@Override
-	public SocialLoginDto socialLogin(final SocialLoginDto socialLoginDto) throws ValidationException, NotFoundException {
-		socialLoginDto.setClientId(Constant.CLIENT_ID);
-		socialLoginDto.setClientSecret(Constant.SECRET_ID);
-		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmail(socialLoginDto.getEmail());
+	public UserLoginDto socialLogin(final SocialLoginDto socialLoginDto) throws ValidationException, NotFoundException {
+		UserLoginDto userLoginDto = new UserLoginDto();
+		userLoginDto.setUserName(socialLoginDto.getEmail());
+		userLoginDto.setPassword(socialLoginDto.getUniqueId());
+		userLoginDto.setRegisteredVia(socialLoginDto.getRegisteredVia());
+		userLoginDto.setUserType(Role.CUSTOMER.getStatusValue());
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(socialLoginDto.getEmail(), Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
-			if (!optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())) {
-				throw new ValidationException(messageByLocaleService.getMessage("same.admin.email.exists", null));
-			}
 			Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(socialLoginDto.getEmail());
 			if (!optCustomer.isPresent()) {
-				throw new NotFoundException(
-						messageByLocaleService.getMessage("customer.not.found.email", new Object[] { Constant.CUSTOMER, socialLoginDto.getEmail() }));
+				throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { socialLoginDto.getEmail() }));
 			}
 			if ((RegisterVia.GOOGLE.getStatusValue().equals(socialLoginDto.getRegisteredVia())
 					&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getGoogleKey()))
 					|| (RegisterVia.FACEBOOK.getStatusValue().equals(socialLoginDto.getRegisteredVia())
 							&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getFacebookKey()))) {
-				socialLoginDto.setUserId(optUserLogin.get().getId());
-				/**
-				 * to handle old data this code is not required for new database
-				 */
-				if (!optUserLogin.get().getActive().booleanValue()) {
-					optUserLogin.get().setActive(Boolean.TRUE);
-					optCustomer.get().setEmailVerified(true);
-					optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
-					userLoginRepository.save(optUserLogin.get());
-					customerRepository.save(optCustomer.get());
-				}
-				return socialLoginDto;
+				userLoginDto.setUserId(optUserLogin.get().getId());
+				return userLoginDto;
 			} else {
 				if (!optUserLogin.get().getActive().booleanValue()) {
 					optUserLogin.get().setActive(Boolean.TRUE);
-					socialLoginDto.setNewCustomer(true);
+					userLoginDto.setNewCustomer(true);
 				}
 				/**
 				 * User is present but it is login with another social then set key accordingly
@@ -284,8 +281,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
 				userLoginRepository.save(optUserLogin.get());
 				customerRepository.save(optCustomer.get());
-				socialLoginDto.setUserId(optUserLogin.get().getId());
-				return socialLoginDto;
+				userLoginDto.setUserId(optUserLogin.get().getId());
+				return userLoginDto;
 			}
 		} else {
 			/**
@@ -296,9 +293,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			customerDto.setPassword(socialLoginDto.getUniqueId());
 			customerDto.setActive(true);
 			final Long userId = customerService.addCustomer(customerDto, true);
-			socialLoginDto.setUserId(userId);
-			socialLoginDto.setNewCustomer(true);
-			return socialLoginDto;
+			userLoginDto.setUserId(userId);
+			userLoginDto.setNewCustomer(true);
+			return userLoginDto;
 		}
 
 	}
@@ -332,9 +329,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public UserLogin updatePassword(final PasswordDTO passwordDTO) throws ValidationException, NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		UserInfo userInfo = getUserInfo(userLogin.getEmail());
-		if (userInfo.getCanChangePassword() != null) {
-			if (Boolean.TRUE.equals(userInfo.getCanChangePassword())) {
+		Boolean canChangePassword = !(userLogin.getPassword() == null
+				&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null));
+		if (canChangePassword != null) {
+			if (Boolean.TRUE.equals(canChangePassword)) {
 				if (passwordDTO.getOldPassword() == null) {
 					throw new ValidationException(messageByLocaleService.getMessage("old.password.not.null", null));
 				}
@@ -358,20 +356,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("old.password.not.match", null));
 		}
-	}
-
-	@Override
-	public UserInfo getUserInfo(final String username) throws NotFoundException {
-		Optional<UserLogin> userLogin = userLoginRepository.findByEmail(username);
-		final UserInfo userInfo = new UserInfo();
-		if (userLogin.isPresent()) {
-			BeanUtils.copyProperties(userLogin.get(), userInfo);
-			if (Role.CUSTOMER.getStatusValue().equals(userLogin.get().getRole())) {
-				userInfo.setCanChangePassword(
-						!(userLogin.get().getPassword() == null && (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null)));
-			}
-		}
-		return userInfo;
 	}
 
 	@Override
@@ -400,10 +384,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
 		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
-		return getAuthToken(url, userLoginDto);
+		return generateAuthToken(url, userLoginDto);
 	}
 
-	private LoginResponse getAuthToken(final String url, final UserLoginDto userLoginDto) throws NotFoundException, UnAuthorizationException {
+	private LoginResponse generateAuthToken(final String url, final UserLoginDto userLoginDto) throws NotFoundException, UnAuthorizationException {
 
 		RestTemplate restTemplate = null;
 		LoginResponse result = null;
@@ -426,7 +410,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		map = new LinkedMultiValueMap<>();
 		map.add("grant_type", Constant.GRANT_TYPE);
-		map.add("username", userLoginDto.getUserName().concat("!!").concat(userLoginDto.getUserType()));
+		map.add("username", userLoginDto.getUserName().concat("!!").concat(userLoginDto.getUserType()).concat("#").concat(userLoginDto.getRegisteredVia()));
 		map.add("password", userLoginDto.getPassword());
 
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
@@ -436,18 +420,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (result.getStatus() == (HttpStatus.UNAUTHORIZED.value())) {
 			throw new UnAuthorizationException(result.getMessage());
 		}
-		UserInfo userInfo = getUserInfo(userLoginDto.getUserName());
-		BeanUtils.copyProperties(userInfo, result);
-		result.setUserId(userInfo.getId());
 
-		return result;
+		return getUserInfo(result, userLoginDto);
 	}
 
 	@Override
 	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms
-		 * then phone number is required
+		 * verify type and if type is email then email is required and if type is sms then phone number is required
 		 */
 		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -494,8 +474,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnEmailAndUserType(final String email, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email is exist for super admin or any
-		 * admin panel users
+		 * when user type is user then check is email is exist for super admin or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.findByEmailAndEntityTypeInOrEmailAndEntityTypeIsNull(email, UserType.ADMIN_PANEL_USER_LIST, email);
@@ -524,5 +503,92 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
 		}
+	}
+
+	@Override
+	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
+		/**
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 */
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
+		if (optUserLogin.isPresent()) {
+			/**
+			 * Additional check whether customer is available or not.
+			 */
+			Optional<Customer> optCustomer = customerRepository.findByPhoneNumberIgnoreCase(phoneNumber);
+			if (!optCustomer.isPresent()) {
+				throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { phoneNumber }));
+			}
+
+			/**
+			 * If User login is exist and customer is also exist and registeredVia is OTP of existing userLogin then proceed for
+			 * generation of otp
+			 */
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getOtp())) {
+				/**
+				 * If customer's mobile verified false then activate customer and mobile verified true
+				 */
+				if (optCustomer.get().getMobileVerified() == null || !optCustomer.get().getMobileVerified()) {
+					optCustomer.get().setMobileVerified(true);
+					optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
+					customerRepository.save(optCustomer.get());
+				}
+			} else {
+				/**
+				 * Suppose existing user is registered but not active yet
+				 */
+				if (!optUserLogin.get().getActive().booleanValue()) {
+					optUserLogin.get().setActive(Boolean.TRUE);
+				}
+
+				optCustomer.get().setMobileVerified(true);
+				optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
+				customerRepository.save(optCustomer.get());
+			}
+
+			/**
+			 * Generate OTP and save OTP in userLoing table
+			 */
+			String otp = String.valueOf(CommonUtility.getRandomNumber());
+			optUserLogin.get().setOtp(CommonUtility.generateBcrypt(otp));
+			userLoginRepository.save(optUserLogin.get());
+			return otp;
+		} else {
+			/**
+			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 */
+			String otp = String.valueOf(CommonUtility.getRandomNumber());
+
+			/**
+			 * User is not exists hence create new customer & user login
+			 */
+			final CustomerDTO customerDto = new CustomerDTO();
+			customerDto.setFirstName("TEST");
+			customerDto.setLastName("TEST");
+			customerDto.setEmail("abc@gmail.com");
+			customerDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
+			customerDto.setPhoneNumber(phoneNumber);
+			customerDto.setPassword(otp);
+			customerDto.setActive(true);
+			customerService.addCustomer(customerDto, true);
+			return otp;
+		}
+	}
+
+	private LoginResponse getUserInfo(final LoginResponse loginResponse, final UserLoginDto userLoginDto) throws NotFoundException {
+		Optional<UserLogin> userLogin;
+		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
+			userLogin = userLoginRepository.findByPhoneNumberAndEntityType(userLoginDto.getUserName(), userLoginDto.getUserType());
+		} else {
+			userLogin = userLoginRepository.findByEmailAndEntityType(userLoginDto.getUserName(), userLoginDto.getUserType());
+		}
+		if (userLogin.isPresent()) {
+			BeanUtils.copyProperties(userLogin.get(), loginResponse);
+			if (Role.CUSTOMER.getStatusValue().equals(userLogin.get().getRole())) {
+				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
+						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
+			}
+		}
+		return loginResponse;
 	}
 }

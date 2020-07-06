@@ -38,6 +38,9 @@ public class UserLogin extends CommonModel {
 	@Column(name = "email", nullable = false)
 	private String email;
 
+	@Column(name = "phone_number")
+	private String phoneNumber;
+
 	@Column(name = "password", nullable = false)
 	private String password;
 
@@ -49,5 +52,8 @@ public class UserLogin extends CommonModel {
 
 	@Column(name = "google_key")
 	private String googleKey;
+
+	@Column(name = "otp")
+	private String otp;
 
 }

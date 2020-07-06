@@ -42,4 +42,16 @@ public class LoginResponse implements Serializable {
 
 	private int status;
 
+	private Long entityId;
+
+	private String entityType;
+
+	private String email;
+
+	private String phoneNumber;
+
+	private String role;
+
+	private Boolean canChangePassword;
+
 }

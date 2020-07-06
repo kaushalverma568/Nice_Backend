@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
@@ -105,8 +106,14 @@ public class CustomerServiceImpl implements CustomerService {
 
 		UserLogin userLogin = new UserLogin();
 		if (isAuthorized) {
-			customer.setEmailVerified(true);
-			customer.setMobileVerified(false);
+			if (RegisterVia.GOOGLE.getStatusValue().equals(customersDTO.getRegisteredVia())
+					|| RegisterVia.FACEBOOK.getStatusValue().equals(customersDTO.getRegisteredVia())) {
+				customer.setEmailVerified(true);
+				customer.setMobileVerified(false);
+			} else {
+				customer.setEmailVerified(false);
+				customer.setMobileVerified(true);
+			}
 			customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
 			userLogin.setActive(true);
 		} else {
@@ -122,19 +129,24 @@ public class CustomerServiceImpl implements CustomerService {
 		userLogin.setEntityType(UserType.CUSTOMER.name());
 		userLogin.setEmail(resultCustomer.getEmail());
 		userLogin.setRole(Role.CUSTOMER.name());
+		userLogin.setPhoneNumber(resultCustomer.getPhoneNumber());
 
-		if ("FACEBOOK".equals(customersDTO.getRegisteredVia())) {
+		if (RegisterVia.FACEBOOK.getStatusValue().equals(customersDTO.getRegisteredVia())) {
 			userLogin.setFacebookKey(customersDTO.getPassword());
-		} else if ("GOOGLE".equals(customersDTO.getRegisteredVia())) {
+		} else if (RegisterVia.GOOGLE.getStatusValue().equals(customersDTO.getRegisteredVia())) {
 			userLogin.setGoogleKey(customersDTO.getPassword());
-		} else {
+		} else if (RegisterVia.OTP.getStatusValue().equals(customersDTO.getRegisteredVia())) {
+			userLogin.setOtp(customersDTO.getPassword());
+		} else if (RegisterVia.APP.getStatusValue().equals(customersDTO.getRegisteredVia())) {
 			userLogin.setPassword(customersDTO.getPassword());
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("register.via.not.valid", null));
 		}
 		userLogin = userLoginService.addUserLogin(userLogin);
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
-		if (!customer.getEmailVerified().booleanValue()) {
+		if (RegisterVia.APP.getStatusValue().equals(customersDTO.getRegisteredVia())) {
 			sendOtpForEmailVerification(userLogin, resultCustomer);
 		}
 

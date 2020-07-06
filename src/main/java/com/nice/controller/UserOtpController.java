@@ -33,7 +33,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @RestController
 @RequestMapping("/otp")
@@ -48,10 +48,10 @@ public class UserOtpController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserOtpController.class);
 
 	/**
-	 * @param userLoginId
-	 * @param type
-	 * @param otp
-	 * @param email
+	 * @param  userLoginId
+	 * @param  type
+	 * @param  otp
+	 * @param  email
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -84,8 +84,8 @@ public class UserOtpController {
 	}
 
 	/**
-	 * @param userOtpDto
-	 * @param result
+	 * @param  userOtpDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -104,7 +104,8 @@ public class UserOtpController {
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 		otpService.sendOtp(userOtpDto, otp.getUserLogin(), otp.getOtp());
 		LOGGER.info("Otp Generated Successfully, {}", userOtpDto);
-		return new GenericResponseHandlers.Builder().setMessage("Otp Generated Successfully").setStatus(HttpStatus.OK).setData(otp.getOtp()).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).setStatus(HttpStatus.OK)
+				.setData(otp.getOtp()).create();
 	}
 
 }
