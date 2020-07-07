@@ -34,7 +34,7 @@ import com.nice.service.ProductVariantService;
  * @date : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
-@RestController(value = "niceProductVariantController")
+@RestController(value = "productVariantController")
 public class ProductVariantController {
 	/**
 	 *
@@ -62,16 +62,15 @@ public class ProductVariantController {
 	 */
 	@PostMapping("/{productId}/variant")
 	public ResponseEntity<Object> addUpdateProductVariantList(@RequestHeader("Authorization") final String accessToken,
-			@RequestHeader("userId") final Long userId, @PathVariable("productId") final Long productId,
-			@RequestBody final List<ProductVariantRequestDTO> productVariantRequestDTOList, final BindingResult result)
-			throws ValidationException, NotFoundException {
+			@PathVariable("productId") final Long productId, @RequestBody final List<ProductVariantRequestDTO> productVariantRequestDTOList,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add ProductVariant list {}", productVariantRequestDTOList);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("ProductVariant validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		productVariantService.addUpdateProductVariantList(productId, productVariantRequestDTOList, userId);
+		productVariantService.addUpdateProductVariantList(productId, productVariantRequestDTOList);
 		LOGGER.info("Outside add ProductVariant");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.create.message", null)).create();
@@ -86,14 +85,14 @@ public class ProductVariantController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping(value = "/{productId}/variant/{productVariantId}")
+	@GetMapping(value = "/variant/{productVariantId}")
 	public ResponseEntity<Object> getProductVariant(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productVariantId") final Long productVariantId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get ProductVariant ");
 		/**
 		 * for admin set isAdmin to true
 		 */
-		final ProductVariantResponseDTO resultProductVariantDTO = productVariantService.getProductVariant(productVariantId, null, null, true);
+		final ProductVariantResponseDTO resultProductVariantDTO = productVariantService.getProductVariant(productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.detail.message", null)).setData(resultProductVariantDTO).create();
 	}
@@ -108,10 +107,10 @@ public class ProductVariantController {
 	 * @throws ValidationException
 	 */
 	@GetMapping(value = "/variant/sku/{sku}")
-	public ResponseEntity<Object> getProductVariantBySku(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
-			@PathVariable("sku") final String sku) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> getProductVariantBySku(@RequestHeader("Authorization") final String accessToken, @PathVariable("sku") final String sku)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get ProductVariant by sku ");
-		final ProductVariantResponseDTO resultProductVariantDTO = productVariantService.getProductVariantBySku(sku, userId);
+		final ProductVariantResponseDTO resultProductVariantDTO = productVariantService.getProductVariantBySku(sku);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.detail.message", null)).setData(resultProductVariantDTO).create();
 	}
@@ -135,8 +134,7 @@ public class ProductVariantController {
 		/**
 		 * it is for admin so setting isAdmin true
 		 */
-		final List<ProductVariantResponseDTO> resultProductVariantList = productVariantService.getProductVariantProductList(productId, activeRecords, null,
-				null, true);
+		final List<ProductVariantResponseDTO> resultProductVariantList = productVariantService.getProductVariantProductList(productId, activeRecords, true);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.list.message", null)).setData(resultProductVariantList).create();
 	}
@@ -153,7 +151,7 @@ public class ProductVariantController {
 	 * @throws ValidationException
 	 */
 
-	@PutMapping("/{productId}/variant/status/{productVariantId}")
+	@PutMapping("/variant/status/{productVariantId}")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
 			@PathVariable("productVariantId") final Long productVariantId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {

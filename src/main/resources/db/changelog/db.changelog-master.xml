@@ -96,11 +96,34 @@
 				path="sql-files/1.0/scheduler_details.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
-	
 	<changeSet id="15" author="het.shah"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/product_add_foodType.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="16" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/product_topping.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="17" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/product_attribute.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="18" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/temp_cart.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="19" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/cart.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
 </databaseChangeLog>

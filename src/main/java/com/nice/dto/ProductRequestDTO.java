@@ -50,6 +50,7 @@ public class ProductRequestDTO implements Serializable {
 
 	private Boolean combo;
 
+	@NotNull(message = "{food.type.not.null}")
 	private String productFoodType;
 
 }

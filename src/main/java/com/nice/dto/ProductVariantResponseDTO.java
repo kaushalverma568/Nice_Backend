@@ -4,13 +4,15 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
 /**
+ *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Mar-2020
- * @description :
+ * @date : 03-Jul-2020
  */
 @Data
 public class ProductVariantResponseDTO implements Serializable {
@@ -36,6 +38,13 @@ public class ProductVariantResponseDTO implements Serializable {
 	private Boolean active;
 
 	private Boolean productAvailable;
+
+	private List<ProductToppingDto> productToppingsDtoList;
+	private List<ProductAddonsDTO> productAddonsDtoList;
+	/**
+	 * This Map<AttributeName, List<AttributeValues>>
+	 */
+	private Map<String, List<ProductAttributeValueDTO>> productAttributeValuesDtoMap;
 
 	public ProductVariantResponseDTO() {
 

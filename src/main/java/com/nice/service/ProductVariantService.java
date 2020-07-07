@@ -62,50 +62,25 @@ public interface ProductVariantService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	List<ProductVariantResponseDTO> getProductVariantProductList(Long productId, Boolean active, Long pincodeId, Long storeId, Boolean isAdmin)
-			throws NotFoundException, ValidationException;
+	List<ProductVariantResponseDTO> getProductVariantProductList(Long productId, Boolean active, Boolean isAdmin) throws NotFoundException, ValidationException;
 
 	/**
 	 * add/update list of product variant
 	 *
 	 * @param productId
 	 * @param productVariantRequestDTOList
-	 * @param userId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addUpdateProductVariantList(Long productId, List<ProductVariantRequestDTO> productVariantRequestDTOList, Long userId)
-			throws NotFoundException, ValidationException;
-
-	/**
-	 * @param productVariantList
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	List<ProductVariantResponseDTO> convertToResponseDtoList(List<ProductVariant> productVariantList, Long pincodeId)
-			throws NotFoundException, ValidationException;
-
-	/**
-	 * @param productVariantId
-	 * @param pincodeId
-	 * @param storeId
-	 * @param isAdmin
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	ProductVariantResponseDTO getProductVariant(Long productVariantId, Long pincodeId, Long storeId, Boolean isAdmin)
-			throws NotFoundException, ValidationException;
+	void addUpdateProductVariantList(Long productId, List<ProductVariantRequestDTO> productVariantRequestDTOList) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param sku
-	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	ProductVariantResponseDTO getProductVariantBySku(String sku, Long userId) throws NotFoundException, ValidationException;
+	ProductVariantResponseDTO getProductVariantBySku(String sku) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param sku
@@ -130,6 +105,14 @@ public interface ProductVariantService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active)
-			throws NotFoundException, ValidationException;
+	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param productVariantId
+	 * @param isAdmin
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	ProductVariantResponseDTO getProductVariantInternal(Long productVariantId, Boolean isAdmin) throws NotFoundException, ValidationException;
 }

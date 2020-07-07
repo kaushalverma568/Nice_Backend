@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -63,7 +63,7 @@ public final class Constant {
 	}
 
 	/**
-	 * @param  key
+	 * @param key
 	 * @return
 	 */
 	public static String getSettingsValue(final String key) {
@@ -87,5 +87,6 @@ public final class Constant {
 
 	public static final String CLIENT_ID = "kody-client";
 	public static final String SECRET_ID = "kody-secret";
+	public static final String UNAUTHORIZED = "unauthorized";
 
 }

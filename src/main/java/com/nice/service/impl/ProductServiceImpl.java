@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.CuisineResponseDTO;
 import com.nice.dto.CuisineWiseProductCountDTO;
@@ -34,6 +35,7 @@ import com.nice.service.BrandService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
 import com.nice.service.FileStorageService;
+import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SubCategoryService;
@@ -83,6 +85,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private CuisineService cuisineService;
+
+	@Autowired
+	private ProductExtrasService productExtrasService;
 
 	private UserLogin getUserLoginFromToken() {
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
@@ -199,10 +204,10 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		UserLogin userLogin = getUserLoginFromToken();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		if (productRequestDTO.getId() != null && !productRequestDTO.getVendorId().equals(userLogin.getEntityId())) {
-			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 
 		/**
@@ -276,7 +281,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
-
+		productResponseDTO.setProductExtrasList(productExtrasService.getList(product.getId(), listForAdmin ? null : true));
 		// if (product.getDiscountId() != null) {
 		// productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
 		// }
@@ -432,5 +437,17 @@ public class ProductServiceImpl implements ProductService {
 			productResponseDtoList.add(convertEntityToResponseDto(product, true));
 		}
 		return productResponseDtoList;
+	}
+
+	/**
+	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
+	 */
+	@Override
+	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {
+		Product product = getProductDetail(productId);
+		Double updatedRating = ((product.getRating() * product.getNoOfRating()) + ratingByClient) / (product.getNoOfRating() + 1);
+		product.setRating(updatedRating);
+		product.setNoOfRating(product.getNoOfRating() + 1);
+		productRepository.save(product);
 	}
 }

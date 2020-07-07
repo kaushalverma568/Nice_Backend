@@ -29,6 +29,7 @@ public class ProductResponseDTO implements Serializable {
 	private Long discountId;
 	private String discountStatus;
 	private List<ProductVariantResponseDTO> productVariantList;
+	private List<ProductExtrasDTO> productExtrasList;
 	private boolean isWishlisted;
 	private Double rating;
 	private Long noOfRating;

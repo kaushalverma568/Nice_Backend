@@ -1,14 +1,20 @@
 package com.nice.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.UserType;
+import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductVariantRequestDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -18,11 +24,14 @@ import com.nice.mapper.ProductVariantMapper;
 import com.nice.model.Product;
 import com.nice.model.ProductVariant;
 import com.nice.model.UOM;
+import com.nice.model.UserLogin;
 import com.nice.repository.ProductVariantRepository;
+import com.nice.service.ProductAddonsService;
+import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductService;
+import com.nice.service.ProductToppingService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.UOMService;
-import com.nice.service.UserLoginService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -62,9 +71,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	// @Autowired
 	// private StockDetailsService stockDetailsService;
 
-	@Autowired
-	private UserLoginService userLoginService;
-
 	// @Autowired
 	// private UsersService usersService;
 	//
@@ -76,14 +82,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	//
 	// @Autowired
 	// private PosCartService posCartService;
+	@Autowired
+	private ProductAddonsService productAddonsService;
+
+	@Autowired
+	private ProductToppingService productToppingService;
+
+	@Autowired
+	private ProductAttributeValueService productAttributeValueService;
 
 	@Override
-	public void addUpdateProductVariantList(final Long productId, final List<ProductVariantRequestDTO> productVariantRequestDTOList, final Long userId)
+	public void addUpdateProductVariantList(final Long productId, final List<ProductVariantRequestDTO> productVariantRequestDTOList)
 			throws NotFoundException, ValidationException {
 		final Product product = productService.getProductDetail(productId);
 		for (ProductVariantRequestDTO productVariantRequestDTO : productVariantRequestDTOList) {
 			validateProductVariant(product, productVariantRequestDTO);
-			final ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequestDTO, userId);
+			final ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequestDTO);
 			productVariant.setVendorId(product.getVendorId());
 			if (productVariantRequestDTO.getId() == null) {
 				productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
@@ -172,24 +186,30 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			throws NotFoundException, ValidationException {
 		List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
 		List<ProductVariant> productVariants = getProductVariantByProduct(product, active);
+		UserLogin userLogin = getUserLoginFromToken();
+		Boolean isAdmin = false;
+		if (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			isAdmin = true;
+		}
 		for (ProductVariant productVariant : productVariants) {
-			ProductVariantResponseDTO productVariantResponseDTO = convertToResponseDto(productVariant);
+			ProductVariantResponseDTO productVariantResponseDTO = convertToResponseDto(productVariant, isAdmin);
 			productVariantResponseDTOs.add(productVariantResponseDTO);
 		}
 		return productVariantResponseDTOs;
 	}
 
-	@Override
-	public List<ProductVariantResponseDTO> convertToResponseDtoList(final List<ProductVariant> productVariantList, final Long pincodeId)
-			throws NotFoundException, ValidationException {
-		List<ProductVariantResponseDTO> productVariantResponseDTOList = new ArrayList<>();
-		for (ProductVariant productVariant : productVariantList) {
-			productVariantResponseDTOList.add(convertToResponseDto(productVariant));
-		}
-		return productVariantResponseDTOList;
-	}
+	// @Override
+	// public List<ProductVariantResponseDTO> convertToResponseDtoList(final List<ProductVariant> productVariantList, final
+	// Long pincodeId)
+	// throws NotFoundException, ValidationException {
+	// List<ProductVariantResponseDTO> productVariantResponseDTOList = new ArrayList<>();
+	// for (ProductVariant productVariant : productVariantList) {
+	// productVariantResponseDTOList.add(convertToResponseDto(productVariant));
+	// }
+	// return productVariantResponseDTOList;
+	// }
 
-	private ProductVariantResponseDTO convertToResponseDto(final ProductVariant productVariant) {
+	private ProductVariantResponseDTO convertToResponseDto(final ProductVariant productVariant, final boolean isAdmin) throws NotFoundException {
 		ProductVariantResponseDTO productVariantResponseDTO = new ProductVariantResponseDTO();
 		BeanUtils.copyProperties(productVariant, productVariantResponseDTO);
 		productVariantResponseDTO.setId(productVariant.getId());
@@ -204,6 +224,25 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 * Get available qty from inventory and set here, currently set as 0
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
+		/**
+		 * Set product addons, attribute values and toppings list for the product variant
+		 */
+		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
+		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
+				isAdmin ? null : Boolean.TRUE);
+		Map<String, List<ProductAttributeValueDTO>> productAttributeValueDtoMap = new HashMap<>();
+		for (ProductAttributeValueDTO productAttributeValueDTO : productAttributeValueDtoList) {
+			if (productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()) == null) {
+				List<ProductAttributeValueDTO> productAttributeValueDTOList = new ArrayList<>();
+				productAttributeValueDTOList.add(productAttributeValueDTO);
+				productAttributeValueDtoMap.put(productAttributeValueDTO.getProductAttributeName(), productAttributeValueDTOList);
+			} else {
+				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
+			}
+		}
+		productVariantResponseDTO.setProductAttributeValuesDtoMap(productAttributeValueDtoMap);
+		productVariantResponseDTO
+				.setProductToppingsDtoList(productToppingService.getToppingForProductVariant(productVariant.getId(), isAdmin ? null : Boolean.TRUE));
 		return productVariantResponseDTO;
 	}
 
@@ -254,22 +293,55 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		}
 	}
 
+	// private void changeStatusForDependentEntity(final Long productVariantId, final Boolean active) throws
+	// NotFoundException, ValidationException {
+	// List<ProductAddons> productAddonsList = productAddonsService.getList(true, productVariantId);
+	// for (ProductAddons productAddons : productAddonsList) {
+	// productAddonsService.changeStatus(productAddons.getId(), false);
+	// }
+	// }
+
 	@Override
-	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active, final Long pincodeId, final Long storeId,
-			final Boolean isAdmin) throws NotFoundException, ValidationException {
+	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active, final Boolean isAdmin)
+			throws NotFoundException, ValidationException {
 		final Product product = productService.getProductDetail(productId);
 		return getProductVariantDetailByProduct(product, active);
 	}
 
 	@Override
 	public ProductVariantResponseDTO getProductVariant(final Long productVariantId) throws NotFoundException, ValidationException {
-		return convertToResponseDto(getProductVariantDetail(productVariantId));
+		UserLogin userLogin = getUserLoginFromToken();
+		Boolean isAdmin = false;
+		if (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			isAdmin = true;
+		}
+		return getProductVariantInternal(productVariantId, isAdmin);
+	}
+
+	/**
+	 * This method will be used only for internal calls to skip the authentication process
+	 *
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@Override
+	public ProductVariantResponseDTO getProductVariantInternal(final Long productVariantId, final Boolean isAdmin)
+			throws NotFoundException, ValidationException {
+		return convertToResponseDto(getProductVariantDetail(productVariantId), isAdmin);
 	}
 
 	@Override
-	public ProductVariantResponseDTO getProductVariantBySku(final String sku, final Long vendorId) throws NotFoundException, ValidationException {
-
-		return convertToResponseDto(getProductVariantDetailBySku(sku, vendorId));
+	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+		}
+		/**
+		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
+		 */
+		return convertToResponseDto(getProductVariantDetailBySku(sku, userLogin.getEntityId()), true);
 	}
 
 	@Override
@@ -278,11 +350,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("product.variant.not.found", null)));
 	}
 
-	@Override
-	public ProductVariantResponseDTO getProductVariant(final Long productVariantId, final Long pincodeId, final Long storeId, final Boolean isAdmin)
-			throws NotFoundException, ValidationException {
-		// TODO Auto-generated method stub
-		return null;
+	private UserLogin getUserLoginFromToken() {
+		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
-
 }

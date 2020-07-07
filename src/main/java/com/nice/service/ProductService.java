@@ -129,6 +129,14 @@ public interface ProductService {
 	List<ProductResponseDTO> getProductListForVendorAndCuisine(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
 
 	/**
+	 *
+	 * @param productId
+	 * @param newRating
+	 * @throws NotFoundException
+	 */
+	void updateProductRating(Long productId, Double newRating) throws NotFoundException;
+
+	/**
 	 * get response of global search
 	 *
 	 * @param searchKeyword

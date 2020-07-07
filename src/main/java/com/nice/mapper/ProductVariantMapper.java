@@ -15,7 +15,7 @@ import com.nice.model.ProductVariant;
  * @author : Kody Technolab PVT. LTD.
  * @date : 29-Jun-2020
  */
-@Component(value = "niceProductVariantMapper")
+@Component(value = "productVariantMapper")
 public class ProductVariantMapper {
 	public ProductVariantRequestDTO toRequestDto(final ProductVariant productVariant) {
 		ProductVariantRequestDTO productVariantRequestDTO = new ProductVariantRequestDTO();
@@ -29,13 +29,9 @@ public class ProductVariantMapper {
 		return productVariantResponseDTO;
 	}
 
-	public ProductVariant toEntity(final ProductVariantRequestDTO productVariantRequestDTO, final Long userId) {
+	public ProductVariant toEntity(final ProductVariantRequestDTO productVariantRequestDTO) {
 		ProductVariant productVariant = new ProductVariant();
 		BeanUtils.copyProperties(productVariantRequestDTO, productVariant);
-		if (productVariantRequestDTO.getId() == null) {
-			productVariant.setCreatedBy(userId);
-		}
-		productVariant.setUpdatedBy(userId);
 		return productVariant;
 	}
 
