@@ -37,10 +37,15 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
+
+	/**
+	 * 
+	 */
+	private static final String COMPANY_EMAIL = "companyEmail";
 
 	/**
 	 *
@@ -85,7 +90,7 @@ public class SendEmailNotificationComponent {
 	private CustomerService customerService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -118,6 +123,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("customerUrl", customerUrl);
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
@@ -135,21 +141,10 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(GROCERUS_BIG_LOGO, CommonUtility.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
-			if (SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailParameterMap.put("OTP", "Your OTP is : " + emailNotification.getOtp());
-				emailParameterMap.put(RESET_PASSWORD, "Reset Password");
-				emailParameterMap.put("or", "or");
-			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailParameterMap.put("OTP", "Your OTP is : " + emailNotification.getOtp());
-				emailParameterMap.put(RESET_PASSWORD, "");
-				emailParameterMap.put("or", "");
-			} else {
-				emailParameterMap.put("OTP", "");
-				emailParameterMap.put(RESET_PASSWORD, "Reset Password");
-				emailParameterMap.put("or", "");
-			}
+			emailParameterMap.put("OTP", emailNotification.getOtp());
 			if (Constant.CUSTOMER.equalsIgnoreCase(emailNotification.getUserType())) {
 				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ Constant.CUSTOMER + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
@@ -157,8 +152,21 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			}
-			emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-					EmailTemplatesEnum.RESET_PASSWORD.name());
+			/**
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
+			 */
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
+					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name());
+			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name());
+			} else {
+				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name());
+			}
 		}
 	}
 
@@ -171,10 +179,27 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(GROCERUS_BIG_LOGO, CommonUtility.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getCustomerId() + "?otp=" + emailNotification.getOtp());
-			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-					EmailConstants.EMAIL_VERIFICATION_TEMPLATE);
+			emailParameterMap.put("OTP", emailNotification.getOtp());
+			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
+
+			/**
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
+			 */
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
+					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name());
+			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name());
+			} else {
+				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name());
+			}
 		}
 	}
 

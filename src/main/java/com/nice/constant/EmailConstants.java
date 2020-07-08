@@ -2,7 +2,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 public final class EmailConstants {
 
@@ -25,8 +25,6 @@ public final class EmailConstants {
 	 * Email Template Names </br>
 	 * Note: Place all the templates in the templates folder under resources
 	 */
-
-	public static final String EMAIL_VERIFICATION_TEMPLATE = "email_verification";
 
 	/**
 	 * Template URL, for generating the link in templates.
