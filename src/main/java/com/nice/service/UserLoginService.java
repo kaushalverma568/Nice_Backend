@@ -40,25 +40,10 @@ public interface UserLoginService {
 	UserLogin updateUserLogin(UserLogin userLogin) throws NotFoundException;
 
 	/**
-	 * @param email
-	 * @return
-	 */
-	Optional<UserLogin> getUserLoginBasedOnEmail(String email);
-
-	/**
 	 * @param userLoginId
 	 * @return
 	 */
 	Optional<UserLogin> getUserLogin(Long userLoginId);
-
-	/**
-	 * get user login by email
-	 *
-	 * @param email
-	 * @return
-	 * @throws NotFoundException
-	 */
-	UserLogin getUserLoginDetailBasedOnEmail(String email) throws NotFoundException;
 
 	/**
 	 * get user login by id

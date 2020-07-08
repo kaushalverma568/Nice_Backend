@@ -85,12 +85,12 @@ public class UsersServiceImpl implements UsersService {
 		/**
 		 * Change UserLogin Role if Users role is changed
 		 */
-		if (!existingUsers.getRole().equals(usersDTO.getRole()) || !existingUsers.getEmail().equals(usersDTO.getEmail())) {
+		if (!existingUsers.getRole().equals(usersDTO.getRole()) || !existingUsers.getEmail().equalsIgnoreCase(usersDTO.getEmail())) {
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingUsers.getEmail(), UserType.USER.name());
 			if (optUserLogin.isPresent()) {
 				UserLogin userLogin = optUserLogin.get();
 				userLogin.setRole(usersDTO.getRole());
-				userLogin.setEmail(usersDTO.getEmail());
+				userLogin.setEmail(usersDTO.getEmail().toLowerCase());
 				userLoginService.updateUserLogin(userLogin);
 			}
 		}
@@ -156,19 +156,19 @@ public class UsersServiceImpl implements UsersService {
 		/**
 		 * if super admin contains same email then return true
 		 */
-		if (userLoginRepository.findByEmailAndEntityTypeIsNull(usersDTO.getEmail()).isPresent()) {
+		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIsNull(usersDTO.getEmail()).isPresent()) {
 			return true;
 		} else {
 			if (usersDTO.getId() != null) {
 				/**
 				 * At the time of update is user with same name exist or not except it's own id
 				 */
-				return usersRepository.findByEmailAndIdNot(usersDTO.getEmail(), usersDTO.getId()).isPresent();
+				return usersRepository.findByEmailAndIdNot(usersDTO.getEmail().toLowerCase(), usersDTO.getId()).isPresent();
 			} else {
 				/**
 				 * At the time of create is user with same name exist or not
 				 */
-				return usersRepository.findByEmail(usersDTO.getEmail()).isPresent();
+				return usersRepository.findByEmail(usersDTO.getEmail().toLowerCase()).isPresent();
 			}
 		}
 	}

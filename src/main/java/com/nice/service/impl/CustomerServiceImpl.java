@@ -50,7 +50,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -97,7 +97,7 @@ public class CustomerServiceImpl implements CustomerService {
 		Optional<Customer> optCustomer = customerRepository.findByEmail(customersDTO.getEmail().toLowerCase());
 		if (optCustomer.isPresent() && !optCustomer.get().getEmailVerified().booleanValue()) {
 			customer = optCustomer.get();
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customer.getEmail());
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
 			if (optUserLogin.isPresent()) {
 				sendOtpForEmailVerification(optUserLogin.get(), customer);
 				return optUserLogin.get().getId();
@@ -158,8 +158,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -252,7 +252,7 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 
 			LOGGER.info("Deactivate/activate user login");
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(existingCustomer.getEmail());
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingCustomer.getEmail(), UserType.CUSTOMER.name());
 			if (optUserLogin.isPresent()) {
 				UserLogin userLogin = optUserLogin.get();
 				userLogin.setActive(active);
@@ -274,13 +274,15 @@ public class CustomerServiceImpl implements CustomerService {
 			return customerRepository.findByEmailAndIdNot(customerDTO.getEmail().toLowerCase(), customerDTO.getId()).isPresent();
 		} else {
 			/**
-			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with same name exist or not
+			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with
+			 * same name exist or not
 			 */
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

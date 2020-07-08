@@ -17,17 +17,11 @@ import com.nice.model.UserLogin;
 public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 
 	/**
-	 * @param email
-	 * @return
-	 */
-	Optional<UserLogin> findByEmail(String email);
-
-	/**
 	 * @param phoneNumber
 	 * @param entityType
 	 * @return
 	 */
-	Optional<UserLogin> findByPhoneNumberAndEntityType(String phoneNumber, String entityType);
+	Optional<UserLogin> findByPhoneNumberIgnoreCaseAndEntityType(String phoneNumber, String entityType);
 
 	/**
 	 * @param entityId
@@ -37,31 +31,24 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 
 	/**
 	 * @param email
-	 * @param id
-	 * @return
-	 */
-	Optional<UserLogin> findByEmailAndIdNot(String email, Long id);
-
-	/**
-	 * @param email
 	 * @param upperCase
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailAndEntityType(String email, String entityType);
+	Optional<UserLogin> findByEmailIgnoreCaseAndEntityType(String email, String entityType);
 
 	/**
 	 * @param actualUser
 	 * @param name
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailAndRole(String actualUser, String name);
+	Optional<UserLogin> findByEmailIgnoreCaseAndRole(String actualUser, String name);
 
 	/**
 	 * @param email
 	 * @param name
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailAndEntityTypeIsNull(String email);
+	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeIsNull(String email);
 
 	/**
 	 *
@@ -71,7 +58,8 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 	 * @param entityType1
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailAndEntityTypeOrPhoneNumberAndEntityType(String userName, String entityType, String userName1, String entityType1);
+	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(String userName, String entityType, String userName1,
+			String entityType1);
 
 	/**
 	 * get admin panel user's login detail based entity type(null or admin panel
@@ -84,4 +72,14 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 	 */
 	@Query("select u from UserLogin u where ( u.entityType IS NULL or u.entityType in :adminPanelUserList ) and ( u.email=:userName or u.phoneNumber=:userName ) ")
 	Optional<UserLogin> getAdminPanelUserBasedOnUserNameAndEntityType(String userName, List<String> adminPanelUserList);
+
+	/**
+	 * get user login details based on email and entity type : this method is used
+	 * at the time of update super admin's email
+	 *
+	 * @param email
+	 * @param adminPanelUserList
+	 * @return
+	 */
+	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeIn(String email, List<String> adminPanelUserList);
 }
