@@ -94,10 +94,10 @@ public class CustomerServiceImpl implements CustomerService {
 		/**
 		 * Check if customer already exists, if so then lets only send him email again.
 		 */
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customersDTO.getEmail());
+		Optional<Customer> optCustomer = customerRepository.findByEmail(customersDTO.getEmail().toLowerCase());
 		if (optCustomer.isPresent() && !optCustomer.get().getEmailVerified().booleanValue()) {
 			customer = optCustomer.get();
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customersDTO.getEmail());
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customer.getEmail());
 			if (optUserLogin.isPresent()) {
 				sendOtpForEmailVerification(optUserLogin.get(), customer);
 				return optUserLogin.get().getId();
@@ -271,12 +271,12 @@ public class CustomerServiceImpl implements CustomerService {
 			/**
 			 * At the time of update is customer with same name exist or not
 			 */
-			return customerRepository.findByEmailIgnoreCaseAndIdNot(customerDTO.getEmail(), customerDTO.getId()).isPresent();
+			return customerRepository.findByEmailAndIdNot(customerDTO.getEmail().toLowerCase(), customerDTO.getId()).isPresent();
 		} else {
 			/**
 			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with same name exist or not
 			 */
-			Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customerDTO.getEmail());
+			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
 				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
@@ -322,21 +322,6 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean isUserLoginExists(final CustomerDTO customerDTO) {
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customerDTO.getEmail());
-		if (optCustomer.isPresent()) {
-			return false;
-		}
-		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customerDTO.getEmail());
-		if (optUserLogin.isPresent()) {
-			return (!(customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
-					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())));
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	public Long getActiveCustomer(final boolean active) {
 		return customerRepository.countByActive(active);
 	}
@@ -369,15 +354,6 @@ public class CustomerServiceImpl implements CustomerService {
 		} else {
 			return customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber()).isPresent();
 		}
-	}
-
-	@Override
-	public Customer getCustomerFromEmail(final String email) throws NotFoundException {
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(email);
-		if (optCustomer.isPresent()) {
-			return optCustomer.get();
-		}
-		throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { email }));
 	}
 
 }

@@ -113,12 +113,6 @@ public interface CustomerService {
 	void verifyEmail(Long customerId) throws NotFoundException;
 
 	/**
-	 * @param  customerDTO
-	 * @return
-	 */
-	boolean isUserLoginExists(CustomerDTO customerDTO);
-
-	/**
 	 * @param  active
 	 * @return
 	 */
@@ -138,11 +132,5 @@ public interface CustomerService {
 	 * @return
 	 */
 	boolean isPhoneExists(CustomerDTO customerDTO);
-
-	/**
-	 * @param  email
-	 * @throws NotFoundException
-	 */
-	Customer getCustomerFromEmail(String email) throws NotFoundException;
 
 }

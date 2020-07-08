@@ -64,7 +64,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -129,8 +129,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a
-		 * superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -248,13 +247,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public UserLoginDto socialLogin(final SocialLoginDto socialLoginDto) throws ValidationException, NotFoundException {
 		UserLoginDto userLoginDto = new UserLoginDto();
-		userLoginDto.setUserName(socialLoginDto.getEmail());
+		userLoginDto.setUserName(socialLoginDto.getEmail().toLowerCase());
 		userLoginDto.setPassword(socialLoginDto.getUniqueId());
 		userLoginDto.setRegisteredVia(socialLoginDto.getRegisteredVia());
 		userLoginDto.setUserType(Role.CUSTOMER.getStatusValue());
-		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(socialLoginDto.getEmail(), Role.CUSTOMER.getStatusValue());
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(socialLoginDto.getEmail().toLowerCase(),
+				Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
-			Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(socialLoginDto.getEmail());
+			Optional<Customer> optCustomer = customerRepository.findByEmail(socialLoginDto.getEmail().toLowerCase());
 			if (!optCustomer.isPresent()) {
 				throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { socialLoginDto.getEmail() }));
 			}
@@ -332,19 +332,15 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		Boolean canChangePassword = !(userLogin.getPassword() == null
 				&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null));
-		if (canChangePassword != null) {
-			if (Boolean.TRUE.equals(canChangePassword)) {
-				if (passwordDTO.getOldPassword() == null) {
-					throw new ValidationException(messageByLocaleService.getMessage("old.password.not.null", null));
-				}
-				changePassword(passwordDTO, userLogin.getId(), userLogin);
-			} else {
-				userLogin.setPassword(CommonUtility.generateBcrypt(passwordDTO.getNewPassword()));
-				userLogin.setUpdatedBy(userLogin.getId());
-				userLoginRepository.save(userLogin);
+		if (Boolean.TRUE.equals(canChangePassword)) {
+			if (passwordDTO.getOldPassword() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("old.password.not.null", null));
 			}
-		} else {
 			changePassword(passwordDTO, userLogin.getId(), userLogin);
+		} else {
+			userLogin.setPassword(CommonUtility.generateBcrypt(passwordDTO.getNewPassword()));
+			userLogin.setUpdatedBy(userLogin.getId());
+			userLoginRepository.save(userLogin);
 		}
 		return userLogin;
 	}
@@ -428,8 +424,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms
-		 * then phone number is required
+		 * verify type and if type is email then email is required and if type is sms then phone number is required
 		 */
 		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -476,8 +471,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin
-		 * or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -512,8 +506,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber
-		 * and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -526,13 +519,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 
 			/**
-			 * If User login is exist and customer is also exist and registeredVia is OTP of
-			 * existing userLogin then proceed for generation of otp
+			 * If User login is exist and customer is also exist and registeredVia is OTP of existing userLogin then proceed for
+			 * generation of otp
 			 */
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getOtp())) {
 				/**
-				 * If customer's mobile verified false then activate customer and mobile
-				 * verified true
+				 * If customer's mobile verified false then activate customer and mobile verified true
 				 */
 				if (optCustomer.get().getMobileVerified() == null || !optCustomer.get().getMobileVerified()) {
 					optCustomer.get().setMobileVerified(true);
@@ -561,8 +553,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in
-			 * userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
