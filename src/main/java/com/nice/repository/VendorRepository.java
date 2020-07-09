@@ -15,8 +15,8 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor by vendor email and id not equal if exist
 	 *
-	 * @param contactNo
-	 * @param id
+	 * @param  contactNo
+	 * @param  id
 	 * @return
 	 */
 	Optional<Vendor> findByEmailAndIdNot(String email, Long id);
@@ -24,7 +24,7 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor by vendor email if exist
 	 *
-	 * @param email
+	 * @param  email
 	 * @return
 	 */
 	Optional<Vendor> findByEmail(String email);
@@ -32,8 +32,8 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor page by active
 	 *
-	 * @param activeRecords
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Vendor> findAllByActive(Boolean activeRecords, Pageable pageable);
@@ -41,9 +41,9 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor page by active and isEmailVerified
 	 *
-	 * @param activeRecords
-	 * @param isEmailVerified
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  isEmailVerified
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Vendor> findAllByActiveAndIsEmailVerified(Boolean activeRecords, Boolean isEmailVerified, Pageable pageable);
@@ -51,10 +51,27 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor page by isEmailVerified
 	 *
-	 * @param isEmailVerified
-	 * @param pageable
+	 * @param  isEmailVerified
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Vendor> findAllByIsEmailVerified(Boolean isEmailVerified, Pageable pageable);
+
+	/**
+	 * Get vendor by vendor email and id not equal if exist
+	 *
+	 * @param  contactNo
+	 * @param  id
+	 * @return
+	 */
+	Optional<Vendor> findByContactNoAndIdNot(String contactNo, Long id);
+
+	/**
+	 * Get vendor by vendor email if exist
+	 *
+	 * @param  email
+	 * @return
+	 */
+	Optional<Vendor> findByContactNo(String contactNo);
 
 }

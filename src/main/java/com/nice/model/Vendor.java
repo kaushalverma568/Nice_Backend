@@ -21,9 +21,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 @Entity
 @Data
@@ -83,7 +82,7 @@ public class Vendor extends CommonModel {
 
 	// this will be in minutes
 	@Column(name = "approx_delivery_time")
-	private String approxDeliveryTime;
+	private Integer approxDeliveryTime;
 
 	@Column(name = "minimum_order_amt")
 	private Double minimumOrderAmt;
@@ -111,8 +110,13 @@ public class Vendor extends CommonModel {
 	@Column(name = "delivery_type")
 	private String deliveryType;
 
-	@Column(name = "opening_hours")
-	private String openingHours;
+	@Temporal(TemporalType.TIME)
+	@Column(name = "opening_hours_from")
+	private Date openingHoursFrom;
+
+	@Temporal(TemporalType.TIME)
+	@Column(name = "opening_hours_to")
+	private Date openingHoursTo;
 
 	@JoinColumn(name = "country_id")
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
@@ -148,5 +152,8 @@ public class Vendor extends CommonModel {
 
 	@Column(name = "profile_picture_original_name")
 	private String profilePictureOriginalName;
+
+	@Column(name = "is_contact_verified", nullable = false)
+	private Boolean isContactVerified;
 
 }

@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.nice.util.FileStorageProperties;
 
@@ -11,6 +12,7 @@ import com.nice.util.FileStorageProperties;
  * @author : Kody Technolab PVT. LTD.
  * @date   : 19-Jun-2020
  */
+@EnableScheduling
 @EnableAutoConfiguration
 @SpringBootApplication
 @EnableConfigurationProperties({ FileStorageProperties.class })

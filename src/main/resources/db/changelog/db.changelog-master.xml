@@ -102,6 +102,7 @@
 			path="sql-files/1.0/product_add_foodType.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
+
 	<changeSet id="16" author="het.shah"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -125,5 +126,18 @@
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/cart.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
+			</changeSet>
+		
+	<changeSet id="20" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/vendor_cuisine.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="21" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/vendor_change.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
 	</changeSet>
 </databaseChangeLog>

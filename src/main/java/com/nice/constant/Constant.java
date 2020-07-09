@@ -38,6 +38,9 @@ public final class Constant {
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
 
+	public static final String VENDOR_SUBSCRIPTION_EXPIRE = "VENDOR_SUBSCRIPTION_EXPIRE";
+	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
+
 	/**
 	 * Settings Flags:
 	 */

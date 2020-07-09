@@ -1,9 +1,12 @@
 package com.nice.service.impl;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +32,10 @@ import com.nice.constant.VendorStatus;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.dto.VendorBankDetailsDTO;
+import com.nice.dto.VendorCuisineDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
+import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.NotFoundException;
@@ -41,29 +46,33 @@ import com.nice.mapper.VendorMapper;
 import com.nice.model.BusinessCategory;
 import com.nice.model.City;
 import com.nice.model.Country;
+import com.nice.model.CustomerAddress;
 import com.nice.model.Pincode;
 import com.nice.model.SubscriptionPlan;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
+import com.nice.model.VendorCuisine;
 import com.nice.repository.VendorBankDetailsRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BusinessCategoryService;
 import com.nice.service.CityService;
 import com.nice.service.CountryService;
+import com.nice.service.CustomerAddressService;
 import com.nice.service.FileStorageService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.service.UserLoginService;
+import com.nice.service.VendorCuisineService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 24-Mar-2020
  * @description :
  */
 
@@ -115,6 +124,12 @@ public class VendorServiceImpl implements VendorService {
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
 
+	@Autowired
+	private VendorCuisineService vendorCuisineService;
+
+	@Autowired
+	private CustomerAddressService customerAddressService;
+
 	@Override
 	public void addVendor(final VendorDTO vendorDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
@@ -133,6 +148,7 @@ public class VendorServiceImpl implements VendorService {
 		 */
 		vendor.setStatus(VendorStatus.VERIFICATION_PENDING.getStatusValue());
 		vendor.setIsEmailVerified(false);
+		vendor.setIsContactVerified(false);
 		vendor.setActive(false);
 		vendor.setIsOrderServiceEnable(false);
 		vendor.setBusinessCategory(businessCategory);
@@ -157,6 +173,9 @@ public class VendorServiceImpl implements VendorService {
 		 * Code to generate OTP and send that in email.
 		 */
 		sendOtpForEmailVerification(userLogin, vendor);
+		/**
+		 * send otp for mobile verification
+		 */
 
 	}
 
@@ -167,7 +186,7 @@ public class VendorServiceImpl implements VendorService {
 		VendorBankDetails vendorBankDetails = new VendorBankDetails();
 		BeanUtils.copyProperties(vendorBankDetailsDTO, vendorBankDetails);
 		if (existingVendorBankDetails.isPresent()) {
-			vendorBankDetails.setId(vendorBankDetails.getId());
+			vendorBankDetails.setId(existingVendorBankDetails.get().getId());
 		}
 		vendorBankDetails.setVendor(vendor);
 		vendorBankDetails.setActive(true);
@@ -318,8 +337,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param vendor
+	 * @param  userLogin
+	 * @param  vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -397,6 +416,13 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setIsOrderServiceEnable(existingVendor.getIsOrderServiceEnable());
 			vendor.setActive(existingVendor.getActive());
 		}
+		if (!existingVendor.getContactNo().equals(vendorDTO.getContactNo())) {
+			/**
+			 * send otp for contact verification
+			 */
+		} else {
+			vendor.setIsContactVerified(existingVendor.getIsContactVerified());
+		}
 		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(vendorDTO.getBusinessCategoryId());
 		Country country = countryService.getCountryDetails(vendorDTO.getCountryId());
 		City city = cityService.getCityDetails(vendorDTO.getCityId());
@@ -423,16 +449,25 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void addUpdateSubscriptionPlan(final Long vendorId, final Long subscriptionPlanId) throws NotFoundException {
+	public void addUpdateSubscriptionPlan(final Long vendorId, final Long subscriptionPlanId) throws NotFoundException, ValidationException {
 		SubscriptionPlan subscriptionPlan = subscriptionPlanService.getSubscriptionPlanDetail(subscriptionPlanId);
 		Vendor vendor = getVendorDetail(vendorId);
 		vendor.setSubscriptionPlanStartDate(new Date(System.currentTimeMillis()));
+		vendor.setSubscriptionPlan(subscriptionPlan);
 		/**
 		 * add subscription duration days from subscription start date
 		 */
 		vendor.setSubscriptionPlanEndDate(Date.from(CommonUtility.convetUtilDatetoLocalDate(vendor.getSubscriptionPlanStartDate())
 				.plusDays(subscriptionPlan.getDays()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+		vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
+		vendor.setActive(true);
+		// to do add payment this to payment history table for record
 		vendorRepository.save(vendor);
+		UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendorId, UserType.VENDOR.name());
+		if (userLogin.getActive() != null && !userLogin.getActive()) {
+			userLogin.setActive(true);
+			userLoginService.updateUserLogin(userLogin);
+		}
 	}
 
 	@Override
@@ -447,6 +482,37 @@ public class VendorServiceImpl implements VendorService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 		}
 		vendorRepository.save(vendor);
+		/**
+		 * set vendor cuisine
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorRestaurantDetailsDTO.getCuisineIds())) {
+			List<VendorCuisine> existingVendorCuisines = vendorCuisineService.getVendorCuisineListByVendor(vendor.getId(), true);
+			List<Long> existingCuisines = existingVendorCuisines.stream().map(x -> x.getCuisine().getId()).collect(Collectors.toList());
+			List<Long> newCuisines = new ArrayList<>(vendorRestaurantDetailsDTO.getCuisineIds());
+			/**
+			 * Not existing variant (new) that to be added
+			 */
+			newCuisines.removeAll(existingCuisines);
+
+			/**
+			 * Delete existing which are not in request
+			 */
+			existingCuisines.removeAll(vendorRestaurantDetailsDTO.getCuisineIds());
+
+			/**
+			 * Based On deleted sizeId find out deleted variant.
+			 */
+			List<VendorCuisine> deletedVendorCuisines = existingVendorCuisines.stream().filter(x -> existingCuisines.contains(x.getCuisine().getId()))
+					.collect(Collectors.toList());
+			vendorCuisineService.bulkChangeAllStatus(deletedVendorCuisines, false);
+			for (Long cuisineId : newCuisines) {
+				VendorCuisineDTO vendorCuisineDTO = new VendorCuisineDTO();
+				vendorCuisineDTO.setActive(true);
+				vendorCuisineDTO.setCuisineId(cuisineId);
+				vendorCuisineDTO.setVendorId(vendor.getId());
+				vendorCuisineService.addUpdateVendorCuisine(vendorCuisineDTO);
+			}
+		}
 	}
 
 	@Override
@@ -474,6 +540,103 @@ public class VendorServiceImpl implements VendorService {
 	public List<Vendor> getVendorListBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorFilterDTO vendorFilterDTO)
 			throws ValidationException {
 		return vendorRepository.getVendorListBasedOnParams(startIndex, pageSize, vendorFilterDTO);
+	}
+
+	@Override
+	public List<VendorResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
+		if (vendorListFilterDTO.getCustomerAddressId() == null) {
+			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
+			}
+		} else {
+			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
+			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
+			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+		}
+		List<VendorResponseDTO> responseDTOs = new ArrayList<>();
+		List<Vendor> vendors = vendorRepository.getVendorListForCustomerBasedOnParams(null, null, vendorListFilterDTO);
+		int size = vendors.size();
+
+		for (int i = 0; i < size; i++) {
+			Double min = null;
+			Vendor resultVendor = null;
+			for (Vendor vendor : vendors) {
+				Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
+						vendorListFilterDTO.getLatitude().doubleValue(), vendorListFilterDTO.getLongitude().doubleValue());
+				if (distance <= 20d) {
+					if (min == null) {
+						min = distance;
+						resultVendor = vendor;
+					} else {
+						if (distance < min) {
+							min = distance;
+							resultVendor = vendor;
+						}
+					}
+				}
+			}
+			if (resultVendor != null) {
+				VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(resultVendor);
+				vendorResponseDTO.setDistance(CommonUtility.distance(resultVendor.getLatitude().doubleValue(), resultVendor.getLongitude().doubleValue(),
+						vendorListFilterDTO.getLatitude().doubleValue(), vendorListFilterDTO.getLongitude().doubleValue()));
+				responseDTOs.add(vendorResponseDTO);
+				vendors.remove(resultVendor);
+			}
+		}
+		return responseDTOs;
+	}
+
+	@Override
+	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
+		if (vendorDTO.getId() != null) {
+			/**
+			 * At the time of update is vendor with same contact exist or not except it's own id
+			 */
+			return vendorRepository.findByContactNoAndIdNot(vendorDTO.getContactNo(), vendorDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is vendor with same contact exist or not
+			 */
+			return vendorRepository.findByContactNo(vendorDTO.getContactNo()).isPresent();
+		}
+	}
+
+	@Override
+	public void runVendorSubscriptionExpireScheduler(final Date runDate) {
+		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
+		vendorFilterDTO.setSubscriptionEndDate(runDate);
+		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
+		for (Vendor vendor : vendors) {
+			vendor.setActive(false);
+			vendor.setStatus(VendorStatus.EXPIRED.name());
+			vendorRepository.save(vendor);
+			// try {
+			// UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendor.getId(),
+			// UserType.VENDOR.name());
+			// revokeToken(userLogin.getEmail());
+			// } catch (ValidationException e) {
+			// LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
+			// }
+		}
+
+	}
+
+	@Override
+	public void runVendorSubscriptionExpireReminderScheduler(final Date runDate) {
+		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
+		LocalDate localDate = CommonUtility.convetUtilDatetoLocalDate(runDate);
+		localDate = localDate.plusDays(7L);
+		vendorFilterDTO.setSubscriptionEndDate(CommonUtility.convertLocalDateToUtilDate(localDate));
+		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
+		for (Vendor vendor : vendors) {
+			Notification notification = new Notification();
+			notification.setEmail(vendor.getEmail());
+			notification.setVendorId(vendor.getId());
+			notification.setUserType(UserType.VENDOR.name());
+			notification.setType(NotificationQueueConstants.VENDOR_SUBSCRIPTION_EXPIRY_REMINDER);
+			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+		}
+
 	}
 
 }
