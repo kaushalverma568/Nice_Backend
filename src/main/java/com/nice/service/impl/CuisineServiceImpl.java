@@ -54,7 +54,7 @@ public class CuisineServiceImpl implements CuisineService {
 	@Override
 	public void addCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) {
 		Cuisine cuisine = cuisineMapper.toEntity(cuisineDTO);
-		if (image != null) {
+		if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 			uploadImage(image, cuisine);
 		}
 		cuisineRepository.save(cuisine);
@@ -92,7 +92,7 @@ public class CuisineServiceImpl implements CuisineService {
 		/**
 		 * delete old image if exist and upload new one
 		 */
-		if (image != null) {
+		if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 			deleteOldImage(existingCuisine);
 			uploadImage(image, cuisine);
 		}
