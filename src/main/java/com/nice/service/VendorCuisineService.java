@@ -83,4 +83,14 @@ public interface VendorCuisineService {
 	 * @throws NotFoundException
 	 */
 	VendorCuisine getVendorCuisineByVendorIdAndCuisineId(Long vendorId, Long cuisineId) throws NotFoundException;
+
+	/**
+	 * get all vendor cuisine list by cuisine id and active
+	 *
+	 * @param cuisineId
+	 * @param active
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<VendorCuisine> getVendorCuisineListByCuisine(Long cuisineId, Boolean active) throws NotFoundException;
 }

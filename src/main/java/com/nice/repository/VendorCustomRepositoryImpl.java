@@ -22,6 +22,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 
 import com.nice.constant.DeliveryType;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.model.BusinessCategory;
@@ -34,7 +35,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -58,7 +59,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -80,8 +82,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -132,7 +134,10 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {
 			Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstName")), " ");
 			Expression<String> fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastName")));
-			predicates.add(criteriaBuilder.like(fullName, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"));
+			Predicate predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeName")),
+					"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			predicates.add(
+					criteriaBuilder.or(criteriaBuilder.like(fullName, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"), predicateForStoreName));
 		}
 	}
 
@@ -147,7 +152,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -181,7 +187,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -201,8 +208,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -218,6 +225,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			final Join<Vendor, BusinessCategory> businessCategory, final List<Predicate> predicates) {
 		predicates.add(criteriaBuilder.equal(vendor.get("active"), true));
 		predicates.add(criteriaBuilder.equal(vendor.get("isOrderServiceEnable"), true));
+		predicates.add(criteriaBuilder.equal(vendor.get("status"), VendorStatus.ACTIVE.getStatusValue()));
 
 		predicates.add(criteriaBuilder.equal(businessCategory.get("id"), vendorListFilterDTO.getBusinessCategoryId()));
 		if (vendorListFilterDTO.getDeliveryType() != null) {

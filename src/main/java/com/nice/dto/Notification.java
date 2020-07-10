@@ -3,23 +3,21 @@
  */
 package com.nice.dto;
 
-import com.nice.model.CommonModel;
+import java.io.Serializable;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class Notification extends CommonModel {
+public class Notification implements Serializable {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 553712116319680610L;
+	private static final long serialVersionUID = 4067513787214340174L;
 
 	private Long userId;
 

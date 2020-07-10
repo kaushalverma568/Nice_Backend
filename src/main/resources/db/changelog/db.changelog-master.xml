@@ -140,4 +140,16 @@
 				path="sql-files/1.0/vendor_change.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	<changeSet id="22" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/insert_query_role_permission_vendor.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="23" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/delivery_boy_change.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

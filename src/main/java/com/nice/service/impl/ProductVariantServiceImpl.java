@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeValueDTO;
+import com.nice.dto.ProductToppingDto;
 import com.nice.dto.ProductVariantRequestDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -22,6 +23,7 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductVariantMapper;
 import com.nice.model.Product;
+import com.nice.model.ProductAddons;
 import com.nice.model.ProductVariant;
 import com.nice.model.UOM;
 import com.nice.model.UserLogin;
@@ -103,8 +105,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 				productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
 				productVariant.setProduct(product);
 				// if (product.getDiscountId() != null) {
-				// final Double discounteRate = discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
-				// productVariant.setDiscountedRate(productVariant.getRate() - ((productVariant.getRate() * discounteRate) / 100));
+				// final Double discounteRate =
+				// discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
+				// productVariant.setDiscountedRate(productVariant.getRate() -
+				// ((productVariant.getRate() * discounteRate) / 100));
 				// }
 			} else {
 				final ProductVariant existingProductVariant = getProductVariantDetail(productVariantRequestDTO.getId());
@@ -118,7 +122,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 					// if (existingProductVariant.getProduct().getDiscountId() != null) {
 					// final Double discounteRate =
 					// discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
-					// productVariant.setDiscountedRate(productVariant.getRate() - ((productVariant.getRate() * discounteRate) / 100));
+					// productVariant.setDiscountedRate(productVariant.getRate() -
+					// ((productVariant.getRate() * discounteRate) / 100));
 					// }
 				}
 			}
@@ -199,10 +204,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	// @Override
-	// public List<ProductVariantResponseDTO> convertToResponseDtoList(final List<ProductVariant> productVariantList, final
+	// public List<ProductVariantResponseDTO> convertToResponseDtoList(final
+	// List<ProductVariant> productVariantList, final
 	// Long pincodeId)
 	// throws NotFoundException, ValidationException {
-	// List<ProductVariantResponseDTO> productVariantResponseDTOList = new ArrayList<>();
+	// List<ProductVariantResponseDTO> productVariantResponseDTOList = new
+	// ArrayList<>();
 	// for (ProductVariant productVariant : productVariantList) {
 	// productVariantResponseDTOList.add(convertToResponseDto(productVariant));
 	// }
@@ -225,7 +232,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
 		/**
-		 * Set product addons, attribute values and toppings list for the product variant
+		 * Set product addons, attribute values and toppings list for the product
+		 * variant
 		 */
 		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
@@ -276,26 +284,60 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			}
 
 		} else {
-			if (Boolean.TRUE.equals(active)) {
-				if (Boolean.FALSE.equals(productVariant.getUom().getActive())) {
-					throw new ValidationException(messageByLocaleService.getMessage("uom.activate.first", null));
-				}
-				if (Boolean.FALSE.equals(productVariant.getProduct().getActive())) {
-					throw new ValidationException(messageByLocaleService.getMessage("product.activate.first", null));
-				}
-			} else {
-				// cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-				// tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-				// posCartService.deleteAllByProductVariant(productVariant.getId());
-			}
+			changeStatusOfDependentEntity(active, productVariant);
 			productVariant.setActive(active);
 			productVariantRepository.save(productVariant);
 		}
 	}
 
-	// private void changeStatusForDependentEntity(final Long productVariantId, final Boolean active) throws
+	/**
+	 * @param productVariantId
+	 * @param active
+	 * @param productVariant
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	private void changeStatusOfDependentEntity(final Boolean active, final ProductVariant productVariant) throws ValidationException, NotFoundException {
+		if (Boolean.TRUE.equals(active)) {
+			if (Boolean.FALSE.equals(productVariant.getUom().getActive())) {
+				throw new ValidationException(messageByLocaleService.getMessage("uom.activate.first", null));
+			}
+			if (Boolean.FALSE.equals(productVariant.getProduct().getActive())) {
+				throw new ValidationException(messageByLocaleService.getMessage("product.activate.first", null));
+			}
+		} else {
+			/**
+			 * deActive addons which is active for this variant
+			 */
+			List<ProductAddons> productAddonsList = productAddonsService.getList(true, productVariant.getId());
+			for (ProductAddons productAddons : productAddonsList) {
+				productAddonsService.changeStatus(productAddons.getId(), false);
+			}
+			/**
+			 * deActive toppings which is active for this variant
+			 */
+			List<ProductToppingDto> productToppingList = productToppingService.getToppingForProductVariant(productVariant.getId(), true);
+			for (ProductToppingDto productToppingDto : productToppingList) {
+				productToppingService.changeStatus(productToppingDto.getId(), false);
+			}
+			/**
+			 * deActive all active product attribute values for this variant
+			 */
+			List<ProductAttributeValueDTO> productAttributeValueList = productAttributeValueService.getList(productVariant.getId(), true);
+			for (ProductAttributeValueDTO productAttributeValue : productAttributeValueList) {
+				productAttributeValueService.changeStatus(productAttributeValue.getId(), false);
+			}
+			// cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
+			// tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
+			// posCartService.deleteAllByProductVariant(productVariant.getId());
+		}
+	}
+
+	// private void changeStatusForDependentEntity(final Long productVariantId,
+	// final Boolean active) throws
 	// NotFoundException, ValidationException {
-	// List<ProductAddons> productAddonsList = productAddonsService.getList(true, productVariantId);
+	// List<ProductAddons> productAddonsList = productAddonsService.getList(true,
+	// productVariantId);
 	// for (ProductAddons productAddons : productAddonsList) {
 	// productAddonsService.changeStatus(productAddons.getId(), false);
 	// }
@@ -319,7 +361,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	/**
-	 * This method will be used only for internal calls to skip the authentication process
+	 * This method will be used only for internal calls to skip the authentication
+	 * process
 	 *
 	 * @param productVariantId
 	 * @return
@@ -339,7 +382,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
 		}
 		/**
-		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
+		 * Here is admin is taken as true as this method will only be accessed by
+		 * admin/vendor always.
 		 */
 		return convertToResponseDto(getProductVariantDetailBySku(sku, userLogin.getEntityId()), true);
 	}

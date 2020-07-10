@@ -141,6 +141,12 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.deactive", null));
 			}
 		} else {
+			/**
+			 * at time of active addon check product variant is active or not
+			 */
+			if (Boolean.TRUE.equals(active) && Boolean.FALSE.equals(existingProductAddons.getProductVariant().getActive())) {
+				throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
+			}
 			existingProductAddons.setActive(active);
 			productAddonsRepository.save(existingProductAddons);
 		}

@@ -5,10 +5,11 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.nice.dto.Notification;
+import com.nice.dto.PushNotification;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 public class JMSQueuer {
@@ -18,5 +19,9 @@ public class JMSQueuer {
 
 	public void sendEmail(final String queueName, final Notification emailNotification) {
 		jmsTemplate.convertAndSend(queueName, emailNotification);
+	}
+
+	public void sendPushNotification(final String queueName, final PushNotification pushNotification) {
+		jmsTemplate.convertAndSend(queueName, pushNotification);
 	}
 }

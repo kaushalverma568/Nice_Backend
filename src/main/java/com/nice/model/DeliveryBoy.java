@@ -31,8 +31,11 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "full_name", nullable = false)
-	private String fullName;
+	@Column(name = "first_name", nullable = false)
+	private String firstName;
+
+	@Column(name = "last_name", nullable = false)
+	private String lastName;
 
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
@@ -43,26 +46,29 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "gender")
 	private String gender;
 
-	@Column(name = "bank_name", nullable = false)
+	@Column(name = "bank_name")
 	private String bankName;
 
-	@Column(name = "branch_name", nullable = false)
+	@Column(name = "branch_name")
 	private String branchName;
 
-	@Column(name = "account_name", nullable = false)
+	@Column(name = "account_name")
 	private String accountName;
 
-	@Column(name = "bank_account_number", nullable = false)
+	@Column(name = "bank_account_number")
 	private String bankAccountNumber;
 
-	@Column(name = "kib_no", nullable = false)
+	@Column(name = "kib_no")
 	private String kibNo;
 
-	@Column(name = "branch_city", nullable = false)
+	@Column(name = "branch_city")
 	private String branchCity;
 
 	@Column(name = "is_email_verified", nullable = false)
 	private Boolean isEmailVerified;
+
+	@Column(name = "is_phone_number_verified", nullable = false)
+	private Boolean isPhoneNumberVerified;
 
 	@Column(name = "is_login", nullable = false)
 	private Boolean isLogin;
@@ -84,5 +90,4 @@ public class DeliveryBoy extends CommonModel {
 
 	@Column(name = "profile_picture_original_name")
 	private String profilePictureOriginalName;
-
 }

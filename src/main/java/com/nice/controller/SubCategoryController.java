@@ -172,8 +172,8 @@ public class SubCategoryController {
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	@PreAuthorize("hasPermission('Sub Category','CAN_VIEW_LIST')")
-	public ResponseEntity<Object> getSubCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+	public ResponseEntity<Object> getSubCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "categoryId", required = false) final Long categoryId) throws NotFoundException {
 		LOGGER.info("Inside get sub category List");
 		final Page<SubCategory> resultSubCategories = subCategoryService.getSubCategoryList(pageNumber, pageSize, activeRecords, categoryId);
@@ -212,6 +212,7 @@ public class SubCategoryController {
 	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
+	 * @throws ValidationException
 	 * @throws IOException
 	 * @throws NotFoundException
 	 */
@@ -219,7 +220,7 @@ public class SubCategoryController {
 	@GetMapping("/export/list")
 	@PreAuthorize("hasPermission('Sub Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportSubCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
-			throws FileOperationException {
+			throws FileOperationException, ValidationException, NotFoundException {
 		subCategoryService.exportSubCategoryList(httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.list.message", null))
 				.create();

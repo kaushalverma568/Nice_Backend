@@ -60,6 +60,7 @@ import com.nice.model.UserOtp;
 import com.nice.repository.CustomerRepository;
 import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerService;
+import com.nice.service.DeliveryBoyService;
 import com.nice.service.OtpService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
@@ -67,7 +68,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -97,6 +98,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Autowired
 	private CustomerService customerService;
+
+	@Autowired
+	private DeliveryBoyService deliveryBoyService;
 
 	@Autowired
 	private VendorService vendorService;
@@ -131,7 +135,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 */
 		Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -389,8 +394,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				vendorService.verifyEmail(userLogin.getEntityId());
 			} else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 				customerService.verifyEmail(userLogin.getEntityId());
+			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
+				deliveryBoyService.verifyEmail(userLogin.getEntityId());
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", new Object[] {}));
+
 			}
 
 		} else {

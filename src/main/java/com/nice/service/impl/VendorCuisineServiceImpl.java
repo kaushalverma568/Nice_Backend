@@ -147,4 +147,23 @@ public class VendorCuisineServiceImpl implements VendorCuisineService {
 		return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId).orElseThrow(() -> new NotFoundException(messageByLocaleService
 				.getMessage("vendor.cuisine.not.found", new Object[] { cuisine.getName(), vendor.getFirstName().concat(vendor.getLastName()) })));
 	}
+
+	@Override
+	public List<VendorCuisine> getVendorCuisineListByCuisine(final Long cuisineId, final Boolean active) throws NotFoundException {
+		if (cuisineId != null) {
+			Cuisine cuisine = cuisineService.getCuisineDetails(cuisineId);
+			if (active != null) {
+				return vendorCuisineRepository.findAllByCuisineAndActive(cuisine, active);
+			} else {
+				return vendorCuisineRepository.findAllByCuisine(cuisine);
+			}
+		} else {
+			if (active != null) {
+				return vendorCuisineRepository.findAllByActive(active);
+			} else {
+				return vendorCuisineRepository.findAll();
+			}
+		}
+	}
+
 }

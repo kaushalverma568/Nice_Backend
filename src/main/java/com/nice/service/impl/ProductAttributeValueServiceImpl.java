@@ -100,12 +100,23 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAttributeValue.getActive().equals(active)) {
-			if (active) {
+			if (active.booleanValue()) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.active", null));
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.deactive", null));
 			}
 		} else {
+			if (Boolean.TRUE.equals(active)) {
+				/**
+				 * at time of active attribute value check product variant and attribute is
+				 * active or not
+				 */
+				if (Boolean.FALSE.equals(existingProductAttributeValue.getProductVariant().getActive())) {
+					throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
+				} else if (Boolean.FALSE.equals(existingProductAttributeValue.getProductAttribute().getActive())) {
+					throw new ValidationException(messageByLocaleService.getMessage("product.attribute.activate.first", null));
+				}
+			}
 			existingProductAttributeValue.setActive(active);
 			productAttributeValueRepository.save(existingProductAttributeValue);
 		}
@@ -121,6 +132,24 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariant(productVariant);
 		}
 		return productAttributeValueMapper.toDtos(productAttributeValuesList);
+	}
+
+	@Override
+	public List<ProductAttributeValue> getListByProductAttributeOrActive(final Long productAttributeId, final Boolean activeRecords) throws NotFoundException {
+		if (productAttributeId != null) {
+			ProductAttribute productAttribute = productAttributeService.getProductAttributeDetail(productAttributeId);
+			if (activeRecords != null) {
+				return productAttributeValueRepository.findAllByProductAttributeAndActive(productAttribute, activeRecords);
+			} else {
+				return productAttributeValueRepository.findAllByProductAttribute(productAttribute);
+			}
+		} else {
+			if (activeRecords != null) {
+				return productAttributeValueRepository.findAllByActive(activeRecords);
+			} else {
+				return productAttributeValueRepository.findAll();
+			}
+		}
 	}
 
 	@Override
@@ -190,15 +219,22 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 		}
 		// if (productAddonsDto.getId() != null) {
 		// if (productAttributeValueRepository
-		// .findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant, productAddonsDto.getName(),
+		// .findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant,
+		// productAddonsDto.getName(),
 		// vendorId, productAddonsDto.getId())
 		// .isPresent()) {
-		// throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
+		// throw new
+		// ValidationException(messageByLocaleService.getMessage("topping.not.unique",
+		// null));
 		// }
 		// } else {
-		// if (productAttributeValueRepository.findByProductVariantAndVendorIdAndName(productVariant, vendorId,
+		// if
+		// (productAttributeValueRepository.findByProductVariantAndVendorIdAndName(productVariant,
+		// vendorId,
 		// productAddonsDto.getName()).isPresent()) {
-		// throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
+		// throw new
+		// ValidationException(messageByLocaleService.getMessage("topping.not.unique",
+		// null));
 		// }
 		// }
 

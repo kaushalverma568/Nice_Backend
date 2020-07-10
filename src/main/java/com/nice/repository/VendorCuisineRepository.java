@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nice.model.Cuisine;
 import com.nice.model.VendorCuisine;
 
 /**
@@ -29,4 +30,24 @@ public interface VendorCuisineRepository extends JpaRepository<VendorCuisine, Lo
 	 * @return
 	 */
 	Optional<VendorCuisine> findAllByVendorIdAndCuisineId(Long vendorId, Long cuisineId);
+
+	/**
+	 * @param cuisine
+	 * @param active
+	 * @return
+	 */
+	List<VendorCuisine> findAllByCuisineAndActive(Cuisine cuisine, Boolean active);
+
+	/**
+	 * @param cuisine
+	 * @return
+	 */
+	List<VendorCuisine> findAllByCuisine(Cuisine cuisine);
+
+	/**
+	 * @param active
+	 * @return
+	 */
+	List<VendorCuisine> findAllByActive(Boolean active);
+
 }

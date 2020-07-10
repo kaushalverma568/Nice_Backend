@@ -6,10 +6,12 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.Category;
 import com.nice.model.SubCategory;
+import com.nice.model.Vendor;
 
 /**
  *
@@ -107,5 +109,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	 * @return
 	 */
 	List<SubCategory> findAllByNameContainingIgnoreCase(String searchKeyword);
+
+	@Query("select sc from SubCategory sc join Category c on c.id=sc.category.id where sc.category.vendor=:vendor")
+	List<SubCategory> getAllByVendor(Vendor vendor);
 
 }

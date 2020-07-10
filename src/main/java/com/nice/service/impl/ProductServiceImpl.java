@@ -18,6 +18,7 @@ import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.dto.CategoryWiseProductCountDTO;
+import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
@@ -246,7 +247,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin
+	 * listForAdmin==null means get product detail for admin listForAdmin==true
+	 * means get product list for admin
 	 *
 	 * convert entity to response dto
 	 *
@@ -269,7 +271,8 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getName());
 		productResponseDTO.setImage(CommonUtility.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
-		 * if we are fetching product list For admin then set product variants to empty list
+		 * if we are fetching product list For admin then set product variants to empty
+		 * list
 		 */
 		List<ProductVariantResponseDTO> productVariantList = new ArrayList<>();
 
@@ -280,13 +283,15 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out of stock
+		 * if product variant is null/empty or availableQty=0 then product will go out
+		 * of stock
 		 *
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
-		 * and productOutOfStock for any other category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced
+		 * here, as we dont need the available qty and productOutOfStock for any other
+		 * category type except grocery.
 		 */
 		if (false) {
 			Integer availableQty = 0;
@@ -309,7 +314,8 @@ public class ProductServiceImpl implements ProductService {
 		Product product = getProductDetail(productId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * Only the vendor who created the produce and the admin can deactivate the product
+		 * Only the vendor who created the produce and the admin can deactivate the
+		 * product
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
@@ -343,7 +349,13 @@ public class ProductServiceImpl implements ProductService {
 			for (ProductVariant productVariant : existingVariants) {
 				productVariantService.changeStatus(productVariant.getId(), false);
 			}
-
+			/**
+			 * deactivate product extras of this product
+			 */
+			List<ProductExtrasDTO> productExtrasList = productExtrasService.getList(existingProduct.getId(), true);
+			for (ProductExtrasDTO productExtrasDTO : productExtrasList) {
+				productExtrasService.changeStatus(productExtrasDTO.getId(), false);
+			}
 		} else {
 			validationForActivateProduct(existingProduct);
 		}
@@ -405,29 +417,41 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	// @Override
-	// public GlobalSearchResponseDTO getResultOfGlobalSearch(final String searchKeyword) {
+	// public GlobalSearchResponseDTO getResultOfGlobalSearch(final String
+	// searchKeyword) {
 	// Map<Long, String> productMap;
 	// Map<Long, String> categoryMap;
 	// Map<Long, String> subCategoryMap;
 	// Map<Long, String> brandMap;
 	//
 	// /**
-	// * get all product,category,sub category and brand which is active and their name contains search keyword
+	// * get all product,category,sub category and brand which is active and their
+	// name contains search keyword
 	// */
 	// ProductParamRequestDTO productParamRequestDTO = new ProductParamRequestDTO();
 	// productParamRequestDTO.setActiveRecords(true);
 	// productParamRequestDTO.setProductVariantActiveRecords(true);
 	// productParamRequestDTO.setSearchKeyword(searchKeyword);
-	// List<Product> productList = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
-	// List<Category> categoryList = categoryService.getCategoryList(true, searchKeyword);
-	// List<SubCategory> subCategoryList = subCategoryService.getSubCategoryList(true, searchKeyword);
+	// List<Product> productList =
+	// productRepository.getProductListBasedOnParams(productParamRequestDTO, null,
+	// null);
+	// List<Category> categoryList = categoryService.getCategoryList(true,
+	// searchKeyword);
+	// List<SubCategory> subCategoryList =
+	// subCategoryService.getSubCategoryList(true, searchKeyword);
 	// List<Brand> brandList = brandService.getBrandList(true, searchKeyword);
-	// productMap = productList.stream().collect(Collectors.toMap(Product::getId, Product::getName));
-	// categoryMap = categoryList.stream().collect(Collectors.toMap(Category::getId, Category::getName));
-	// subCategoryMap = subCategoryList.stream().collect(Collectors.toMap(SubCategory::getId, SubCategory::getName));
-	// brandMap = brandList.stream().collect(Collectors.toMap(Brand::getId, Brand::getName));
+	// productMap = productList.stream().collect(Collectors.toMap(Product::getId,
+	// Product::getName));
+	// categoryMap = categoryList.stream().collect(Collectors.toMap(Category::getId,
+	// Category::getName));
+	// subCategoryMap =
+	// subCategoryList.stream().collect(Collectors.toMap(SubCategory::getId,
+	// SubCategory::getName));
+	// brandMap = brandList.stream().collect(Collectors.toMap(Brand::getId,
+	// Brand::getName));
 	//
-	// GlobalSearchResponseDTO globalSearchResponseDTO = new GlobalSearchResponseDTO();
+	// GlobalSearchResponseDTO globalSearchResponseDTO = new
+	// GlobalSearchResponseDTO();
 	// globalSearchResponseDTO.setProductMap(productMap);
 	// globalSearchResponseDTO.setCategoryMap(categoryMap);
 	// globalSearchResponseDTO.setSubCategoryMap(subCategoryMap);
@@ -457,7 +481,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
+	 * This method will update the rating of the product. Just provide the rating
+	 * provided by the client and productId.
 	 */
 	@Override
 	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {

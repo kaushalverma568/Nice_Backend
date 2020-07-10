@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.PaymentMethod;
@@ -64,6 +65,7 @@ import com.nice.service.CustomerAddressService;
 import com.nice.service.FileStorageService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
+import com.nice.service.ProductService;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorCuisineService;
@@ -71,8 +73,8 @@ import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
- * @author      : Kody Technolab PVT. LTD.
- * @date        : 24-Mar-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date : 24-Mar-2020
  * @description :
  */
 
@@ -126,6 +128,9 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private VendorCuisineService vendorCuisineService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Autowired
 	private CustomerAddressService customerAddressService;
@@ -243,11 +248,27 @@ public class VendorServiceImpl implements VendorService {
 		} else if (userLogin.isPresent()) {
 			if (Boolean.FALSE.equals(active)) {
 				/**
-				 * if vendor has active orders and not delivered yet then can't deactive
+				 * if vendor's subscription is active then he can't be activated
 				 */
+				if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
+					throw new ValidationException(messageByLocaleService.getMessage("vendor.subscription.active", null));
+				}
+				/**
+				 * deActive all vendor cuisines of this vendor
+				 */
+				List<VendorCuisine> vendorCuisineList = vendorCuisineService.getVendorCuisineListByVendor(vendorId, true);
+				for (VendorCuisine vendorCuisine : vendorCuisineList) {
+					vendorCuisineService.changeStatus(vendorCuisine.getId(), false);
+				}
 			} else {
 				if (!vendor.getIsEmailVerified().booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("email.not.verified", null));
+				}
+				/**
+				 * at time of active vendor value check business category is active or not
+				 */
+				if (Boolean.FALSE.equals(vendor.getBusinessCategory().getActive())) {
+					throw new ValidationException(messageByLocaleService.getMessage("business.category.activate.first", null));
 				}
 			}
 			userLogin.get().setActive(active);
@@ -286,7 +307,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail(), vendorDTO.getId()).isPresent();
 		} else {
@@ -326,7 +348,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -337,8 +360,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -393,7 +416,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.order.exist", null));
 			} else {
 				/**
-				 * when vendor updates an email then de active him until email not verified and send verification link
+				 * when vendor updates an email then de active him until email not verified and
+				 * send verification link
 				 */
 				vendor.setIsEmailVerified(false);
 				vendor.setIsOrderServiceEnable(false);
@@ -420,6 +444,7 @@ public class VendorServiceImpl implements VendorService {
 			/**
 			 * send otp for contact verification
 			 */
+			vendor.setIsContactVerified(false);
 		} else {
 			vendor.setIsContactVerified(existingVendor.getIsContactVerified());
 		}
@@ -460,14 +485,8 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setSubscriptionPlanEndDate(Date.from(CommonUtility.convetUtilDatetoLocalDate(vendor.getSubscriptionPlanStartDate())
 				.plusDays(subscriptionPlan.getDays()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
 		vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
-		vendor.setActive(true);
 		// to do add payment this to payment history table for record
 		vendorRepository.save(vendor);
-		UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendorId, UserType.VENDOR.name());
-		if (userLogin.getActive() != null && !userLogin.getActive()) {
-			userLogin.setActive(true);
-			userLoginService.updateUserLogin(userLogin);
-		}
 	}
 
 	@Override
@@ -480,6 +499,16 @@ public class VendorServiceImpl implements VendorService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.method", null));
 		} else if (DeliveryType.getByValue(vendorRestaurantDetailsDTO.getDeliveryType()) == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
+		}
+		/**
+		 * if order service is enable by vendor then check he has active subscription
+		 * plan or not
+		 */
+		else if (vendor.getIsOrderServiceEnable().booleanValue()
+				&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("purchase.subscriptionPlan", null));
+		} else if (vendor.getIsOrderServiceEnable().booleanValue() && (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("suspended.vendor", null));
 		}
 		vendorRepository.save(vendor);
 		/**
@@ -521,8 +550,10 @@ public class VendorServiceImpl implements VendorService {
 
 		if (isOrderServiceEnable == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("isOrderServiceEnable.not.null", null));
-		} else if (vendor.getSubscriptionPlan() == null) {
+		} else if (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("purchase.subscriptionPlan", null));
+		} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("suspended.vendor", null));
 		} else if (vendor.getIsOrderServiceEnable().equals(isOrderServiceEnable)) {
 			throw new ValidationException(
 					messageByLocaleService.getMessage(Boolean.TRUE.equals(isOrderServiceEnable) ? "already.enable" : "already.disable", null));
@@ -563,7 +594,7 @@ public class VendorServiceImpl implements VendorService {
 			for (Vendor vendor : vendors) {
 				Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
 						vendorListFilterDTO.getLatitude().doubleValue(), vendorListFilterDTO.getLongitude().doubleValue());
-				if (distance <= 20d) {
+				if (distance <= Constant.MAX_DISTANCE_FROM_CUSTOMER) {
 					if (min == null) {
 						min = distance;
 						resultVendor = vendor;
@@ -590,7 +621,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByContactNoAndIdNot(vendorDTO.getContactNo(), vendorDTO.getId()).isPresent();
 		} else {
@@ -609,14 +641,9 @@ public class VendorServiceImpl implements VendorService {
 		for (Vendor vendor : vendors) {
 			vendor.setActive(false);
 			vendor.setStatus(VendorStatus.EXPIRED.name());
+			vendor.setIsOrderServiceEnable(false);
 			vendorRepository.save(vendor);
-			// try {
-			// UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendor.getId(),
-			// UserType.VENDOR.name());
-			// revokeToken(userLogin.getEmail());
-			// } catch (ValidationException e) {
-			// LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
-			// }
+
 		}
 
 	}

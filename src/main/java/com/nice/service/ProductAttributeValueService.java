@@ -40,4 +40,14 @@ public interface ProductAttributeValueService {
 	boolean isExists(ProductAttributeValueDTO productAttributeValueDTO, ProductVariant productVariant, ProductAttribute productAttribute)
 			throws NotFoundException;
 
+	/**
+	 * get attribute value list based on product attribute and active
+	 *
+	 * @param productAttributeId
+	 * @param activeRecords
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<ProductAttributeValue> getListByProductAttributeOrActive(Long productAttributeId, Boolean activeRecords) throws NotFoundException;
+
 }

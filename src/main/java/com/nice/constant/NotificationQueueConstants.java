@@ -2,7 +2,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public final class NotificationQueueConstants {
 
@@ -19,5 +19,7 @@ public final class NotificationQueueConstants {
 	public static final String SMS_QUEUE = "Nice SMS Queue";
 	public static final String VENDOR_SUBSCRIPTION_EXPIRY_REMINDER = "Vendor Subscription Expiry Reminder Queue";
 	public static final String PUSH_NOTIFICATION_QUEUE = "Nice Push Notification Queue";
+	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE = "Accept Order Push Notification Queue";
+	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION = "Accept Order Push Notification";
 
 }

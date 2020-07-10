@@ -1,5 +1,6 @@
 package com.nice.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -22,9 +23,11 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductAttributeMapper;
 import com.nice.model.ProductAttribute;
+import com.nice.model.ProductAttributeValue;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductAttributeRepository;
 import com.nice.service.ProductAttributeService;
+import com.nice.service.ProductAttributeValueService;
 import com.nice.service.VendorService;
 
 /**
@@ -50,6 +53,9 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 
 	@Autowired
 	private ProductAttributeMapper productAttributeMapper;
+
+	@Autowired
+	private ProductAttributeValueService productAttributeValueService;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -108,12 +114,22 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAttribute.getActive().equals(active)) {
-			if (active) {
+			if (active.booleanValue()) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.active", null));
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.deactive", null));
 			}
 		} else {
+			if (Boolean.FALSE.equals(active)) {
+				/**
+				 * deActive all active product attribute values for this attribute
+				 */
+				List<ProductAttributeValue> productAttributeValueList = productAttributeValueService.getListByProductAttributeOrActive(productAttributeId,
+						true);
+				for (ProductAttributeValue productAttributeValue : productAttributeValueList) {
+					productAttributeValueService.changeStatus(productAttributeValue.getId(), false);
+				}
+			}
 			existingProductAttribute.setActive(active);
 			productAttributeRepository.save(existingProductAttribute);
 		}

@@ -18,7 +18,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 25, 2020
+ * @date : Jun 25, 2020
  */
 @Component
 public class VendorValidator implements Validator {
@@ -38,7 +38,8 @@ public class VendorValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -56,7 +57,8 @@ public class VendorValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 
 	@Override
@@ -72,7 +74,7 @@ public class VendorValidator implements Validator {
 				errors.rejectValue("contactNo", "409", messageByLocaleService.getMessage("vendor.contact.not.unique", null));
 			}
 		} else {
-			LOGGER.info("target is not instance of VendorDTO and ");
+			LOGGER.info("target is not instance of VendorDTO");
 		}
 	}
 }

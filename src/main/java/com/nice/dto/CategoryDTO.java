@@ -23,6 +23,9 @@ public class CategoryDTO implements Serializable {
 
 	private Long id;
 
+	@NotNull(message = "{vendor.id.not.null}")
+	private Long vendorId;
+
 	@NotBlank(message = "{name.not.null}")
 	private String name;
 

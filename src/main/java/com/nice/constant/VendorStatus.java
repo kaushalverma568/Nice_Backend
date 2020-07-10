@@ -12,7 +12,8 @@ import java.util.Map;
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
-	VERIFICATION_PENDING("Verification_Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired");
+	VERIFICATION_PENDING("Verification_Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired"),
+	SUSPENDED("Suspended");
 
 	String statusValue;
 
@@ -50,10 +51,13 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 			nextStatus = new VendorStatus[] { ACTIVE };
 			break;
 		case ACTIVE:
-			nextStatus = new VendorStatus[] { EXPIRED };
+			nextStatus = new VendorStatus[] { EXPIRED, SUSPENDED };
 			break;
 		case EXPIRED:
-			nextStatus = new VendorStatus[] { ACTIVE };
+			nextStatus = new VendorStatus[] { ACTIVE, SUSPENDED };
+			break;
+		case SUSPENDED:
+			nextStatus = new VendorStatus[] { ACTIVE, EXPIRED };
 			break;
 		case REJECTED:
 			nextStatus = new VendorStatus[] {};

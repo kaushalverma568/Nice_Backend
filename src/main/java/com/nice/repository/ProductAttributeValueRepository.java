@@ -3,8 +3,6 @@ package com.nice.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.util.Streamable;
@@ -21,13 +19,6 @@ import com.nice.model.ProductVariant;
  */
 @Repository
 public interface ProductAttributeValueRepository extends JpaRepository<ProductAttributeValue, Long> {
-
-	/**
-	 * @param activeRecords
-	 * @param pageable
-	 * @return
-	 */
-	Page<ProductAttributeValue> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	List<Optional<ProductAttributeValue>> findByProductAttributeAndIdNot(ProductAttribute productAttribute, Long id);
 
@@ -51,4 +42,29 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
 	 * @return
 	 */
 	List<ProductAttributeValue> findAllByProductVariant(ProductVariant productVariant);
+
+	/**
+	 * get attribute value list by product attribute and active
+	 *
+	 * @param productAttribute
+	 * @param activeRecords
+	 * @return
+	 */
+	List<ProductAttributeValue> findAllByProductAttributeAndActive(ProductAttribute productAttribute, Boolean activeRecords);
+
+	/**
+	 * get attribute value list by product attribute
+	 *
+	 * @param productAttribute
+	 * @return
+	 */
+	List<ProductAttributeValue> findAllByProductAttribute(ProductAttribute productAttribute);
+
+	/**
+	 * get attribute value list by active
+	 *
+	 * @param activeRecords
+	 * @return
+	 */
+	List<ProductAttributeValue> findAllByActive(Boolean activeRecords);
 }

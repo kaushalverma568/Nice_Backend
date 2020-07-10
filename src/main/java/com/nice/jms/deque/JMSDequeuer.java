@@ -13,21 +13,26 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.dto.Notification;
+import com.nice.dto.PushNotification;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.component.SendEmailNotificationComponent;
+import com.nice.jms.component.SendPushNotificationComponent;
 
 import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component
 public class JMSDequeuer {
 
 	@Autowired
 	private SendEmailNotificationComponent sendEmailNotificationComponent;
+
+	@Autowired
+	private SendPushNotificationComponent sendPushNotifictionComponent;
 
 	/**
 	 * receive all the emails
@@ -45,7 +50,7 @@ public class JMSDequeuer {
 	}
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws IOException
 	 * @throws GeneralSecurityException
 	 * @throws MessagingException
@@ -60,4 +65,17 @@ public class JMSDequeuer {
 		sendEmailNotificationComponent.sendEmaillNotification(notification);
 	}
 
+	/**
+	 * receive all push notifications
+	 *
+	 * @param pushNotification
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws IOException
+	 */
+	@JmsListener(destination = NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE)
+	@JsonDeserialize(as = PushNotification.class)
+	public void receiveAllPushNotifications(@Payload final PushNotification pushNotification) throws NotFoundException, ValidationException, IOException {
+		sendPushNotifictionComponent.addPushNotification(pushNotification);
+	}
 }

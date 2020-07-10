@@ -42,6 +42,15 @@ public final class Constant {
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
 
 	/**
+	 * average speed of delivery boy is 40 km/h
+	 */
+	public static final Double DELIVERY_BOY_AVERAGE_SPEED = 40d;
+	/**
+	 * maximum distance of vendor from customer to fetch in customer app (in km)
+	 */
+	public static final Double MAX_DISTANCE_FROM_CUSTOMER = 20d;
+
+	/**
 	 * Settings Flags:
 	 */
 
@@ -50,7 +59,8 @@ public final class Constant {
 	private static String smsApiKey = "default";
 
 	/**
-	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
+	 * Sets the values of static fields</b> The value specified is set for the key
+	 * specified in the arguments</br>
 	 *
 	 * @param key
 	 * @param value

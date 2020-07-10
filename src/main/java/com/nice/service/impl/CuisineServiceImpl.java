@@ -1,5 +1,7 @@
 package com.nice.service.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,12 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CuisineMapper;
 import com.nice.model.Cuisine;
+import com.nice.model.VendorCuisine;
 import com.nice.repository.CuisineRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CuisineService;
 import com.nice.service.FileStorageService;
+import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -50,6 +54,9 @@ public class CuisineServiceImpl implements CuisineService {
 
 	@Autowired
 	private AssetService assetService;
+
+	@Autowired
+	private VendorCuisineService vendorCuisineService;
 
 	@Override
 	public void addCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) {
@@ -138,6 +145,15 @@ public class CuisineServiceImpl implements CuisineService {
 		} else if (existingCuisine.getActive().equals(active)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "cuisine.active" : "cuisine.deactive", null));
 		} else {
+			if (Boolean.FALSE.equals(active)) {
+				/**
+				 * deActive vendorCuisine for this cuisine
+				 */
+				List<VendorCuisine> vendorCuisineList = vendorCuisineService.getVendorCuisineListByCuisine(cuisineId, true);
+				for (VendorCuisine vendorCuisine : vendorCuisineList) {
+					vendorCuisineService.changeStatus(vendorCuisine.getId(), false);
+				}
+			}
 			existingCuisine.setActive(active);
 			cuisineRepository.save(existingCuisine);
 		}

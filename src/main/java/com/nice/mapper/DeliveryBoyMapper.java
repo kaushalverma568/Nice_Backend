@@ -27,6 +27,7 @@ public class DeliveryBoyMapper {
 		DeliveryBoyResponseDTO deliveryBoyResponseDTO = new DeliveryBoyResponseDTO();
 		BeanUtils.copyProperties(deliveryBoy, deliveryBoyResponseDTO);
 		deliveryBoyResponseDTO.setRegisteredOn(deliveryBoy.getCreatedAt());
+		deliveryBoyResponseDTO.setName(deliveryBoy.getFirstName() + " " + deliveryBoy.getLastName());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getProfilePictureName())) {
 			deliveryBoyResponseDTO.setProfilePictureUrl(CommonUtility.getGeneratedUrl(deliveryBoy.getProfilePictureName(), AssetConstant.DELIVERY_BOY));
 		}
@@ -36,6 +37,7 @@ public class DeliveryBoyMapper {
 	public DeliveryBoy toEntity(final DeliveryBoyDTO deliveryBoyDTO) {
 		DeliveryBoy deliveryBoy = new DeliveryBoy();
 		BeanUtils.copyProperties(deliveryBoyDTO, deliveryBoy);
+		deliveryBoy.setEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		return deliveryBoy;
 	}
 

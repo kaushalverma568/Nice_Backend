@@ -49,12 +49,13 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.UserLogin;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.DeliveryBoyService;
 import com.nice.service.UserLoginService;
 import com.nice.util.OauthTokenUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -71,6 +72,9 @@ public class UserLoginController {
 
 	@Autowired
 	private UserLoginService userLoginService;
+
+	@Autowired
+	private DeliveryBoyService deliveryBoyService;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -114,7 +118,7 @@ public class UserLoginController {
 	/**
 	 * Get user info based on token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -130,8 +134,8 @@ public class UserLoginController {
 	 * This method is use to verify the user.</br>
 	 * We verify user through email only
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -161,9 +165,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -173,7 +177,8 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user token
+		 * When password is changed and the user is not super admin, revoke the user
+		 * token
 		 */
 		if (!(Role.SUPER_ADMIN.name().equals(userLogin.getRole()))) {
 			revokeToken(userLogin.getEmail());
@@ -192,9 +197,9 @@ public class UserLoginController {
 	/**
 	 * Update Email For Admin
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -210,11 +215,11 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
-	 * then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add
+	 * that user's information and if exists then will sent generated token.
 	 *
-	 * @param  socialLoginDto
-	 * @param  result
+	 * @param socialLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -278,7 +283,7 @@ public class UserLoginController {
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
 	}
 
-	@PostMapping("/app/login")
+	@PostMapping("/deliveryboy/login")
 	public ResponseEntity<Object> deliveryBoyLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -287,6 +292,10 @@ public class UserLoginController {
 		}
 		userLoginDto.setUserType(UserType.DELIVERY_BOY.name());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		/**
+		 * update is login flag to true when delivery boy successfully logged in
+		 */
+		deliveryBoyService.updateIsLogin(userLoginDto.getUserName());
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
 	}
