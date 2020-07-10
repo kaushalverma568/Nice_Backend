@@ -26,16 +26,16 @@ public interface CartProductAttributeValueRepository extends JpaRepository<CartP
 	void deleteAllByCartItem(CartItem cartItem);
 
 	/**
-	 * @param tempCartItem
+	 * @param cartItem
 	 * @param productAttributeValue
 	 * @return
 	 */
-	Optional<CartProductAttributeValue> findAllByCartItemAndProductAttributeValue(CartItem tempCartItem, ProductAttributeValue productAttributeValue);
+	Optional<CartProductAttributeValue> findAllByCartItemAndProductAttributeValue(CartItem cartItem, ProductAttributeValue productAttributeValue);
 
 	/**
-	 * @param tempCartItem
+	 * @param cartItem
 	 * @return
 	 */
-	List<CartProductAttributeValue> findAllByCartItem(CartItem tempCartItem);
+	List<CartProductAttributeValue> findAllByCartItem(CartItem cartItem);
 
 }

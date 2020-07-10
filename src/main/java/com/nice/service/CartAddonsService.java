@@ -9,6 +9,7 @@ import com.nice.dto.CartAddonsDTO;
 import com.nice.dto.ProductAddonsDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.CartAddons;
 import com.nice.model.CartItem;
 
 /**
@@ -30,7 +31,7 @@ public interface CartAddonsService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductAddonsDTO> getCartAddonsListForCartItem(Long cartItemId) throws NotFoundException;
+	List<ProductAddonsDTO> getCartAddonsDtoListForCartItem(Long cartItemId) throws NotFoundException;
 
 	/**
 	 * @param cartItemId
@@ -45,5 +46,18 @@ public interface CartAddonsService {
 	 * @throws NotFoundException
 	 */
 	void deleteCartAddons(Long cartItemId) throws NotFoundException;
+
+	/**
+	 * @param cartItemId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<CartAddons> getCartAddonsListForCartItem(Long cartItemId) throws NotFoundException;
+
+	/**
+	 * @param cartItem
+	 * @return
+	 */
+	List<CartAddons> getCartAddonsListForCartItem(CartItem cartItem);
 
 }

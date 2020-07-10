@@ -11,7 +11,9 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.VendorCuisineMapper;
+import com.nice.model.Cuisine;
 import com.nice.model.Product;
+import com.nice.model.Vendor;
 import com.nice.model.VendorCuisine;
 import com.nice.repository.ProductRepository;
 import com.nice.repository.VendorCuisineRepository;
@@ -22,7 +24,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 01-Jul-2020
+ * @date : 01-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorCuisineMapService")
@@ -138,4 +140,11 @@ public class VendorCuisineServiceImpl implements VendorCuisineService {
 		return vendorCuisineMapper.toDtos(getVendorCuisineListByVendor(vendorId, active));
 	}
 
+	@Override
+	public VendorCuisine getVendorCuisineByVendorIdAndCuisineId(final Long vendorId, final Long cuisineId) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		Cuisine cuisine = cuisineService.getCuisineDetails(cuisineId);
+		return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId).orElseThrow(() -> new NotFoundException(messageByLocaleService
+				.getMessage("vendor.cuisine.not.found", new Object[] { cuisine.getName(), vendor.getFirstName().concat(vendor.getLastName()) })));
+	}
 }

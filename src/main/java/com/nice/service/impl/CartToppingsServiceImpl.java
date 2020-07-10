@@ -28,7 +28,7 @@ import com.nice.service.ProductToppingService;
 public class CartToppingsServiceImpl implements CartToppingsService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CartToppingsServiceImpl.class);
 	@Autowired
-	private CartItemService tempCartItemService;
+	private CartItemService cartItemService;
 
 	@Autowired
 	private CartToppingsRepository cartToppingsRepository;
@@ -60,15 +60,15 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	}
 
 	@Override
-	public List<ProductToppingDto> getCartToppingsListForCartItem(final Long cartItemId) throws NotFoundException {
-		CartItem tempCartItem = tempCartItemService.getCartItemDetail(cartItemId);
+	public List<ProductToppingDto> getProductToppingsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
+		CartItem tempCartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartToppings> tempCartAddonsList = cartToppingsRepository.findAllByCartItem(tempCartItem);
 		return convertEntityToDtos(tempCartAddonsList);
 	}
 
 	@Override
 	public void updateCartToppingsQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
-		final CartItem cartItem = tempCartItemService.getCartItemDetail(cartItemId);
+		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartToppings> tempCartAddonsList = cartToppingsRepository.findAllByCartItem(cartItem);
 		for (CartToppings tempCartAddons : tempCartAddonsList) {
 			tempCartAddons.setQuantity(quantity);
@@ -78,7 +78,7 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 
 	@Override
 	public void deleteCartToppings(final Long cartItemId) throws NotFoundException {
-		final CartItem cartItem = tempCartItemService.getCartItemDetail(cartItemId);
+		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		cartToppingsRepository.deleteAllByCartItem(cartItem);
 	}
 
@@ -111,5 +111,16 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	private boolean checkIfExistsCartToppingsForCartItemAndAddons(final CartItem tempCartItem, final ProductTopping productAddons) {
 		return cartToppingsRepository.findAllByCartItemAndProductToppings(tempCartItem, productAddons).isPresent();
 
+	}
+
+	@Override
+	public List<CartToppings> getCartToppingsListForCartItem(final Long id) throws NotFoundException {
+		CartItem cartItem = cartItemService.getCartItemDetail(id);
+		return getCartToppingsListForCartItem(cartItem);
+	}
+
+	@Override
+	public List<CartToppings> getCartToppingsListForCartItem(final CartItem cartItem) {
+		return cartToppingsRepository.findAllByCartItem(cartItem);
 	}
 }

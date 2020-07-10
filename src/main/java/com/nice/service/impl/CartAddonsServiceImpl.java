@@ -61,10 +61,21 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 	}
 
 	@Override
-	public List<ProductAddonsDTO> getCartAddonsListForCartItem(final Long cartItemId) throws NotFoundException {
+	public List<ProductAddonsDTO> getCartAddonsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartAddons> cartAddonsList = cartAddonsRepository.findAllByCartItem(cartItem);
 		return convertEntityToDtos(cartAddonsList);
+	}
+
+	@Override
+	public List<CartAddons> getCartAddonsListForCartItem(final Long cartItemId) throws NotFoundException {
+		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
+		return getCartAddonsListForCartItem(cartItem);
+	}
+
+	@Override
+	public List<CartAddons> getCartAddonsListForCartItem(final CartItem cartItem) {
+		return cartAddonsRepository.findAllByCartItem(cartItem);
 	}
 
 	@Override

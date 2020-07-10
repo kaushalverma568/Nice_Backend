@@ -52,4 +52,7 @@ public class ProductAttributeValue extends CommonModel {
 	@JoinColumn(name = "product_attribute_id", nullable = false)
 	private ProductAttribute productAttribute;
 
+	@Column(name = "discounted_rate", nullable = true)
+	private Double discountedRate;
+
 }

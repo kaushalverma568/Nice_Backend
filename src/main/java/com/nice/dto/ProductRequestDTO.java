@@ -10,8 +10,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Mar-2020
- * @description :
+ * @date : 10-Jul-2020
  */
 @Data
 public class ProductRequestDTO implements Serializable {
@@ -34,7 +33,6 @@ public class ProductRequestDTO implements Serializable {
 	@NotNull(message = "{subcategory.id.not.null}")
 	private Long subcategoryId;
 
-	@NotNull(message = "{brand.id.not.null}")
 	private Long brandId;
 
 	@NotNull(message = "{active.not.null}")
@@ -43,7 +41,6 @@ public class ProductRequestDTO implements Serializable {
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;
 
-	@NotNull(message = "{cuisine.id.not.null}")
 	private Long cuisineId;
 
 	private Boolean productAvailable;

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.dto.CuisineWiseProductCountDTO;
+import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
@@ -186,7 +186,7 @@ public class ProductController {
 	@GetMapping("/cuisine/count/{vendorId}")
 	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get category wise product count list");
-		List<CuisineWiseProductCountDTO> cuisineWiseProductCountDTOList = productService.getCuisineWiseProductCountList(vendorId);
+		List<CategoryWiseProductCountDTO> cuisineWiseProductCountDTOList = productService.getCuisineWiseProductCountList(vendorId);
 		LOGGER.info("Outside get category wise product count list");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(cuisineWiseProductCountDTOList).create();
@@ -200,14 +200,14 @@ public class ProductController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping("/list/vendor/{vendorId}/cuisine/{cuisineId}")
-	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId, @PathVariable final Long cuisineId)
+	@GetMapping("/list/vendor/{vendorId}/category/{categoryId}")
+	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId, @PathVariable final Long categoryId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get category wise product count list");
-		List<ProductResponseDTO> productList = productService.getProductListForVendorAndCuisine(vendorId, cuisineId);
+		List<ProductResponseDTO> productList = productService.getProductListForVendorAndCategory(vendorId, categoryId);
 		LOGGER.info("Outside get category wise product count list");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(productList).create();
+				.setMessage(messageByLocaleService.getMessage("category.product.list.message", null)).setData(productList).create();
 	}
 
 	/**

@@ -61,7 +61,7 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 	}
 
 	@Override
-	public List<ProductExtrasDTO> getCartExtrasListForCartItem(final Long cartItemId) throws NotFoundException {
+	public List<ProductExtrasDTO> getCartExtrasDtoListForCartItem(final Long cartItemId) throws NotFoundException {
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartExtras> cartExtrasList = cartExtrasRepository.findAllByCartItem(cartItem);
 		return convertEntityToDtos(cartExtrasList);
@@ -111,5 +111,16 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 	private boolean checkIfExistsCartExtrasForCartItemAndExtras(final CartItem cartItem, final ProductExtras productExtras) {
 		return cartExtrasRepository.findAllByCartItemAndProductExtras(cartItem, productExtras).isPresent();
 
+	}
+
+	@Override
+	public List<CartExtras> getCartExtrasListForCartItem(final Long id) throws NotFoundException {
+		CartItem cartItem = cartItemService.getCartItemDetail(id);
+		return getCartExtrasListForCartItem(cartItem);
+	}
+
+	@Override
+	public List<CartExtras> getCartExtrasListForCartItem(final CartItem cartItem) {
+		return cartExtrasRepository.findAllByCartItem(cartItem);
 	}
 }

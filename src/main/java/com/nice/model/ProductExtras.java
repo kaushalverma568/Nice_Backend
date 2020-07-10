@@ -41,8 +41,8 @@ public class ProductExtras extends CommonModel {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@Column(name = "price", nullable = false)
-	private Double price;
+	@Column(name = "rate", nullable = false)
+	private Double rate;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "product_id", nullable = false)
@@ -50,5 +50,8 @@ public class ProductExtras extends CommonModel {
 
 	@Column(name = "vendor_id", nullable = false)
 	private Long vendorId;
+
+	@Column(name = "discounted_rate", nullable = true)
+	private Double discountedRate;
 
 }

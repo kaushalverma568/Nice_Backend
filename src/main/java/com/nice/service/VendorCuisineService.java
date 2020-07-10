@@ -9,13 +9,13 @@ import com.nice.model.VendorCuisine;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 01-Jul-2020
+ * @date : 01-Jul-2020
  */
 public interface VendorCuisineService {
 	/**
 	 * add update vendor cuisine
 	 *
-	 * @param  vendorCuisineDTO
+	 * @param vendorCuisineDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -24,7 +24,7 @@ public interface VendorCuisineService {
 	/**
 	 * check for vendor+cuisin already exists or not
 	 *
-	 * @param  vendorCuisineDTO
+	 * @param vendorCuisineDTO
 	 * @return
 	 */
 	boolean isAlreadyExist(VendorCuisineDTO vendorCuisineDTO);
@@ -32,8 +32,8 @@ public interface VendorCuisineService {
 	/**
 	 * change status of all vendor cuisine by vendor id
 	 *
-	 * @param  vendorId
-	 * @param  active
+	 * @param vendorId
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -42,8 +42,8 @@ public interface VendorCuisineService {
 	/**
 	 * get all vendor cuisine list by vendor id and active
 	 *
-	 * @param  vendorId
-	 * @param  active
+	 * @param vendorId
+	 * @param active
 	 * @return
 	 */
 	List<VendorCuisine> getVendorCuisineListByVendor(Long vendorId, Boolean active);
@@ -51,7 +51,7 @@ public interface VendorCuisineService {
 	/**
 	 * get vendor cuisine by id
 	 *
-	 * @param  id
+	 * @param id
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -60,8 +60,8 @@ public interface VendorCuisineService {
 	/**
 	 * change status of vendor cuisine by id
 	 *
-	 * @param  id
-	 * @param  active
+	 * @param id
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -69,10 +69,18 @@ public interface VendorCuisineService {
 
 	/**
 	 * get dto list by vendor and active
-	 * 
-	 * @param  vendorId
-	 * @param  active
+	 *
+	 * @param vendorId
+	 * @param active
 	 * @return
 	 */
 	List<VendorCuisineDTO> getVendorCuisineDetailListByVendor(Long vendorId, Boolean active);
+
+	/**
+	 * @param vendorId
+	 * @param cuisineId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	VendorCuisine getVendorCuisineByVendorIdAndCuisineId(Long vendorId, Long cuisineId) throws NotFoundException;
 }

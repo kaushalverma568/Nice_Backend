@@ -10,7 +10,7 @@ import com.nice.model.VendorCuisine;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 01-Jul-2020
+ * @date : 01-Jul-2020
  */
 @Repository
 public interface VendorCuisineRepository extends JpaRepository<VendorCuisine, Long> {
@@ -22,4 +22,11 @@ public interface VendorCuisineRepository extends JpaRepository<VendorCuisine, Lo
 	List<VendorCuisine> findAllByVendorId(Long vendorId);
 
 	List<VendorCuisine> findAllByVendorIdAndActive(Long vendorId, Boolean active);
+
+	/**
+	 * @param vendorId
+	 * @param cuisineId
+	 * @return
+	 */
+	Optional<VendorCuisine> findAllByVendorIdAndCuisineId(Long vendorId, Long cuisineId);
 }

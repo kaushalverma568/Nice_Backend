@@ -64,7 +64,7 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 	}
 
 	@Override
-	public List<ProductAttributeValueDTO> getCartProductAttributeValueListForCartItem(final Long cartItemId) throws NotFoundException {
+	public List<ProductAttributeValueDTO> getProductAttributeValueDtoListForCartItem(final Long cartItemId) throws NotFoundException {
 		CartItem tempCartItem = tempCartItemService.getCartItemDetail(cartItemId);
 		List<CartProductAttributeValue> tempCartAttributeValueList = cartAttributeValueRepository.findAllByCartItem(tempCartItem);
 		return convertEntityToDtos(tempCartAttributeValueList);
@@ -116,4 +116,16 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 		return cartAttributeValueRepository.findAllByCartItemAndProductAttributeValue(tempCartItem, productAttributeValue).isPresent();
 
 	}
+
+	@Override
+	public List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(final Long id) throws NotFoundException {
+		CartItem cartItem = tempCartItemService.getCartItemDetail(id);
+		return cartAttributeValueRepository.findAllByCartItem(cartItem);
+	}
+
+	@Override
+	public List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(final CartItem cartItem) {
+		return cartAttributeValueRepository.findAllByCartItem(cartItem);
+	}
+
 }

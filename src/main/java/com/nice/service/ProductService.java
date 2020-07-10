@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.dto.CuisineWiseProductCountDTO;
+import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
@@ -117,7 +117,7 @@ public interface ProductService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<CuisineWiseProductCountDTO> getCuisineWiseProductCountList(Long vendorId) throws NotFoundException;
+	List<CategoryWiseProductCountDTO> getCuisineWiseProductCountList(Long vendorId) throws NotFoundException;
 
 	/**
 	 * @param vendorId
@@ -126,7 +126,7 @@ public interface ProductService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductResponseDTO> getProductListForVendorAndCuisine(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
+	List<ProductResponseDTO> getProductListForVendorAndCategory(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
 
 	/**
 	 *

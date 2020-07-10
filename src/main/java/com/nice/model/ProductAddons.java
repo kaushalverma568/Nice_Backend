@@ -44,6 +44,9 @@ public class ProductAddons extends CommonModel {
 	@Column(name = "rate", nullable = false)
 	private Double rate;
 
+	@Column(name = "discounted_rate", nullable = true)
+	private Double discountedRate;
+
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "product_variant_id", nullable = false)
 	private ProductVariant productVariant;

@@ -16,8 +16,8 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
-import com.nice.dto.CuisineResponseDTO;
-import com.nice.dto.CuisineWiseProductCountDTO;
+import com.nice.dto.CategoryResponseDTO;
+import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
@@ -39,6 +39,7 @@ import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SubCategoryService;
+import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -89,6 +90,9 @@ public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private ProductExtrasService productExtrasService;
 
+	@Autowired
+	private VendorCuisineService vendorCuisineService;
+
 	private UserLogin getUserLoginFromToken() {
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
@@ -98,12 +102,24 @@ public class ProductServiceImpl implements ProductService {
 		UserLogin userLogin = getUserLoginFromToken();
 		productRequestDTO.setVendorId(userLogin.getEntityId());
 		if (productRequestDTO.getId() != null) {
-			return productRepository.findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getBrandId(),
-					productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
+			if (productRequestDTO.getBrandId() != null) {
+				return productRepository.findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getBrandId(),
+						productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
+			} else {
+				return productRepository.findByNameIgnoreCaseAndCuisineIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getCuisineId(),
+						productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
+			}
+
 		} else {
-			return productRepository
-					.findByNameIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(), productRequestDTO.getVendorId())
-					.isPresent();
+			if (productRequestDTO.getBrandId() != null) {
+				return productRepository
+						.findByNameIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(), productRequestDTO.getVendorId())
+						.isPresent();
+			} else {
+				return productRepository.findByNameIgnoreCaseAndCuisineIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(),
+						productRequestDTO.getVendorId()).isPresent();
+			}
+
 		}
 	}
 
@@ -154,10 +170,8 @@ public class ProductServiceImpl implements ProductService {
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			isAdmin = false;
 		}
-
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("product.not.found", new Object[] { productId })));
-
 		return convertEntityToResponseDto(product, isAdmin);
 
 	}
@@ -217,7 +231,9 @@ public class ProductServiceImpl implements ProductService {
 		subCategoryService.getSubCategoryDetail(productRequestDTO.getSubcategoryId());
 		brandService.getBrandDetail(productRequestDTO.getBrandId());
 		cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
-
+		if (productRequestDTO.getCuisineId() != null) {
+			vendorCuisineService.getVendorCuisineByVendorIdAndCuisineId(productRequestDTO.getVendorId(), productRequestDTO.getCuisineId());
+		}
 	}
 
 	@Override
@@ -420,18 +436,19 @@ public class ProductServiceImpl implements ProductService {
 	// }
 
 	@Override
-	public List<CuisineWiseProductCountDTO> getCuisineWiseProductCountList(final Long vendorId) throws NotFoundException {
-		List<CuisineWiseProductCountDTO> cuisineList = productRepository.getCuisineWiseProductCountList(vendorId, true);
-		for (CuisineWiseProductCountDTO cuisineWiseProductCountDTO : cuisineList) {
-			CuisineResponseDTO cuisineResponseDto = cuisineService.getCuisine(cuisineWiseProductCountDTO.getCuisineId());
-			cuisineWiseProductCountDTO.setCuisineName(cuisineResponseDto.getName());
+	public List<CategoryWiseProductCountDTO> getCuisineWiseProductCountList(final Long vendorId) throws NotFoundException {
+		List<CategoryWiseProductCountDTO> categoryList = productRepository.getCategoryWiseProductCountList(vendorId, true);
+		for (CategoryWiseProductCountDTO categoryWiseProductCountDto : categoryList) {
+			CategoryResponseDTO categoryResponseDto = categoryService.getCategory(categoryWiseProductCountDto.getCategoryId());
+			categoryWiseProductCountDto.setCategoryName(categoryResponseDto.getName());
 		}
-		return cuisineList;
+		return categoryList;
 	}
 
 	@Override
-	public List<ProductResponseDTO> getProductListForVendorAndCuisine(final Long vendorId, final Long cuisineId) throws NotFoundException, ValidationException {
-		List<Product> productList = productRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId);
+	public List<ProductResponseDTO> getProductListForVendorAndCategory(final Long vendorId, final Long cuisineId)
+			throws NotFoundException, ValidationException {
+		List<Product> productList = productRepository.findAllByVendorIdAndCategoryId(vendorId, cuisineId);
 		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
 		for (Product product : productList) {
 			productResponseDtoList.add(convertEntityToResponseDto(product, true));

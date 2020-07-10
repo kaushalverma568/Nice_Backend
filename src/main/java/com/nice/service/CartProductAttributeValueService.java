@@ -10,6 +10,7 @@ import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.CartItem;
+import com.nice.model.CartProductAttributeValue;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -31,7 +32,7 @@ public interface CartProductAttributeValueService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductAttributeValueDTO> getCartProductAttributeValueListForCartItem(Long cartItemId) throws NotFoundException;
+	List<ProductAttributeValueDTO> getProductAttributeValueDtoListForCartItem(Long cartItemId) throws NotFoundException;
 
 	/**
 	 * @param cartItemId
@@ -46,5 +47,19 @@ public interface CartProductAttributeValueService {
 	 * @throws NotFoundException
 	 */
 	void deleteCartProductAttributeValue(Long cartItemId) throws NotFoundException;
+
+	/**
+	 * @param id
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(Long id) throws NotFoundException;
+
+	/**
+	 *
+	 * @param cartItem
+	 * @return
+	 */
+	List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(CartItem cartItem);
 
 }

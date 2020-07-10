@@ -10,6 +10,7 @@ import com.nice.dto.ProductToppingDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.CartItem;
+import com.nice.model.CartToppings;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -30,7 +31,7 @@ public interface CartToppingsService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductToppingDto> getCartToppingsListForCartItem(Long cartItemId) throws NotFoundException;
+	List<ProductToppingDto> getProductToppingsDtoListForCartItem(Long cartItemId) throws NotFoundException;
 
 	/**
 	 * @param cartItemId
@@ -45,5 +46,18 @@ public interface CartToppingsService {
 	 * @throws NotFoundException
 	 */
 	void deleteCartToppings(Long cartItemId) throws NotFoundException;
+
+	/**
+	 * @param id
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<CartToppings> getCartToppingsListForCartItem(Long id) throws NotFoundException;
+
+	/**
+	 * @param cartItem
+	 * @return
+	 */
+	List<CartToppings> getCartToppingsListForCartItem(CartItem cartItem);
 
 }

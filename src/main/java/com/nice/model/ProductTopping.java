@@ -56,4 +56,6 @@ public class ProductTopping extends CommonModel {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	private ProductVariant productVariant;
 
+	@Column(name = "discounted_rate", nullable = true)
+	private Double discountedRate;
 }

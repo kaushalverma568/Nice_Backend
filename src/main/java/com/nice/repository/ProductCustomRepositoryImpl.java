@@ -119,34 +119,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 		}
 
 		if (productParamRequestDTO.getSearchKeyword() != null) {
-			sqlQuery.append(" and lower(p.name) like :searchKeyword");
-			paramMap.put("searchKeyword", "'%" + productParamRequestDTO.getSearchKeyword().toLowerCase() + "%'");
+			sqlQuery.append(" and lower(p.name) like CONCAT('%', :searchKeyword, '%')");
+			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeyword().toLowerCase());
 		}
 
 		return sqlQuery;
 	}
 
-	// @SuppressWarnings("unchecked")
-	// @Override
-	// public List<CategoryWiseProductCountDTO> getCategoryWiseProductCountList() {
-	//
-	// StringBuilder categoryWiseProductCountQuery = new StringBuilder(
-	// " select count(total)as count1 ,category_id ,category_name from (select p.id as total ,c.id as category_id ,c.name as
-	// category_name from ")
-	// .append(PRODUCT_TABLE_NAME).append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME)
-	// .append(" pv on p.id=pv.product_id left join category c on c.id=p.category_id where 1=1 and p.active='true' and
-	// pv.active='true' and c.active ='true' group by(p.id ,c.id ,c.name)) as abc group by(category_id ,category_name) ");
-	// Object obj = entityManager.createNativeQuery(categoryWiseProductCountQuery.toString()).getResultList();
-	// List<Object[]> responseObjList = (List<Object[]>) obj;
-	// List<CategoryWiseProductCountDTO> categoryWiseProductCountDTOList = new ArrayList<>();
-	// for (Object[] responseObj : responseObjList) {
-	// CategoryWiseProductCountDTO categoryWiseProductCountDTO = new CategoryWiseProductCountDTO();
-	// categoryWiseProductCountDTO.setCount(Long.valueOf(responseObj[0].toString()));
-	// categoryWiseProductCountDTO.setCategoryId(Long.valueOf(responseObj[1].toString()));
-	// categoryWiseProductCountDTO.setCategoryName(String.valueOf(responseObj[2]));
-	// categoryWiseProductCountDTOList.add(categoryWiseProductCountDTO);
-	// }
-	// return categoryWiseProductCountDTOList;
-	// }
 
 }

@@ -113,7 +113,7 @@ public class CartItemServiceImpl implements CartItemService {
 				/**
 				 * Check if all Addons are same
 				 */
-				List<ProductAddonsDTO> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
+				List<ProductAddonsDTO> cartAddonsList = cartAddonsService.getCartAddonsDtoListForCartItem(cartItem.getId());
 				List<Long> existingProductAddonsList = cartAddonsList.isEmpty() ? null
 						: cartAddonsList.stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
 				boolean allAddonsSame = false;
@@ -126,7 +126,7 @@ public class CartItemServiceImpl implements CartItemService {
 				/**
 				 * Check if all Topppings are same
 				 */
-				List<ProductToppingDto> cartToppingsList = cartToppingsService.getCartToppingsListForCartItem(cartItem.getId());
+				List<ProductToppingDto> cartToppingsList = cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId());
 				List<Long> existingProductToppingsList = cartToppingsList.isEmpty() ? null
 						: cartToppingsList.stream().map(ProductToppingDto::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
@@ -140,7 +140,7 @@ public class CartItemServiceImpl implements CartItemService {
 				 * Check if all ProductAttributes are same
 				 */
 				List<ProductAttributeValueDTO> productAttributeValueDtoList = cartProductAttributeValueService
-						.getCartProductAttributeValueListForCartItem(cartItem.getId());
+						.getProductAttributeValueDtoListForCartItem(cartItem.getId());
 				List<Long> existingProductAttributeValueDtoList = productAttributeValueDtoList.isEmpty() ? null
 						: productAttributeValueDtoList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
 				boolean allProductAttributeValuesSame = false;
@@ -175,10 +175,8 @@ public class CartItemServiceImpl implements CartItemService {
 		return cartItemEntity.getId();
 	}
 
-	/**
-	 * @param id
-	 */
-	private void deleteCartItemForCustomer(final Long id) {
+	@Override
+	public void deleteCartItemForCustomer(final Long id) {
 		cartItemRepository.deleteAllByCustomerId(id);
 	}
 
@@ -263,12 +261,12 @@ public class CartItemServiceImpl implements CartItemService {
 		CartItemResponseDTO cartItemResponseDTO = cartItemMapper.toDto(cartItem);
 		ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariantInternal(cartItem.getProductVariant().getId(), false);
 		cartItemResponseDTO.setProductVariantResponseDto(productVariantResponseDto);
-		cartItemResponseDTO.setProductAddonsDtoList(cartAddonsService.getCartAddonsListForCartItem(cartItem.getId()));
-		cartItemResponseDTO.setProductToppingsDtoList(cartToppingsService.getCartToppingsListForCartItem(cartItem.getId()));
-		cartItemResponseDTO.setProductExtrasDtoList(cartExtrasService.getCartExtrasListForCartItem(cartItem.getId()));
+		cartItemResponseDTO.setProductAddonsDtoList(cartAddonsService.getCartAddonsDtoListForCartItem(cartItem.getId()));
+		cartItemResponseDTO.setProductToppingsDtoList(cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId()));
+		cartItemResponseDTO.setProductExtrasDtoList(cartExtrasService.getCartExtrasDtoListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setCustomerId(cartItem.getCustomer().getId());
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = cartProductAttributeValueService
-				.getCartProductAttributeValueListForCartItem(cartItem.getId());
+				.getProductAttributeValueDtoListForCartItem(cartItem.getId());
 		Map<String, List<ProductAttributeValueDTO>> productAttributeValueDtoMap = new HashMap<>();
 		for (ProductAttributeValueDTO productAttributeValueDTO : productAttributeValueDtoList) {
 			if (productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()) == null) {
