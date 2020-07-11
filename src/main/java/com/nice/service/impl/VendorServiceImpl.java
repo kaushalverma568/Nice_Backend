@@ -65,7 +65,6 @@ import com.nice.service.CustomerAddressService;
 import com.nice.service.FileStorageService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
-import com.nice.service.ProductService;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorCuisineService;
@@ -73,8 +72,8 @@ import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 24-Mar-2020
  * @description :
  */
 
@@ -128,9 +127,6 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private VendorCuisineService vendorCuisineService;
-
-	@Autowired
-	private ProductService productService;
 
 	@Autowired
 	private CustomerAddressService customerAddressService;
@@ -307,8 +303,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own
-			 * id
+			 * At the time of update is vendor with same email exist or not except it's own id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail(), vendorDTO.getId()).isPresent();
 		} else {
@@ -348,8 +343,7 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will
-		 * verification pending
+		 * if vendor is verifying his email for first time then his old status will verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -360,8 +354,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param vendor
+	 * @param  userLogin
+	 * @param  vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -416,8 +410,7 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.order.exist", null));
 			} else {
 				/**
-				 * when vendor updates an email then de active him until email not verified and
-				 * send verification link
+				 * when vendor updates an email then de active him until email not verified and send verification link
 				 */
 				vendor.setIsEmailVerified(false);
 				vendor.setIsOrderServiceEnable(false);
@@ -501,8 +494,7 @@ public class VendorServiceImpl implements VendorService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 		}
 		/**
-		 * if order service is enable by vendor then check he has active subscription
-		 * plan or not
+		 * if order service is enable by vendor then check he has active subscription plan or not
 		 */
 		else if (vendor.getIsOrderServiceEnable().booleanValue()
 				&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -621,8 +613,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's
-			 * own id
+			 * At the time of update is vendor with same contact exist or not except it's own id
 			 */
 			return vendorRepository.findByContactNoAndIdNot(vendorDTO.getContactNo(), vendorDTO.getId()).isPresent();
 		} else {
@@ -664,6 +655,36 @@ public class VendorServiceImpl implements VendorService {
 			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 		}
 
+	}
+
+	@Override
+	public String changeVendorStatus(final Long vendorId, final String newStatus) throws NotFoundException, ValidationException {
+		Vendor vendor = getVendorDetail(vendorId);
+		VendorStatus existingStatus = VendorStatus.getByValue(vendor.getStatus());
+		if (!existingStatus.contains(newStatus)) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.status.not.allowed", new Object[] { newStatus, vendor.getStatus() }));
+		}
+		vendor.setStatus(newStatus);
+		if (VendorStatus.APPROVED.getStatusValue().equals(newStatus)) {
+			// send email for you account has been approved by admin kindly Login here
+		}
+		if (VendorStatus.REJECTED.getStatusValue().equals(newStatus)) {
+			// send email for you account has been rejected by admin kindly contact admin
+		}
+		if (VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)) {
+			// send email to vendor that your account is being suspended by admin kindly contact admin.
+			// revoke token
+		}
+		if (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed.here", new Object[] { newStatus }));
+		}
+		vendorRepository.save(vendor);
+		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndRole(vendor.getEmail(), Role.VENDOR.name());
+		if (userLogin.isPresent()) {
+			return userLogin.get().getEmail();
+		} else {
+			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists.email", new Object[] { vendor.getEmail() }));
+		}
 	}
 
 }

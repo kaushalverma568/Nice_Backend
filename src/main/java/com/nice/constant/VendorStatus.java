@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
@@ -60,12 +60,23 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 			nextStatus = new VendorStatus[] { ACTIVE, EXPIRED };
 			break;
 		case REJECTED:
-			nextStatus = new VendorStatus[] {};
+			nextStatus = new VendorStatus[] { APPROVED };
 			break;
 		default:
 			break;
 		}
 
 		return nextStatus;
+	}
+
+	public boolean contains(final String newStatus) {
+		if (nextStatus() != null) {
+			for (final BasicStatus<VendorStatus> status : nextStatus()) {
+				if (newStatus.equals(status.getStatusValue())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -228,9 +228,19 @@ public interface VendorService {
 
 	/**
 	 * scheduler method to send email regarding subscription expire
-	 * 
+	 *
 	 * @param runDate
 	 */
 	void runVendorSubscriptionExpireReminderScheduler(Date runDate);
+
+	/**
+	 * change vendor status
+	 *
+	 * @param  vendorId
+	 * @param  newStatus
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String changeVendorStatus(Long vendorId, String newStatus) throws NotFoundException, ValidationException;
 
 }

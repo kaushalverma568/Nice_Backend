@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.constant.VendorStatus;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
@@ -364,6 +365,18 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
 				.setData(vendorList).create();
 
+	}
+
+	@PutMapping("/change/status/{vendorId}/{newStatus}")
+	public ResponseEntity<Object> changeVendorStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
+		String userName = vendorService.changeVendorStatus(vendorId, newStatus);
+		if (userName != null && VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)) {
+			revokeToken(userName);
+		}
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
 	}
 
 }
