@@ -61,8 +61,21 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			throws NotFoundException, ValidationException {
 		Long vendorId = getVendorIdForLoginUser();
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		/**
+		 * check of the vendor of product vendor is same as the one creating the product attribute variant
+		 */
+		if (!productVariant.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		for (ProductAttributeValueDTO productAttributeValuesDto : productAttributeValueDTO) {
 			ProductAttribute productAttribute = productAttributeService.getProductAttributeDetail(productAttributeValuesDto.getProductAttributeId());
+			/**
+			 * check if the vendor of product attribute is same as the one creating the product attribute variant
+			 */
+			if (!productAttribute.getVendorId().equals(vendorId)) {
+				throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+			}
+
 			if (isExists(productAttributeValuesDto, productVariant, productAttribute)) {
 				throw new ValidationException(messageByLocaleService.getMessage("attribute.value.already.exists",
 						new Object[] { productAttributeValuesDto.getAttributeValue(), productAttribute.getName() }));
@@ -86,21 +99,19 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	}
 
 	@Override
-	public ProductAttributeValueDTO getProductAttributeValue(final Long ProductAttributeValueId) throws NotFoundException {
-		ProductAttributeValue productAttributeValue = productAttributeValueRepository.findById(ProductAttributeValueId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { ProductAttributeValueId })));
+	public ProductAttributeValueDTO getProductAttributeValue(final Long productAttributeValueId) throws NotFoundException {
+		ProductAttributeValue productAttributeValue = getProductAttributeValueDetail(productAttributeValueId);
 		return productAttributeValueMapper.toDto(productAttributeValue);
 	}
 
 	@Override
 	public void changeStatus(final Long productAttributeValueId, final Boolean active) throws ValidationException, NotFoundException {
-		ProductAttributeValue existingProductAttributeValue = productAttributeValueRepository.findById(productAttributeValueId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productAttributeValueId })));
+		ProductAttributeValue existingProductAttributeValue = getProductAttributeValueDetail(productAttributeValueId);
 		LOGGER.info("Existing  ProductAttributeValue details {} ", existingProductAttributeValue);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAttributeValue.getActive().equals(active)) {
-			if (active.booleanValue()) {
+			if (active) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.active", null));
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.deactive", null));
@@ -108,8 +119,7 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 		} else {
 			if (Boolean.TRUE.equals(active)) {
 				/**
-				 * at time of active attribute value check product variant and attribute is
-				 * active or not
+				 * at time of active attribute value check product variant and attribute is active or not
 				 */
 				if (Boolean.FALSE.equals(existingProductAttributeValue.getProductVariant().getActive())) {
 					throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
@@ -120,6 +130,22 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			existingProductAttributeValue.setActive(active);
 			productAttributeValueRepository.save(existingProductAttributeValue);
 		}
+	}
+
+	@Override
+	public List<ProductAttributeValueDTO> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId)
+			throws NotFoundException, ValidationException {
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		UserLogin userLogin = getUserLoginFromToken();
+		/**
+		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
+		 */
+		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !productVariant.getVendorId().equals(userLogin.getEntityId()))) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			activeRecords = true;
+		}
+		return getList(productVariantId, activeRecords);
 	}
 
 	@Override
@@ -156,19 +182,19 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	public boolean isExists(final ProductAttributeValueDTO productAttributeValueDTO, final ProductVariant productVariant,
 			final ProductAttribute productAttribute) throws NotFoundException {
 		if (productAttributeValueDTO.getId() != null) {
-			return !(productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant, productAttribute,
-					productAttributeValueDTO.getAttributeValue(), productAttributeValueDTO.getId()).isEmpty());
+			return productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant, productAttribute,
+					productAttributeValueDTO.getAttributeValue(), productAttributeValueDTO.getId()).isPresent();
 		} else {
-			return !(productAttributeValueRepository
+			return productAttributeValueRepository
 					.findByProductVariantAndProductAttributeAndAttributeValue(productVariant, productAttribute, productAttributeValueDTO.getAttributeValue())
-					.isEmpty());
+					.isPresent();
 		}
 	}
 
 	@Override
-	public ProductAttributeValue getProductAttributeValueDetail(final Long ProductAttributeValueId) throws NotFoundException {
-		return productAttributeValueRepository.findById(ProductAttributeValueId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { ProductAttributeValueId })));
+	public ProductAttributeValue getProductAttributeValueDetail(final Long productAttributeValueId) throws NotFoundException {
+		return productAttributeValueRepository.findById(productAttributeValueId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productAttributeValueId })));
 	}
 
 	@Override
@@ -177,7 +203,7 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	}
 
 	private Long getVendorIdForLoginUser() throws ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
+		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		} else {
@@ -186,7 +212,20 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	}
 
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
 	}
 
 	private void validateDTOProperties(final ProductAttributeValueDTO productAttributeValuesDto) throws ValidationException {
@@ -209,34 +248,8 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	private void validateProductAttributeValues(final ProductVariant productVariant, final ProductAttributeValueDTO productAddonsDto)
 			throws ValidationException {
 		validateDTOProperties(productAddonsDto);
-
-		Long vendorId = getVendorIdForLoginUser();
-		if (vendorId == null) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
 		if (productAddonsDto.getActive().booleanValue() && Boolean.FALSE.equals(productVariant.getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
 		}
-		// if (productAddonsDto.getId() != null) {
-		// if (productAttributeValueRepository
-		// .findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant,
-		// productAddonsDto.getName(),
-		// vendorId, productAddonsDto.getId())
-		// .isPresent()) {
-		// throw new
-		// ValidationException(messageByLocaleService.getMessage("topping.not.unique",
-		// null));
-		// }
-		// } else {
-		// if
-		// (productAttributeValueRepository.findByProductVariantAndVendorIdAndName(productVariant,
-		// vendorId,
-		// productAddonsDto.getName()).isPresent()) {
-		// throw new
-		// ValidationException(messageByLocaleService.getMessage("topping.not.unique",
-		// null));
-		// }
-		// }
-
 	}
 }

@@ -9,11 +9,11 @@ import com.nice.model.ProductExtras;
 
 public interface ProductExtrasService {
 
-	boolean isExists(ProductExtrasDTO productExtrasDto) throws ValidationException;
+	boolean isExists(ProductExtrasDTO productExtrasDto) throws NotFoundException;
 
-	ProductExtrasDTO addProductExtras(ProductExtrasDTO productExtrasDto) throws NotFoundException;
+	Long addProductExtras(ProductExtrasDTO productExtrasDto) throws NotFoundException, ValidationException;
 
-	ProductExtrasDTO updateProductExtras(ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException;
+	Long updateProductExtras(ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException;
 
 	ProductExtrasDTO getProductExtras(Long productExtrasId) throws NotFoundException;
 
@@ -30,6 +30,14 @@ public interface ProductExtrasService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductExtrasDTO> getList(Long productId, Boolean activeRecords) throws NotFoundException, ValidationException;
+	List<ProductExtrasDTO> getListWithUserCheck(Long productId, Boolean activeRecords) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param activeRecords
+	 * @param productId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<ProductExtrasDTO> getList(Boolean activeRecords, Long productId) throws NotFoundException;
 
 }

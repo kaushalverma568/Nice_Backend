@@ -40,7 +40,24 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 * @param id
 	 * @return
 	 */
-	List<Optional<ProductExtras>> findByNameIgnoreCaseAndIdNot(String name, Long id);
+	Optional<ProductExtras> findByNameIgnoreCaseAndIdNot(String name, Long id);
+
+	/**
+	 *
+	 * @param name
+	 * @param product
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductExtras> findByNameIgnoreCaseAndProductAndIdNot(String name, Product product, Long id);
+
+	/**
+	 *
+	 * @param name
+	 * @param product
+	 * @return
+	 */
+	Optional<ProductExtras> findByNameIgnoreCaseAndProduct(String name, Product product);
 
 	/**
 	 *
@@ -49,14 +66,14 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 * @param id
 	 * @return
 	 */
-	List<Optional<ProductExtras>> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	List<ProductExtras> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 *
 	 * @param name
 	 * @return
 	 */
-	List<Optional<ProductExtras>> findByNameIgnoreCase(String name);
+	List<ProductExtras> findByNameIgnoreCase(String name);
 
 	/**
 	 *
@@ -64,7 +81,7 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 * @param vendorId
 	 * @return
 	 */
-	List<Optional<ProductExtras>> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+	List<ProductExtras> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 * @param vendorId

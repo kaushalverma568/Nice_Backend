@@ -62,17 +62,17 @@ public interface ProductVariantService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	List<ProductVariantResponseDTO> getProductVariantProductList(Long productId, Boolean active, Boolean isAdmin) throws NotFoundException, ValidationException;
+	List<ProductVariantResponseDTO> getProductVariantProductList(Long productId, Boolean active) throws NotFoundException, ValidationException;
 
 	/**
 	 * add/update list of product variant
 	 *
 	 * @param productId
-	 * @param productVariantRequestDTOList
+	 * @param productVariantRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addUpdateProductVariantList(Long productId, List<ProductVariantRequestDTO> productVariantRequestDTOList) throws NotFoundException, ValidationException;
+	void addUpdateProductVariantList(Long productId, ProductVariantRequestDTO productVariantRequestDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param sku
@@ -101,11 +101,12 @@ public interface ProductVariantService {
 	/**
 	 * @param product
 	 * @param active
+	 * @param isAdmin TODO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active) throws NotFoundException, ValidationException;
+	List<ProductVariantResponseDTO> getProductVariantDetailByProduct(Product product, Boolean active, Boolean isAdmin) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param productVariantId

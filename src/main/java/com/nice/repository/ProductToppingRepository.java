@@ -32,14 +32,14 @@ public interface ProductToppingRepository extends JpaRepository<ProductTopping, 
 	 * @param id
 	 * @return
 	 */
-	Optional<ProductTopping> findByProductVariantAndNameAndVendorIdAndIdNot(ProductVariant productVariant, String name, Long vendorId, Long id);
+	Optional<ProductTopping> findByProductVariantAndNameAndIdNot(ProductVariant productVariant, String name, Long id);
 
 	/**
 	 * @param productVariant
 	 * @param name
 	 * @return
 	 */
-	Optional<ProductTopping> findByProductVariantAndVendorIdAndName(ProductVariant productVariant, Long vendorId, String name);
+	Optional<ProductTopping> findByProductVariantAndName(ProductVariant productVariant, String name);
 
 	/**
 	 * @param productVariantId

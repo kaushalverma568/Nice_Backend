@@ -30,8 +30,9 @@ public interface ProductToppingService {
 	 * @param productVariantId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	ProductToppingDto getProductTopping(Long productVariantId) throws NotFoundException;
+	ProductToppingDto getProductTopping(Long productVariantId) throws NotFoundException, ValidationException;
 
 	/**
 	 *
@@ -67,5 +68,14 @@ public interface ProductToppingService {
 	 * @return
 	 */
 	ProductToppingDto convertFromEntityToDto(ProductTopping productTopping);
+
+	/**
+	 * @param activeRecords
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<ProductToppingDto> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
 
 }

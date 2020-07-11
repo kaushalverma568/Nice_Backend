@@ -57,6 +57,13 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 			throws NotFoundException, ValidationException {
 		Long vendorId = getVendorIdForLoginUser();
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		/**
+		 * check of the vendor of product vendor is same as the one creating the addon
+		 */
+		if (!productVariant.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+
 		for (ProductAddonsDTO productAddonsDto : productAddonsDtoList) {
 			if (isExists(productAddonsDto, productVariant)) {
 				throw new ValidationException(messageByLocaleService.getMessage("addons.already.exists", new Object[] { productAddonsDto.getName() }));
@@ -94,13 +101,11 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 			throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
 		}
 		if (productAddonsDto.getId() != null) {
-			if (productAddonsRepository
-					.findByProductVariantAndNameAndVendorIdAndIdNot(productVariant, productAddonsDto.getName(), vendorId, productAddonsDto.getId())
-					.isPresent()) {
+			if (productAddonsRepository.findByProductVariantAndNameAndIdNot(productVariant, productAddonsDto.getName(), productAddonsDto.getId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		} else {
-			if (productAddonsRepository.findByProductVariantAndVendorIdAndName(productVariant, vendorId, productAddonsDto.getName()).isPresent()) {
+			if (productAddonsRepository.findByProductVariantAndName(productVariant, productAddonsDto.getName()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		}
@@ -165,6 +170,21 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	}
 
 	@Override
+	public List<ProductAddonsDTO> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId) throws NotFoundException, ValidationException {
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		UserLogin userLogin = getUserLoginFromToken();
+		/**
+		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
+		 */
+		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !productVariant.getVendorId().equals(userLogin.getEntityId()))) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			activeRecords = true;
+		}
+		return getDtoList(activeRecords, productVariantId);
+	}
+
+	@Override
 	public List<ProductAddonsDTO> getDtoList(final Boolean activeRecords, final Long productVariantId) throws NotFoundException {
 		List<ProductAddons> productAddonsList = getList(activeRecords, productVariantId);
 		return productAddonsMapper.toDtos(productAddonsList);
@@ -172,14 +192,12 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 
 	@Override
 	public boolean isExists(final ProductAddonsDTO productAddonsDto, final ProductVariant productVariant) throws ValidationException {
-		Long vendorId = getVendorIdForLoginUser();
-
 		if (productAddonsDto.getId() != null) {
-			return !(productAddonsRepository
-					.findByProductVariantAndNameAndVendorIdAndIdNot(productVariant, productAddonsDto.getName(), vendorId, productAddonsDto.getId()).isEmpty());
+			return !(productAddonsRepository.findByProductVariantAndNameAndIdNot(productVariant, productAddonsDto.getName(), productAddonsDto.getId())
+					.isEmpty());
 
 		} else {
-			return !(productAddonsRepository.findByProductVariantAndVendorIdAndName(productVariant, vendorId, productAddonsDto.getName()).isEmpty());
+			return !(productAddonsRepository.findByProductVariantAndName(productVariant, productAddonsDto.getName()).isEmpty());
 		}
 	}
 
@@ -198,7 +216,7 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	 *
 	 */
 	private Long getVendorIdForLoginUser() throws ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
+		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		} else {
@@ -207,7 +225,20 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	}
 
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
 	}
 
 	private void validateDTOProperties(final ProductAddonsDTO productAddonsDto) throws ValidationException {

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductToppingDto;
@@ -66,24 +67,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private UOMService uomService;
-	//
-	// @Autowired
-	// private StoreService storeService;
-	//
-	// @Autowired
-	// private StockDetailsService stockDetailsService;
-
-	// @Autowired
-	// private UsersService usersService;
-	//
 	// @Autowired
 	// private CartItemService cartItemService;
 	//
 	// @Autowired
 	// private TempCartItemService tempCartItemService;
 	//
-	// @Autowired
-	// private PosCartService posCartService;
 	@Autowired
 	private ProductAddonsService productAddonsService;
 
@@ -94,16 +83,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	private ProductAttributeValueService productAttributeValueService;
 
 	@Override
-	public void addUpdateProductVariantList(final Long productId, final List<ProductVariantRequestDTO> productVariantRequestDTOList)
+	public void addUpdateProductVariantList(final Long productId, final ProductVariantRequestDTO productVariantRequestDTO)
 			throws NotFoundException, ValidationException {
 		final Product product = productService.getProductDetail(productId);
-		for (ProductVariantRequestDTO productVariantRequestDTO : productVariantRequestDTOList) {
+		Long vendorId = getVendorIdForLoginUser();
+		if (!product.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 			validateProductVariant(product, productVariantRequestDTO);
 			final ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequestDTO);
 			productVariant.setVendorId(product.getVendorId());
 			if (productVariantRequestDTO.getId() == null) {
 				productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
 				productVariant.setProduct(product);
+			/**
+			 * Uncomment and modify this code in case of discount
+			 */
 				// if (product.getDiscountId() != null) {
 				// final Double discounteRate =
 				// discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
@@ -119,6 +114,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 				} else {
 					productVariant.setUom(existingProductVariant.getUom());
 					productVariant.setProduct(existingProductVariant.getProduct());
+				/**
+				 * Uncomment and modify this code in case of discount
+				 */
 					// if (existingProductVariant.getProduct().getDiscountId() != null) {
 					// final Double discounteRate =
 					// discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
@@ -129,7 +127,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			}
 			productVariantRepository.save(productVariant);
 		}
-	}
 
 	/**
 	 * @param productVariantRequestDTO
@@ -153,13 +150,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 			if (productVariantRepository.findByProductAndUomAndIdNot(product, uom, productVariantRequestDTO.getId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.variant.not.unique", null));
-			} else if (productVariantRepository.findBySkuIgnoreCaseAndIdNot(productVariantRequestDTO.getSku(), productVariantRequestDTO.getId()).isPresent()) {
+			} else if (productVariantRepository
+					.findBySkuIgnoreCaseAndVendorIdAndIdNot(productVariantRequestDTO.getSku(), product.getVendorId(), productVariantRequestDTO.getId())
+					.isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("sku.not.unique", null));
 			}
 		} else {
 			if (productVariantRepository.findByProductAndUom(product, uom).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.variant.not.unique", null));
-			} else if (productVariantRepository.findBySkuIgnoreCase(productVariantRequestDTO.getSku()).isPresent()) {
+			} else if (productVariantRepository.findBySkuIgnoreCaseAndVendorId(productVariantRequestDTO.getSku(), product.getVendorId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("sku.not.unique", null));
 			}
 		}
@@ -187,15 +186,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	@Override
-	public List<ProductVariantResponseDTO> getProductVariantDetailByProduct(final Product product, final Boolean active)
+	public List<ProductVariantResponseDTO> getProductVariantDetailByProduct(final Product product, final Boolean active, final Boolean isAdmin)
 			throws NotFoundException, ValidationException {
 		List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
 		List<ProductVariant> productVariants = getProductVariantByProduct(product, active);
-		UserLogin userLogin = getUserLoginFromToken();
-		Boolean isAdmin = false;
-		if (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			isAdmin = true;
-		}
+
 		for (ProductVariant productVariant : productVariants) {
 			ProductVariantResponseDTO productVariantResponseDTO = convertToResponseDto(productVariant, isAdmin);
 			productVariantResponseDTOs.add(productVariantResponseDTO);
@@ -344,17 +339,28 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	// }
 
 	@Override
-	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active, final Boolean isAdmin)
+	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active)
 			throws NotFoundException, ValidationException {
 		final Product product = productService.getProductDetail(productId);
-		return getProductVariantDetailByProduct(product, active);
+		UserLogin userLogin = getUserLoginFromToken();
+		Boolean isAdmin = false;
+		/**
+		 * if the user is a Vendor then check if the product belongs to him. For Super Admin all products should be visible
+		 */
+		if (userLogin != null && (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
+			isAdmin = true;
+			if (userLogin.getEntityId() != null && !product.getVendorId().equals(userLogin.getEntityId())) {
+				throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+	}
+		}
+		return getProductVariantDetailByProduct(product, active, isAdmin);
 	}
 
 	@Override
 	public ProductVariantResponseDTO getProductVariant(final Long productVariantId) throws NotFoundException, ValidationException {
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean isAdmin = false;
-		if (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+		if (userLogin != null && (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
 			isAdmin = true;
 		}
 		return getProductVariantInternal(productVariantId, isAdmin);
@@ -377,15 +383,23 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Override
 	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+		UserLogin userLogin = checkForUserLogin();
+		if (userLogin.getEntityType() == null || !UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		/**
 		 * Here is admin is taken as true as this method will only be accessed by
 		 * admin/vendor always.
 		 */
+		ProductVariant productVariant = getProductVariantDetailBySku(sku, userLogin.getEntityId());
+		/**
+		 * Validation for Vendor
+		 */
+		if (userLogin.getEntityId() == null || productVariant.getVendorId().equals(userLogin.getEntityId())) {
 		return convertToResponseDto(getProductVariantDetailBySku(sku, userLogin.getEntityId()), true);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+	}
 	}
 
 	@Override
@@ -395,6 +409,32 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+}
+	}
+
+	/**
+	 * @throws ValidationException
+	 *
+	 */
+	private Long getVendorIdForLoginUser() throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else {
+			return userLogin.getEntityId();
+		}
 	}
 }

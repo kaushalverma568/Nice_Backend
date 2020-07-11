@@ -26,7 +26,6 @@ import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
-import com.nice.mapper.ProductAttributeValueMapper;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.ProductAttributeValueService;
 
@@ -49,9 +48,6 @@ public class ProductAttributeValueController {
 
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
-
-	@Autowired
-	private ProductAttributeValueMapper productAttributeValueMapper;
 
 	@PostMapping("/{productVariantId}")
 	public ResponseEntity<Object> addUpdateProductAttributeValue(@PathVariable final Long productVariantId,
@@ -79,8 +75,16 @@ public class ProductAttributeValueController {
 
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException {
-		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariantId, activeRecords);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
+		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getDtoListWithUserCheck(activeRecords,
+				productVariantId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("product.attribute.value.list.message", null)).setData(productAttributeValueDtoList).create();
+	}
+
+	@GetMapping("/cust/list/{productVariantId}")
+	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException {
+		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariantId, true);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.value.list.message", null)).setData(productAttributeValueDtoList).create();
 	}

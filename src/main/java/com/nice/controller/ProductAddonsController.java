@@ -74,8 +74,15 @@ public class ProductAddonsController {
 
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException {
-		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoList(activeRecords, productVariantId);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
+		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoListWithUserCheck(activeRecords, productVariantId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.list.message", null))
+				.setData(resultProductAddons).create();
+	}
+
+	@GetMapping("/cust/list/{productVariantId}")
+	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException, ValidationException {
+		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoList(true, productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.list.message", null))
 				.setData(resultProductAddons).create();
 	}

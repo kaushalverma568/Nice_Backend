@@ -30,14 +30,14 @@ public interface ProductAddonsRepository extends JpaRepository<ProductAddons, Lo
 	 * @param id
 	 * @return
 	 */
-	Optional<ProductAddons> findByProductVariantAndNameAndVendorIdAndIdNot(ProductVariant productVariant, String name, Long vendorId, Long id);
+	Optional<ProductAddons> findByProductVariantAndNameAndIdNot(ProductVariant productVariant, String name, Long id);
 
 	/**
 	 * @param productVariant
 	 * @param name
 	 * @return
 	 */
-	Optional<ProductAddons> findByProductVariantAndVendorIdAndName(ProductVariant productVariant, Long vendorId, String name);
+	Optional<ProductAddons> findByProductVariantAndName(ProductVariant productVariant, String name);
 
 	/**
 	 * @param productVariantId

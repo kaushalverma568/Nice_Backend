@@ -81,9 +81,11 @@ public class ProductToppingController {
 	 * @param productToppingId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	@GetMapping("/{productToppingId}")
-	public ResponseEntity<Object> getProductTopping(@PathVariable("productToppingId") final Long productToppingId) throws NotFoundException {
+	public ResponseEntity<Object> getProductTopping(@PathVariable("productToppingId") final Long productToppingId)
+			throws NotFoundException, ValidationException {
 		final ProductToppingDto productToppingDTO = productToppingService.getProductTopping(productToppingId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.detail.message", null))
 				.setData(productToppingDTO).create();
@@ -94,12 +96,22 @@ public class ProductToppingController {
 	 * @param productVariantId
 	 * @param active
 	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
-	@GetMapping("/list")
-	public ResponseEntity<Object> getProductListBasedOnParams(@RequestParam(required = true) final Long productVariantId,
-			@RequestParam(required = false) final Boolean activeRecords) {
+	@GetMapping("/list/{productVariantId}")
+	public ResponseEntity<Object> getProductListBasedOnParams(@PathVariable final Long productVariantId,
+			@RequestParam(required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get Topping List for Product varinat {}", productVariantId);
-		List<ProductToppingDto> productToppingList = productToppingService.getToppingForProductVariant(productVariantId, activeRecords);
+		List<ProductToppingDto> productToppingList = productToppingService.getDtoListWithUserCheck(activeRecords, productVariantId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.list.message", null))
+				.setData(productToppingList).create();
+	}
+
+	@GetMapping("/cust/list/{productVariantId}")
+	public ResponseEntity<Object> getProductList(@PathVariable final Long productVariantId, @RequestParam(required = false) final Boolean activeRecords) {
+		LOGGER.info("Inside get Topping List for Product varinat {}", productVariantId);
+		List<ProductToppingDto> productToppingList = productToppingService.getToppingForProductVariant(productVariantId, true);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.list.message", null))
 				.setData(productToppingList).create();
 	}

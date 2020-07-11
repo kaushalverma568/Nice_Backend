@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeDTO;
 import com.nice.dto.VendorResponseDTO;
@@ -42,8 +43,6 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	/**
 	 *
 	 */
-	private static final String UNAUTHORIZED = "unauthorized";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductAttributeServiceImpl.class);
 
 	private static final String NOT_FOUND = "product.attribute.not.found";
@@ -64,7 +63,7 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	private VendorService vendorService;
 
 	@Override
-	public ProductAttributeDTO addProductAttribute(final ProductAttributeDTO productAttributeDTO) throws NotFoundException {
+	public ProductAttributeDTO addProductAttribute(final ProductAttributeDTO productAttributeDTO) throws NotFoundException, ValidationException {
 		Long vendorId = getVendorIdForLoginUser();
 		ProductAttribute productAttribute = productAttributeMapper.toEntity(productAttributeDTO);
 		productAttribute.setVendorId(vendorId);
@@ -83,20 +82,29 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			LOGGER.error("ProductAttribute is not exists for ProductAttributeId {} ", productAttributeDTO.getId());
 			throw new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productAttributeDTO.getId() }));
 		} else if (!optExistingProductAttribute.get().getVendorId().equals(vendorId)) {
-			throw new NotFoundException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+			throw new NotFoundException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		productAttributeDTO.setVendorId(vendorId);
 		return productAttributeMapper.toDto(productAttributeRepository.save(productAttributeMapper.toEntity(productAttributeDTO)));
 	}
 
 	@Override
-	public ProductAttributeDTO getProductAttribute(final Long ProductAttributeId) throws NotFoundException {
-		ProductAttribute productAttribute = productAttributeRepository.findById(ProductAttributeId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { ProductAttributeId })));
-		ProductAttributeDTO productAttributeDto = productAttributeMapper.toDto(productAttribute);
-		VendorResponseDTO vendorResponseDto = vendorService.getVendor(productAttributeDto.getVendorId());
-		productAttributeDto.setVendorName(vendorResponseDto.getFirstName().concat(" ").concat(vendorResponseDto.getLastName()));
-		return productAttributeDto;
+	public ProductAttributeDTO getProductAttribute(final Long productAttributeId) throws NotFoundException, ValidationException {
+		UserLogin userLogin = checkForUserLogin();
+		ProductAttribute productAttribute = productAttributeRepository.findById(productAttributeId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productAttributeId })));
+		/**
+		 * Check if the given product attribute belongs to vendor
+		 */
+		if (userLogin.getEntityType() == null || (userLogin.getEntityId().equals(productAttribute.getVendorId()))) {
+			ProductAttributeDTO productAttributeDto = productAttributeMapper.toDto(productAttribute);
+			VendorResponseDTO vendorResponseDto = vendorService.getVendor(productAttributeDto.getVendorId());
+			productAttributeDto.setVendorName(vendorResponseDto.getFirstName().concat(" ").concat(vendorResponseDto.getLastName()));
+			return productAttributeDto;
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+
 	}
 
 	@Override
@@ -108,13 +116,13 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 		 * Check for authorization
 		 */
 		if (!(userLogin.getEntityType() == null || existingProductAttribute.getVendorId().equals(userLogin.getEntityId()))) {
-			throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		LOGGER.info("Existing  ProductAttribute details {} ", existingProductAttribute);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAttribute.getActive().equals(active)) {
-			if (active.booleanValue()) {
+			if (active) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.active", null));
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.deactive", null));
@@ -136,12 +144,11 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	}
 
 	@Override
-	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorIdForFilter) {
+	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
-		Long vendorId = getVendorIdForLoginUser();
-		if (vendorId == null) {
-			vendorId = vendorIdForFilter;
-		}
+		Long vendorId = userLogin.getEntityId();
+
 		if (activeRecords != null) {
 			return vendorId == null ? productAttributeRepository.findAllByActive(activeRecords, pageable)
 					: productAttributeRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);
@@ -151,19 +158,26 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	}
 
 	@Override
+	public List<ProductAttribute> getAllActiveList() throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
+		Long vendorId = userLogin.getEntityId();
+		return productAttributeRepository.findAllByActiveAndVendorId(true, vendorId);
+	}
+
+	@Override
 	public boolean isExists(final ProductAttributeDTO productAttributeDTO) throws ValidationException {
 		Long vendorId = getVendorIdForLoginUser();
 		/**
 		 * Only vendor can update the product attribute
 		 */
 		if (vendorId == null) {
-			throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		if (productAttributeDTO.getId() != null) {
-			return !(productAttributeRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(productAttributeDTO.getName(), vendorId, productAttributeDTO.getId())
-					.isEmpty());
+			return productAttributeRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(productAttributeDTO.getName(), vendorId, productAttributeDTO.getId())
+					.isPresent();
 		} else {
-			return !(productAttributeRepository.findByNameIgnoreCaseAndVendorId(productAttributeDTO.getName(), vendorId).isEmpty());
+			return productAttributeRepository.findByNameIgnoreCaseAndVendorId(productAttributeDTO.getName(), vendorId).isPresent();
 		}
 	}
 
@@ -178,19 +192,30 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 		productAttributeRepository.deleteById(productAttributeId);
 	}
 
+	private Long getVendorIdForLoginUser() throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else {
+			return userLogin.getEntityId();
+		}
+	}
+
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
 
-	/**
-	 *
-	 */
-	private Long getVendorIdForLoginUser() {
+	private UserLogin checkForUserLogin() throws ValidationException {
 		UserLogin userLogin = getUserLoginFromToken();
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			return userLogin.getEntityId();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
 		}
-		return null;
 	}
 
 }

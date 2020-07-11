@@ -97,9 +97,19 @@ public final class Constant {
 	public static final String CAN_DELETE = "CAN_DELETE";
 	public static final String CAN_IMPORT = "CAN_IMPORT";
 	public static final String CAN_EXPORT = "CAN_EXPORT";
+	public static final String ANONYMOUS_USER = "anonymousUser";
 
 	public static final String CLIENT_ID = "kody-client";
 	public static final String SECRET_ID = "kody-secret";
 	public static final String UNAUTHORIZED = "unauthorized";
+	public static final String PENDING = "Pending";
+	public static final String AVAILABLE = "Available";
+	public static final String IN_PROCESS = "In-Process";
+	public static final String RESERVED = "Reserved";
+	public static final String DELIVERED = "Delivered";
+	public static final String REPLACE_REQUESTED = "Replace Requested";
+	public static final String REPLACE_PROCESSED = "Replace Processed";
+	public static final String REPLACED = "Replaced";
+	public static final String CANCELLED = "Cancelled";
 
 }

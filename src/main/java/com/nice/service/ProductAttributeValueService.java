@@ -50,4 +50,13 @@ public interface ProductAttributeValueService {
 	 */
 	List<ProductAttributeValue> getListByProductAttributeOrActive(Long productAttributeId, Boolean activeRecords) throws NotFoundException;
 
+	/**
+	 * @param activeRecords
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<ProductAttributeValueDTO> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
+
 }

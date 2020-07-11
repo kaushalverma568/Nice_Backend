@@ -82,4 +82,19 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 	 */
 	Optional<Product> findByNameIgnoreCaseAndCuisineIdAndVendorId(String name, Long brandId, Long vendorId);
 
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Product> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Product> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+
 }

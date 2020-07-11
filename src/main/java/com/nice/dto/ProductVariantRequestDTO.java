@@ -35,7 +35,6 @@ public class ProductVariantRequestDTO implements Serializable {
 	@NotBlank(message = "{sku.not.null}")
 	private String sku;
 
-	@NotNull(message = "{product.id.not.null}")
 	private Long productId;
 
 	private Boolean productAvailable;

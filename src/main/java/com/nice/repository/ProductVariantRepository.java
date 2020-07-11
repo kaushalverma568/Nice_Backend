@@ -30,15 +30,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
 	/**
 	 * @param sku
-	 */
-	Optional<ProductVariant> findBySkuIgnoreCase(String sku);
-
-	/**
-	 * @param sku
 	 * @param id
 	 * @return
 	 */
-	Optional<ProductVariant> findBySkuIgnoreCaseAndIdNot(String sku, Long id);
+	Optional<ProductVariant> findBySkuIgnoreCaseAndVendorIdAndIdNot(String sku, Long vendorId, Long id);
 
 	/**
 	 * @param sku

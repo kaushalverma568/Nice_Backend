@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductToppingDto;
 import com.nice.exception.NotFoundException;
@@ -39,8 +40,6 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	/**
 	 *
 	 */
-	private static final String UNAUTHORIZED = "unauthorized";
-
 	@Autowired
 	private ProductToppingRepository productToppingRepository;
 
@@ -55,6 +54,12 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			throws NotFoundException, ValidationException {
 		Long vendorId = getVendorIdForLoginUser();
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		/**
+		 * check of the vendor of product vendor is same as the one creating the topping
+		 */
+		if (!productVariant.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		for (ProductToppingDto productToppingDto : productToppingDTOList) {
 			validateProductTopping(productVariant, productToppingDto);
 			productToppingDto.setProductVariantId(productVariantId);
@@ -62,7 +67,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			if (productToppingDto.getId() != null) {
 				productTopping = getProductToppingDetails(productToppingDto.getId());
 				if (!productTopping.getVendorId().equals(vendorId)) {
-					throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				} else if (!productTopping.getProductVariant().getId().equals(productVariant.getId())) {
 					throw new ValidationException(messageByLocaleService.getMessage("topping.associated.to.variant", null));
 				}
@@ -76,9 +81,14 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	}
 
 	@Override
-	public ProductToppingDto getProductTopping(final Long productToppingId) throws NotFoundException {
+	public ProductToppingDto getProductTopping(final Long productToppingId) throws NotFoundException, ValidationException {
 		ProductTopping productTopping = getProductToppingDetails(productToppingId);
-		return convertFromEntityToDto(productTopping);
+		UserLogin userLogin = checkForUserLogin();
+		if (userLogin.getEntityType() == null || userLogin.getEntityId().equals(productTopping.getVendorId())) {
+			return convertFromEntityToDto(productTopping);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 	}
 
 	@Override
@@ -90,6 +100,21 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	}
 
 	@Override
+	public List<ProductToppingDto> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId) throws NotFoundException, ValidationException {
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		UserLogin userLogin = getUserLoginFromToken();
+		/**
+		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
+		 */
+		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !productVariant.getVendorId().equals(userLogin.getEntityId()))) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			activeRecords = true;
+		}
+		return getToppingForProductVariant(productVariantId, activeRecords);
+	}
+
+	@Override
 	public List<ProductToppingDto> getToppingForProductVariant(final Long productVariantId, final Boolean active) {
 		List<ProductTopping> productToppingList = null;
 		if (active == null) {
@@ -97,9 +122,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		} else {
 			productToppingList = productToppingRepository.findAllByProductVariantIdAndActive(productVariantId, active);
 		}
-
-		List<ProductToppingDto> productToppingDtos = convertEntityListToDtos(productToppingList);
-		return productToppingDtos;
+		return convertEntityListToDtos(productToppingList);
 	}
 
 	/**
@@ -118,12 +141,10 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	@Override
 	public void changeStatus(final Long productToppingId, final Boolean active) throws NotFoundException, ValidationException {
 		ProductTopping productTopping = getProductToppingDetails(productToppingId);
-		UserLogin userLogin = getUserLoginFromToken();
 		Long vendorId = getVendorIdForLoginUser();
-		if (!(userLogin.getEntityType() == null || vendorId != null)) {
-			throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+		if (!productTopping.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
-
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (productTopping.getActive().equals(active)) {
@@ -141,7 +162,6 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			} else {
 				// cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
 				// tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-				// posCartService.deleteAllByProductVariant(productVariant.getId());
 			}
 			productTopping.setActive(active);
 			productToppingRepository.save(productTopping);
@@ -158,35 +178,47 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	 *
 	 */
 	private Long getVendorIdForLoginUser() throws ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
+		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		} else {
 			return userLogin.getEntityId();
 		}
 	}
 
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
 	}
 
 	private void validateProductTopping(final ProductVariant productVariant, final ProductToppingDto productToppingDto) throws ValidationException {
 		validateDTOProperties(productToppingDto);
 		Long vendorId = getVendorIdForLoginUser();
 		if (vendorId == null) {
-			throw new ValidationException(messageByLocaleService.getMessage(UNAUTHORIZED, null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		if (productToppingDto.getActive().booleanValue() && Boolean.FALSE.equals(productVariant.getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
 		}
 		if (productToppingDto.getId() != null) {
-			if (productToppingRepository
-					.findByProductVariantAndNameAndVendorIdAndIdNot(productVariant, productToppingDto.getName(), vendorId, productToppingDto.getId())
+			if (productToppingRepository.findByProductVariantAndNameAndIdNot(productVariant, productToppingDto.getName(), productToppingDto.getId())
 					.isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		} else {
-			if (productToppingRepository.findByProductVariantAndVendorIdAndName(productVariant, vendorId, productToppingDto.getName()).isPresent()) {
+			if (productToppingRepository.findByProductVariantAndName(productVariant, productToppingDto.getName()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		}

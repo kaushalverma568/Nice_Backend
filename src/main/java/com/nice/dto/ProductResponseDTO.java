@@ -23,17 +23,17 @@ public class ProductResponseDTO implements Serializable {
 	private Long brandId;
 	private String brandName;
 	private String image;
-	private String thumbnailImage;
 	private Boolean active;
 	private Date createdAt;
 	private Long discountId;
 	private String discountStatus;
 	private List<ProductVariantResponseDTO> productVariantList;
 	private List<ProductExtrasDTO> productExtrasList;
-	private boolean isWishlisted;
 	private Double rating;
 	private Long noOfRating;
-	private String productFoodType;
+	private Integer productFoodType;
+	private Long cuisineId;
+	private String cuisineName;
 	/**
 	 * Set to true only if all the variant of the product are out of stock
 	 */

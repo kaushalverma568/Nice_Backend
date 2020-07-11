@@ -50,13 +50,20 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
 	 * @return
 	 */
 
-	List<Optional<ProductAttribute>> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	Optional<ProductAttribute> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 *
 	 * @param name
 	 * @return
 	 */
-	List<Optional<ProductAttribute>> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+	Optional<ProductAttribute> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 * @param b
+	 * @param vendorId
+	 * @return
+	 */
+	List<ProductAttribute> findAllByActiveAndVendorId(boolean b, Long vendorId);
 
 }

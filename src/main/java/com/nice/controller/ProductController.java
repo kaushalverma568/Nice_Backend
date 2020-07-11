@@ -160,22 +160,6 @@ public class ProductController {
 				.setData(productResponseDTO).create();
 	}
 
-	// /**
-	// * get result of global search
-	// *
-	// * @param searchKeyword
-	// * @return
-	// */
-	// @GetMapping("/globalsearch/{searchKeyword}")
-	// public ResponseEntity<Object> getResultOfGlobalSearch(@PathVariable("searchKeyword") final String searchKeyword) {
-	// LOGGER.info("Inside get result of global search for :{}", searchKeyword);
-	// GlobalSearchResponseDTO globalSearchResponseDTO = productService.getResultOfGlobalSearch(searchKeyword);
-	// LOGGER.info("Outside get result of global search for ");
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage("product.list.message", null))
-	// .setData(globalSearchResponseDTO).create();
-	// }
-
 	/**
 	 * Get Cuisine with count
 	 *
@@ -183,13 +167,13 @@ public class ProductController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@GetMapping("/cuisine/count/{vendorId}")
+	@GetMapping("/category/count/{vendorId}")
 	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get category wise product count list");
 		List<CategoryWiseProductCountDTO> cuisineWiseProductCountDTOList = productService.getCuisineWiseProductCountList(vendorId);
 		LOGGER.info("Outside get category wise product count list");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(cuisineWiseProductCountDTOList).create();
+				.setMessage(messageByLocaleService.getMessage("category.product.list.message", null)).setData(cuisineWiseProductCountDTOList).create();
 	}
 
 	/**
@@ -200,40 +184,20 @@ public class ProductController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping("/list/vendor/{vendorId}/category/{categoryId}")
-	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId, @PathVariable final Long categoryId)
+	@GetMapping("/list/vendor/{vendorId}/cuisine/{cuisineId}")
+	public ResponseEntity<Object> getProductListForCuisine(@PathVariable final Long vendorId, @PathVariable final Long cuisineId)
 			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside get category wise product count list");
-		List<ProductResponseDTO> productList = productService.getProductListForVendorAndCategory(vendorId, categoryId);
-		LOGGER.info("Outside get category wise product count list");
+		LOGGER.info("Inside get cuise wise product list");
+		List<ProductResponseDTO> productList = productService.getProductListForVendorAndCuisine(vendorId, cuisineId);
+		LOGGER.info("Outside get cuisine wise product list");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("category.product.list.message", null)).setData(productList).create();
+				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(productList).create();
 	}
 
-	/**
-	 * get related product list
-	 *
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	// @GetMapping("/list/related/{productId}")
-	// public ResponseEntity<Object> getRelatedProductList(@PathVariable final Long productId,
-	// @RequestParam(name = "customerId", required = false) final Long customerId, @RequestParam(name = "uuid", required =
-	// false) final String uuid,
-	// @RequestParam(name = "pincodeId", required = true) final Long pincodeId) throws NotFoundException,
-	// ValidationException {
-	// LOGGER.info("Inside get related product list for product :{} customerId:{} uuid :{}", productId, customerId, uuid);
-	// List<ProductResponseDTO> relatedProductList = productService.getRelatedProductList(productId, customerId, uuid,
-	// pincodeId);
-	// LOGGER.info("Outside get related product list for product");
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage(Constant.LIST_MESSAGE, new Object[] { Constant.PRODUCT
-	// })).setData(relatedProductList).create();
-	// }
 
 	/**
-	 * Get product list based on parameters for customer
+	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
+	 * products will be shown to them.
 	 *
 	 * @param accessToken
 	 * @param productParamRequestDTO

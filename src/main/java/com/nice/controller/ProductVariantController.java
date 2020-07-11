@@ -3,6 +3,8 @@ package com.nice.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,15 +64,15 @@ public class ProductVariantController {
 	 */
 	@PostMapping("/{productId}/variant")
 	public ResponseEntity<Object> addUpdateProductVariantList(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("productId") final Long productId, @RequestBody final List<ProductVariantRequestDTO> productVariantRequestDTOList,
+			@PathVariable("productId") final Long productId, @RequestBody @Valid final ProductVariantRequestDTO productVariantRequestDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside add ProductVariant list {}", productVariantRequestDTOList);
+		LOGGER.info("Inside add ProductVariant list {}", productVariantRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("ProductVariant validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		productVariantService.addUpdateProductVariantList(productId, productVariantRequestDTOList);
+		productVariantService.addUpdateProductVariantList(productId, productVariantRequestDTO);
 		LOGGER.info("Outside add ProductVariant");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.create.message", null)).create();
@@ -134,7 +136,28 @@ public class ProductVariantController {
 		/**
 		 * it is for admin so setting isAdmin true
 		 */
-		final List<ProductVariantResponseDTO> resultProductVariantList = productVariantService.getProductVariantProductList(productId, activeRecords, true);
+		final List<ProductVariantResponseDTO> resultProductVariantList = productVariantService.getProductVariantProductList(productId, activeRecords);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("product.variant.list.message", null)).setData(resultProductVariantList).create();
+	}
+
+	/**
+	 *
+	 * @param accessToken
+	 * @param productId
+	 * @param activeRecords
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/cust/{productId}/variant/list")
+	public ResponseEntity<Object> getProductVariantForProductListForCustomer(@PathVariable("productId") final Long productId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get ProductVariant List ");
+		/**
+		 * For customer so only active records shown and isAdmin = false
+		 */
+		final List<ProductVariantResponseDTO> resultProductVariantList = productVariantService.getProductVariantProductList(productId, true);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.variant.list.message", null)).setData(resultProductVariantList).create();
 	}

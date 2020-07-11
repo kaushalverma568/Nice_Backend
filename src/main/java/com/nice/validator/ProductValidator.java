@@ -10,6 +10,8 @@ import org.springframework.validation.Validator;
 
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
+import com.nice.exception.ValidationException;
+import com.nice.locale.MessageByLocaleService;
 import com.nice.service.ProductService;
 
 /**
@@ -21,6 +23,9 @@ public class ProductValidator implements Validator {
 
 	@Autowired
 	private ProductService productService;
+
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
@@ -35,14 +40,20 @@ public class ProductValidator implements Validator {
 			 * Check if brandId or cuisineId already exists
 			 */
 			if (productRequestDto.getCuisineId() == null && productRequestDto.getBrandId() == null) {
-				errors.rejectValue("brandId", "409", "brand.cuisine.required");
+				errors.rejectValue("brandId", "409", messageByLocaleService.getMessage("brand.cuisine.required", null));
+			} else if (productRequestDto.getCuisineId() != null && productRequestDto.getBrandId() != null) {
+				errors.rejectValue("brandId", "409", messageByLocaleService.getMessage("one.of.brand.cuisine.required", null));
 			}
 
 			/**
 			 * Check for the already existing product
 			 */
-			if (productService.isProductExists(productRequestDto)) {
-				errors.rejectValue("name", "409", "product.already.exists");
+			try {
+				if (productService.isProductExists(productRequestDto)) {
+					errors.rejectValue("name", "409", messageByLocaleService.getMessage("product.already.exists", null));
+				}
+			} catch (ValidationException e) {
+				errors.rejectValue("name", "409", e.getMessage());
 			}
 		}
 	}

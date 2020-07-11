@@ -28,7 +28,6 @@ import com.nice.dto.ProductExtrasDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
-import com.nice.mapper.ProductExtrasMapper;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.ProductExtrasService;
 import com.nice.validator.ProductExtrasValidator;
@@ -52,9 +51,6 @@ public class ProductExtrasController {
 
 	@Autowired
 	private ProductExtrasService productExtrasService;
-
-	@Autowired
-	private ProductExtrasMapper productExtrasMapper;
 
 	/**
 	 * validator - to apply/check any type of validation regarding sections
@@ -83,10 +79,10 @@ public class ProductExtrasController {
 			LOGGER.error("ProductExtras validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		ProductExtrasDTO resultProductExtras = productExtrasService.addProductExtras(productExtrasDTO);
-		LOGGER.info("Outside add ProductExtras {}", resultProductExtras);
+		Long productExtrasId = productExtrasService.addProductExtras(productExtrasDTO);
+		LOGGER.info("Outside add ProductExtras {}", productExtrasId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("product.extras.create.message", null)).setData(resultProductExtras).create();
+				.setMessage(messageByLocaleService.getMessage("product.extras.create.message", null)).setData(productExtrasId).create();
 	}
 
 	@PutMapping
@@ -98,10 +94,10 @@ public class ProductExtrasController {
 			LOGGER.error("ProductExtras validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		ProductExtrasDTO resultProductExtras = productExtrasService.updateProductExtras(productExtrasDTO);
-		LOGGER.info("Outside update ProductExtras {}", resultProductExtras);
+		Long productExtrasId = productExtrasService.updateProductExtras(productExtrasDTO);
+		LOGGER.info("Outside update ProductExtras {}", productExtrasId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("product.extras.update.message", null)).setData(resultProductExtras).create();
+				.setMessage(messageByLocaleService.getMessage("product.extras.update.message", null)).setData(productExtrasId).create();
 	}
 
 	@GetMapping(value = "/{productExtrasId}")
@@ -113,9 +109,16 @@ public class ProductExtrasController {
 	}
 
 	@GetMapping("/list/{productId}")
-	public ResponseEntity<Object> getList(@PathVariable final Long productId,
+	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
-		final List<ProductExtrasDTO> resultProductExtras = productExtrasService.getList(productId, activeRecords);
+		final List<ProductExtrasDTO> resultProductExtras = productExtrasService.getListWithUserCheck(productId, activeRecords);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.list.message", null))
+				.setData(resultProductExtras).create();
+	}
+
+	@GetMapping("/cust/list/{productId}")
+	public ResponseEntity<Object> getListForCustomer(@PathVariable final Long productId) throws NotFoundException {
+		final List<ProductExtrasDTO> resultProductExtras = productExtrasService.getList(true, productId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.list.message", null))
 				.setData(resultProductExtras).create();
 	}

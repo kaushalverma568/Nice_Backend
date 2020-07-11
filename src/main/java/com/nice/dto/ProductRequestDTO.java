@@ -22,15 +22,15 @@ public class ProductRequestDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{product.name.not.null}")
+	@NotBlank(message = "{name.not.null}")
 	private String name;
 
+	@NotBlank(message = "{description.not.null}")
 	private String description;
 
 	@NotNull(message = "{category.id.not.null}")
 	private Long categoryId;
 
-	@NotNull(message = "{subcategory.id.not.null}")
 	private Long subcategoryId;
 
 	private Long brandId;
@@ -48,6 +48,6 @@ public class ProductRequestDTO implements Serializable {
 	private Boolean combo;
 
 	@NotNull(message = "{food.type.not.null}")
-	private String productFoodType;
+	private Integer productFoodType;
 
 }

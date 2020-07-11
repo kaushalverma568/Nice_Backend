@@ -34,4 +34,13 @@ public interface ProductAddonsService {
 	 */
 	List<ProductAddonsDTO> getDtoList(Boolean activeRecords, Long productVariantId) throws NotFoundException;
 
+	/**
+	 * @param activeRecords
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<ProductAddonsDTO> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
+
 }

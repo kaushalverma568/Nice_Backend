@@ -108,7 +108,7 @@ public class ProductAttributeController {
 
 	@GetMapping(value = "/{productAttributeId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("productAttributeId") final Long productAttributeId) throws NotFoundException {
+			@PathVariable("productAttributeId") final Long productAttributeId) throws NotFoundException, ValidationException {
 		ProductAttributeDTO resultProductAttribute = productAttributeService.getProductAttribute(productAttributeId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.detail.message", null)).setData(resultProductAttribute).create();
@@ -116,13 +116,21 @@ public class ProductAttributeController {
 
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords, @RequestParam(required = false) final Long vendorId) {
-		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords, vendorId);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws ValidationException {
+		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.list.message", null))
 				.setData(productAttributeMapper.toDtos(resultProductAttribute.getContent())).setHasNextPage(resultProductAttribute.hasNext())
 				.setHasPreviousPage(resultProductAttribute.hasPrevious()).setTotalPages(resultProductAttribute.getTotalPages())
 				.setPageNumber(resultProductAttribute.getNumber() + 1).setTotalCount(resultProductAttribute.getTotalElements()).create();
+	}
+
+	@GetMapping("/active/all")
+	public ResponseEntity<Object> getAllListWithoutPagination(@RequestHeader("Authorization") final String accessToken) throws ValidationException {
+		final List<ProductAttribute> resultProductAttribute = productAttributeService.getAllActiveList();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("product.attribute.list.message", null))
+				.setData(productAttributeMapper.toDtos(resultProductAttribute)).create();
 	}
 
 	@PutMapping("/status/{productAttributeId}")

@@ -31,19 +31,13 @@ public class ProductExtrasDTO implements Serializable {
 
 	private String description;
 
-	private Double price;
+	@NotNull(message = "{rate.not.null}")
+	private Double rate;
 
 	@NotNull(message = "{product.id.not.null}")
 	private Long productId;
 
 	private Long vendorId;
-
-	/**
-	 * for response only
-	 */
-	private String productName;
-
-	private String vendorName;
 
 	/**
 	 * This will be used in cart to determine the amount of quantity in cart

@@ -20,6 +20,7 @@ public class ProductExtrasMapper {
 	public ProductExtrasDTO toDto(final ProductExtras productExtras) {
 		ProductExtrasDTO productExtrasResponseDTO = new ProductExtrasDTO();
 		BeanUtils.copyProperties(productExtras, productExtrasResponseDTO);
+		productExtrasResponseDTO.setProductId(productExtras.getId());
 		return productExtrasResponseDTO;
 	}
 

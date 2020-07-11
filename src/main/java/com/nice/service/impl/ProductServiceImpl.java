@@ -51,6 +51,9 @@ import com.nice.util.CommonUtility;
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
 public class ProductServiceImpl implements ProductService {
+	/**
+	 *
+	 */
 	private static final String ID_NOT_NULL = "product.id.not.null";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
@@ -95,32 +98,33 @@ public class ProductServiceImpl implements ProductService {
 	private VendorCuisineService vendorCuisineService;
 
 	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
 
-	@Override
-	public boolean isProductExists(final ProductRequestDTO productRequestDTO) {
+	private UserLogin checkForUserLogin() throws ValidationException {
 		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
+	}
+
+	@Override
+	public boolean isProductExists(final ProductRequestDTO productRequestDTO) throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
 		productRequestDTO.setVendorId(userLogin.getEntityId());
 		if (productRequestDTO.getId() != null) {
-			if (productRequestDTO.getBrandId() != null) {
-				return productRepository.findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getBrandId(),
-						productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
-			} else {
-				return productRepository.findByNameIgnoreCaseAndCuisineIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getCuisineId(),
-						productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
-			}
-
+			return productRepository.findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getBrandId(),
+					productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
 		} else {
-			if (productRequestDTO.getBrandId() != null) {
-				return productRepository
-						.findByNameIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(), productRequestDTO.getVendorId())
-						.isPresent();
-			} else {
-				return productRepository.findByNameIgnoreCaseAndCuisineIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(),
-						productRequestDTO.getVendorId()).isPresent();
-			}
-
+			return productRepository
+					.findByNameIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(), productRequestDTO.getVendorId())
+					.isPresent();
 		}
 	}
 
@@ -189,9 +193,9 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Inside get product list Based On Params {}", productParamRequestDTO);
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean listForAdmin = true;
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
-		} else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setActiveRecords(true);
 			listForAdmin = false;
 		}
@@ -217,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
 		/**
 		 * If the login user is not a vendor then throw an exception
 		 */
-		UserLogin userLogin = getUserLoginFromToken();
+		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
@@ -230,9 +234,10 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		categoryService.getCategoryDetail(productRequestDTO.getCategoryId());
 		subCategoryService.getSubCategoryDetail(productRequestDTO.getSubcategoryId());
-		brandService.getBrandDetail(productRequestDTO.getBrandId());
-		cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
-		if (productRequestDTO.getCuisineId() != null) {
+		if (productRequestDTO.getBrandId() != null) {
+			brandService.getBrandDetail(productRequestDTO.getBrandId());
+		} else {
+			cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
 			vendorCuisineService.getVendorCuisineByVendorIdAndCuisineId(productRequestDTO.getVendorId(), productRequestDTO.getCuisineId());
 		}
 	}
@@ -247,8 +252,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true
-	 * means get product list for admin
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin
 	 *
 	 * convert entity to response dto
 	 *
@@ -268,30 +272,35 @@ public class ProductServiceImpl implements ProductService {
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
 		productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getName());
 		productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
-		productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getName());
+		if (productResponseDTO.getBrandId() != null) {
+			productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getName());
+		}
+		if (productResponseDTO.getCuisineId() != null) {
+			productResponseDTO.setCuisineName(cuisineService.getCuisineDetails(productResponseDTO.getCuisineId()).getName());
+		}
 		productResponseDTO.setImage(CommonUtility.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
-		 * if we are fetching product list For admin then set product variants to empty
-		 * list
+		 * if we are fetching product list For admin then set product variants to empty list
 		 */
 		List<ProductVariantResponseDTO> productVariantList = new ArrayList<>();
 
 		if (listForAdmin != null && listForAdmin.booleanValue()) {
 			productResponseDTO.setProductVariantList(Collections.emptyList());
 		} else {
-			productVariantList = productVariantService.getProductVariantDetailByProduct(product, null);
+			/**
+			 * If the list is not for admin then display only active records
+			 */
+			productVariantList = productVariantService.getProductVariantDetailByProduct(product, true, listForAdmin);
 		}
 
 		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out
-		 * of stock
+		 * if product variant is null/empty or availableQty=0 then product will go out of stock
 		 *
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced
-		 * here, as we dont need the available qty and productOutOfStock for any other
-		 * category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
+		 * and productOutOfStock for any other category type except grocery.
 		 */
 		if (false) {
 			Integer availableQty = 0;
@@ -302,7 +311,9 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
-		productResponseDTO.setProductExtrasList(productExtrasService.getList(product.getId(), listForAdmin ? null : true));
+		productResponseDTO.setProductExtrasList(productExtrasService.getList(listForAdmin ? null : true, product.getId()));
+		// TODO
+		// uncomment and modify the below code for discount
 		// if (product.getDiscountId() != null) {
 		// productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
 		// }
@@ -312,10 +323,9 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public void changeStatus(final Long productId, final Boolean active) throws NotFoundException, ValidationException {
 		Product product = getProductDetail(productId);
-		UserLogin userLogin = getUserLoginFromToken();
+		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Only the vendor who created the produce and the admin can deactivate the
-		 * product
+		 * Only the vendor who created the produce and the admin can deactivate the product
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
@@ -352,7 +362,7 @@ public class ProductServiceImpl implements ProductService {
 			/**
 			 * deactivate product extras of this product
 			 */
-			List<ProductExtrasDTO> productExtrasList = productExtrasService.getList(existingProduct.getId(), true);
+			List<ProductExtrasDTO> productExtrasList = productExtrasService.getList(true, existingProduct.getId());
 			for (ProductExtrasDTO productExtrasDTO : productExtrasList) {
 				productExtrasService.changeStatus(productExtrasDTO.getId(), false);
 			}
@@ -388,9 +398,13 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public Long getProductCountBasedOnParams(final ProductParamRequestDTO productParamRequestDTO) {
 		UserLogin userLogin = getUserLoginFromToken();
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+		/**
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
+		 */
+		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
-		} else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setActiveRecords(true);
 		}
 		return productRepository.getProductCountBasedOnParams(productParamRequestDTO);
@@ -416,49 +430,6 @@ public class ProductServiceImpl implements ProductService {
 		fileStorageService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
 	}
 
-	// @Override
-	// public GlobalSearchResponseDTO getResultOfGlobalSearch(final String
-	// searchKeyword) {
-	// Map<Long, String> productMap;
-	// Map<Long, String> categoryMap;
-	// Map<Long, String> subCategoryMap;
-	// Map<Long, String> brandMap;
-	//
-	// /**
-	// * get all product,category,sub category and brand which is active and their
-	// name contains search keyword
-	// */
-	// ProductParamRequestDTO productParamRequestDTO = new ProductParamRequestDTO();
-	// productParamRequestDTO.setActiveRecords(true);
-	// productParamRequestDTO.setProductVariantActiveRecords(true);
-	// productParamRequestDTO.setSearchKeyword(searchKeyword);
-	// List<Product> productList =
-	// productRepository.getProductListBasedOnParams(productParamRequestDTO, null,
-	// null);
-	// List<Category> categoryList = categoryService.getCategoryList(true,
-	// searchKeyword);
-	// List<SubCategory> subCategoryList =
-	// subCategoryService.getSubCategoryList(true, searchKeyword);
-	// List<Brand> brandList = brandService.getBrandList(true, searchKeyword);
-	// productMap = productList.stream().collect(Collectors.toMap(Product::getId,
-	// Product::getName));
-	// categoryMap = categoryList.stream().collect(Collectors.toMap(Category::getId,
-	// Category::getName));
-	// subCategoryMap =
-	// subCategoryList.stream().collect(Collectors.toMap(SubCategory::getId,
-	// SubCategory::getName));
-	// brandMap = brandList.stream().collect(Collectors.toMap(Brand::getId,
-	// Brand::getName));
-	//
-	// GlobalSearchResponseDTO globalSearchResponseDTO = new
-	// GlobalSearchResponseDTO();
-	// globalSearchResponseDTO.setProductMap(productMap);
-	// globalSearchResponseDTO.setCategoryMap(categoryMap);
-	// globalSearchResponseDTO.setSubCategoryMap(subCategoryMap);
-	// globalSearchResponseDTO.setBrandMap(brandMap);
-	// return globalSearchResponseDTO;
-	// }
-
 	@Override
 	public List<CategoryWiseProductCountDTO> getCuisineWiseProductCountList(final Long vendorId) throws NotFoundException {
 		List<CategoryWiseProductCountDTO> categoryList = productRepository.getCategoryWiseProductCountList(vendorId, true);
@@ -480,9 +451,18 @@ public class ProductServiceImpl implements ProductService {
 		return productResponseDtoList;
 	}
 
+	@Override
+	public List<ProductResponseDTO> getProductListForVendorAndCuisine(final Long vendorId, final Long cuisineId) throws NotFoundException, ValidationException {
+		List<Product> productList = productRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId);
+		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
+		for (Product product : productList) {
+			productResponseDtoList.add(convertEntityToResponseDto(product, true));
+		}
+		return productResponseDtoList;
+	}
+
 	/**
-	 * This method will update the rating of the product. Just provide the rating
-	 * provided by the client and productId.
+	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
 	 */
 	@Override
 	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {

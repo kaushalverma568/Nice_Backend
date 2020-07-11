@@ -6,7 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.ProductExtrasDTO;
-import com.nice.exception.ValidationException;
+import com.nice.exception.NotFoundException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.ProductExtrasService;
 
@@ -40,8 +40,8 @@ public class ProductExtrasValidator implements Validator {
 			if (productExtrasService.isExists(productExtrasDTO)) {
 				errors.rejectValue("name", "409", messageByLocaleService.getMessage("product.extras.name.not.unique", null));
 			}
-		} catch (ValidationException e) {
-			errors.rejectValue("name", "403", messageByLocaleService.getMessage("unauthorized", null));
+		} catch (NotFoundException e) {
+			errors.rejectValue("productId", "400", messageByLocaleService.getMessage("product.not.found", null));
 		}
 	}
 }

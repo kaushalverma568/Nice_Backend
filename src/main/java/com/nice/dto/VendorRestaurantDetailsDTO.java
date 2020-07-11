@@ -4,7 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Time;
 import java.util.List;
 
 import javax.persistence.Temporal;
@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 26, 2020
+ * @date : Jun 26, 2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -39,11 +39,11 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 
 	@Temporal(TemporalType.TIME)
 	@NotNull(message = "{openingHours.from.not.null}")
-	private Date openingHoursFrom;
+	private Time openingHoursFrom;
 
 	@Temporal(TemporalType.TIME)
 	@NotNull(message = "{openingHours.to.not.null}")
-	private Date openingHoursTo;
+	private Time openingHoursTo;
 
 	@NotNull(message = "{approxDeliveryTime.not.null}")
 	private Integer approxDeliveryTime;

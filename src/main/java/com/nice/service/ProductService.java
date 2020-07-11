@@ -24,8 +24,9 @@ public interface ProductService {
 	 *
 	 * @param productRequestDTO
 	 * @return
+	 * @throws ValidationException
 	 */
-	boolean isProductExists(ProductRequestDTO productRequestDTO);
+	boolean isProductExists(ProductRequestDTO productRequestDTO) throws ValidationException;
 
 	/**
 	 * add product
@@ -135,6 +136,15 @@ public interface ProductService {
 	 * @throws NotFoundException
 	 */
 	void updateProductRating(Long productId, Double newRating) throws NotFoundException;
+
+	/**
+	 * @param vendorId
+	 * @param cuisineId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<ProductResponseDTO> getProductListForVendorAndCuisine(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
 
 	/**
 	 * get response of global search

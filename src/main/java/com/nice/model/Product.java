@@ -90,5 +90,5 @@ public class Product extends CommonModel {
 	private Long noOfRating;
 
 	@Column(name = "product_food_type")
-	private String productFoodType;
+	private Integer productFoodType;
 }

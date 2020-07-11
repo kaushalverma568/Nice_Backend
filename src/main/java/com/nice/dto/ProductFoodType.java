@@ -9,5 +9,12 @@ package com.nice.dto;
  */
 public enum ProductFoodType {
 
-	VEG, NON_VEG, EGG;
+	VEG(1), NON_VEG(3), EGG(2);
+
+	Integer value;
+
+	private ProductFoodType(final Integer value) {
+		this.value = value;
+	}
+
 }
