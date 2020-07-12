@@ -13,10 +13,9 @@ public final class NotificationQueueConstants {
 	public static final String GENERAL_QUEUE = "Nice General Queue";
 	public static final String CUSTOMER_REGISTRATION = "Customer Registration";
 	public static final String EMAIL_VERIFICATION = "Email Verification";
-	public static final String FORGOT_PWD = "Forgot Password";
+	public static final String FORGOT_PASS = "Forgot Password";
 	public static final String NON_NOTIFICATION_QUEUE = "Nice Non Notification Queue";
 	public static final String SEND_OTP = "Send OTP";
-	public static final String SMS_QUEUE = "Grocerus SMS Queue";
 	public static final String PUSH_NOTIFICATION_QUEUE = "Push Notification Queue";
 
 }

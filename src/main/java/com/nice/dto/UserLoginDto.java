@@ -26,5 +26,19 @@ public class UserLoginDto implements Serializable {
 	@NotNull(message = "{password.not.null}")
 	private String password;
 
+	/**
+	 * CUSTOMER,DELIVERY_BOY,ADMIN,USER
+	 */
 	private String userType;
+
+	/**
+	 * For Login purpose only : OTP,APP,GOOGLE,FACEBOOK
+	 */
+	private String registeredVia;
+
+	/**
+	 * For Email purpose only
+	 */
+	private boolean isNewCustomer;
+	private Long userId;
 }

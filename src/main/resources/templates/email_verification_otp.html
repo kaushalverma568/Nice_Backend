@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Welcome</title>
+    <title>Registration</title>
     <style>
         body {
          font-family: "Segoe UI", sans-serif;
@@ -17,7 +17,7 @@
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
-
+    
     table tr{
         line-height: 1;
         padding: 0;
@@ -42,16 +42,17 @@
             </tr>   
             
             <tr>
-                <td style="padding: 30px 20px 0px 20px;"><span style="font-weight: 700"> Welcome Customer,</span></td>
-            </tr>
+                <td style="padding: 30px 20px 0px 20px;">
+                    <p><span style="font-weight: 600;">Hello Customer,</span></p>
 
-            <tr>
-                <td style="padding: 20px; line-height: 25px;">
+                    <p style="line-height: 20px;">Your email confirmation request has been received from {{applicationName}}, please confirm your email here - </p>
 
-                    <p>{{applicationName}} made shopping easy with a wide range of options in every category exclusively handpicked for you. Join our online supermarket and enjoy your grocery shopping with us!</p>
+                    <p style="line-height: 20px;">You can use below OTP  which is valid only for the next {{OtpValidity}} minutes.</p>
 
-                    <p>For more info do visit: <a style="color: #000000" href="{{customerUrl}}">{{customerUrl}}</a></p>
+                    <p style="line-height: 20px;"><span style="font-weight: 700;text-decoration: underline;">{{OTP}}</span></p>
 
+                    <p style="font-size: 14px;"><span>* </span>Do not share this OTP to anyone for security reasons.</p>
+                    
                 </td>
             </tr>
 
@@ -61,7 +62,7 @@
             </tr>
 
             <tr>
-                <td  align="left" style="color: #666666;font-size:14px; padding: 10px 20px;">
+               <td  align="left" style="color: #666666;font-size:14px; padding: 10px 20px;">
                     <span style="padding-bottom: 5px; display: inline-block;">Customer care no.: {{customerCareContact}}</span><br>
                     <span style="padding-bottom: 5px; display: inline-block;">Email address: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
                     <span style="padding-bottom: 5px; display: inline-block;"><a href="{{companyEmail}}"  style="color: #666666;font-size:14px;">{{companyEmail}}</a></span>

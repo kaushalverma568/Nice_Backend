@@ -23,7 +23,16 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	 * @param  email
 	 * @return
 	 */
-	Optional<Customer> findByEmailIgnoreCase(String email);
+	Optional<Customer> findByEmail(String email);
+
+	/**
+	 * Get Customer by email and PhoneNumber
+	 *
+	 * @param  email
+	 * @param  phoneNumber
+	 * @return
+	 */
+	Optional<Customer> findByEmailAndPhoneNumber(String email, String phoneNumber);
 
 	/**
 	 * Get Customers by Customers email and Customers Id not equal if exist
@@ -33,7 +42,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	 * @return
 	 */
 
-	Optional<Customer> findByEmailIgnoreCaseAndIdNot(String email, Long id);
+	Optional<Customer> findByEmailAndIdNot(String email, Long id);
 
 	/**
 	 * @param  activeRecords
