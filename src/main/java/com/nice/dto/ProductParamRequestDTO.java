@@ -35,4 +35,6 @@ public class ProductParamRequestDTO implements Serializable {
 
 	private List<Long> cuisineIds;
 
+	private String uuid;
+
 }

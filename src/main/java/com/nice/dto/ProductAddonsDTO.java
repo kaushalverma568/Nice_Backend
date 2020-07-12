@@ -37,9 +37,4 @@ public class ProductAddonsDTO implements Serializable {
 
 	private Long vendorId;
 
-	/**
-	 * Added for cart
-	 */
-	private Boolean selected;
-
 }

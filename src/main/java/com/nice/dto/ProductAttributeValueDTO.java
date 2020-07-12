@@ -36,10 +36,5 @@ public class ProductAttributeValueDTO implements Serializable {
 
 	private Long productAttributeId;
 
-	/**
-	 * for cart response only
-	 */
-	private Boolean selected;
-
 	private String productAttributeName;
 }

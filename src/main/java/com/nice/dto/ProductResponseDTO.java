@@ -37,5 +37,6 @@ public class ProductResponseDTO implements Serializable {
 	/**
 	 * Set to true only if all the variant of the product are out of stock
 	 */
-	private boolean productOutOfStock;
+	private Boolean productAvailable;
+	private Long cartQty = 0L;
 }

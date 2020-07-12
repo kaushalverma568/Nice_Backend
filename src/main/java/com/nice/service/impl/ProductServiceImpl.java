@@ -2,7 +2,9 @@ package com.nice.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,15 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductMapper;
+import com.nice.model.CartItem;
 import com.nice.model.Product;
 import com.nice.model.ProductVariant;
+import com.nice.model.TempCartItem;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BrandService;
+import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
 import com.nice.service.FileStorageService;
@@ -40,6 +45,7 @@ import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SubCategoryService;
+import com.nice.service.TempCartItemService;
 import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
@@ -76,9 +82,6 @@ public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private BrandService brandService;
 
-	// @Autowired
-	// private DiscountService discountService;
-
 	@Autowired
 	private ProductVariantService productVariantService;
 
@@ -96,6 +99,12 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private VendorCuisineService vendorCuisineService;
+
+	@Autowired
+	private CartItemService cartItemService;
+
+	@Autowired
+	private TempCartItemService tempCartItemService;
 
 	private UserLogin getUserLoginFromToken() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -168,16 +177,48 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	private Map<Long, List<? extends Object>> getCartMap(final Long customerId, final String uuid) throws ValidationException, NotFoundException {
+		Map<Long, List<?>> cartMap = new HashMap<>();
+		if (customerId != null) {
+			List<CartItem> cartItemResponse = cartItemService.getCartListBasedOnCustomer(customerId);
+			for (CartItem cartItem : cartItemResponse) {
+				List<?> objectList = cartMap.get(cartItem.getProductVariant().getId());
+				if (objectList == null) {
+					List<CartItem> cartItemList = new ArrayList<>();
+					cartItemList.add(cartItem);
+					cartMap.put(cartItem.getProductVariant().getId(), cartItemList);
+				} else {
+					((List<CartItem>) objectList).add(cartItem);
+				}
+			}
+		} else if (uuid != null) {
+			List<TempCartItem> tempCartItemList = tempCartItemService.getCartListBasedOnUuid(uuid);
+			for (TempCartItem tempCartItem : tempCartItemList) {
+				List<?> objectList = cartMap.get(tempCartItem.getProductVariant().getId());
+				if (objectList == null) {
+					List<TempCartItem> cartItemList = new ArrayList<>();
+					cartItemList.add(tempCartItem);
+					cartMap.put(tempCartItem.getProductVariant().getId(), cartItemList);
+				} else {
+					((List<TempCartItem>) objectList).add(tempCartItem);
+				}
+			}
+		}
+		return cartMap;
+	}
+
 	@Override
 	public ProductResponseDTO getProduct(final Long productId, final String uuid) throws NotFoundException, ValidationException {
 		Boolean isAdmin = true;
 		UserLogin userLogin = getUserLoginFromToken();
-		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+		Map<Long, List<? extends Object>> cartMap = null;
+		if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			isAdmin = false;
+			cartMap = getCartMap(null, uuid);
 		}
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("product.not.found", new Object[] { productId })));
-		return convertEntityToResponseDto(product, isAdmin);
+		return convertEntityToResponseDto(product, isAdmin, cartMap);
 
 	}
 
@@ -193,9 +234,11 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Inside get product list Based On Params {}", productParamRequestDTO);
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean listForAdmin = true;
+		Map<Long, List<? extends Object>> cartMap = null;
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
 		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			cartMap = userLogin == null ? getCartMap(null, productParamRequestDTO.getUuid()) : getCartMap(userLogin.getEntityId(), null);
 			productParamRequestDTO.setActiveRecords(true);
 			listForAdmin = false;
 		}
@@ -203,7 +246,7 @@ public class ProductServiceImpl implements ProductService {
 
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, startIndex, pageSize);
 		for (Product product : products) {
-			final ProductResponseDTO responseDTO = convertEntityToResponseDto(product, listForAdmin);
+			final ProductResponseDTO responseDTO = convertEntityToResponseDto(product, listForAdmin, cartMap);
 			responseDTOs.add(responseDTO);
 		}
 		return responseDTOs;
@@ -246,7 +289,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductResponseDTO> getProductDetailList(final List<Product> products) throws NotFoundException, ValidationException {
 		List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
 		for (Product product : products) {
-			productResponseDTOs.add(convertEntityToResponseDto(product, false));
+			productResponseDTOs.add(convertEntityToResponseDto(product, false, null));
 		}
 		return productResponseDTOs;
 	}
@@ -265,7 +308,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ValidationException
 	 */
 
-	private ProductResponseDTO convertEntityToResponseDto(final Product product, final Boolean listForAdmin) throws NotFoundException, ValidationException {
+	private ProductResponseDTO convertEntityToResponseDto(final Product product, final Boolean listForAdmin, final Map<Long, List<? extends Object>> cartMap)
+			throws NotFoundException, ValidationException {
 		/**
 		 * set foreign key values to response DTO
 		 */
@@ -302,12 +346,30 @@ public class ProductServiceImpl implements ProductService {
 		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
 		 * and productOutOfStock for any other category type except grocery.
 		 */
-		if (false) {
-			Integer availableQty = 0;
-			for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
-				availableQty += productVariantResponseDTO.getAvailableQty();
+		Integer availableQty = 0;
+		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
+			availableQty += productVariantResponseDTO.getAvailableQty();
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartMap)) {
+				List<? extends Object> obj = cartMap.get(productVariantResponseDTO.getId());
+				if (obj != null && !obj.isEmpty()) {
+					for (Object o : obj) {
+						if (o instanceof CartItem) {
+							CartItem cartItem = (CartItem) o;
+							productVariantResponseDTO.getCartQtyList().add(cartItem.getQuantity());
+							productVariantResponseDTO.getCartIdList().add(cartItem.getId());
+							productResponseDTO.setCartQty(productResponseDTO.getCartQty() + cartItem.getQuantity());
+						} else if (o instanceof TempCartItem) {
+							TempCartItem tempCartItem = (TempCartItem) o;
+							productVariantResponseDTO.getCartQtyList().add(tempCartItem.getQuantity());
+							productVariantResponseDTO.getCartIdList().add(tempCartItem.getId());
+							productResponseDTO.setCartQty(productResponseDTO.getCartQty() + tempCartItem.getQuantity());
+						}
+					}
+				}
 			}
-			productResponseDTO.setProductOutOfStock(availableQty <= 0);
+		}
+		if (false /* here condition for gorcerry should be placed */) {
+			productResponseDTO.setProductAvailable(availableQty > 0);
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
@@ -446,7 +508,7 @@ public class ProductServiceImpl implements ProductService {
 		List<Product> productList = productRepository.findAllByVendorIdAndCategoryId(vendorId, cuisineId);
 		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
 		for (Product product : productList) {
-			productResponseDtoList.add(convertEntityToResponseDto(product, true));
+			productResponseDtoList.add(convertEntityToResponseDto(product, true, null));
 		}
 		return productResponseDtoList;
 	}
@@ -456,7 +518,7 @@ public class ProductServiceImpl implements ProductService {
 		List<Product> productList = productRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId);
 		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
 		for (Product product : productList) {
-			productResponseDtoList.add(convertEntityToResponseDto(product, true));
+			productResponseDtoList.add(convertEntityToResponseDto(product, true, null));
 		}
 		return productResponseDtoList;
 	}

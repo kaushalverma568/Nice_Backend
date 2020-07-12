@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,12 @@ public class ProductVariantResponseDTO implements Serializable {
 	 * This Map<AttributeName, List<AttributeValues>>
 	 */
 	private Map<String, List<ProductAttributeValueDTO>> productAttributeValuesDtoMap;
+
+	/**
+	 * Cart Impact of Product
+	 */
+	private List<Long> cartQtyList = new ArrayList<>();
+	private List<Long> cartIdList = new ArrayList<>();
 
 	public ProductVariantResponseDTO() {
 
