@@ -241,12 +241,6 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("cart.item.not.found.id", new Object[] { cartItemId })));
 	}
 
-	@Override
-	public CartItemResponseDTO getTempCartItem(final Long cartItemId, final Long pincodeId) throws NotFoundException, ValidationException {
-		final TempCartItem cartItem = getTempCartItemDetail(cartItemId);
-		return convertEntityToResponseDto(cartItem);
-	}
-
 	private CartItemResponseDTO convertEntityToResponseDto(final TempCartItem cartItem) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside convert Entity To ResponseDto method");
 		CartItemResponseDTO cartItemResponseDTO = cartItemMapper.toDto(cartItem);

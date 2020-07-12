@@ -124,12 +124,18 @@ public interface CartItemService {
 	void deleteCartItemForCustomer(Long customerId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param customerId
 	 * @param vendorId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Boolean checkIfExistsCartItemWithDifferentVendor(Long customerId, Long vendorId) throws ValidationException, NotFoundException;
+	Boolean checkIfExistsCartItemWithDifferentVendor(Long vendorId) throws ValidationException, NotFoundException;
+
+	/**
+	 * @param uuid
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	void moveFromTempCartToCart(String uuid) throws NotFoundException, ValidationException;
 
 }

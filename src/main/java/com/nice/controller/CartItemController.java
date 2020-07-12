@@ -64,8 +64,8 @@ public class CartItemController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping()
-	public ResponseEntity<Object> addCartItem(@RequestBody @Valid final CartItemDTO cartItemDTO, final BindingResult result)
-			throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> addCartItem(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CartItemDTO cartItemDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Cart Item {}", cartItemDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -78,6 +78,16 @@ public class CartItemController {
 				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(cartItemId).create();
 	}
 
+	@PutMapping("/move/{uuid}")
+	public ResponseEntity<Object> moveFromTempCartToCart(@RequestHeader("Authorization") final String accessToken, @PathVariable final String uuid)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside move Cart Item with uuid {}", uuid);
+		cartItemService.moveFromTempCartToCart(uuid);
+		LOGGER.info("Outside add Cart Item ");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("cart.item.moved.successfully", null)).create();
+	}
+
 	/**
 	 * Get cart item list based on uuid *
 	 *
@@ -87,7 +97,8 @@ public class CartItemController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/list")
-	public ResponseEntity<Object> getCartItemListByParam() throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> getCartItemListByParam(@RequestHeader("Authorization") final String accessToken)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get Cart Item List ");
 		final List<CartItemResponseDTO> resultCartItems = cartItemService.getCartItemDetailList();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cart.item.list.successfully", null))
@@ -105,7 +116,8 @@ public class CartItemController {
 	 * @throws ValidationException
 	 */
 	@DeleteMapping("/{cartItemId}")
-	public ResponseEntity<Object> deleteCartItem(@PathVariable("cartItemId") final Long cartItemId) throws NotFoundException {
+	public ResponseEntity<Object> deleteCartItem(@RequestHeader("Authorization") final String accessToken, @PathVariable("cartItemId") final Long cartItemId)
+			throws NotFoundException {
 		LOGGER.info("Inside delete Cart Item ");
 		cartItemService.deleteCartItem(cartItemId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
@@ -122,7 +134,8 @@ public class CartItemController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/count")
-	public ResponseEntity<Object> getCartItemCountForUuid(@RequestHeader("Authorization") final String token) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> getCartItemCountForCustomer(@RequestHeader("Authorization") final String token)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside get Cart Item Count For uuid Method");
 		final Long count = cartItemService.getCartItemCount();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cart.count.successfully", null))
@@ -139,8 +152,8 @@ public class CartItemController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/update/qty/{cartItemId}")
-	public ResponseEntity<Object> updateCartQty(@PathVariable("cartItemId") final Long cartItemId, @RequestParam(name = "qty", required = true) final Long qty)
-			throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updateCartQty(@RequestHeader("Authorization") final String accessToken, @PathVariable("cartItemId") final Long cartItemId,
+			@RequestParam(name = "qty", required = true) final Long qty) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Cart Item Qty Method");
 		cartItemService.updateCartItemQty(cartItemId, qty);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cart.item.quantity.updated", null))
@@ -156,19 +169,19 @@ public class CartItemController {
 	 * @throws ValidationException
 	 */
 	@DeleteMapping("/all")
-	public ResponseEntity<Object> deleteCartItemForCustomer() throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> deleteCartItemForCustomer(@RequestHeader("Authorization") final String accessToken)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside delete Cart Item");
 		cartItemService.deleteCart();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cart.item.deleted.successfully", null)).create();
 	}
 
-	@GetMapping("/check/{customerId}/{vendorId}")
-	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@PathVariable("customerId") final Long customerId,
+	@GetMapping("/check/{vendorId}")
+	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable final Long vendorId) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside check Cart Item {} - {}", customerId, vendorId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setData(cartItemService.checkIfExistsCartItemWithDifferentVendor(customerId, vendorId))
+		LOGGER.info("Inside check Cart Item with vendor - {}", vendorId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(cartItemService.checkIfExistsCartItemWithDifferentVendor(vendorId))
 				.setMessage(messageByLocaleService.getMessage("cart.item.checked.successfully", null)).create();
 	}
 }

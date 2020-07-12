@@ -109,15 +109,6 @@ public interface TempCartItemService {
 	void deleteTempCartItemForUuid(String uuid) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param cartItemId
-	 * @param pincodeId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	CartItemResponseDTO getTempCartItem(Long cartItemId, Long pincodeId) throws NotFoundException, ValidationException;
-
-	/**
 	 * @param productVariantId
 	 * @throws NotFoundException
 	 */

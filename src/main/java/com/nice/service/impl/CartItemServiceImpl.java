@@ -43,6 +43,8 @@ import com.nice.service.CartProductAttributeValueService;
 import com.nice.service.CartToppingsService;
 import com.nice.service.CustomerService;
 import com.nice.service.ProductVariantService;
+import com.nice.service.TempCartItemService;
+import com.nice.util.CommonUtility;
 
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartItemService")
@@ -76,13 +78,15 @@ public class CartItemServiceImpl implements CartItemService {
 	@Autowired
 	private CustomerService customerService;
 
+	@Autowired
+	private TempCartItemService tempCartItemService;
+
 	@Override
 	public Long addCartItem(final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
 		/**
 		 * Get Existing cartItem based on customerId
 		 */
-		UserLogin userLogin = getUserLoginFromToken();
-		cartItemDTO.setCustomerId(userLogin.getEntityId());
+		cartItemDTO.setCustomerId(getCustomerIdForLoginUser());
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
@@ -244,13 +248,12 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public void updateCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
-		Long customerId = userLogin.getEntityId();
+		Long customerId = getCustomerIdForLoginUser();
 		if (quantity <= 0 || quantity > 15) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_QTY, null));
 		} else {
 			final CartItem cartItem = getCartItemDetail(cartItemId);
-			if (customerId == null || customerId.equals(cartItem.getCustomer().getId())) {
+			if (!customerId.equals(cartItem.getCustomer().getId())) {
 				throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 			}
 			cartItem.setQuantity(quantity);
@@ -333,15 +336,11 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public List<CartItemResponseDTO> getCartItemDetailList() throws NotFoundException, ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
-		if (!UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
-			LOGGER.error("customerId is null");
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
-		LOGGER.info("Inside get Cart Item List By customer {}", userLogin.getEntityId());
+		Long customerId = getCustomerIdForLoginUser();
+		LOGGER.info("Inside get Cart Item List By customer {}", customerId);
 
 		final List<CartItemResponseDTO> cartItemResponseDTOs = new ArrayList<>();
-		final List<CartItem> cartItems = getCartListBasedOnCustomer(userLogin.getEntityId());
+		final List<CartItem> cartItems = getCartListBasedOnCustomer(customerId);
 		for (CartItem cartItem : cartItems) {
 			cartItemResponseDTOs.add(convertEntityToResponseDto(cartItem));
 		}
@@ -364,22 +363,90 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public void deleteCart() throws NotFoundException, ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
-		if (!UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
-			LOGGER.error("customerId is null");
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
-		deleteCartItemForCustomer(userLogin.getEntityId());
-	}
-
-	private UserLogin getUserLoginFromToken() {
-		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		Long customerId = getCustomerIdForLoginUser();
+		deleteCartItemForCustomer(customerId);
 	}
 
 	@Override
-	public Boolean checkIfExistsCartItemWithDifferentVendor(final Long customerId, final Long vendorId) throws ValidationException, NotFoundException {
-
+	public Boolean checkIfExistsCartItemWithDifferentVendor(final Long vendorId) throws ValidationException, NotFoundException {
+		Long customerId = getCustomerIdForLoginUser();
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(customerId);
 		return (!cartItemList.isEmpty() && !vendorId.equals(cartItemList.get(0).getProductVariant().getVendorId()));
 	}
+
+	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
+		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
+	}
+
+	/**
+	 * @throws ValidationException
+	 *
+	 */
+	private Long getCustomerIdForLoginUser() throws ValidationException {
+		UserLogin userLogin = checkForUserLogin();
+		if (!UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else {
+			return userLogin.getEntityId();
+		}
+	}
+
+	@Override
+	public void moveFromTempCartToCart(final String uuid) throws NotFoundException, ValidationException {
+		List<CartItemResponseDTO> cartItemResponseList = tempCartItemService.getTempCartItemDetailListByParam(uuid);
+		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseList)) {
+			throw new ValidationException(messageByLocaleService.getMessage("cannot.move.cart.empty", null));
+		}
+		List<CartItemDTO> cartItemDtoList = new ArrayList<>();
+		for (CartItemResponseDTO cartItemResponseDTO : cartItemResponseList) {
+			CartItemDTO cartItemDto = convertFromCartItemResponseToCartItemDto(cartItemResponseDTO);
+			cartItemDtoList.add(cartItemDto);
+		}
+		addCartItemList(cartItemDtoList);
+		tempCartItemService.deleteTempCartItemForUuid(uuid);
+	}
+
+	private CartItemDTO convertFromCartItemResponseToCartItemDto(final CartItemResponseDTO cartItemResponseDto) {
+		CartItemDTO cartItemDto = new CartItemDTO();
+		cartItemDto.setActive(true);
+		cartItemDto.setQuantity(cartItemResponseDto.getQuantity());
+		cartItemDto.setProductVariantId(cartItemResponseDto.getProductVariantResponseDto().getId());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductExtrasDtoList())) {
+			List<Long> productExtrasList = cartItemResponseDto.getProductExtrasDtoList().stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
+			cartItemDto.setProductExtrasId(productExtrasList);
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductAddonsDtoList())) {
+			List<Long> productAddonsList = cartItemResponseDto.getProductAddonsDtoList().stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
+			cartItemDto.setProductAddonsId(productAddonsList);
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductToppingsDtoList())) {
+			List<Long> productToppingsList = cartItemResponseDto.getProductToppingsDtoList().stream().map(ProductToppingDto::getId)
+					.collect(Collectors.toList());
+			cartItemDto.setProductToppingsIds(productToppingsList);
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartItemResponseDto.getProductAttributeValuesDtoMap())) {
+			List<Long> attributeValueList = new ArrayList<>();
+			for (List<ProductAttributeValueDTO> productAttributeValueList : cartItemResponseDto.getProductAttributeValuesDtoMap().values()) {
+				List<Long> attValList = productAttributeValueList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
+				attributeValueList.addAll(attValList);
+			}
+			cartItemDto.setAttributeValueIds(attributeValueList);
+		}
+
+		return cartItemDto;
+	}
+
 }
