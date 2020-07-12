@@ -166,7 +166,7 @@ public class TempCartItemController {
 	@GetMapping("/check/{uuid}/{vendorId}")
 	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@PathVariable("uuid") final String uuid, @PathVariable final Long vendorId)
 			throws ValidationException {
-		LOGGER.info("Inside delete Cart Item {}", uuid);
+		LOGGER.info("Inside chcek Cart Item {} - {}", uuid, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setData(tempCartItemService.checkIfExistsCartItemWithDifferentVendor(uuid, vendorId))
 				.setMessage(messageByLocaleService.getMessage("cart.item.checked.successfully", null)).create();
