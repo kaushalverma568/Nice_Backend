@@ -162,4 +162,13 @@ public class CartItemController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cart.item.deleted.successfully", null)).create();
 	}
+
+	@GetMapping("/check/{customerId}/{vendorId}")
+	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@PathVariable("customerId") final Long customerId,
+			@PathVariable final Long vendorId) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside check Cart Item {} - {}", customerId, vendorId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setData(cartItemService.checkIfExistsCartItemWithDifferentVendor(customerId, vendorId))
+				.setMessage(messageByLocaleService.getMessage("cart.item.checked.successfully", null)).create();
+	}
 }

@@ -338,4 +338,11 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
 		cartItemRepository.deleteAllByProductVariantId(productVariantId);
 	}
+
+	@Override
+	public Boolean checkIfExistsCartItemWithDifferentVendor(final String uuid, final Long vendorId) throws ValidationException {
+
+		List<TempCartItem> tempCartItemList = getCartListBasedOnUuid(uuid);
+		return (!tempCartItemList.isEmpty() && !vendorId.equals(tempCartItemList.get(0).getProductVariant().getVendorId()));
+	}
 }

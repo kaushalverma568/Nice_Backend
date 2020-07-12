@@ -162,4 +162,14 @@ public class TempCartItemController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cart.item.deleted.successfully", null)).create();
 	}
+
+	@GetMapping("/check/{uuid}/{vendorId}")
+	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@PathVariable("uuid") final String uuid, @PathVariable final Long vendorId)
+			throws ValidationException {
+		LOGGER.info("Inside delete Cart Item {}", uuid);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setData(tempCartItemService.checkIfExistsCartItemWithDifferentVendor(uuid, vendorId))
+				.setMessage(messageByLocaleService.getMessage("cart.item.checked.successfully", null)).create();
+	}
+
 }

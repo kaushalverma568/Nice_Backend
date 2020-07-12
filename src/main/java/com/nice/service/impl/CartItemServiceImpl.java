@@ -376,4 +376,10 @@ public class CartItemServiceImpl implements CartItemService {
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
 
+	@Override
+	public Boolean checkIfExistsCartItemWithDifferentVendor(final Long customerId, final Long vendorId) throws ValidationException, NotFoundException {
+
+		List<CartItem> cartItemList = getCartListBasedOnCustomer(customerId);
+		return (!cartItemList.isEmpty() && !vendorId.equals(cartItemList.get(0).getProductVariant().getVendorId()));
+	}
 }

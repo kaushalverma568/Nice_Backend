@@ -122,4 +122,12 @@ public interface TempCartItemService {
 	 * @throws NotFoundException
 	 */
 	void deleteCartItemsForProductVariant(Long productVariantId) throws NotFoundException;
+
+	/**
+	 *
+	 * @param uuid
+	 * @param vendorId
+	 * @throws ValidationException
+	 */
+	Boolean checkIfExistsCartItemWithDifferentVendor(String uuid, Long vendorId) throws ValidationException;
 }
