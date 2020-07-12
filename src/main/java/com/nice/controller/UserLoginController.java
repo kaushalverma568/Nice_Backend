@@ -51,7 +51,7 @@ import com.nice.service.UserLoginService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -78,6 +78,16 @@ public class UserLoginController {
 	@Autowired
 	private TokenStore tokenStore;
 
+	/**
+	 * Generic Forgot password API
+	 *
+	 * @param  updatePasswordParameterDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws MessagingException
+	 */
 	@GetMapping("/forgotPassword")
 	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid final UpdatePasswordParameterDTO updatePasswordParameterDTO, final BindingResult result)
 			throws ValidationException, NotFoundException, MessagingException {
@@ -92,6 +102,18 @@ public class UserLoginController {
 				null)).create();
 	}
 
+	/**
+	 * Reset password after forgot password based on OTP, USER TYPE and TYPE
+	 *
+	 * @param  email
+	 * @param  otp
+	 * @param  password
+	 * @param  type
+	 * @param  userType
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping("/resetPassword/{email}/{otp}/{type}/{userType}")
 	public ResponseEntity<Object> resetPassword(@PathVariable("email") final String email, @PathVariable("otp") final String otp,
 			@RequestBody final String password, @PathVariable("type") final String type, @PathVariable("userType") final String userType)
@@ -106,8 +128,8 @@ public class UserLoginController {
 	 * This method is use to verify the user.</br>
 	 * We verify user through email only
 	 *
-	 * @param userId
-	 * @param otp
+	 * @param  userId
+	 * @param  otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -137,9 +159,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param passwordDTO
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -149,8 +171,7 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user
-		 * token
+		 * When password is changed and the user is not super admin, revoke the user token
 		 */
 		if (!(Role.SUPER_ADMIN.name().equals(userLogin.getRole()))) {
 			revokeToken(userLogin.getEmail());
@@ -162,7 +183,7 @@ public class UserLoginController {
 	/**
 	 * Logout API : Also revoke access of token
 	 *
-	 * @param accessToken
+	 * @param  accessToken
 	 * @return
 	 */
 	@GetMapping(path = "/logout")
@@ -175,9 +196,9 @@ public class UserLoginController {
 	/**
 	 * Update Email For Admin
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param passwordDTO
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -193,11 +214,11 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add
-	 * that user's information and if exists then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
+	 * then will sent generated token.
 	 *
-	 * @param socialLoginDto
-	 * @param result
+	 * @param  socialLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -234,8 +255,8 @@ public class UserLoginController {
 	/**
 	 * ADMIN & USER Login and generate token
 	 *
-	 * @param userLoginDto
-	 * @param result
+	 * @param  userLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -258,8 +279,8 @@ public class UserLoginController {
 	/**
 	 * Customer Login and generate token
 	 *
-	 * @param userLoginDto
-	 * @param result
+	 * @param  userLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -282,8 +303,8 @@ public class UserLoginController {
 	/**
 	 * Delivery boy Login and generate token
 	 *
-	 * @param userLoginDto
-	 * @param result
+	 * @param  userLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -306,8 +327,8 @@ public class UserLoginController {
 	/**
 	 * Login with OTP for customer
 	 *
-	 * @param userLoginDto
-	 * @param result
+	 * @param  userLoginDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -322,6 +343,7 @@ public class UserLoginController {
 		}
 		userLoginDto.setUserType(UserType.CUSTOMER.name());
 		userLoginDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
+		userLoginService.checkOtpForLogin(userLoginDto);
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();
@@ -329,10 +351,9 @@ public class UserLoginController {
 
 	/**
 	 * API is useful for generate OTP for login. </br>
-	 * If customer is not exist with respect to mobile then it will create customer
-	 * based on phoneNumber.
+	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
 	 *
-	 * @param phoneNumber
+	 * @param  phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

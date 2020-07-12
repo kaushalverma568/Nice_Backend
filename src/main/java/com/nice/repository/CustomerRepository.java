@@ -26,6 +26,15 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	Optional<Customer> findByEmail(String email);
 
 	/**
+	 * Get Customer by email and PhoneNumber
+	 *
+	 * @param  email
+	 * @param  phoneNumber
+	 * @return
+	 */
+	Optional<Customer> findByEmailAndPhoneNumber(String email, String phoneNumber);
+
+	/**
 	 * Get Customers by Customers email and Customers Id not equal if exist
 	 *
 	 * @param  email

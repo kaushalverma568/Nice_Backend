@@ -26,7 +26,9 @@ public class CustomerMapper {
 	public Customer toEntity(final CustomerDTO customersDto, final Long userId) {
 		Customer customers = new Customer();
 		BeanUtils.copyProperties(customersDto, customers);
-		customers.setEmail(customersDto.getEmail().toLowerCase());
+		if (customersDto.getEmail() != null) {
+			customers.setEmail(customersDto.getEmail().toLowerCase());
+		}
 		if (userId != null) {
 			if (customersDto.getId() == null) {
 				customers.setCreatedBy(userId);

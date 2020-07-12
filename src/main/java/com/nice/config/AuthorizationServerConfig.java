@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
+import com.nice.locale.MessageByLocaleService;
+
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date   : 19-Jun-2020
@@ -37,6 +39,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
 
 	@Bean
 	public JdbcClientDetailsService clientDetailsService() {
@@ -60,7 +65,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 					InternalAuthenticationServiceException internalAuthenticationServiceException = (InternalAuthenticationServiceException) exception;
 					return ResponseEntity.status(HttpStatus.OK).body(new CustomOauthException(internalAuthenticationServiceException.getMessage()));
 				} else if (exception instanceof InvalidGrantException) {
-					return ResponseEntity.status(HttpStatus.OK).body(new CustomOauthException("Invalid password"));
+					return ResponseEntity.status(HttpStatus.OK).body(new CustomOauthException(messageByLocaleService.getMessage("invaild.password", null)));
 				}
 				throw exception;
 			});

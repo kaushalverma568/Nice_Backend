@@ -64,11 +64,16 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
 public class UserLoginServiceImpl implements UserLoginService, UserDetailsService {
+
+	/**
+	 * 
+	 */
+	private static final String CUSTOMER_NOT_FOUND_PHONE = "customer.not.found.phone";
 
 	/**
 	 *
@@ -129,8 +134,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a
-		 * superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -162,7 +166,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.account.unauthorized.admin", null));
 				} else {
 					/**
-					 * If user is not activated yet then send related message
+					 * If customer is not activated yet then send related message
 					 */
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
 							messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
@@ -170,7 +174,21 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else {
 				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.account.unauthorized.admin", null));
 			}
-
+		} else {
+			/**
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
+			 * active but customer can not login with email and password but it can login with OTP.
+			 */
+			Customer customer = null;
+			try {
+				customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
+			} catch (final NotFoundException e) {
+				LOGGER.error("Customer not found for customer Id: {} ", optUserLogin.get().getEntityId());
+			}
+			if (customer != null && (customer.getEmailVerified() == null || !customer.getEmailVerified())) {
+				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
+						messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
+			}
 		}
 
 		final String role = optUserLogin.get().getRole();
@@ -356,9 +374,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void updateEmailForAdmin(final String email) throws ValidationException {
 		/**
-		 * if admin panel's users(other then super_admin) contains this email then throw
-		 * validation
-		 *
+		 * if admin panel's users(other then super_admin) contains this email then throw validation
 		 */
 		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIn(email, UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("email.not.unique", null));
@@ -376,7 +392,22 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
 		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
-		return generateAuthToken(url, userLoginDto);
+		LoginResponse loginResponse = generateAuthToken(url, userLoginDto);
+		/**
+		 * Invalidate the OTP once token generated
+		 */
+		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
+			final UserLogin userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName(), Role.CUSTOMER.getStatusValue())
+					.orElseThrow(() -> new NotFoundException(
+							messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { userLoginDto.getUserName() })));
+			/**
+			 * Generate OTP and save OTP in userLoing table
+			 */
+			String otp = String.valueOf(CommonUtility.getRandomNumber());
+			userLogin.setOtp(CommonUtility.generateBcrypt(otp));
+			userLoginRepository.save(userLogin);
+		}
+		return loginResponse;
 	}
 
 	private LoginResponse generateAuthToken(final String url, final UserLoginDto userLoginDto) throws UnAuthorizationException {
@@ -419,8 +450,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms
-		 * then phone number is required
+		 * verify type and if type is email then email is required and if type is sms then phone number is required
 		 */
 		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -467,8 +497,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin
-		 * or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -503,8 +532,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber
-		 * and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -513,34 +541,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			 */
 			Optional<Customer> optCustomer = customerRepository.findByPhoneNumberIgnoreCase(phoneNumber);
 			if (!optCustomer.isPresent()) {
-				throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { phoneNumber }));
-			}
-
-			/**
-			 * If User login is exist and customer is also exist and registeredVia is OTP of
-			 * existing userLogin then proceed for generation of otp
-			 */
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(optUserLogin.get().getOtp())) {
-				/**
-				 * If customer's mobile verified false then activate customer and mobile
-				 * verified true
-				 */
-				if (optCustomer.get().getMobileVerified() == null || !optCustomer.get().getMobileVerified()) {
-					optCustomer.get().setMobileVerified(true);
-					optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
-					customerRepository.save(optCustomer.get());
-				}
-			} else {
-				/**
-				 * Suppose existing user is registered but not active yet
-				 */
-				if (!optUserLogin.get().getActive().booleanValue()) {
-					optUserLogin.get().setActive(Boolean.TRUE);
-				}
-
-				optCustomer.get().setMobileVerified(true);
-				optCustomer.get().setStatus(CustomerStatus.ACTIVE.getStatusValue());
-				customerRepository.save(optCustomer.get());
+				throw new NotFoundException(messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { phoneNumber }));
 			}
 
 			/**
@@ -552,8 +553,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in
-			 * userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -561,14 +561,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			 * User is not exists hence create new customer & user login
 			 */
 			final CustomerDTO customerDto = new CustomerDTO();
-			customerDto.setFirstName("TEST");
-			customerDto.setLastName("TEST");
-			customerDto.setEmail("abc@gmail.com");
 			customerDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
 			customerDto.setPhoneNumber(phoneNumber.toLowerCase());
 			customerDto.setPassword(otp);
 			customerDto.setActive(true);
-			customerService.addCustomer(customerDto, true);
+			customerService.addCustomer(customerDto, false);
 			return otp;
 		}
 	}
@@ -582,11 +579,41 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		}
 		if (userLogin.isPresent()) {
 			BeanUtils.copyProperties(userLogin.get(), loginResponse);
+			loginResponse.setUserId(userLogin.get().getId());
 			if (Role.CUSTOMER.getStatusValue().equals(userLogin.get().getRole())) {
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
 			}
 		}
 		return loginResponse;
+	}
+
+	@Override
+	public Optional<UserLogin> getUserLoginBasedOnPhoneNumberAndEntityType(final String phoneNumber, final String entityType) {
+		return userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, entityType);
+	}
+
+	@Override
+	public void checkOtpForLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException {
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName(),
+				Role.CUSTOMER.getStatusValue());
+		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
+			/**
+			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
+			 */
+			if (!optUserLogin.get().getActive().booleanValue()) {
+				UserLogin userLogin = optUserLogin.get();
+				userLogin.setActive(true);
+				userLoginRepository.save(userLogin);
+				Customer customer = customerRepository.findByPhoneNumberIgnoreCase(userLoginDto.getUserName()).orElseThrow(() -> new NotFoundException(
+						messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { userLoginDto.getUserName() })));
+				customer.setMobileVerified(true);
+				customer.setActive(true);
+				customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
+				customerRepository.save(customer);
+			}
+		} else {
+			throw new ValidationException("Invalid OTP");
+		}
 	}
 }
