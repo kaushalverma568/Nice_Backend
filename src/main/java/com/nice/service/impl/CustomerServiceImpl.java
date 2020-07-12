@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
@@ -41,10 +42,12 @@ import com.nice.model.Customer;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.repository.CustomerRepository;
+import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
 import com.nice.service.OtpService;
 import com.nice.service.UserLoginService;
+import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
@@ -79,36 +82,102 @@ public class CustomerServiceImpl implements CustomerService {
 	private ExportCSV exportCSV;
 
 	@Autowired
+	private UserLoginRepository userLoginRepository;
+
+	@Autowired
 	private JMSQueuerService jmsQueuerService;
 
 	@Override
-	public Long addCustomer(final CustomerDTO customersDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
+	public Long addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
 
-		if (customersDTO.getPassword() == null) {
+		if (customerDTO.getPassword() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
 
-		Customer customer = customerMapper.toEntity(customersDTO, 1L);
+		Customer customer = customerMapper.toEntity(customerDTO, 1L);
+
+		Optional<Customer> optCustomer = Optional.empty();
 
 		/**
 		 * Check if customer already exists, if so then lets only send him email again.
 		 */
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customersDTO.getEmail());
-		if (optCustomer.isPresent() && !optCustomer.get().getEmailVerified().booleanValue()) {
+		if (customerDTO.getEmail() != null) {
+			optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
+		}
+
+		if (optCustomer.isPresent()) {
+			LOGGER.info("Validations checking for phoneNumber mapped with email is same phoneNumber which is came for registration ");
+			if (optCustomer.get().getPhoneNumber() != null && customerDTO.getPhoneNumber() != null
+					&& !optCustomer.get().getPhoneNumber().equals(customerDTO.getPhoneNumber())) {
+				throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.diff.phone", null));
+			} else {
+				LOGGER.info("same email and phone Number exist");
+			}
+			if (!optCustomer.get().getEmailVerified().booleanValue()) {
 			customer = optCustomer.get();
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customersDTO.getEmail());
+				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
 			if (optUserLogin.isPresent()) {
 				sendOtpForEmailVerification(optUserLogin.get(), customer);
 				return optUserLogin.get().getId();
 			}
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
+		}
+		} else {
+			optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
+			if (optCustomer.isPresent()) {
+				if (optCustomer.get().getEmail() != null) {
+					if (optCustomer.get().getEmail().equalsIgnoreCase(customerDTO.getEmail())) {
+						if (!optCustomer.get().getEmailVerified().booleanValue()) {
+							LOGGER.info("Send verification mail again");
+							Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(),
+									UserType.CUSTOMER.name());
+							if (optUserLogin.isPresent()) {
+								sendOtpForEmailVerification(optUserLogin.get(), customer);
+								return optUserLogin.get().getId();
+							}
+						} else {
+							throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
+						}
+					} else {
+						throw new ValidationException(messageByLocaleService.getMessage("customer.exist.diff.email.same.phone", null));
+					}
+				} else {
+					LOGGER.info("Registration via OTP, and email is not registered Hence merging information about customer and send verification of mail.");
+					customer.setEmailVerified(optCustomer.get().getEmailVerified());
+					customer.setMobileVerified(optCustomer.get().getMobileVerified());
+					customer.setStatus(optCustomer.get().getStatus());
+					customer.setId(optCustomer.get().getId());
+					customerRepository.save(customer);
+					Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnPhoneNumberAndEntityType(customer.getPhoneNumber(),
+							UserType.CUSTOMER.name());
+					if (optUserLogin.isPresent()) {
+						UserLogin userLogin = optUserLogin.get();
+						userLogin.setEmail(customer.getEmail());
+						userLogin.setPassword(CommonUtility.generateBcrypt(customerDTO.getPassword()));
+						userLoginRepository.save(userLogin);
+						sendOtpForEmailVerification(userLogin, customer);
+						return userLogin.getId();
+					} else {
+						LOGGER.info(
+								"UserLogin is not present. Hence creating new customer ,but actually not possible becuase if registerVia OTP then userLogin should present");
+					}
+				}
+			}
 		}
 
+		/**
+		 * Validation ends here and start creating customer
+		 */
 		UserLogin userLogin = new UserLogin();
 		if (isAuthorized) {
+			if (RegisterVia.GOOGLE.getStatusValue().equals(customerDTO.getRegisteredVia())
+					|| RegisterVia.FACEBOOK.getStatusValue().equals(customerDTO.getRegisteredVia())) {
 			customer.setEmailVerified(true);
 			customer.setMobileVerified(false);
 			customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
 			userLogin.setActive(true);
+			}
 		} else {
 			customer.setEmailVerified(false);
 			customer.setMobileVerified(false);
@@ -122,19 +191,24 @@ public class CustomerServiceImpl implements CustomerService {
 		userLogin.setEntityType(UserType.CUSTOMER.name());
 		userLogin.setEmail(resultCustomer.getEmail());
 		userLogin.setRole(Role.CUSTOMER.name());
+		userLogin.setPhoneNumber(resultCustomer.getPhoneNumber());
 
-		if ("FACEBOOK".equals(customersDTO.getRegisteredVia())) {
-			userLogin.setFacebookKey(customersDTO.getPassword());
-		} else if ("GOOGLE".equals(customersDTO.getRegisteredVia())) {
-			userLogin.setGoogleKey(customersDTO.getPassword());
+		if (RegisterVia.FACEBOOK.getStatusValue().equals(customerDTO.getRegisteredVia())) {
+			userLogin.setFacebookKey(customerDTO.getPassword());
+		} else if (RegisterVia.GOOGLE.getStatusValue().equals(customerDTO.getRegisteredVia())) {
+			userLogin.setGoogleKey(customerDTO.getPassword());
+		} else if (RegisterVia.OTP.getStatusValue().equals(customerDTO.getRegisteredVia())) {
+			userLogin.setOtp(customerDTO.getPassword());
+		} else if (RegisterVia.APP.getStatusValue().equals(customerDTO.getRegisteredVia())) {
+			userLogin.setPassword(customerDTO.getPassword());
 		} else {
-			userLogin.setPassword(customersDTO.getPassword());
+			throw new ValidationException(messageByLocaleService.getMessage("register.via.not.valid", null));
 		}
 		userLogin = userLoginService.addUserLogin(userLogin);
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
-		if (!customer.getEmailVerified().booleanValue()) {
+		if (RegisterVia.APP.getStatusValue().equals(customerDTO.getRegisteredVia())) {
 			sendOtpForEmailVerification(userLogin, resultCustomer);
 		}
 
@@ -240,7 +314,7 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 
 			LOGGER.info("Deactivate/activate user login");
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(existingCustomer.getEmail());
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingCustomer.getEmail(), UserType.CUSTOMER.name());
 			if (optUserLogin.isPresent()) {
 				UserLogin userLogin = optUserLogin.get();
 				userLogin.setActive(active);
@@ -259,13 +333,12 @@ public class CustomerServiceImpl implements CustomerService {
 			/**
 			 * At the time of update is customer with same name exist or not
 			 */
-			return customerRepository.findByEmailIgnoreCaseAndIdNot(customerDTO.getEmail(), customerDTO.getId()).isPresent();
+			return customerRepository.findByEmailAndIdNot(customerDTO.getEmail().toLowerCase(), customerDTO.getId()).isPresent();
 		} else {
 			/**
-			 * findByAstarNameIgnoreCaseAndAstarIdNot At the time of create is customer with
-			 * same name exist or not
+			 * findByEmail At the time of create -> customer with same email exist or not
 			 */
-			Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customerDTO.getEmail());
+			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
 				 * If the customer is present and his email not verified, then we will be
@@ -312,21 +385,6 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean isUserLoginExists(final CustomerDTO customerDTO) {
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(customerDTO.getEmail());
-		if (optCustomer.isPresent()) {
-			return false;
-		}
-		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(customerDTO.getEmail());
-		if (optUserLogin.isPresent()) {
-			return (!(customerDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
-					&& customerDTO.getId().equals(optUserLogin.get().getEntityId())));
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	public Long getActiveCustomer(final boolean active) {
 		return customerRepository.countByActive(active);
 	}
@@ -357,17 +415,17 @@ public class CustomerServiceImpl implements CustomerService {
 		if (customerDTO.getId() != null) {
 			return customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(customerDTO.getPhoneNumber(), customerDTO.getId()).isPresent();
 		} else {
-			return customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber()).isPresent();
+			Optional<Customer> optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
+			if (optCustomer.isPresent() && optCustomer.get().getEmail() != null) {
+				if (customerDTO.getEmail() != null && customerDTO.getEmail().equals(optCustomer.get().getEmail())) {
+					return false;
+				} else {
+					return true;
 		}
+			} else {
+				return false;
 	}
-
-	@Override
-	public Customer getCustomerFromEmail(final String email) throws NotFoundException {
-		Optional<Customer> optCustomer = customerRepository.findByEmailIgnoreCase(email);
-		if (optCustomer.isPresent()) {
-			return optCustomer.get();
 		}
-		throw new NotFoundException(messageByLocaleService.getMessage("customer.not.found.email", new Object[] { email }));
 	}
 
 }

@@ -11,7 +11,7 @@ import com.nice.model.Users;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component
 public class UsersMapper {
@@ -25,6 +25,7 @@ public class UsersMapper {
 	public Users toEntity(final UsersDTO usersDTO) {
 		Users users = new Users();
 		BeanUtils.copyProperties(usersDTO, users);
+		users.setEmail(usersDTO.getEmail().toLowerCase());
 		return users;
 	}
 

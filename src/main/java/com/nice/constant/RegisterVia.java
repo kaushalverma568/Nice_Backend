@@ -14,7 +14,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RegisterVia {
 
-	APP("APP"), GOOGLE("GOOGLE"), FACEBOOK("FACEBOOK");
+	APP("APP"), GOOGLE("GOOGLE"), FACEBOOK("FACEBOOK"), OTP("OTP");
 
 	private String statusValue;
 

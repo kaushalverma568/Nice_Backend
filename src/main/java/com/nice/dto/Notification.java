@@ -32,4 +32,6 @@ public class Notification implements Serializable {
 	private String email;
 
 	private Long vendorId;
+
+	private String sendingType;
 }

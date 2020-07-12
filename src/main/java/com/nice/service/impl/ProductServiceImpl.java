@@ -50,9 +50,8 @@ import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -255,7 +254,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param productRequestDTO
+	 * @param  productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -295,14 +294,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
-	 * convert entity to response dto
-	 *
-	 * @param product
-	 * @param listForAdmin
-	 * @param productParamRequestDTO
-	 * @param pincodeId
+	 * @param  product
+	 * @param  listForAdmin
+	 * @param  productParamRequestDTO
+	 * @param  pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -339,7 +337,6 @@ public class ProductServiceImpl implements ProductService {
 
 		/**
 		 * if product variant is null/empty or availableQty=0 then product will go out of stock
-		 *
 		 */
 		// TODO
 		/**
@@ -406,9 +403,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param active
-	 * @param existingProduct
-	 * @param productId
+	 * @param  active
+	 * @param  existingProduct
+	 * @param  productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -436,13 +433,13 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param existingProduct
+	 * @param  existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	public void validationForActivateProduct(final Product existingProduct) throws NotFoundException, ValidationException {
 		if (Boolean.FALSE.equals(categoryService.getCategoryDetail(existingProduct.getCategoryId()).getActive())) {
-			throw new ValidationException(messageByLocaleService.getMessage("category.activate.first", null));
+			throw new ValidationException(messageByLocaleService.getMessage("category.activate.first.product", null));
 		}
 		if (Boolean.FALSE.equals(subCategoryService.getSubCategoryDetail(existingProduct.getSubcategoryId()).getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("subcategory.activate.first", null));
