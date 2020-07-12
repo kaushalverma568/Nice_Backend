@@ -17,10 +17,12 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductExtrasMapper;
 import com.nice.model.ProductExtras;
+import com.nice.model.ProductVariant;
 import com.nice.model.TempCartExtras;
 import com.nice.model.TempCartItem;
 import com.nice.repository.TempCartExtrasRepository;
 import com.nice.service.ProductExtrasService;
+import com.nice.service.ProductVariantService;
 import com.nice.service.TempCartExtrasService;
 import com.nice.service.TempCartItemService;
 
@@ -43,13 +45,21 @@ public class TempCartExtrasServiceImpl implements TempCartExtrasService {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
+	@Autowired
+	private ProductVariantService productVariantService;
+
 	@Override
 	public void addTempCartExtras(final TempCartExtrasDto tempCartExtrasDTO, final TempCartItem tempCartItem) throws ValidationException, NotFoundException {
 		TempCartExtras tempCartExtras = new TempCartExtras();
 		BeanUtils.copyProperties(tempCartExtrasDTO, tempCartExtras);
 		ProductExtras productExtras = productExtrasService.getProductExtrasDetail(tempCartExtrasDTO.getProductExtrasId());
-		tempCartExtras.setProductExtras(productExtras);
-		tempCartExtras.setTempCartItem(tempCartItem);
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(tempCartItem.getProductVariant().getId());
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!productVariant.getProduct().getId().equals(productExtras.getProduct().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("extras.associated.to.product", null));
+		}
 
 		/**
 		 * check for existing addons
@@ -57,6 +67,8 @@ public class TempCartExtrasServiceImpl implements TempCartExtrasService {
 		if (checkIfExistsTempCartExtrasForCartItemAndExtras(tempCartItem, productExtras)) {
 			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productExtras.getName() }));
 		}
+		tempCartExtras.setProductExtras(productExtras);
+		tempCartExtras.setTempCartItem(tempCartItem);
 		tempCartExtrasRepository.save(tempCartExtras);
 	}
 
@@ -85,12 +97,14 @@ public class TempCartExtrasServiceImpl implements TempCartExtrasService {
 
 	/**
 	 *
-	 * @param tempCartAddon
+	 * @param tempCartExtras
 	 * @return
 	 */
-	private ProductExtrasDTO convertEntityToDto(final TempCartExtras tempCartAddon) {
+	private ProductExtrasDTO convertEntityToDto(final TempCartExtras tempCartExtras) {
 		LOGGER.info("Inside convert Entity To Dto method");
-		return productExtrasMapper.toDto(tempCartAddon.getProductExtras());
+		ProductExtrasDTO productExtrasDto = productExtrasMapper.toDto(tempCartExtras.getProductExtras());
+		productExtrasDto.setQuantity(tempCartExtras.getQuantity());
+		return productExtrasDto;
 	}
 
 	/**

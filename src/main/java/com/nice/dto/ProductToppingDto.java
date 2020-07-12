@@ -34,4 +34,8 @@ public class ProductToppingDto implements Serializable {
 	private Long productVariantId;
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
+	/**
+	 * Added for cart
+	 */
+	private Boolean selected;
 }

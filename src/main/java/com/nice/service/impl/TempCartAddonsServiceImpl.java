@@ -48,15 +48,20 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 		TempCartAddons tempCartAddons = new TempCartAddons();
 		BeanUtils.copyProperties(tempCartAddonsDTO, tempCartAddons);
 		ProductAddons productAddons = productAddonsService.getProductAddonsDetail(tempCartAddonsDTO.getProductAddonsId());
-		tempCartAddons.setProductAddons(productAddons);
-		tempCartAddons.setTempCartItem(tempCartItem);
-
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!tempCartItem.getProductVariant().getId().equals(productAddons.getProductVariant().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("addons.associated.to.variant", null));
+		}
 		/**
 		 * check for existing addons
 		 */
 		if (checkIfExistsTempCartAddonsForCartItemAndAddons(tempCartItem, productAddons)) {
 			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getName() }));
 		}
+		tempCartAddons.setProductAddons(productAddons);
+		tempCartAddons.setTempCartItem(tempCartItem);
 		tempCartAddonsRepository.save(tempCartAddons);
 	}
 

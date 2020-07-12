@@ -50,16 +50,22 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 		BeanUtils.copyProperties(cartAttributeValueDTO, cartAttributeValue);
 		ProductAttributeValue productAttributeValue = productAttributeValueService
 				.getProductAttributeValueDetail(cartAttributeValueDTO.getProductAttributeValueId());
-		cartAttributeValue.setProductAttributeValue(productAttributeValue);
-		cartAttributeValue.setCartItem(tempCartItem);
-
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!tempCartItem.getProductVariant().getId().equals(productAttributeValue.getProductVariant().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("attribute.values.associated.to.variant", null));
+		}
 		/**
 		 * check for existing addons
 		 */
 		if (checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(tempCartItem, productAttributeValue)) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
-					new Object[] { productAttributeValue.getAttributeValue(), productAttributeValue.getProductAttribute().getName() }));
+					new Object[] { productAttributeValue.getProductAttribute().getName() }));
 		}
+		cartAttributeValue.setProductAttributeValue(productAttributeValue);
+		cartAttributeValue.setCartItem(tempCartItem);
+
 		cartAttributeValueRepository.save(cartAttributeValue);
 	}
 
@@ -113,7 +119,8 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 	 */
 	private boolean checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(final CartItem tempCartItem,
 			final ProductAttributeValue productAttributeValue) {
-		return cartAttributeValueRepository.findAllByCartItemAndProductAttributeValue(tempCartItem, productAttributeValue).isPresent();
+		return cartAttributeValueRepository.getCountByCartItemAndProductAttribute(tempCartItem.getId(),
+				productAttributeValue.getProductAttribute().getId()) > 0L;
 
 	}
 

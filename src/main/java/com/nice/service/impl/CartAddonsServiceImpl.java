@@ -48,15 +48,22 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 		CartAddons cartAddons = new CartAddons();
 		BeanUtils.copyProperties(cartAddonsDTO, cartAddons);
 		ProductAddons productAddons = productAddonsService.getProductAddonsDetail(cartAddonsDTO.getProductAddonsId());
-		cartAddons.setProductAddons(productAddons);
-		cartAddons.setCartItem(cartItem);
 
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!cartItem.getProductVariant().getId().equals(productAddons.getProductVariant().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("addons.associated.to.variant", null));
+		}
 		/**
 		 * check for existing addons
 		 */
 		if (checkIfExistsCartAddonsForCartItemAndAddons(cartItem, productAddons)) {
 			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getName() }));
 		}
+		cartAddons.setProductAddons(productAddons);
+		cartAddons.setCartItem(cartItem);
+
 		cartAddonsRepository.save(cartAddons);
 	}
 

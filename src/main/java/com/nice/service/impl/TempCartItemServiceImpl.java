@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.dto.CartItemResponseDTO;
 import com.nice.dto.ProductAddonsDTO;
 import com.nice.dto.ProductAttributeValueDTO;
+import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductToppingDto;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.TempCartAddonsDTO;
@@ -138,7 +139,20 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 					allProductAttributeValuesSame = true;
 				}
 
-				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame) {
+				/**
+				 * Check if all Extras are same
+				 */
+				List<ProductExtrasDTO> tempCartExtrasList = tempCartExtrasService.getTempCartExtrasListForCartItem(tempCartItem.getId());
+				List<Long> existingProductExtrasList = tempCartExtrasList.isEmpty() ? null
+						: tempCartExtrasList.stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
+				boolean allExtrasSame = false;
+				if ((existingProductExtrasList == null && tempCartItemDTO.getProductExtrasId() == null) || (tempCartItemDTO.getProductExtrasId() != null
+						&& existingProductExtrasList != null && existingProductExtrasList.size() == tempCartItemDTO.getProductExtrasId().size()
+						&& existingProductExtrasList.containsAll(tempCartItemDTO.getProductExtrasId()))) {
+					allExtrasSame = true;
+				}
+
+				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
 					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
 					 * , then set quantity as 15
@@ -316,10 +330,6 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 		LOGGER.info("Inside delete Cart Item method for customer : {}", uuid);
 		List<TempCartItem> cartItemList = getCartListBasedOnUuid(uuid);
 		for (TempCartItem cartItem : cartItemList) {
-			tempCartAddonsService.deleteTempCartAddons(cartItem.getId());
-			tempCartExtrasService.deleteTempCartExtras(cartItem.getId());
-			tempCartProductAttributeValueService.deleteTempCartProductAttributeValue(cartItem.getId());
-			tempCartToppingsService.deleteTempCartToppings(cartItem.getId());
 			deleteTempCartItem(cartItem.getId());
 		}
 	}

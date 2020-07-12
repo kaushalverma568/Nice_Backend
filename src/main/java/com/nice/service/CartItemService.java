@@ -118,7 +118,9 @@ public interface CartItemService {
 
 	/**
 	 * @param customerId
+	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	void deleteCartItemForCustomer(Long customerId);
+	void deleteCartItemForCustomer(Long customerId) throws NotFoundException, ValidationException;
 
 }

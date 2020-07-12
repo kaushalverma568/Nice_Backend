@@ -50,15 +50,22 @@ public class TempCartProductAttributeValueServiceImpl implements TempCartProduct
 		BeanUtils.copyProperties(tempCartAttributeValueDTO, tempCartAttributeValue);
 		ProductAttributeValue productAttributeValue = productAttributeValueService
 				.getProductAttributeValueDetail(tempCartAttributeValueDTO.getProductAttributeValueId());
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!tempCartItem.getProductVariant().getId().equals(productAttributeValue.getProductVariant().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("attribute.values.associated.to.variant", null));
+		}
+
 		tempCartAttributeValue.setProductAttributeValue(productAttributeValue);
 		tempCartAttributeValue.setTempCartItem(tempCartItem);
 
 		/**
-		 * check for existing addons
+		 * check for existing product attribute values
 		 */
 		if (checkIfExistsTempCartProductAttributeValueForCartItemAndAttributeValue(tempCartItem, productAttributeValue)) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
-					new Object[] { productAttributeValue.getAttributeValue(), productAttributeValue.getProductAttribute().getName() }));
+					new Object[] { productAttributeValue.getProductAttribute().getName() }));
 		}
 		tempCartAttributeValueRepository.save(tempCartAttributeValue);
 	}
@@ -113,7 +120,8 @@ public class TempCartProductAttributeValueServiceImpl implements TempCartProduct
 	 */
 	private boolean checkIfExistsTempCartProductAttributeValueForCartItemAndAttributeValue(final TempCartItem tempCartItem,
 			final ProductAttributeValue productAttributeValue) {
-		return tempCartAttributeValueRepository.findAllByTempCartItemAndProductAttributeValue(tempCartItem, productAttributeValue).isPresent();
+		return tempCartAttributeValueRepository.getCountByTempCartItemAndProductAttribute(tempCartItem.getId(),
+				productAttributeValue.getProductAttribute().getId()) > 0L;
 
 	}
 }

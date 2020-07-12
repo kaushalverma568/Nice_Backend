@@ -43,19 +43,25 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	private ProductToppingService productToppingService;
 
 	@Override
-	public void addCartToppings(final CartToppingsDto cartAddonsDTO, final CartItem tempCartItem) throws ValidationException, NotFoundException {
+	public void addCartToppings(final CartToppingsDto cartAddonsDTO, final CartItem cartItem) throws ValidationException, NotFoundException {
 		CartToppings cartToppings = new CartToppings();
 		BeanUtils.copyProperties(cartAddonsDTO, cartToppings);
 		ProductTopping productAddons = productAddonsService.getProductToppingDetails(cartAddonsDTO.getProductToppingsId());
-		cartToppings.setProductToppings(productAddons);
-		cartToppings.setCartItem(tempCartItem);
-
+		/**
+		 * Check if addons belongs to the product variant
+		 */
+		if (!cartItem.getProductVariant().getId().equals(productAddons.getProductVariant().getId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("topping.associated.to.variant", null));
+		}
 		/**
 		 * check for existing addons
 		 */
-		if (checkIfExistsCartToppingsForCartItemAndAddons(tempCartItem, productAddons)) {
+		if (checkIfExistsCartToppingsForCartItemAndAddons(cartItem, productAddons)) {
 			throw new ValidationException(messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productAddons.getName() }));
 		}
+		cartToppings.setProductToppings(productAddons);
+		cartToppings.setCartItem(cartItem);
+
 		cartToppingsRepository.save(cartToppings);
 	}
 

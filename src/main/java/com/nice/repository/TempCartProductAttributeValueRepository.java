@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.ProductAttributeValue;
@@ -38,5 +39,13 @@ public interface TempCartProductAttributeValueRepository extends JpaRepository<T
 	 * @return
 	 */
 	List<TempCartProductAttributeValue> findAllByTempCartItem(TempCartItem tempCartItem);
+
+	/**
+	 * @param tempCartItem
+	 * @param productAttribute
+	 * @return
+	 */
+	@Query(value = "select count(*) from TempCartProductAttributeValue tcpav where tcpav.tempCartItem.id = :tempCartItemId and tcpav.productAttributeValue.productAttribute.id =:productAttributeId")
+	Long getCountByTempCartItemAndProductAttribute(Long tempCartItemId, Long productAttributeId);
 
 }

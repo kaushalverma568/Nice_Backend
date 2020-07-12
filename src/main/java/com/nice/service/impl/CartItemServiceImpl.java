@@ -24,6 +24,7 @@ import com.nice.dto.CartProductAttributeValueDTO;
 import com.nice.dto.CartToppingsDto;
 import com.nice.dto.ProductAddonsDTO;
 import com.nice.dto.ProductAttributeValueDTO;
+import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductToppingDto;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -151,7 +152,20 @@ public class CartItemServiceImpl implements CartItemService {
 					allProductAttributeValuesSame = true;
 				}
 
-				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame) {
+				/**
+				 * Check if all Extras are same
+				 */
+				List<ProductExtrasDTO> cartExtrasList = cartExtrasService.getCartExtrasDtoListForCartItem(cartItem.getId());
+				List<Long> existingProductExtrasList = cartExtrasList.isEmpty() ? null
+						: cartExtrasList.stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
+				boolean allExtrasSame = false;
+				if ((existingProductExtrasList == null && cartItemDTO.getProductExtrasId() == null) || (cartItemDTO.getProductExtrasId() != null
+						&& existingProductExtrasList != null && existingProductExtrasList.size() == cartItemDTO.getProductExtrasId().size()
+						&& existingProductExtrasList.containsAll(cartItemDTO.getProductExtrasId()))) {
+					allExtrasSame = true;
+				}
+
+				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
 					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
 					 * , then set quantity as 15
@@ -176,8 +190,12 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	@Override
-	public void deleteCartItemForCustomer(final Long id) {
-		cartItemRepository.deleteAllByCustomerId(id);
+	public void deleteCartItemForCustomer(final Long id) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside delete Cart Item method {}", id);
+		List<CartItem> cartItemList = getCartListBasedOnCustomer(id);
+		for (CartItem cartItem : cartItemList) {
+			deleteCartItem(cartItem.getId());
+		}
 	}
 
 	/**
