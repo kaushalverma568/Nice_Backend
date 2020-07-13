@@ -14,15 +14,16 @@ import com.nice.model.OrdersItem;
 import com.nice.model.ProductExtras;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 05-Jul-2020
+ *
+ * @author : Kody Technolab Pvt. Ltd.
+ * @date : 13-07-2020
  */
 @Repository
 public interface OrderExtrasRepository extends JpaRepository<OrdersExtras, Long> {
 
 	/**
 	 * @param orderItem
-	 * @param productExtras
+	 * @param productAddons
 	 */
 	Optional<OrdersExtras> findAllByOrderItemAndProductExtras(OrdersItem orderItem, ProductExtras productExtras);
 
@@ -35,5 +36,6 @@ public interface OrderExtrasRepository extends JpaRepository<OrdersExtras, Long>
 	/**
 	 * @param cartItem
 	 */
-	void deleteAllByOrderItem(OrdersItem orderItem);
+	void deleteAllByOrderItem(OrdersItem cartItem);
+
 }

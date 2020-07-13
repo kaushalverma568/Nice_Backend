@@ -141,10 +141,16 @@ public interface CartItemService {
 	/**
 	 * delete all cart item based on product variant id : this method is used at the
 	 * time of deactivating product variant
-	 * 
+	 *
 	 * @param productVariantId
 	 * @throws NotFoundException
 	 */
 	void deleteCartItemsForProductVariant(Long productVariantId) throws NotFoundException;
+
+	/**
+	 * @param onlineOrderId
+	 * @throws NotFoundException
+	 */
+	void deleteCartItemForOnlineOrderId(String onlineOrderId) throws NotFoundException;
 
 }

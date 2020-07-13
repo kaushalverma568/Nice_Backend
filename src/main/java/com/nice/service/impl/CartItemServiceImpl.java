@@ -454,4 +454,12 @@ public class CartItemServiceImpl implements CartItemService {
 	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
 		cartItemRepository.deleteAllByProductVariantId(productVariantId);
 	}
+
+	@Override
+	public void deleteCartItemForOnlineOrderId(final String onlineOrderId) throws NotFoundException {
+		List<CartItem> cartItemList = cartItemRepository.findAllByOnlineOrderId(onlineOrderId);
+		for (CartItem cartItem : cartItemList) {
+			deleteCartItem(cartItem.getId());
+		}
+	}
 }

@@ -16,18 +16,19 @@ import lombok.EqualsAndHashCode;
 
 /**
  *
- * @author : Kody Technolab PVT. LTD.
- * @date : 03-Jul-2020
+ * @author : Kody Technolab Pvt. Ltd.
+ * @date : 13-07-2020
  */
 @Entity
-@Table(name = "cart_item")
+@Table(name = "online_cart")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CartItem extends CommonModel {
+public class OnlineCart extends CommonModel {
+
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -9200586687208937424L;
+	private static final long serialVersionUID = -2450987913196485269L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,17 +46,37 @@ public class CartItem extends CommonModel {
 	@Column(name = "quantity", nullable = false)
 	private Long quantity;
 
+	@Column(name = "first_name", nullable = false)
+	private String firstName;
+
+	@Column(name = "last_name", nullable = false)
+	private String lastName;
+
+	@Column(name = "address", nullable = false)
+	private String address;
+
+	@Column(name = "state_id", nullable = false)
+	private Long stateId;
+
+	@Column(name = "city_id", nullable = false)
+	private Long cityId;
+
+	@Column(name = "pincode_id", nullable = false)
+	private Long pincodeId;
+
+	@Column(name = "phone_number", nullable = false)
+	private String phoneNumber;
+	/**
+	 * status = Pending or Payment_Waiting
+	 */
+	@Column(name = "status", nullable = false)
+	private String status;
 	/**
 	 * generated online order id at the time off placed order validation
 	 */
 	@Column(name = "online_order_id")
 	private String onlineOrderId;
 
-	/**
-	 * online cart id is used at the time of create order with online payment and
-	 * fetching extra,addons,toppings value
-	 */
-	@Column(name = "online_cart_id")
-	private Long onlineCartId;
-
+	@Column(name = "payment_amount")
+	private Double paymentAmount;
 }
