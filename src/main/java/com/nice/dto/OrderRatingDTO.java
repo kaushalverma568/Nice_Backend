@@ -1,7 +1,6 @@
 package com.nice.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,20 +25,24 @@ public class OrderRatingDTO implements Serializable {/**
 	@NotNull(message = "{orderId.not.null}")
 	private Long orderId;
 	
-	@NotNull(message = "{packing.rating.not.null}")
-	private Double orderPackingRating;
+	@NotNull(message = "{question1.rating.not.null}")
+	private Double question1Rating;
 	
-	@NotNull(message = "{money.rating.not.null}")
-	private Double valueOfMoneyRating;
+	@NotNull(message = "{question2.rating.not.null}")
+	private Double question2Rating;
 	
-	@NotNull(message = "{boy.rating.not.null}")
-	private Double deliveryBoyRating;
+	@NotNull(message = "{question3.rating.not.null}")
+	private Double question3Rating;
+	
+	@NotNull(message = "{question4.rating.not.null}")
+	private Double question4Rating;
+	
+	@NotNull(message = "{question5.rating.not.null}")
+	private Double question5Rating;
 	
 	private String review;
 	
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
-	
-	private List<OrderItemRatingDTO> orderItemRatingList;
 
 }

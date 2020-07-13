@@ -1,7 +1,6 @@
 package com.nice.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,17 +30,21 @@ public class OrderRatingResponseDTO implements Serializable {/**
 	
 	private String deliveryBoyName;
 	
-	private Double orderPackingRating;
+	private Double question1Rating;
 	
-	private Double valueOfMoneyRating;
+	private Double question2Rating;
+	
+	private Double question3Rating;
+	
+	private Double question4Rating;
+	
+	private Double question5Rating;
 	
 	private Double deliveryBoyRating;
 	
-	private Double restaurantRating;
+	private Double vendorRating;
 	
-	private Double foodQualityRating;
+	private Double avgOrderRating;
 	
 	private String review;
-	
-	private List<OrderItemRatingResponseDTO> orderItemRatingDtoList;
 }

@@ -179,4 +179,11 @@
 				path="sql-files/1.0/order.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	
+	<changeSet id="28" author="nisha.parmar"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/rating_system_changes.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

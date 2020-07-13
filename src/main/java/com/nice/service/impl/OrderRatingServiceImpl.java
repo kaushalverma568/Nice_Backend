@@ -22,18 +22,13 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderRatingMapper;
 import com.nice.model.DeliveryBoy;
-import com.nice.model.OrderItemRating;
 import com.nice.model.OrderRating;
-import com.nice.model.Product;
 import com.nice.model.Vendor;
 import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.OrderRatingRepository;
-import com.nice.repository.ProductRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.DeliveryBoyService;
-import com.nice.service.OrderItemRatingService;
 import com.nice.service.OrderRatingService;
-import com.nice.service.ProductService;
 import com.nice.service.VendorService;
 
 /**
@@ -57,13 +52,7 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	
 	@Autowired
 	private VendorRepository vendorRepository;
-	
-	@Autowired
-	private ProductService productService;
-	
-	@Autowired
-	private ProductRepository productRepository;
-	
+		
 	@Autowired
 	private DeliveryBoyService deliveryBoyService;
 	
@@ -73,47 +62,45 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 	
-	@Autowired
-	private OrderItemRatingService orderItemRatingService;
 
 	@Override
 	public OrderRatingResponseDTO addOrderRating(final OrderRatingDTO orderRatingDTO) throws NotFoundException {
-		Double sum = 0.0;
 		OrderRating orderRating= orderRatingMapper.toEntity(orderRatingDTO);
-		/**
-		 * item's rating total 
-		 */
-		for (int i = 0 ; i<orderRatingDTO.getOrderItemRatingList().size(); i++) {
-			sum = sum + orderRatingDTO.getOrderItemRatingList().get(i).getItemRating();
-		}
 		// set from order vendorId & BoyId
 		orderRating.setVendorId(1L);
 		orderRating.setDeliveryBoyId(1L);
-		
-		/**
-		 * for food quality item's total divide by item size (no of item)
-		 */
-		orderRating.setFoodQualityRating(Math.round((sum/orderRatingDTO.getOrderItemRatingList().size())*100.0)/100.0);
 	
 		/**
-		 * for restaurant rating we total order packing rating + value of money rating + calculated food quality rating
-		 * divide by 3 because its total of 3 types of rating so we get average
+		 *  first 3 rating for vendor 
+		 * for vendor rating, we total question1 rating, question2 rating and question3 rating
+		 * 		 divide by 3 because its total of 3 types of rating so we get average
 		 */
-		orderRating.setRestaurantRating(Math.round(((orderRating.getOrderPackingRating()
-				+orderRating.getValueOfMoneyRating()+orderRating.getFoodQualityRating())/3.0)*100.0)/100.0);
+		orderRating.setVendorRating(Math.round(((orderRating.getQuestion1Rating()
+				+orderRating.getQuestion2Rating()+orderRating.getQuestion3Rating())/3.0)*100.0)/100.0);
+		
+		
+		/**
+		 *  4th and 5th rating is for delivery boy
+		 * for delivery boy rating, we total question4 rating and question5 rating
+		 * 		 divide by 2 because its total of 2 types of rating so we get average
+		 */
+		orderRating.setDeliveryBoyRating(Math.round(((orderRating.getQuestion4Rating()
+				+orderRating.getQuestion5Rating())/2.0)*100.0)/100.0);
+		
+		
+		/**
+		 *  over all average of order 
+		 * for average rating, we total all 5 question rating
+		 * 		 divide by 5 because its total of 5 types of rating so we get average
+		 */
+		orderRating.setAvgOrderRating(Math.round(((orderRating.getQuestion1Rating()
+				+orderRating.getQuestion2Rating()+orderRating.getQuestion3Rating()
+				+orderRating.getQuestion4Rating()+orderRating.getQuestion5Rating())/5.0)*100.0)/100.0);
+		
 		/**
 		 * order rating save
-		 */
-		orderRating = orderRatingRepository.save(orderRating);		
-		/**
-		 * save order item rating by adding order rating id 
-		 */
-		for (int i = 0 ; i<orderRatingDTO.getOrderItemRatingList().size(); i++) {
-			orderRatingDTO.getOrderItemRatingList().get(i).setOrderRatingId(orderRating.getId());
-			orderItemRatingService.addOrderItemRating(orderRatingDTO.getOrderItemRatingList().get(i));
-		}
-
-		return orderRatingMapper.toResponseDto(orderRating);
+		 */	
+		return orderRatingMapper.toResponseDto(orderRatingRepository.save(orderRating));
 	}
 
 	
@@ -132,10 +119,6 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		} else if (existingOrderRating.getActive().equals(active)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "order.rating.active" : "order.rating.deactive", null));
 		} else {
-			 List<OrderItemRating> itemRatingList = orderItemRatingService.getOrderRatingByOrderRatingId(orderRatingId);
-			 for (OrderItemRating orderItemRating : itemRatingList) {
-				 orderItemRatingService.changeStatus(orderItemRating.getId(), active);
-			}
 			existingOrderRating.setActive(active);
 			orderRatingRepository.save(existingOrderRating);
 		}
@@ -209,41 +192,8 @@ public class OrderRatingServiceImpl implements OrderRatingService {
                vendorRatingVCalculation(orderRating);
 			 // Delivery boy rating calculation same as restaurant
 			   deliveryBoyRatingCalculation(orderRating);
-			 /**
-			  * fetch item record for product rating average calculate
-			  */
-			 List<OrderItemRating> itemRatingList =  orderItemRatingService.getOrderRatingByOrderRatingId(orderRating.getId());
-			 for (OrderItemRating orderItemRating : itemRatingList) {
-				 //product rating calculation
-				 productRatingCalculation(orderItemRating);	
-			}
 		}
 	}
-
-	private void productRatingCalculation(OrderItemRating orderItemRating) throws NotFoundException {
-		if(orderItemRating.getProductId()!= null) {
-			 Product product = productService.getProductDetail(orderItemRating.getProductId());
-			 Double productRating = product.getRating();
-			 Long noOfproductRating = product.getNoOfRating();
-			 //goes one more rating to this boy so plus 1
-			 if (noOfproductRating != null) {
-				 noOfproductRating = noOfproductRating + 1;
-			 } else {
-				 noOfproductRating = 1L;
-			 }
-			 //now current rating and previous rating total divide by 2  for average and set to product record
-			 if (productRating != null) {
-				 productRating = (productRating + orderItemRating.getItemRating() )/2;
-			 } else {
-				 productRating = orderItemRating.getItemRating();
-			 }				
-			 product.setRating(productRating);
-			 product.setNoOfRating(noOfproductRating);
-			 productRepository.save(product);
-		 }
-		
-	}
-
 
 	private void deliveryBoyRatingCalculation(OrderRating orderRating) throws NotFoundException {
 		if (orderRating.getDeliveryBoyId()!=null) {
@@ -258,9 +208,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 }
 			//now current rating and previous rating total divide by 2  for average and set to boy record
 			 if (boyRating != null) {
-				 boyRating = (boyRating + orderRating.getRestaurantRating())/2;
+				 boyRating = (boyRating + orderRating.getDeliveryBoyRating())/2;
 			 } else {
-				 boyRating = orderRating.getRestaurantRating();
+				 boyRating = orderRating.getDeliveryBoyRating();
 			 }		 
 			 deliveryBoy.setRating(boyRating);
 			 deliveryBoy.setNoOfRating(noOfBoyRating);
@@ -282,9 +232,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 }
 			 //now current rating and previous rating total divide by 2 for average and set to vendor record
 			 if (vendorRating != null) {
-				 vendorRating = (vendorRating + orderRating.getRestaurantRating())/2;
+				 vendorRating = (vendorRating + orderRating.getVendorRating())/2;
 			 } else {
-				 vendorRating = orderRating.getRestaurantRating();
+				 vendorRating = orderRating.getVendorRating();
 			 }			
 			 vendor.setRating(vendorRating);
 			 vendor.setNoOfRating(noOfVendorRating);

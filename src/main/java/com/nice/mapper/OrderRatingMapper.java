@@ -11,11 +11,9 @@ import com.nice.dto.OrderRatingDTO;
 import com.nice.dto.OrderRatingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.model.DeliveryBoy;
-import com.nice.model.OrderItemRating;
 import com.nice.model.OrderRating;
 import com.nice.model.Vendor;
 import com.nice.service.DeliveryBoyService;
-import com.nice.service.OrderItemRatingService;
 import com.nice.service.VendorService;
 
 /**
@@ -26,16 +24,11 @@ import com.nice.service.VendorService;
 public class OrderRatingMapper {
 
 	@Autowired
-	private OrderItemRatingService orderItemRatingService;
-
-	@Autowired
 	private DeliveryBoyService deliveryBoyService;
 
 	@Autowired
 	private VendorService vendorService;
 
-	@Autowired
-	private OrderItemRatingMapper orderItemRatingMapper;
 
 	public OrderRatingResponseDTO toResponseDto(final OrderRating orderRating) throws NotFoundException {
 		OrderRatingResponseDTO orderRatingResponseDTO = new OrderRatingResponseDTO();
@@ -44,8 +37,6 @@ public class OrderRatingMapper {
 		orderRatingResponseDTO.setVendorName(vendor.getFirstName() + " " + vendor.getLastName());
 		DeliveryBoy boy = deliveryBoyService.getDeliveryBoyDetail(orderRating.getDeliveryBoyId());
 		orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstName().concat(" ").concat(boy.getLastName()));
-		List<OrderItemRating> itemRatingList = orderItemRatingService.getOrderRatingByOrderRatingId(orderRating.getId());
-		orderRatingResponseDTO.setOrderItemRatingDtoList(orderItemRatingMapper.toDtos(itemRatingList));
 		return orderRatingResponseDTO;
 	}
 
