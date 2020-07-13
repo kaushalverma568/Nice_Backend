@@ -29,11 +29,13 @@ import com.nice.model.ProductVariant;
 import com.nice.model.UOM;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductVariantRepository;
+import com.nice.service.CartItemService;
 import com.nice.service.ProductAddonsService;
 import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductToppingService;
 import com.nice.service.ProductVariantService;
+import com.nice.service.TempCartItemService;
 import com.nice.service.UOMService;
 import com.nice.util.CommonUtility;
 
@@ -64,12 +66,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private UOMService uomService;
-	// @Autowired
-	// private CartItemService cartItemService;
-	//
-	// @Autowired
-	// private TempCartItemService tempCartItemService;
-	//
+
+	@Autowired
+	private CartItemService cartItemService;
+
+	@Autowired
+	private TempCartItemService tempCartItemService;
+
 	@Autowired
 	private ProductAddonsService productAddonsService;
 
@@ -224,7 +227,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
 		/**
-		 * Set product addons, attribute values and toppings list for the product variant
+		 * Set product addons, attribute values and toppings list for the product
+		 * variant
 		 */
 		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
@@ -318,21 +322,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			for (ProductAttributeValueDTO productAttributeValue : productAttributeValueList) {
 				productAttributeValueService.changeStatus(productAttributeValue.getId(), false);
 			}
-			// cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-			// tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-			// posCartService.deleteAllByProductVariant(productVariant.getId());
+			/**
+			 * remove this variant from all customer's cart
+			 */
+			cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
+			tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
 		}
 	}
-
-	// private void changeStatusForDependentEntity(final Long productVariantId,
-	// final Boolean active) throws
-	// NotFoundException, ValidationException {
-	// List<ProductAddons> productAddonsList = productAddonsService.getList(true,
-	// productVariantId);
-	// for (ProductAddons productAddons : productAddonsList) {
-	// productAddonsService.changeStatus(productAddons.getId(), false);
-	// }
-	// }
 
 	@Override
 	public List<ProductVariantResponseDTO> getProductVariantProductList(final Long productId, final Boolean active)
@@ -341,7 +337,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean isAdmin = false;
 		/**
-		 * if the user is a Vendor then check if the product belongs to him. For Super Admin all products should be visible
+		 * if the user is a Vendor then check if the product belongs to him. For Super
+		 * Admin all products should be visible
 		 */
 		if (userLogin != null && (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
 			isAdmin = true;
@@ -363,7 +360,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	/**
-	 * This method will be used only for internal calls to skip the authentication process
+	 * This method will be used only for internal calls to skip the authentication
+	 * process
 	 *
 	 * @param productVariantId
 	 * @return
@@ -380,7 +378,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
+		 * Here is admin is taken as true as this method will only be accessed by
+		 * admin/vendor always.
 		 */
 		ProductVariant productVariant = getProductVariantDetailBySku(sku, userLogin.getEntityId());
 		if (userLogin.getEntityId() == null || productVariant.getVendorId().equals(userLogin.getEntityId())) {

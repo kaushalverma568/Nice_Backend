@@ -51,4 +51,11 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 	 * @return
 	 */
 	Long countByCustomer(Customer customer);
+
+	/**
+	 * delete all cart item by product variant id
+	 * 
+	 * @param productVariantId
+	 */
+	void deleteAllByProductVariantId(Long productVariantId);
 }
