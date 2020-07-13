@@ -1,0 +1,126 @@
+/**
+ *
+ */
+package com.nice.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nice.constant.AssetConstant;
+import com.nice.dto.CategoryResponseDTO;
+import com.nice.dto.OrderItemDTOForDeliveryBoy;
+import com.nice.dto.OrderItemResponseDTO;
+import com.nice.exception.NotFoundException;
+import com.nice.locale.MessageByLocaleService;
+import com.nice.model.OrdersItem;
+import com.nice.model.ProductVariant;
+import com.nice.repository.OrderItemRepository;
+import com.nice.service.CategoryService;
+import com.nice.service.OrderItemService;
+import com.nice.service.ProductVariantService;
+import com.nice.util.CommonUtility;
+
+/**
+ *
+ * @author : Kody Technolab PVT. LTD.
+ * @date : 08-Jul-2020
+ */
+@Service(value = "orderItemService")
+@Transactional(rollbackFor = Throwable.class)
+public class OrderItemServiceImpl implements OrderItemService {
+
+	/**
+	 *
+	 */
+	private static final String ORDER_ITEM_NOT_FOUND = "order.item.not.found";
+
+	private static final String ORDER_NOT_FOUND = "order.not.found";
+
+	@Autowired
+	private OrderItemRepository orderItemRepository;
+
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
+	@Autowired
+	private ProductVariantService productVariantService;
+
+	@Autowired
+	private CategoryService categoryService;
+
+	@Override
+	public OrdersItem getOrderItemDetails(final Long orderItemId) throws NotFoundException {
+		Optional<OrdersItem> optOrderItem = orderItemRepository.findById(orderItemId);
+		if (!optOrderItem.isPresent()) {
+			throw new NotFoundException(messageByLocaleService.getMessage(ORDER_ITEM_NOT_FOUND, new Object[] { orderItemId }));
+		}
+		return optOrderItem.get();
+	}
+
+	@Override
+	public List<OrdersItem> getOrderItemForOrderId(final Long orderId) throws NotFoundException {
+		List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderId(orderId);
+		if (orderItemList.isEmpty()) {
+			throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
+		}
+		return orderItemList;
+	}
+
+	// @Override
+	// public List<OrderItem> getOrderItemForReplacementOrderId(final Long orderId) throws NotFoundException {
+	// List<OrderItem> orderItemList = orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
+	// if (orderItemList.isEmpty()) {
+	// throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
+	// }
+	// return orderItemList;
+	// }
+
+	@Override
+	public List<OrderItemResponseDTO> toOrderItemResponseDto(final List<OrdersItem> orderItemList) throws NotFoundException {
+		List<OrderItemResponseDTO> orderItemResponseDtoList = new ArrayList<>();
+		for (OrdersItem orderItem : orderItemList) {
+			orderItemResponseDtoList.add(toOrderItemResponseDto(orderItem));
+		}
+		return orderItemResponseDtoList;
+	}
+
+	@Override
+	public List<OrderItemDTOForDeliveryBoy> convertToOrderItemDtoForDeliveryBoy(final List<OrdersItem> orderItemList) throws NotFoundException {
+		List<OrderItemDTOForDeliveryBoy> orderItemDTOForDeliveryBoyList = new ArrayList<>();
+		for (OrdersItem orderItem : orderItemList) {
+			OrderItemDTOForDeliveryBoy orderItemDTOForDeliveryBoy = new OrderItemDTOForDeliveryBoy();
+			BeanUtils.copyProperties(toOrderItemResponseDto(orderItem), orderItemDTOForDeliveryBoy);
+			orderItemDTOForDeliveryBoyList.add(orderItemDTOForDeliveryBoy);
+		}
+		return orderItemDTOForDeliveryBoyList;
+	}
+
+	/**
+	 * @param orderItem
+	 * @throws NotFoundException
+	 */
+	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {
+		OrderItemResponseDTO orderItemResponseDTO = new OrderItemResponseDTO();
+		OrdersItem orderItemDetail = orderItemRepository.findById(orderItem.getId())
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(ORDER_ITEM_NOT_FOUND, new Object[] { orderItem.getId() })));
+		BeanUtils.copyProperties(orderItemDetail, orderItemResponseDTO);
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
+		orderItemResponseDTO.setProductName(productVariant.getProduct().getName());
+		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
+		orderItemResponseDTO.setProductVariantId(productVariant.getId());
+		orderItemResponseDTO.setProductImageUrl(CommonUtility.getGeneratedUrl(productVariant.getProduct().getImage(), AssetConstant.PRODUCT_DIR));
+		orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		/**
+		 * Add product category
+		 */
+		CategoryResponseDTO category = categoryService.getCategory(productVariant.getProduct().getCategoryId());
+		orderItemResponseDTO.setCategoryName(category.getName());
+		return orderItemResponseDTO;
+	}
+}
