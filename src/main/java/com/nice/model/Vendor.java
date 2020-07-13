@@ -110,11 +110,11 @@ public class Vendor extends CommonModel {
 	@Column(name = "delivery_type")
 	private String deliveryType;
 
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "opening_hours_from")
 	private Date openingHoursFrom;
 
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "opening_hours_to")
 	private Date openingHoursTo;
 

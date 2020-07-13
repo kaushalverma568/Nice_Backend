@@ -2,8 +2,11 @@ package com.nice.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -31,4 +34,7 @@ public class VendorListFilterDTO implements Serializable {
 	private BigDecimal longitude;
 
 	private List<Long> vendorIds;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date openingHours;
 }

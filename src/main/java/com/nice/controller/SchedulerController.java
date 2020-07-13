@@ -30,7 +30,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Jun-2020
+ * @date   : 30-Jun-2020
  */
 @RestController
 @RequestMapping("/scheduler")
@@ -64,8 +64,9 @@ public class SchedulerController {
 		final LocalDate runDate = LocalDate.now();
 		LOGGER.info("Inside run Scheduler of discount for date :{}", runDate);
 
-		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name))) {
-			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", null));
+		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name) || Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)
+				|| Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name))) {
+			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", new Object[] { name }));
 		}
 		SchedulerDetails schedulerDetails = schedulerDetailsService.getLastSchedulerRunDate(name);
 		/**
@@ -76,6 +77,11 @@ public class SchedulerController {
 		}
 		if (Constant.EXPIRE_STOCK_SCHEDULER.equals(name)) {
 			stockDetailsService.moveQtyToExpiredState(new Date());
+		}
+		if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
+			vendorService.runVendorSubscriptionExpireScheduler(new Date());
+		} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {
+			vendorService.runVendorSubscriptionExpireReminderScheduler(new Date());
 		}
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("scheduler.run.successfully", new Object[] { name }))
 				.setStatus(HttpStatus.OK).create();
