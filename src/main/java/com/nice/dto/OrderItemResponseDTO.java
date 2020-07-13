@@ -32,9 +32,13 @@ public class OrderItemResponseDTO implements Serializable {
 	private Double unitPrice;
 	private Double unitPriceAfterDiscount;
 	private Double totalDiscountAmt;
-	private Long replaceQty;
 	private String productImageUrl;
 	private Long productVariantId;
+	/**
+	 * The below field is just for display on front end, it contains the amount(all added) of order item, extras, addons,
+	 * toppings and productAttributeValues
+	 */
+	private Double totalOrderItemAmount;
 	private String categoryName;
 	private List<OrderAddonsDTO> orderAddonsDtoList;
 	private List<OrderToppingsDto> orderToppingsDtoList;

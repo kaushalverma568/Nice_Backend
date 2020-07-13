@@ -18,7 +18,7 @@ public class OrderAddonsDTO implements Serializable {
 	private static final long serialVersionUID = 7406022628390929149L;
 	private Long id;
 	private Long productAddonsId;
-	private String name;
+	private String addonsName;
 	private Long quantity;
 	private Long orderItemtId;
 	private Boolean active;

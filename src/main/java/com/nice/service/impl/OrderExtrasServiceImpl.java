@@ -47,6 +47,8 @@ public class OrderExtrasServiceImpl implements OrderExtrasService {
 	private OrderExtrasDto convertEntityToDto(final OrdersExtras orderExtras) {
 		OrderExtrasDto orderExtrasDto = new OrderExtrasDto();
 		BeanUtils.copyProperties(orderExtras, orderExtrasDto);
+		orderExtrasDto.setOrderItemId(orderExtras.getOrderItem().getId());
+		orderExtrasDto.setProductExtrasId(orderExtras.getProductExtras().getId());
 		return orderExtrasDto;
 	}
 

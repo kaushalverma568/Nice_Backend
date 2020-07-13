@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.dto.OrderAddonsDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
-import com.nice.locale.MessageByLocaleService;
 import com.nice.model.OrdersAddons;
 import com.nice.model.OrdersItem;
 import com.nice.model.ProductAddons;
@@ -34,9 +33,6 @@ public class OrderAddonsServiceImpl implements OrderAddonsService {
 
 	@Autowired
 	private ProductAddonsService productAddonsService;
-
-	@Autowired
-	private MessageByLocaleService messageByLocaleService;
 
 	@Override
 	public void addOrderAddons(final OrderAddonsDTO orderAddonsDTO, final OrdersItem orderItem) throws ValidationException, NotFoundException {
@@ -63,6 +59,8 @@ public class OrderAddonsServiceImpl implements OrderAddonsService {
 	private OrderAddonsDTO convertEntityToDto(final OrdersAddons orderAddon) {
 		OrderAddonsDTO orderAddonsDto = new OrderAddonsDTO();
 		BeanUtils.copyProperties(orderAddon, orderAddonsDto);
+		orderAddonsDto.setOrderItemtId(orderAddon.getOrderItem().getId());
+		orderAddonsDto.setProductAddonsId(orderAddon.getProductAddons().getId());
 		return orderAddonsDto;
 	}
 

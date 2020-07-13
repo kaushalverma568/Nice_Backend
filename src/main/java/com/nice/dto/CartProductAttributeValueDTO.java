@@ -27,14 +27,14 @@ public class CartProductAttributeValueDTO implements Serializable {
 
 	/**
 	 * @param productAttributeValueId
-	 * @param tempCartItemId
+	 * @param cartItemId
 	 * @param quantity
 	 * @param active
 	 */
-	public CartProductAttributeValueDTO(final Long productAttributeValueId, final Long tempCartItemId, final Long quantity, final Boolean active) {
+	public CartProductAttributeValueDTO(final Long productAttributeValueId, final Long cartItemId, final Long quantity, final Boolean active) {
 		super();
 		this.productAttributeValueId = productAttributeValueId;
-		this.tempCartItemId = tempCartItemId;
+		this.tempCartItemId = cartItemId;
 		this.quantity = quantity;
 		this.active = active;
 	}

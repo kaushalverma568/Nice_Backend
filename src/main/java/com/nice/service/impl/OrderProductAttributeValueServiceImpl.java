@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.OrderProductAttributeValueDTO;
 import com.nice.exception.NotFoundException;
-import com.nice.locale.MessageByLocaleService;
-import com.nice.mapper.ProductAttributeValueMapper;
 import com.nice.model.OrdersItem;
 import com.nice.model.OrdersProductAttributeValue;
 import com.nice.repository.OrderProductAttributeValueRepository;
@@ -29,12 +27,6 @@ public class OrderProductAttributeValueServiceImpl implements OrderProductAttrib
 
 	@Autowired
 	private OrderProductAttributeValueRepository orderAttributeValueRepository;
-
-	@Autowired
-	private ProductAttributeValueMapper productAttributeValueMapper;
-
-	@Autowired
-	private MessageByLocaleService messageByLocaleService;
 
 	@Override
 	public List<OrderProductAttributeValueDTO> getOrderProductAttributeValueListForOrderItem(final Long orderItemId) throws NotFoundException {
@@ -52,6 +44,8 @@ public class OrderProductAttributeValueServiceImpl implements OrderProductAttrib
 		for (OrdersProductAttributeValue tempOrderAttributeValue : tempOrderAttributeValueList) {
 			OrderProductAttributeValueDTO orderProductAttributeValueDTO = new OrderProductAttributeValueDTO();
 			BeanUtils.copyProperties(tempOrderAttributeValue, orderProductAttributeValueDTO);
+			orderProductAttributeValueDTO.setProductAttributeValueId(tempOrderAttributeValue.getProductAttributeValue().getId());
+			orderProductAttributeValueDTO.setOrderItemId(tempOrderAttributeValue.getOrderItem().getId());
 			orderAttributeValueDtoList.add(orderProductAttributeValueDTO);
 		}
 		return orderAttributeValueDtoList;

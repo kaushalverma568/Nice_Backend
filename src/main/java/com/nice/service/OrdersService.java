@@ -61,19 +61,20 @@ public interface OrdersService {
 	 * @param isFromAdmin
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	OrdersResponseDTO getOrderDetails(Long orderId, boolean isFromAdmin) throws NotFoundException;
+	OrdersResponseDTO getOrderDetails(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param startIndex
 	 * @param pageSize
 	 * @param orderListFilterDto
-	 * @param forAdmin
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	List<OrdersResponseDTO> getOrderListBasedOnParams(Integer startIndex, Integer pageSize, OrderListFilterDto orderListFilterDto, boolean forAdmin)
-			throws NotFoundException;
+	List<OrdersResponseDTO> getOrderListBasedOnParams(Integer startIndex, Integer pageSize, OrderListFilterDto orderListFilterDto)
+			throws NotFoundException, ValidationException;
 
 	/**
 	 * @param deliveryBoy
@@ -95,8 +96,7 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	Orders createOrder(List<CartItem> cartItemList, OrderRequestDTO orderRequestDto, Double calculatedOrderAmt)
-			throws NotFoundException, ValidationException;
+	Orders createOrder(List<CartItem> cartItemList, OrderRequestDTO orderRequestDto, Double calculatedOrderAmt) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param razorpayOrderId
@@ -119,8 +119,9 @@ public interface OrdersService {
 	 * @param orderListFilterDto
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	Long getOrderCountBasedOnParams(OrderListFilterDto orderListFilterDto) throws NotFoundException;
+	Long getOrderCountBasedOnParams(OrderListFilterDto orderListFilterDto) throws NotFoundException, ValidationException;
 
 	/**
 	 * get all information for app payment

@@ -18,7 +18,7 @@ public class OrderExtrasDto implements Serializable {
 	private static final long serialVersionUID = -6352658540980485286L;
 	private Long id;
 	private Long productExtrasId;
-	private Long oartItemId;
+	private Long orderItemId;
 	private Long quantity;
 	private Boolean active;
 	private Double amount;
@@ -27,15 +27,15 @@ public class OrderExtrasDto implements Serializable {
 
 	/**
 	 * @param productExtrasId
-	 * @param tempCartItemId
+	 * @param orderItemId
 	 * @param quantity
 	 * @param active
 	 */
-	public OrderExtrasDto(final Long productExtrasId, final Long tempCartItemId, final Long quantity, final Boolean active, final Double amount,
+	public OrderExtrasDto(final Long productExtrasId, final Long orderItemId, final Long quantity, final Boolean active, final Double amount,
 			final Double discountedAmount) {
 		super();
 		this.productExtrasId = productExtrasId;
-		this.oartItemId = tempCartItemId;
+		this.orderItemId = orderItemId;
 		this.quantity = quantity;
 		this.active = active;
 		this.amount = amount;

@@ -40,9 +40,11 @@ public class OrderToppingsServiceImpl implements OrderToppingsService {
 	 * @param tempOrderAddon
 	 * @return
 	 */
-	private OrderToppingsDto convertEntityToDto(final OrdersToppings tempOrderAddon) {
+	private OrderToppingsDto convertEntityToDto(final OrdersToppings orderToppings) {
 		OrderToppingsDto orderToppingsDto = new OrderToppingsDto();
-		BeanUtils.copyProperties(tempOrderAddon, orderToppingsDto);
+		BeanUtils.copyProperties(orderToppings, orderToppingsDto);
+		orderToppingsDto.setOrderItemId(orderToppings.getOrderItem().getId());
+		orderToppingsDto.setProductToppingsId(orderToppings.getProductToppings().getId());
 		return orderToppingsDto;
 	}
 

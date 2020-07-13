@@ -3,8 +3,6 @@
  */
 package com.nice.controller;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nice.constant.PaymentMode;
-import com.nice.constant.UserType;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
-import com.nice.exception.AuthorizationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -98,15 +94,14 @@ public class OrdersController {
 	}
 
 	@PostMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getOrderList(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
-			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize, @RequestBody final OrderListFilterDto orderListFilterDto)
-			throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> getOrderList(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestBody final OrderListFilterDto orderListFilterDto) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside get order list method");
 
 		Long totalCount = orderService.getOrderCountBasedOnParams(orderListFilterDto);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 
-		final List<OrdersResponseDTO> orderList = orderService.getOrderListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, orderListFilterDto, true);
+		final List<OrdersResponseDTO> orderList = orderService.getOrderListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, orderListFilterDto);
 
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null))
 				.setData(orderList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
@@ -115,56 +110,13 @@ public class OrdersController {
 	}
 
 	@GetMapping("/{orderId}")
-	public ResponseEntity<Object> getOrderDetails(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
-			@PathVariable final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside get order details method for Admin");
-		final OrdersResponseDTO orderDetails = orderService.getOrderDetails(orderId, true);
+	public ResponseEntity<Object> getOrderDetails(@RequestHeader("Authorization") final String token, @PathVariable final Long orderId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get order details method for orderId : {}", orderId);
+		final OrdersResponseDTO orderDetails = orderService.getOrderDetails(orderId);
 
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
 				.setData(orderDetails).create();
-	}
-
-	@GetMapping("/detail/customer/{orderId}")
-	public ResponseEntity<Object> getCustomerOrderDetails(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
-			@PathVariable final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside get order list method for Customer");
-		final OrdersResponseDTO orderDetails = orderService.getOrderDetails(orderId, false);
-
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
-				.setData(orderDetails).create();
-	}
-
-	@GetMapping("/customer/{customerId}")
-	public ResponseEntity<Object> getOrderList(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
-			@PathVariable final Long customerId) throws NotFoundException, AuthorizationException {
-		LOGGER.info("Inside get order list method for Customer");
-		OrderListFilterDto orderListFilterDto = prepareOrderListFilterDto(null, null, null, null, null, customerId, userId);
-		final List<OrdersResponseDTO> orderList = orderService.getOrderListBasedOnParams(null, null, orderListFilterDto, false);
-
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null))
-				.setData(orderList).create();
-	}
-
-	/**
-	 * @throws AuthorizationException
-	 * @throws NotFoundException
-	 */
-	private OrderListFilterDto prepareOrderListFilterDto(final Long storeId, final Long deliveryBoyId, final List<String> orderStatus, final Date orderDate,
-			final String searchKeyword, final Long customerId, final Long userId) throws NotFoundException, AuthorizationException {
-		/**
-		 * Validate if the userId matches the customerId
-		 */
-		List<String> userType = Arrays.asList(UserType.CUSTOMER.name());
-		orderService.validateUser(userId, customerId, userType);
-
-		OrderListFilterDto orderListFilterDto = new OrderListFilterDto();
-		orderListFilterDto.setVendorId(storeId);
-		orderListFilterDto.setDeliveryBoyId(deliveryBoyId);
-		orderListFilterDto.setOrderDate(orderDate);
-		orderListFilterDto.setOrderStatus(orderStatus);
-		orderListFilterDto.setSearchKeyword(searchKeyword);
-		orderListFilterDto.setCustomerId(customerId);
-		return orderListFilterDto;
 	}
 
 	@PutMapping("/app/razorpay/{razorPayOrderId}")

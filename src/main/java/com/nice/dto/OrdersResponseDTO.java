@@ -48,6 +48,7 @@ public class OrdersResponseDTO implements Serializable {
 	private Long vendorId;
 	private List<OrderStatusDto> orderStatusDtoList;
 	private String replacementDeliveryBoyName;
+	private String vendorImageUrl;
 	/**
 	 * city field is added for set city in email templates
 	 */
