@@ -35,6 +35,6 @@ public class VendorListFilterDTO implements Serializable {
 
 	private List<Long> vendorIds;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.TIME)
 	private Date openingHours;
 }

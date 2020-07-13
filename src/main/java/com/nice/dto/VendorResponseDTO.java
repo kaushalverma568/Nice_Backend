@@ -75,10 +75,10 @@ public class VendorResponseDTO implements Serializable {
 
 	private String deliveryType;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.TIME)
 	private Date openingHoursFrom;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.TIME)
 	private Date openingHoursTo;
 
 	private Long countryId;

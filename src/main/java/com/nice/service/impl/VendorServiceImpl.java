@@ -674,7 +674,8 @@ public class VendorServiceImpl implements VendorService {
 			// send email to vendor that your account is being suspended by admin kindly contact admin.
 			// revoke token
 		}
-		if (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+		if (VendorStatus.EXPIRED.getStatusValue().equals(newStatus)
+				|| (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed.here", new Object[] { newStatus }));
 		}
 		vendor.setStatus(newStatus);

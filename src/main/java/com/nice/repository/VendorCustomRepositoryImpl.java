@@ -224,8 +224,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		predicates.add(criteriaBuilder.equal(vendor.get("isOrderServiceEnable"), true));
 		predicates.add(criteriaBuilder.equal(vendor.get("status"), VendorStatus.ACTIVE.getStatusValue()));
 		if (vendorListFilterDTO.getOpeningHours() != null) {
-			predicates.add(criteriaBuilder.greaterThanOrEqualTo(vendor.get("openingHoursFrom"), vendorListFilterDTO.getOpeningHours()));
-			predicates.add(criteriaBuilder.lessThanOrEqualTo(vendor.get("openingHoursTo"), vendorListFilterDTO.getOpeningHours()));
+			predicates.add(criteriaBuilder.lessThanOrEqualTo(vendor.get("openingHoursFrom"), vendorListFilterDTO.getOpeningHours()));
+			predicates.add(criteriaBuilder.greaterThanOrEqualTo(vendor.get("openingHoursTo"), vendorListFilterDTO.getOpeningHours()));
 		}
 		predicates.add(criteriaBuilder.equal(businessCategory.get("id"), vendorListFilterDTO.getBusinessCategoryId()));
 		if (vendorListFilterDTO.getDeliveryType() != null) {
