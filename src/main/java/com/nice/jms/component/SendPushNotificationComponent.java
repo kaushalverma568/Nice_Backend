@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.nice.constant.Constant;
 import com.nice.constant.NotificationQueueConstants;
@@ -23,6 +24,7 @@ import com.nice.service.DeviceDetailService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
+import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -60,7 +62,7 @@ public class SendPushNotificationComponent {
 				&& CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(pushNotification.getDeliveryBoyIds()) && pushNotification.getOrderId() != null) {
 			Long vendorId = 1l;
 			Vendor vendor = vendorService.getVendorDetail(vendorId);
-			// FCMRestHelper fcm = FCMRestHelper.getInstance();
+			FCMRestHelper fcm = FCMRestHelper.getInstance();
 			JsonObject dataObject = new JsonObject();
 			dataObject.addProperty("PickUp Address", /* get vendor address from order */ " ");
 			dataObject.addProperty("Drop Address", /* get customer address from order */" ");
@@ -97,10 +99,9 @@ public class SendPushNotificationComponent {
 
 				UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
 				DeviceDetail deviceDetail = deviceDetailService.getDeviceDetailByUserId(userLogin.getId());
-				// String result = fcm.sendNotification(FCMRestHelper.TYPE_TO,
-				// deviceDetail.getDeviceId(), dataObject);
-				// JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
-				// LOGGER.info("push notification result {}", resultObject);
+				String result = fcm.sendNotification(FCMRestHelper.TYPE_TO, deviceDetail.getDeviceId(), dataObject);
+				JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
+				LOGGER.info("push notification result {}", resultObject);
 			}
 		}
 	}

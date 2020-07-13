@@ -90,14 +90,15 @@ public class CartItemServiceImpl implements CartItemService {
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
-		 * one
+		 * If the vendor For existing cartItem is different from the new product vendor
+		 * delete the old cart and populate the new one
 		 */
 		if (!cartItemList.isEmpty()) {
 			CartItem cartItem = cartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new
+			 * products are different
 			 */
 			if (!cartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				deleteCartItemForCustomer(customer.getId());
@@ -171,8 +172,8 @@ public class CartItemServiceImpl implements CartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
-					 * , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if
+					 * total of existing and new is greater then 15 , then set quantity as 15
 					 **/
 					updateCartItemQty(cartItem.getId(),
 							cartItem.getQuantity() + cartItemEntity.getQuantity() > 15 ? 15 : cartItem.getQuantity() + cartItemEntity.getQuantity());
@@ -449,4 +450,8 @@ public class CartItemServiceImpl implements CartItemService {
 		return cartItemDto;
 	}
 
+	@Override
+	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
+		cartItemRepository.deleteAllByProductVariantId(productVariantId);
+	}
 }
