@@ -39,11 +39,12 @@ import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.ForgotPasswordParameterDTO;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
+import com.nice.dto.ResetPasswordParameterDTO;
 import com.nice.dto.SocialLoginDto;
-import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.BaseRuntimeException;
@@ -64,14 +65,14 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
 public class UserLoginServiceImpl implements UserLoginService, UserDetailsService {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String CUSTOMER_NOT_FOUND_PHONE = "customer.not.found.phone";
 
@@ -134,7 +135,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -176,8 +178,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
-			 * active but customer can not login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email +
+			 * mobile. In this case userLogin can be active but customer can not login with
+			 * email and password but it can login with OTP.
 			 */
 			Customer customer = null;
 			try {
@@ -374,7 +377,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void updateEmailForAdmin(final String email) throws ValidationException {
 		/**
-		 * if admin panel's users(other then super_admin) contains this email then throw validation
+		 * if admin panel's users(other then super_admin) contains this email then throw
+		 * validation
 		 */
 		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIn(email, UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("email.not.unique", null));
@@ -448,47 +452,48 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
+	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms then phone number is required
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
 		 */
-		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
-				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
+		if (!(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				|| forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
-		} else if ((updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail()))
-				|| (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())
-						&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getPhoneNumber()))) {
+		} else if ((forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getEmail()))
+				|| (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())
+						&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getPhoneNumber()))) {
 			throw new ValidationException(messageByLocaleService
-					.getMessage(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "email.not.null" : "phone.number.not.null", null));
+					.getMessage(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "email.not.null" : "phone.number.not.null", null));
 		} else {
 			String userName;
-			if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
-				userName = updatePasswordParameterDTO.getEmail().toLowerCase();
+			if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+				userName = forgotPasswordParameterDTO.getEmail().toLowerCase();
 			} else {
-				userName = updatePasswordParameterDTO.getPhoneNumber().toLowerCase();
+				userName = forgotPasswordParameterDTO.getPhoneNumber().toLowerCase();
 			}
-			Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, updatePasswordParameterDTO.getUserType());
+			Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, forgotPasswordParameterDTO.getUserType());
 			if (userLogin.isPresent()) {
 				/**
 				 * generate OTP
 				 */
 				final UserOtpDto userOtpDto = new UserOtpDto();
 				userOtpDto.setUserLoginId(userLogin.get().getId());
-				userOtpDto.setType(updatePasswordParameterDTO.getType());
+				userOtpDto.setType(forgotPasswordParameterDTO.getType());
 				final UserOtp userOtp = otpService.generateOtp(userOtpDto);
-				if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
-					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), updatePasswordParameterDTO.getUserType(),
-							updatePasswordParameterDTO.getSendingType());
+				if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), forgotPasswordParameterDTO.getUserType(),
+							forgotPasswordParameterDTO.getSendingType());
 				} else {
-					userOtpDto.setPhoneNumber(updatePasswordParameterDTO.getPhoneNumber().toLowerCase());
+					userOtpDto.setPhoneNumber(forgotPasswordParameterDTO.getPhoneNumber().toLowerCase());
 					otpService.sendOtp(userOtpDto, userOtp.getUserLogin(), userOtp.getOtp());
 				}
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username",
-						new Object[] { CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail())
-								? updatePasswordParameterDTO.getEmail()
-								: updatePasswordParameterDTO.getPhoneNumber() }));
+						new Object[] { CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getEmail())
+								? forgotPasswordParameterDTO.getEmail()
+								: forgotPasswordParameterDTO.getPhoneNumber() }));
 			}
 		}
 	}
@@ -497,7 +502,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin
+		 * or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -511,18 +517,22 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public String resetPassword(final String userName, final String otp, final String password, final String type, final String userType)
-			throws ValidationException, NotFoundException {
-		if (!(Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.USER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
+	public String resetPassword(final ResetPasswordParameterDTO resetPasswordParameterDTO) throws ValidationException, NotFoundException {
+		if (!(Constant.CUSTOMER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
+				|| Constant.USER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
+				|| Constant.DELIVERY_BOY.equalsIgnoreCase(resetPasswordParameterDTO.getUserType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-		} else if (otpService.verifyOtp(userName.toLowerCase(), type, otp, userType)) {
-			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName.toLowerCase(), userType);
+		} else if (otpService.verifyOtp(resetPasswordParameterDTO.getEmail().toLowerCase(), resetPasswordParameterDTO.getType(),
+				resetPasswordParameterDTO.getOtp(), resetPasswordParameterDTO.getUserType())) {
+			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(resetPasswordParameterDTO.getEmail().toLowerCase(),
+					resetPasswordParameterDTO.getUserType());
 			if (userLogin.isPresent()) {
-				userLogin.get().setPassword(CommonUtility.generateBcrypt(password));
+				userLogin.get().setPassword(CommonUtility.generateBcrypt(resetPasswordParameterDTO.getPassword()));
 				userLoginRepository.save(userLogin.get());
 				return messageByLocaleService.getMessage("reset.password.successful", null);
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { userName }));
+				throw new ValidationException(
+						messageByLocaleService.getMessage("user.not.found.username", new Object[] { resetPasswordParameterDTO.getEmail() }));
 			}
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
@@ -532,7 +542,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber
+		 * and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -553,7 +564,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in
+			 * userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -599,14 +611,15 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
-			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
+			 * OTP Verified. Check userLogin is active or not . if not then activate
+			 * customer and activate userLogin
 			 */
 			if (!optUserLogin.get().getActive().booleanValue()) {
 				UserLogin userLogin = optUserLogin.get();
 				userLogin.setActive(true);
 				userLoginRepository.save(userLogin);
-				Customer customer = customerRepository.findByPhoneNumberIgnoreCase(userLoginDto.getUserName()).orElseThrow(() -> new NotFoundException(
-						messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { userLoginDto.getUserName() })));
+				Customer customer = customerRepository.findByPhoneNumberIgnoreCase(userLoginDto.getUserName()).orElseThrow(
+						() -> new NotFoundException(messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { userLoginDto.getUserName() })));
 				customer.setMobileVerified(true);
 				customer.setActive(true);
 				customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());

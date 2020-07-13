@@ -14,7 +14,7 @@ import lombok.Data;
  * @date   : 02-07-2020
  */
 @Data
-public class UpdatePasswordParameterDTO implements Serializable {
+public class ForgotPasswordParameterDTO implements Serializable {
 
 	/**
 	 *
