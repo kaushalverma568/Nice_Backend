@@ -68,7 +68,9 @@ public class ProductAttributeValueController {
 	@GetMapping(value = "/{productAttributeValueId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAttributeValueId") final Long productAttributeValueId) throws NotFoundException {
+		LOGGER.info("Inside getById ProductAttributeValue {}", productAttributeValueId);
 		ProductAttributeValueDTO resultProductAttributeValue = productAttributeValueService.getProductAttributeValue(productAttributeValueId);
+		LOGGER.info("After getById ProductAttributeValue {}", productAttributeValueId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.value.detail.message", null)).setData(resultProductAttributeValue).create();
 	}
@@ -76,15 +78,19 @@ public class ProductAttributeValueController {
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getList ProductAttributeValue for ProductVariant : {} and active :{}", productVariantId, activeRecords);
 		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getDtoListWithUserCheck(activeRecords,
 				productVariantId);
+		LOGGER.info("After getList ProductAttributeValue for ProductVariant : {} and active :{}", productVariantId, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.value.list.message", null)).setData(productAttributeValueDtoList).create();
 	}
 
 	@GetMapping("/cust/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException {
+		LOGGER.info("Inside getList For customer ProductAttributeValue for ProductVariant : {} ", productVariantId);
 		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariantId, true);
+		LOGGER.info("After getList For customer ProductAttributeValue for ProductVariant : {} ", productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.value.list.message", null)).setData(productAttributeValueDtoList).create();
 	}

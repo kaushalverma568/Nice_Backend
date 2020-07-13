@@ -51,7 +51,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -124,6 +124,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public boolean isProductExists(final ProductRequestDTO productRequestDTO) throws ValidationException {
+		LOGGER.info("Inside isExists method, with productReqDto : {}", productRequestDTO);
 		UserLogin userLogin = checkForUserLogin();
 		productRequestDTO.setVendorId(userLogin.getEntityId());
 		if (productRequestDTO.getId() != null) {
@@ -139,6 +140,7 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public void addProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image) throws NotFoundException, ValidationException {
 
+		LOGGER.info("Inside addProduct method, with productReqDto : {}", productRequestDTO);
 		validationForProduct(productRequestDTO);
 		Product product = productMapper.toEntity(productRequestDTO);
 		/**
@@ -148,11 +150,14 @@ public class ProductServiceImpl implements ProductService {
 		product.setNoOfRating(0L);
 		uploadImage(image, product);
 		productRepository.save(product);
+		LOGGER.info("addProduct executed successfully");
 	}
 
 	@Override
 	public void updateProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateProduct method, with productReqDto : {}", productRequestDTO);
 		if (productRequestDTO.getId() == null) {
+			LOGGER.error("Error in updating product , id is null");
 			throw new ValidationException(messageByLocaleService.getMessage(ID_NOT_NULL, null));
 		}
 		final Product existingProduct = getProductDetail(productRequestDTO.getId());
@@ -163,10 +168,11 @@ public class ProductServiceImpl implements ProductService {
 		product.setNoOfRating(existingProduct.getNoOfRating());
 		updateImages(image, existingProduct, product);
 		productRepository.save(product);
-
+		LOGGER.info("updateProduct executed successfully");
 	}
 
 	private void updateImages(final MultipartFile image, final Product existingProduct, final Product product) {
+		LOGGER.info("Inside image for Product : {}", product.getId());
 		if (image != null) {
 			deleteOldImage(existingProduct);
 			uploadImage(image, product);
@@ -174,10 +180,12 @@ public class ProductServiceImpl implements ProductService {
 			product.setImage(existingProduct.getImage());
 			product.setImageOriginalName(existingProduct.getImageOriginalName());
 		}
+		LOGGER.info("After updating image for Product : {}", product.getId());
 	}
 
 	private Map<Long, List<? extends Object>> getCartMap(final Long customerId, final String uuid) throws ValidationException, NotFoundException {
 		Map<Long, List<?>> cartMap = new HashMap<>();
+		LOGGER.info("Inside getCart for Customer : {} and uuid :{}", customerId, uuid);
 		if (customerId != null) {
 			List<CartItem> cartItemResponse = cartItemService.getCartListBasedOnCustomer(customerId);
 			for (CartItem cartItem : cartItemResponse) {
@@ -203,26 +211,33 @@ public class ProductServiceImpl implements ProductService {
 				}
 			}
 		}
+		LOGGER.info("After getCart for Customer : {} and uuid :{}", customerId, uuid);
 		return cartMap;
 	}
 
 	@Override
 	public ProductResponseDTO getProduct(final Long productId, final String uuid) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getProduct for Product : {} and uuid :{}", productId, uuid);
 		Boolean isAdmin = true;
 		UserLogin userLogin = getUserLoginFromToken();
 		Map<Long, List<? extends Object>> cartMap = null;
-		if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+		if (userLogin == null) {
 			isAdmin = false;
 			cartMap = getCartMap(null, uuid);
+		} else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			isAdmin = false;
+			cartMap = getCartMap(userLogin.getEntityId(), null);
 		}
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("product.not.found", new Object[] { productId })));
+		LOGGER.info("After getProduct for Product : {} and uuid :{}", productId, uuid);
 		return convertEntityToResponseDto(product, isAdmin, cartMap);
 
 	}
 
 	@Override
 	public Product getProductDetail(final Long productId) throws NotFoundException {
+		LOGGER.info("Inside getProductDetail for Product : {} ", productId);
 		return productRepository.findById(productId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("product.not.found", new Object[] { productId })));
 	}
@@ -248,18 +263,19 @@ public class ProductServiceImpl implements ProductService {
 			final ProductResponseDTO responseDTO = convertEntityToResponseDto(product, listForAdmin, cartMap);
 			responseDTOs.add(responseDTO);
 		}
+		LOGGER.info("After getProductListBasedOnParams ");
 		return responseDTOs;
 	}
 
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	private void validationForProduct(final ProductRequestDTO productRequestDTO) throws NotFoundException, ValidationException {
-
+		LOGGER.info("Inside validationForProduct for ProductRequestDto : {}", productRequestDTO);
 		/**
 		 * If the login user is not a vendor then throw an exception
 		 */
@@ -282,14 +298,17 @@ public class ProductServiceImpl implements ProductService {
 			cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
 			vendorCuisineService.getVendorCuisineByVendorIdAndCuisineId(productRequestDTO.getVendorId(), productRequestDTO.getCuisineId());
 		}
+		LOGGER.info("After validationForProduct for ProductRequestDto : {}", productRequestDTO);
 	}
 
 	@Override
 	public List<ProductResponseDTO> getProductDetailList(final List<Product> products) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getProductDetailList");
 		List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
 		for (Product product : products) {
 			productResponseDTOs.add(convertEntityToResponseDto(product, false, null));
 		}
+		LOGGER.info("After getProductDetailList");
 		return productResponseDTOs;
 	}
 
@@ -297,10 +316,10 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -311,6 +330,7 @@ public class ProductServiceImpl implements ProductService {
 		/**
 		 * set foreign key values to response DTO
 		 */
+		LOGGER.info("Inside convertEntityToResponseDto");
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
 		productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getName());
 		productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
@@ -334,7 +354,7 @@ public class ProductServiceImpl implements ProductService {
 			 */
 			productVariantList = productVariantService.getProductVariantDetailByProduct(product, true, listForAdmin);
 		}
-
+		LOGGER.info("Before setting available qty");
 		/**
 		 * if product variant is null/empty or availableQty=0 then product will go out of stock
 		 */
@@ -376,11 +396,13 @@ public class ProductServiceImpl implements ProductService {
 		// if (product.getDiscountId() != null) {
 		// productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
 		// }
+		LOGGER.info("Inside convertEntityToResponseDto");
 		return productResponseDTO;
 	}
 
 	@Override
 	public void changeStatus(final Long productId, final Boolean active) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside changeStatus for Product :{}, status :{}", productId, active);
 		Product product = getProductDetail(productId);
 		UserLogin userLogin = checkForUserLogin();
 		/**
@@ -400,16 +422,18 @@ public class ProductServiceImpl implements ProductService {
 			product.setActive(active);
 			productRepository.save(product);
 		}
+		LOGGER.info("After changeStatus for Product :{}, status :{}", productId, active);
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	public void changeStatusForDependentEntity(final Boolean active, final Product existingProduct) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside changeStatusForDependentEntity for Product :{}, status :{}", existingProduct.getId(), active);
 		if (Boolean.FALSE.equals(active)) {
 			/**
 			 * if active is false then deactivate its variants.
@@ -428,16 +452,18 @@ public class ProductServiceImpl implements ProductService {
 		} else {
 			validationForActivateProduct(existingProduct);
 		}
+		LOGGER.info("After changeStatusForDependentEntity for Product :{}, status :{}", existingProduct.getId(), active);
 	}
 
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	public void validationForActivateProduct(final Product existingProduct) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside validationForActivateProduct for Product :{}", existingProduct.getId());
 		if (Boolean.FALSE.equals(categoryService.getCategoryDetail(existingProduct.getCategoryId()).getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("category.activate.first.product", null));
 		}
@@ -447,15 +473,19 @@ public class ProductServiceImpl implements ProductService {
 		if (Boolean.FALSE.equals(brandService.getBrandDetail(existingProduct.getBrandId()).getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("brand.activate.first", null));
 		}
+		LOGGER.info("After validationForActivateProduct for Product :{}", existingProduct.getId());
 	}
 
 	@Override
 	public List<Product> getProductListBasedOnParamsWithoutPagination(final ProductParamRequestDTO productParamRequestDTO) {
+		LOGGER.info("Inside getProductListBasedOnParamsWithoutPagination for ProductParamRequestDTO :{}", productParamRequestDTO);
 		return productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
 	}
 
 	@Override
 	public Long getProductCountBasedOnParams(final ProductParamRequestDTO productParamRequestDTO) {
+		LOGGER.info("Inside getProductCountBasedOnParams for ProductParamRequestDTO :{}", productParamRequestDTO);
+
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
 		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
@@ -476,8 +506,10 @@ public class ProductServiceImpl implements ProductService {
 	 * @param product
 	 */
 	private void uploadImage(final MultipartFile image, final Product product) {
+		LOGGER.info("Inside uploadImage for product :{}", product.getId());
 		product.setImage(assetService.saveAsset(image, AssetConstant.PRODUCT_DIR, 0));
 		product.setImageOriginalName(image.getOriginalFilename());
+		LOGGER.info("After uploadImage for product :{}", product.getId());
 	}
 
 	/**
@@ -486,37 +518,45 @@ public class ProductServiceImpl implements ProductService {
 	 * @param product
 	 */
 	private void deleteOldImage(final Product product) {
+		LOGGER.info("Inside deleteOldImage for product :{}", product.getId());
 		fileStorageService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
+		LOGGER.info("After deleteOldImage for product :{}", product.getId());
 	}
 
 	@Override
 	public List<CategoryWiseProductCountDTO> getCuisineWiseProductCountList(final Long vendorId) throws NotFoundException {
+		LOGGER.info("Inside getCuisineWiseProductCountList for vendor :{}", vendorId);
 		List<CategoryWiseProductCountDTO> categoryList = productRepository.getCategoryWiseProductCountList(vendorId, true);
 		for (CategoryWiseProductCountDTO categoryWiseProductCountDto : categoryList) {
 			CategoryResponseDTO categoryResponseDto = categoryService.getCategory(categoryWiseProductCountDto.getCategoryId());
 			categoryWiseProductCountDto.setCategoryName(categoryResponseDto.getName());
 		}
+		LOGGER.info("After getCuisineWiseProductCountList for vendor :{}", vendorId);
 		return categoryList;
 	}
 
 	@Override
-	public List<ProductResponseDTO> getProductListForVendorAndCategory(final Long vendorId, final Long cuisineId)
+	public List<ProductResponseDTO> getProductListForVendorAndCategory(final Long vendorId, final Long categoryId)
 			throws NotFoundException, ValidationException {
-		List<Product> productList = productRepository.findAllByVendorIdAndCategoryId(vendorId, cuisineId);
+		LOGGER.info("Inside getCuisineWiseProductCountList for vendor :{} and categpry :{}", vendorId, categoryId);
+		List<Product> productList = productRepository.findAllByVendorIdAndCategoryId(vendorId, categoryId);
 		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
 		for (Product product : productList) {
 			productResponseDtoList.add(convertEntityToResponseDto(product, true, null));
 		}
+		LOGGER.info("After getCuisineWiseProductCountList for vendor :{} and categpry :{}", vendorId, categoryId);
 		return productResponseDtoList;
 	}
 
 	@Override
 	public List<ProductResponseDTO> getProductListForVendorAndCuisine(final Long vendorId, final Long cuisineId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getCuisineWiseProductCountList for vendor :{} and cuisine :{}", vendorId, cuisineId);
 		List<Product> productList = productRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId);
 		List<ProductResponseDTO> productResponseDtoList = new ArrayList<>();
 		for (Product product : productList) {
 			productResponseDtoList.add(convertEntityToResponseDto(product, true, null));
 		}
+		LOGGER.info("Inside getCuisineWiseProductCountList for vendor :{} and cuisine :{}", vendorId, cuisineId);
 		return productResponseDtoList;
 	}
 

@@ -155,6 +155,7 @@ public class ProductController {
 	@GetMapping("/{productId}")
 	public ResponseEntity<Object> getProduct(@PathVariable("productId") final Long productId, @RequestParam(name = "uuid", required = false) final String uuid)
 			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get Product :{},  and uuid :{}", productId, uuid);
 		final ProductResponseDTO productResponseDTO = productService.getProduct(productId, uuid);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.detail.message", null))
 				.setData(productResponseDTO).create();
@@ -194,7 +195,6 @@ public class ProductController {
 				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(productList).create();
 	}
 
-
 	/**
 	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
 	 * products will be shown to them.
@@ -213,11 +213,9 @@ public class ProductController {
 		LOGGER.info("Inside get Product List BasedOnParams {}", productParamRequestDTO);
 		Long totalCount = productService.getProductCountBasedOnParams(productParamRequestDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
-		/**
-		 * for customer set isForAdmin flag false
-		 */
 		final List<ProductResponseDTO> productList = productService.getProductListBasedOnParams(productParamRequestDTO, paginationUtilDto.getStartIndex(),
 				pageSize);
+		LOGGER.info("After successfully Get Product List BasedOnParams");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
 				.setData(productList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
 				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)

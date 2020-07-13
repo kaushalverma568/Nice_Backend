@@ -59,6 +59,7 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	@Override
 	public void addUpdateProductAttributeValue(final List<ProductAttributeValueDTO> productAttributeValueDTO, final Long productVariantId)
 			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside addUpdateProductAttributeValue");
 		Long vendorId = getVendorIdForLoginUser();
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		/**
@@ -96,18 +97,21 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			productAttributeValues.setProductVariant(productVariant);
 			productAttributeValueRepository.save(productAttributeValues);
 		}
+		LOGGER.info("After addUpdateProductAttributeValue");
 	}
 
 	@Override
 	public ProductAttributeValueDTO getProductAttributeValue(final Long productAttributeValueId) throws NotFoundException {
+		LOGGER.info("Inside getProductAttributeValue, productAttributeValueId : {}", productAttributeValueId);
 		ProductAttributeValue productAttributeValue = getProductAttributeValueDetail(productAttributeValueId);
+		LOGGER.info("After getProductAttributeValue, productAttributeValueId : {}", productAttributeValueId);
 		return productAttributeValueMapper.toDto(productAttributeValue);
 	}
 
 	@Override
 	public void changeStatus(final Long productAttributeValueId, final Boolean active) throws ValidationException, NotFoundException {
 		ProductAttributeValue existingProductAttributeValue = getProductAttributeValueDetail(productAttributeValueId);
-		LOGGER.info("Existing  ProductAttributeValue details {} ", existingProductAttributeValue);
+		LOGGER.info("Inside  ProductAttributeValue details {} ", existingProductAttributeValue);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAttributeValue.getActive().equals(active)) {
@@ -130,11 +134,13 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			existingProductAttributeValue.setActive(active);
 			productAttributeValueRepository.save(existingProductAttributeValue);
 		}
+		LOGGER.info("Inside  productAttributeValueId details {} ", existingProductAttributeValue);
 	}
 
 	@Override
 	public List<ProductAttributeValueDTO> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId)
 			throws NotFoundException, ValidationException {
+		LOGGER.info("  ProductAttributeValue details, active : {} and productVariantId :{} ", activeRecords, productVariantId);
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
@@ -150,6 +156,7 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 
 	@Override
 	public List<ProductAttributeValueDTO> getList(final Long productVariantId, final Boolean activeRecords) throws NotFoundException {
+		LOGGER.info("Inside ProductAttributeValue getList, active : {} and productVariantId :{} ", activeRecords, productVariantId);
 		List<ProductAttributeValue> productAttributeValuesList = null;
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		if (activeRecords != null) {
@@ -157,11 +164,13 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 		} else {
 			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariant(productVariant);
 		}
+		LOGGER.info("After ProductAttributeValue getList, active : {} and productVariantId :{} ", activeRecords, productVariantId);
 		return productAttributeValueMapper.toDtos(productAttributeValuesList);
 	}
 
 	@Override
 	public List<ProductAttributeValue> getListByProductAttributeOrActive(final Long productAttributeId, final Boolean activeRecords) throws NotFoundException {
+		LOGGER.info("Inside getListByProductAttributeOrActive getList, active : {} and productAttributeId :{} ", activeRecords, productAttributeId);
 		if (productAttributeId != null) {
 			ProductAttribute productAttribute = productAttributeService.getProductAttributeDetail(productAttributeId);
 			if (activeRecords != null) {
@@ -181,6 +190,7 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 	@Override
 	public boolean isExists(final ProductAttributeValueDTO productAttributeValueDTO, final ProductVariant productVariant,
 			final ProductAttribute productAttribute) throws NotFoundException {
+		LOGGER.info("After ProductAttributeValue isExists");
 		if (productAttributeValueDTO.getId() != null) {
 			return productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant, productAttribute,
 					productAttributeValueDTO.getAttributeValue(), productAttributeValueDTO.getId()).isPresent();
@@ -193,12 +203,14 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 
 	@Override
 	public ProductAttributeValue getProductAttributeValueDetail(final Long productAttributeValueId) throws NotFoundException {
+		LOGGER.info("After getProductAttributeValueDetail Details");
 		return productAttributeValueRepository.findById(productAttributeValueId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productAttributeValueId })));
 	}
 
 	@Override
 	public void deleteProductAttributeValue(final Long productAttributeValueId) {
+		LOGGER.info("After deleteProductAttributeValue Details");
 		productAttributeValueRepository.deleteById(productAttributeValueId);
 	}
 

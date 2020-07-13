@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  *
@@ -15,6 +16,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
+@ToString
 public class ProductAddonsDTO implements Serializable {
 	/**
 	*

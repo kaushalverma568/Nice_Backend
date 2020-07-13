@@ -55,6 +55,7 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 
 	@Override
 	public Long addProductExtras(final ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside addProductExtras method, with productExtrasDTO : {}", productExtrasDTO);
 		Long vendorId = getVendorIdForLoginUser();
 		Product product = productService.getProductDetail(productExtrasDTO.getProductId());
 		if (!product.getVendorId().equals(vendorId)) {
@@ -65,11 +66,13 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		productExtras.setProduct(product);
 		productExtras.setVendorId(vendorId);
 		productExtras = productExtrasRepository.save(productExtras);
+		LOGGER.info("After addProductExtras method");
 		return productExtras.getId();
 	}
 
 	@Override
 	public Long updateProductExtras(final ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateProductExtras method, with productExtrasDTO : {}", productExtrasDTO);
 		Long vendorId = getVendorIdForLoginUser();
 
 		if (productExtrasDTO.getId() == null) {
@@ -84,17 +87,20 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		productExtras.setVendorId(vendorId);
 		productExtras.setProduct(prdoduct);
 		productExtrasRepository.save(productExtras);
+		LOGGER.info("After updateProductExtras method");
 		return productExtras.getId();
 	}
 
 	@Override
 	public ProductExtrasDTO getProductExtras(final Long productExtrasId) throws NotFoundException {
+		LOGGER.info("Inside updateProductExtras method, with productExtrasId : {}", productExtrasId);
 		ProductExtras productExtras = getProductExtrasDetail(productExtrasId);
 		return productExtrasMapper.toDto(productExtras);
 	}
 
 	@Override
 	public void changeStatus(final Long productExtrasId, final Boolean active) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside changeStatus method, with productExtrasId : {} and active :{}", productExtrasId, active);
 		Long vendorId = getVendorIdForLoginUser();
 		ProductExtras existingProductExtras = getProductExtrasDetail(productExtrasId);
 		if (!existingProductExtras.getVendorId().equals(vendorId)) {
@@ -113,10 +119,12 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 			existingProductExtras.setActive(active);
 			productExtrasRepository.save(existingProductExtras);
 		}
+		LOGGER.info("Inside changeStatus method, with productExtrasId : {} and active :{}", productExtrasId, active);
 	}
 
 	@Override
 	public List<ProductExtrasDTO> getListWithUserCheck(final Long productId, Boolean activeRecords) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside changeStatus method, with productId : {} and active :{}", productId, activeRecords);
 		Product product = productService.getProductDetail(productId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
@@ -138,6 +146,7 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 	 */
 	@Override
 	public List<ProductExtrasDTO> getList(final Boolean activeRecords, final Long productId) throws NotFoundException {
+		LOGGER.info("Inside getList method, with productId : {} and active :{}", productId, activeRecords);
 		Product product = productService.getProductDetail(productId);
 		List<ProductExtras> productExtraList;
 		if (activeRecords != null) {
@@ -145,11 +154,13 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		} else {
 			productExtraList = productExtrasRepository.findAllByProduct(product);
 		}
+		LOGGER.info("After getList method, with productId : {} and active :{}", productId, activeRecords);
 		return productExtrasMapper.toDtos(productExtraList);
 	}
 
 	@Override
 	public boolean isExists(final ProductExtrasDTO productExtrasDTO) throws NotFoundException {
+		LOGGER.info("Inside isExists method, with productExtrasDTO : {} ", productExtrasDTO);
 		Product product = productService.getProductDetail(productExtrasDTO.getProductId());
 		if (productExtrasDTO.getId() != null) {
 			return productExtrasRepository.findByNameIgnoreCaseAndProductAndIdNot(productExtrasDTO.getName(), product, productExtrasDTO.getId()).isPresent();
@@ -161,13 +172,16 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 
 	@Override
 	public ProductExtras getProductExtrasDetail(final Long productExtrasId) throws NotFoundException {
+		LOGGER.info("Inside getProductExtrasDetail method, with productExtrasId : {} ", productExtrasId);
 		return productExtrasRepository.findById(productExtrasId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productExtrasId })));
 	}
 
 	@Override
 	public void deleteProductExtras(final Long productExtrasId) {
+		LOGGER.info("Inside deleteProductExtras method, with productExtrasId : {} ", productExtrasId);
 		productExtrasRepository.deleteById(productExtrasId);
+		LOGGER.info("After deleteProductExtras method, with productExtrasId : {} ", productExtrasId);
 	}
 
 	private UserLogin getUserLoginFromToken() {

@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.util.List;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author Kody Technolab PVT. LTD.
  * @date 08-Jan-2020
  */
 @Data
+@ToString
 public class ProductParamRequestDTO implements Serializable {
 
 	/**

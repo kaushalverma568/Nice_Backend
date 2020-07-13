@@ -67,7 +67,9 @@ public class ProductAddonsController {
 	@GetMapping(value = "/{productAddonsId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("productAddonsId") final Long productAddonsId)
 			throws NotFoundException {
+		LOGGER.info("Inside add getById {}", productAddonsId);
 		ProductAddonsDTO resultProductAddons = productAddonsService.getProductAddons(productAddonsId);
+		LOGGER.info("After add getById {}", productAddonsId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.detail.message", null))
 				.setData(resultProductAddons).create();
 	}
@@ -75,14 +77,18 @@ public class ProductAddonsController {
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getList with productVariant :{} , activeRecords :{}", productVariantId, activeRecords);
 		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoListWithUserCheck(activeRecords, productVariantId);
+		LOGGER.info("After getList with productVariant :{} , activeRecords :{}", productVariantId, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.list.message", null))
 				.setData(resultProductAddons).create();
 	}
 
 	@GetMapping("/cust/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getList with productVariant :{}", productVariantId);
 		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoList(true, productVariantId);
+		LOGGER.info("After getList with productVariant :{}", productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.list.message", null))
 				.setData(resultProductAddons).create();
 	}
@@ -92,6 +98,7 @@ public class ProductAddonsController {
 			@PathVariable("productAddonsId") final Long productAddonsId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductAddons of id {} and status {}", productAddonsId, active);
 		productAddonsService.changeStatus(productAddonsId, active);
+		LOGGER.info("After change status of ProductAddons of id {} and status {}", productAddonsId, active);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.update.message", null))
 				.create();
 	}

@@ -86,7 +86,9 @@ public class ProductToppingController {
 	@GetMapping("/{productToppingId}")
 	public ResponseEntity<Object> getProductTopping(@PathVariable("productToppingId") final Long productToppingId)
 			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getProductTopping ToppingId {}", productToppingId);
 		final ProductToppingDto productToppingDTO = productToppingService.getProductTopping(productToppingId);
+		LOGGER.info("After getProductTopping ToppingId {}", productToppingId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.detail.message", null))
 				.setData(productToppingDTO).create();
 	}
@@ -102,8 +104,9 @@ public class ProductToppingController {
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getProductListBasedOnParams(@PathVariable final Long productVariantId,
 			@RequestParam(required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside get Topping List for Product varinat {}", productVariantId);
+		LOGGER.info("Inside get Topping List for Product Variant {}", productVariantId);
 		List<ProductToppingDto> productToppingList = productToppingService.getDtoListWithUserCheck(activeRecords, productVariantId);
+		LOGGER.info("After get Topping List for Product Variant {}", productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.list.message", null))
 				.setData(productToppingList).create();
 	}
