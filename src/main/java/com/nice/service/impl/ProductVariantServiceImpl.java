@@ -59,9 +59,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	@Autowired
 	private ProductService productService;
 
-	// @Autowired
-	// private DiscountService discountService;
-
 	@Autowired
 	private ProductVariantMapper productVariantMapper;
 
@@ -90,43 +87,43 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		if (!product.getVendorId().equals(vendorId)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
-			validateProductVariant(product, productVariantRequestDTO);
-			final ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequestDTO);
-			productVariant.setVendorId(product.getVendorId());
-			if (productVariantRequestDTO.getId() == null) {
-				productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
-				productVariant.setProduct(product);
+		validateProductVariant(product, productVariantRequestDTO);
+		final ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequestDTO);
+		productVariant.setVendorId(product.getVendorId());
+		if (productVariantRequestDTO.getId() == null) {
+			productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
+			productVariant.setProduct(product);
 			/**
 			 * Uncomment and modify this code in case of discount
 			 */
-				// if (product.getDiscountId() != null) {
-				// final Double discounteRate =
-				// discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
-				// productVariant.setDiscountedRate(productVariant.getRate() -
-				// ((productVariant.getRate() * discounteRate) / 100));
-				// }
+			// if (product.getDiscountId() != null) {
+			// final Double discounteRate =
+			// discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
+			// productVariant.setDiscountedRate(productVariant.getRate() -
+			// ((productVariant.getRate() * discounteRate) / 100));
+			// }
+		} else {
+			final ProductVariant existingProductVariant = getProductVariantDetail(productVariantRequestDTO.getId());
+			if (!existingProductVariant.getProduct().getId().equals(productId)) {
+				throw new ValidationException(messageByLocaleService.getMessage("product.id.not.unique", null));
+			} else if (!existingProductVariant.getUom().getId().equals(productVariantRequestDTO.getUomId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("uom.id.not.unique", null));
 			} else {
-				final ProductVariant existingProductVariant = getProductVariantDetail(productVariantRequestDTO.getId());
-				if (!existingProductVariant.getProduct().getId().equals(productId)) {
-					throw new ValidationException(messageByLocaleService.getMessage("product.id.not.unique", null));
-				} else if (!existingProductVariant.getUom().getId().equals(productVariantRequestDTO.getUomId())) {
-					throw new ValidationException(messageByLocaleService.getMessage("uom.id.not.unique", null));
-				} else {
-					productVariant.setUom(existingProductVariant.getUom());
-					productVariant.setProduct(existingProductVariant.getProduct());
+				productVariant.setUom(existingProductVariant.getUom());
+				productVariant.setProduct(existingProductVariant.getProduct());
 				/**
 				 * Uncomment and modify this code in case of discount
 				 */
-					// if (existingProductVariant.getProduct().getDiscountId() != null) {
-					// final Double discounteRate =
-					// discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
-					// productVariant.setDiscountedRate(productVariant.getRate() -
-					// ((productVariant.getRate() * discounteRate) / 100));
-					// }
-				}
+				// if (existingProductVariant.getProduct().getDiscountId() != null) {
+				// final Double discounteRate =
+				// discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
+				// productVariant.setDiscountedRate(productVariant.getRate() -
+				// ((productVariant.getRate() * discounteRate) / 100));
+				// }
 			}
-			productVariantRepository.save(productVariant);
 		}
+		productVariantRepository.save(productVariant);
+	}
 
 	/**
 	 * @param productVariantRequestDTO
@@ -227,8 +224,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
 		/**
-		 * Set product addons, attribute values and toppings list for the product
-		 * variant
+		 * Set product addons, attribute values and toppings list for the product variant
 		 */
 		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
@@ -351,7 +347,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			isAdmin = true;
 			if (userLogin.getEntityId() != null && !product.getVendorId().equals(userLogin.getEntityId())) {
 				throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-	}
+			}
 		}
 		return getProductVariantDetailByProduct(product, active, isAdmin);
 	}
@@ -367,8 +363,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	/**
-	 * This method will be used only for internal calls to skip the authentication
-	 * process
+	 * This method will be used only for internal calls to skip the authentication process
 	 *
 	 * @param productVariantId
 	 * @return
@@ -384,22 +379,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	@Override
 	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
-		if (userLogin.getEntityType() == null || !UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
 		/**
-		 * Here is admin is taken as true as this method will only be accessed by
-		 * admin/vendor always.
+		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
 		 */
 		ProductVariant productVariant = getProductVariantDetailBySku(sku, userLogin.getEntityId());
-		/**
-		 * Validation for Vendor
-		 */
 		if (userLogin.getEntityId() == null || productVariant.getVendorId().equals(userLogin.getEntityId())) {
-		return convertToResponseDto(getProductVariantDetailBySku(sku, userLogin.getEntityId()), true);
+			return convertToResponseDto(getProductVariantDetailBySku(sku, userLogin.getEntityId()), true);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-	}
+		}
 	}
 
 	@Override
@@ -422,7 +410,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
 		} else {
 			return userLogin;
-}
+		}
 	}
 
 	/**
