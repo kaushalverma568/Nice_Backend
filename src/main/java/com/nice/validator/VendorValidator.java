@@ -10,13 +10,13 @@ import org.springframework.validation.Validator;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
+import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
  * @date : Jun 25, 2020
  */
@@ -53,7 +53,7 @@ public class VendorValidator implements Validator {
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return VendorDTO.class.equals(clazz) || VendorRestaurantDetailsDTO.class.equals(clazz) || VendorBankDetailsDTO.class.equals(clazz)
-				|| VendorFilterDTO.class.equals(clazz);
+				|| VendorFilterDTO.class.equals(clazz) || VendorListFilterDTO.class.equals(clazz);
 	}
 
 	/**
@@ -70,8 +70,11 @@ public class VendorValidator implements Validator {
 					&& (vendorService.isVendorExists(vendorDTO).booleanValue() || vendorService.isUserLoginExists(vendorDTO).booleanValue())) {
 				errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage(VENDOR_EMAIL_NOT_UNIQUE, null));
 			}
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getContactNo()) && (vendorService.isVendorContactExists(vendorDTO).booleanValue())) {
+				errors.rejectValue("contactNo", "409", messageByLocaleService.getMessage("vendor.contact.not.unique", null));
+			}
 		} else {
-			LOGGER.info("target is not instance of VendorDTO and ");
+			LOGGER.info("target is not instance of VendorDTO");
 		}
 	}
 }

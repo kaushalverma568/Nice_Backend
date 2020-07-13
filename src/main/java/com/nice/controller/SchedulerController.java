@@ -25,11 +25,12 @@ import com.nice.model.SchedulerDetails;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.SchedulerDetailsService;
 import com.nice.service.StockDetailsService;
+import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @RestController
 @RequestMapping("/scheduler")
@@ -41,12 +42,14 @@ public class SchedulerController {
 	private SchedulerDetailsService schedulerDetailsService;
 
 	@Autowired
-	private MessageByLocaleService messageByLocaleService;
+	private VendorService vendorService;
 
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
 
 	@Autowired
 	private StockDetailsService stockDetailsService;
-	
+
 	@GetMapping
 	public ResponseEntity<Object> getSchedulerList(@RequestHeader("Authorization") final String accessToken) {
 		LOGGER.info("Inside get Scheduler list");
@@ -56,10 +59,11 @@ public class SchedulerController {
 	}
 
 	@PutMapping("/run/{name}")
-	public ResponseEntity<Object> runScheduler(@RequestHeader("Authorization") final String accessToken, @PathVariable final String name) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> runScheduler(@RequestHeader("Authorization") final String accessToken, @PathVariable final String name)
+			throws ValidationException, NotFoundException {
 		final LocalDate runDate = LocalDate.now();
 		LOGGER.info("Inside run Scheduler of discount for date :{}", runDate);
-	
+
 		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name))) {
 			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", null));
 		}

@@ -14,14 +14,14 @@ import com.nice.model.Category;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 26-06-2020
+ * @date : 26-06-2020
  */
 public interface CategoryService {
 
 	/**
 	 * persist category object
 	 *
-	 * @param  categoryDTO
+	 * @param categoryDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -32,7 +32,7 @@ public interface CategoryService {
 	/**
 	 * update category
 	 *
-	 * @param  categoryDTO
+	 * @param categoryDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -42,7 +42,7 @@ public interface CategoryService {
 	/**
 	 * get DTO object of category
 	 *
-	 * @param  categoryId
+	 * @param categoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -51,8 +51,8 @@ public interface CategoryService {
 	/**
 	 * change status of category (active/deActive)
 	 *
-	 * @param  categoryId
-	 * @param  isActive
+	 * @param categoryId
+	 * @param isActive
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -61,17 +61,17 @@ public interface CategoryService {
 	/**
 	 * check category duplication and returning Boolean value.
 	 *
-	 * @param  categoryDTO
+	 * @param categoryDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Boolean isCategoryExists(CategoryDTO categoryDTO);
+	Boolean isCategoryExists(CategoryDTO categoryDTO) throws NotFoundException;
 
 	/**
 	 * get detail object of category
 	 *
-	 * @param  categoryId
+	 * @param categoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -80,29 +80,32 @@ public interface CategoryService {
 	/**
 	 * get list of categories
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param searchKeyword
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Page<Category> getCategoryList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword) throws NotFoundException;
+	Page<Category> getCategoryList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword, final Long vendorId)
+			throws NotFoundException;
 
 	/**
 	 * export of category
 	 *
-	 * @param  httpServletResponse
+	 * @param httpServletResponse
 	 * @throws FileOperationException
+	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
-	void exportCategoryList(HttpServletResponse httpServletResponse) throws FileOperationException;
+	void exportCategoryList(HttpServletResponse httpServletResponse) throws FileOperationException, ValidationException, NotFoundException;
 
 	/**
 	 * upload file
 	 *
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param file
+	 * @param httpServletResponse
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;

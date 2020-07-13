@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 import com.nice.constant.Constant;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.dto.Notification;
+import com.nice.dto.PushNotification;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 public class JMSQueuerService {
@@ -24,6 +25,15 @@ public class JMSQueuerService {
 		if (((emailNotification != null) && "true".equals(Constant.getSettingsValue("SEND_EMAIL")))
 				|| NotificationQueueConstants.NON_NOTIFICATION_QUEUE.equals(queueName)) {
 			jmsQueuer.sendEmail(queueName, emailNotification);
+		}
+	}
+
+	public void sendPushNotification(final String queueName, final PushNotification pushNotification) {
+		/**
+		 * if send push notification only when dto is not null
+		 */
+		if ((pushNotification != null)) {
+			jmsQueuer.sendPushNotification(queueName, pushNotification);
 		}
 	}
 }

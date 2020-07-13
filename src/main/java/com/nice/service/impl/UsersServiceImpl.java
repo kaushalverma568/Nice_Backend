@@ -21,13 +21,14 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.UsersMapper;
 import com.nice.model.UserLogin;
 import com.nice.model.Users;
+import com.nice.repository.UserLoginRepository;
 import com.nice.repository.UsersRepository;
 import com.nice.service.UserLoginService;
 import com.nice.service.UsersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "usersService")
 @Transactional(rollbackFor = Throwable.class)
@@ -44,6 +45,9 @@ public class UsersServiceImpl implements UsersService {
 
 	@Autowired
 	private UserLoginService userLoginService;
+
+	@Autowired
+	private UserLoginRepository userLoginRepository;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UsersServiceImpl.class);
 
@@ -81,12 +85,12 @@ public class UsersServiceImpl implements UsersService {
 		/**
 		 * Change UserLogin Role if Users role is changed
 		 */
-		if (!existingUsers.getRole().equals(usersDTO.getRole()) || !existingUsers.getEmail().equals(usersDTO.getEmail())) {
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(existingUsers.getEmail());
+		if (!existingUsers.getRole().equals(usersDTO.getRole()) || !existingUsers.getEmail().equalsIgnoreCase(usersDTO.getEmail())) {
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingUsers.getEmail(), UserType.USER.name());
 			if (optUserLogin.isPresent()) {
 				UserLogin userLogin = optUserLogin.get();
 				userLogin.setRole(usersDTO.getRole());
-				userLogin.setEmail(usersDTO.getEmail());
+				userLogin.setEmail(usersDTO.getEmail().toLowerCase());
 				userLoginService.updateUserLogin(userLogin);
 			}
 		}
@@ -102,7 +106,7 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	/**
-	 * @param  usersId
+	 * @param usersId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -133,7 +137,7 @@ public class UsersServiceImpl implements UsersService {
 		} else {
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("Deactivate user login");
-				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(existingUsers.getEmail());
+				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingUsers.getEmail(), UserType.USER.name());
 				if (optUserLogin.isPresent()) {
 					UserLogin userLogin = optUserLogin.get();
 					userLogin.setActive(false);
@@ -149,13 +153,23 @@ public class UsersServiceImpl implements UsersService {
 
 	@Override
 	public boolean isUserExists(final UsersDTO usersDTO) {
-		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmail(usersDTO.getEmail());
-		if (optUserLogin.isPresent()) {
-			return (!(usersDTO.getId() != null && optUserLogin.get().getEntityType().equals(UserType.USER.name())
-					&& usersDTO.getId().equals(optUserLogin.get().getEntityId())));
+		/**
+		 * if super admin contains same email then return true
+		 */
+		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIsNull(usersDTO.getEmail()).isPresent()) {
+			return true;
 		} else {
-			return false;
+			if (usersDTO.getId() != null) {
+				/**
+				 * At the time of update is user with same name exist or not except it's own id
+				 */
+				return usersRepository.findByEmailAndIdNot(usersDTO.getEmail().toLowerCase(), usersDTO.getId()).isPresent();
+			} else {
+				/**
+				 * At the time of create is user with same name exist or not
+				 */
+				return usersRepository.findByEmail(usersDTO.getEmail().toLowerCase()).isPresent();
+			}
 		}
 	}
-
 }

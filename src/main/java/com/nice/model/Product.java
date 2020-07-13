@@ -5,9 +5,12 @@ package com.nice.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -17,6 +20,18 @@ import lombok.EqualsAndHashCode;
  * @author : Kody Technolab PVT. LTD.
  * @date : 22-Jun-2020
  */
+@SqlResultSetMapping(name = "ProductMapping", entities = { @EntityResult(entityClass = Product.class, fields = { @FieldResult(name = "id", column = "id"),
+		@FieldResult(name = "active", column = "active"), @FieldResult(name = "createdAt", column = "created_at"),
+		@FieldResult(name = "updatedAt", column = "updated_at"), @FieldResult(name = "createdBy", column = "created_by"),
+		@FieldResult(name = "updatedBy", column = "updated_by"), @FieldResult(name = "name", column = "name"),
+		@FieldResult(name = "description", column = "description"), @FieldResult(name = "imageOriginalName", column = "image_original_name"),
+		@FieldResult(name = "categoryId", column = "category_id"), @FieldResult(name = "discountId", column = "discount_id"),
+		@FieldResult(name = "subcategoryId", column = "subcategory_id"), @FieldResult(name = "brandId", column = "brand_id"),
+		@FieldResult(name = "image", column = "image"), @FieldResult(name = "productAvailable", column = "product_available"),
+		@FieldResult(name = "vendorId", column = "vendor_id"), @FieldResult(name = "cuisineId", column = "cuisine_id"),
+		@FieldResult(name = "combo", column = "combo"), @FieldResult(name = "rating", column = "rating"),
+		@FieldResult(name = "noOfRating", column = "no_of_rating"), @FieldResult(name = "productFoodType", column = "product_food_type") }) })
+
 @Data
 @Entity(name = "product")
 @Table(name = "product")
@@ -73,4 +88,7 @@ public class Product extends CommonModel {
 
 	@Column(name = "no_of_rating")
 	private Long noOfRating;
+
+	@Column(name = "product_food_type")
+	private Integer productFoodType;
 }

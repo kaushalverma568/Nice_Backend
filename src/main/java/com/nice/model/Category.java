@@ -1,10 +1,14 @@
 package com.nice.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -33,6 +37,10 @@ public class Category extends CommonModel {
 
 	@Column(name = "name", nullable = false)
 	private String name;
+
+	@JoinColumn(name = "vendor_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Vendor vendor;
 
 	@Column(name = "image")
 	private String image;

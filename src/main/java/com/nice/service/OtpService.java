@@ -13,12 +13,12 @@ import com.nice.model.UserOtp;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public interface OtpService {
 
 	/**
-	 * @param  userOtpDto
+	 * @param userOtpDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -31,9 +31,9 @@ public interface OtpService {
 	/**
 	 * Verify Otp using userId
 	 *
-	 * @param  userLoginId
-	 * @param  type
-	 * @param  otp
+	 * @param userLoginId
+	 * @param type
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -41,21 +41,22 @@ public interface OtpService {
 	boolean verifyOtp(Long userLoginId, String type, String otp) throws ValidationException, NotFoundException;
 
 	/**
-	 * Verify Opt using userEmail
+	 * Verify Opt using user user name
 	 *
-	 * @param  email
-	 * @param  type
-	 * @param  otp
+	 * @param userName
+	 * @param type
+	 * @param otp
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	boolean verifyOtp(String email, String type, String otp) throws ValidationException, NotFoundException;
+	boolean verifyOtp(String userName, String type, String otp, String userType) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  userOtpDto
-	 * @param  userlogin
-	 * @param  otp
+	 * @param userOtpDto
+	 * @param userlogin
+	 * @param otp
 	 * @throws ValidationException
 	 * @throws MessagingException
 	 * @throws NotFoundException

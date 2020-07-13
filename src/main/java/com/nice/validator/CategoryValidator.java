@@ -8,6 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.CategoryDTO;
+import com.nice.exception.NotFoundException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CategoryService;
 import com.nice.util.CommonUtility;
@@ -52,8 +53,15 @@ public class CategoryValidator implements Validator {
 		if (target instanceof CategoryDTO) {
 			final CategoryDTO categoryDTO = (CategoryDTO) target;
 			// to check category duplication
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(categoryDTO.getName()) && categoryService.isCategoryExists(categoryDTO).booleanValue()) {
-				errors.rejectValue("name", "409", messageByLocaleService.getMessage("category.name.not.unique", null));
+			try {
+				if (categoryDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(categoryDTO.getName())
+						&& categoryService.isCategoryExists(categoryDTO).booleanValue()) {
+					errors.rejectValue("name", "409", messageByLocaleService.getMessage("category.name.not.unique", null));
+				}
+			} catch (NotFoundException e) {
+				LOGGER.error("Category not found for id : {} ", categoryDTO.getVendorId());
+				errors.rejectValue("vendorId", "409", messageByLocaleService.getMessage("vendor.not.found", new Object[] { categoryDTO.getVendorId() }));
+
 			}
 		} else {
 			LOGGER.info("target is not instance of CategoryDTO");

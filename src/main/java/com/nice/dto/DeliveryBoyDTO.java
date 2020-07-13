@@ -22,8 +22,11 @@ public class DeliveryBoyDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{fullName.not.null}")
-	private String fullName;
+	@NotBlank(message = "{firstName.not.null}")
+	private String firstName;
+
+	@NotBlank(message = "{lastName.not.null}")
+	private String lastName;
 
 	@NotBlank(message = "{email.not.null}")
 	private String email;
@@ -33,23 +36,4 @@ public class DeliveryBoyDTO implements Serializable {
 
 	@NotBlank(message = "{phone.number.not.null}")
 	private String phoneNumber;
-
-	@NotBlank(message = "{bank.name.not.null}")
-	private String bankName;
-
-	@NotBlank(message = "{branch.name.not.null}")
-	private String branchName;
-
-	@NotBlank(message = "{account.name.not.null}")
-	private String accountName;
-
-	@NotBlank(message = "{bank.AccountNumber.not.null}")
-	private String bankAccountNumber;
-
-	@NotBlank(message = "{kibNo.not.null}")
-	private String kibNo;
-
-	@NotBlank(message = "{branch.city.not.null}")
-	private String branchCity;
-
 }

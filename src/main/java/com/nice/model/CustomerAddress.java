@@ -3,6 +3,8 @@
  */
 package com.nice.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -77,5 +79,11 @@ public class CustomerAddress extends CommonModel {
 
 	@Column(name = "default_address")
 	private boolean defaultAddress;
+
+	@Column(name = "latitude")
+	private BigDecimal latitude;
+
+	@Column(name = "longitude")
+	private BigDecimal longitude;
 
 }

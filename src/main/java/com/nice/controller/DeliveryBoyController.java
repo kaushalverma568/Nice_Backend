@@ -106,8 +106,7 @@ public class DeliveryBoyController {
 	 * @throws MessagingException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> addDeliveryBoy(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
+	public ResponseEntity<Object> addDeliveryBoy(@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
 			@ModelAttribute @Valid final DeliveryBoyDTO deliveryBoyDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -189,7 +188,7 @@ public class DeliveryBoyController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@GetMapping(name = "getDeliveryBoy", value = "/{deliveryBoyId}")
+	@GetMapping("/{deliveryBoyId}")
 	public ResponseEntity<Object> getDeliveryBoy(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException {
 		LOGGER.info("Inside get DeliveryBoy for id:{}", deliveryBoyId);
@@ -211,9 +210,9 @@ public class DeliveryBoyController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveryBoyList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "isEmailVerified", required = false) final Boolean isEmailVerified) throws NotFoundException {
-		LOGGER.info("Inside get DeliveryBoy List");
-		final Page<DeliveryBoy> resultDeliveryBoyPages = deliveryBoyService.getDeliveryBoyList(pageNumber, pageSize, activeRecords, isEmailVerified);
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
+		LOGGER.info("Inside get delivery boy List");
+		final Page<DeliveryBoy> resultDeliveryBoyPages = deliveryBoyService.getDeliveryBoyList(pageNumber, pageSize, activeRecords, searchKeyword);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.setData(deliveryBoyMapper.toDtos(resultDeliveryBoyPages.getContent())).setHasNextPage(resultDeliveryBoyPages.hasNext())
 				.setHasPreviousPage(resultDeliveryBoyPages.hasPrevious()).setTotalPages(resultDeliveryBoyPages.getTotalPages())
@@ -233,7 +232,7 @@ public class DeliveryBoyController {
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside change status of DeliveryBoy of id {} and status {}", deliveryBoyId, active);
+		LOGGER.info("Inside change status of delivery boy of id {} and status {}", deliveryBoyId, active);
 		String userName = deliveryBoyService.changeStatus(deliveryBoyId, active);
 		if (userName != null) {
 			revokeToken(userName);
@@ -251,7 +250,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@PutMapping(value = "/profilepicture/{deliveryBoyId}")
+	@PutMapping("/profilepicture/{deliveryBoyId}")
 	public ResponseEntity<Object> updateProfilePicture(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
@@ -267,8 +266,9 @@ public class DeliveryBoyController {
 	/**
 	 * Accept order
 	 *
+	 * @param accessToken
 	 * @param deliveryBoyId
-	 * @param active
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -278,6 +278,24 @@ public class DeliveryBoyController {
 			@PathVariable("orderId") final Long orderId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order by delivery boy {} and order {}", deliveryBoyId, orderId);
 		deliveryBoyService.acceptOrder(deliveryBoyId, orderId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Deliver order
+	 *
+	 * @param orderId
+	 * @param active
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/deliver/order/{deliveryBoyId}/{orderId}")
+	public ResponseEntity<Object> deliverOrder(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId) throws NotFoundException {
+		LOGGER.info("Inside deliver order by delivery boy {} and order {}", deliveryBoyId, orderId);
+		deliveryBoyService.deliverOrder(deliveryBoyId, orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
 				.create();
 	}
@@ -306,7 +324,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping(path = "/logout")
+	@PutMapping("/logout")
 	public ResponseEntity<Object> logout(@RequestHeader("Authorization") final String accessToken) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside Log out method for delivery boy");
 		deliveryBoyService.validateBeforeLogout();

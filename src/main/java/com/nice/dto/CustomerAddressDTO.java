@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -61,4 +62,9 @@ public class CustomerAddressDTO implements Serializable {
 
 	private boolean defaultAddress;
 
+	@NotNull(message = "{latitude.not.null}")
+	private BigDecimal latitude;
+
+	@NotNull(message = "{longitude.not.null}")
+	private BigDecimal longitude;
 }

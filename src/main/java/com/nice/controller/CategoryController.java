@@ -177,11 +177,12 @@ public class CategoryController {
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	@PreAuthorize("hasPermission('Category','CAN_VIEW_LIST')")
-	public ResponseEntity<Object> getCategoryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
+	public ResponseEntity<Object> getCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get Category List ");
-		final Page<Category> resultCategories = categoryService.getCategoryList(pageNumber, pageSize, activeRecords, searchKeyword);
+		final Page<Category> resultCategories = categoryService.getCategoryList(pageNumber, pageSize, activeRecords, searchKeyword, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(LIST_MESSAGE, null))
 				.setData(categoryMapper.toDtos(resultCategories.getContent())).setHasNextPage(resultCategories.hasNext())
 				.setHasPreviousPage(resultCategories.hasPrevious()).setTotalPages(resultCategories.getTotalPages())
@@ -216,12 +217,14 @@ public class CategoryController {
 	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
+	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
 	@PreAuthorize("hasPermission('Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
-			throws FileOperationException {
+			throws FileOperationException, ValidationException, NotFoundException {
 		categoryService.exportCategoryList(httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(LIST_MESSAGE, null)).create();
 	}

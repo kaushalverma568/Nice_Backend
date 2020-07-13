@@ -1,5 +1,7 @@
 package com.nice.service;
 
+import java.util.List;
+
 import javax.mail.MessagingException;
 
 import org.springframework.data.domain.Page;
@@ -72,15 +74,6 @@ public interface DeliveryBoyService {
 	DeliveryBoy getDeliveryBoyDetail(Long deliveryBoyId) throws NotFoundException;
 
 	/**
-	 * check is email exist in user login at the time of create or update delivery
-	 * boy
-	 *
-	 * @param deliveryBoyDTO
-	 * @return
-	 */
-	Boolean isUserLoginExists(DeliveryBoyDTO deliveryBoyDTO);
-
-	/**
 	 * update profile picture
 	 *
 	 * @param profilePicture
@@ -113,11 +106,11 @@ public interface DeliveryBoyService {
 	 * @param pageNumber
 	 * @param pageSize
 	 * @param activeRecords
-	 * @param isEmailVerified
+	 * @param searchKeyword
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Page<DeliveryBoy> getDeliveryBoyList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Boolean isEmailVerified) throws NotFoundException;
+	Page<DeliveryBoy> getDeliveryBoyList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword) throws NotFoundException;
 
 	/**
 	 * update email verified status of delivery boy
@@ -138,21 +131,55 @@ public interface DeliveryBoyService {
 	void acceptOrder(Long deliveryBoyId, Long orderId) throws NotFoundException, ValidationException;
 
 	/**
-	 * send notification to delivery boys for accepting order
-	 *
-	 * @param orderId
-	 * @param vendorId
-	 * @throws NotFoundException
-	 * @throws InterruptedException
-	 * @throws ValidationException
-	 */
-	void sendNotificationToDeliveryBoysForAcceptingOrder(Long orderId, Long vendorId) throws NotFoundException, InterruptedException, ValidationException;
-
-	/**
 	 * validate is log out possible or not
 	 *
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void validateBeforeLogout() throws NotFoundException, ValidationException;
+
+	/**
+	 * get three nearest delivery boys
+	 *
+	 * @param orderId
+	 * @param vendorId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<Long> getNextThreeNearestDeliveryBoysFromVendor(Long orderId, Long vendorId) throws NotFoundException;
+
+	/**
+	 * set is login flag to true when delivery boy successfully logged in
+	 *
+	 * @param userName
+	 * @throws NotFoundException
+	 */
+	void updateIsLogin(String userName) throws NotFoundException;
+
+	/**
+	 * deliver order
+	 *
+	 * @param deliveryBoyId
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	void deliverOrder(Long deliveryBoyId, Long orderId) throws NotFoundException;
+
+	/**
+	 * update the rating of the delivery boy.(provide the rating provided by the
+	 * client and deliveryBoyId)
+	 *
+	 * @param deliveryBoyId
+	 * @param ratingByClient
+	 * @throws NotFoundException
+	 */
+	void updateDeliveryBoyRating(Long deliveryBoyId, Double ratingByClient) throws NotFoundException;
+
+	/**
+	 * delivery boy with phone number exist
+	 *
+	 * @param deliveryBoyDTO
+	 * @return
+	 */
+	Boolean isPhoneNumberExists(DeliveryBoyDTO deliveryBoyDTO);
 }

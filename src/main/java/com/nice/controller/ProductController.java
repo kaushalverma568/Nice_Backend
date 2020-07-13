@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
@@ -37,7 +37,6 @@ import com.nice.dto.ProductResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
-import com.nice.model.Product;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.ProductService;
 import com.nice.util.PaginationUtil;
@@ -100,8 +99,8 @@ public class ProductController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image, @RequestHeader("userId") final Long userId,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -111,7 +110,7 @@ public class ProductController {
 		if (image == null) {
 			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
 		}
-		productService.addProduct(productRequestDTO, userId, image);
+		productService.addProduct(productRequestDTO, image);
 		LOGGER.info("Outside add Product");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
 				.create();
@@ -132,17 +131,15 @@ public class ProductController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
 	public ResponseEntity<Object> updateProduct(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image,
-			@RequestParam(name = "thumbnailImage", required = false) final MultipartFile thumbnailImage, @RequestHeader("userId") final Long userId,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Product validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-
-		productService.updateProduct(productRequestDTO, userId, image);
+		productService.updateProduct(productRequestDTO, image);
 		LOGGER.info("Outside update Product");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.update.message", null))
 				.create();
@@ -156,102 +153,51 @@ public class ProductController {
 	 */
 
 	@GetMapping("/{productId}")
-	public ResponseEntity<Object> getProduct(@PathVariable("productId") final Long productId,
-			@RequestParam(name = "customerId", required = false) final Long customerId, @RequestParam(name = "uuid", required = false) final String uuid,
-			@RequestParam(name = "isAdmin", required = false) final Boolean isAdmin, @RequestParam(name = "pincodeId", required = false) final Long pincodeId)
+	public ResponseEntity<Object> getProduct(@PathVariable("productId") final Long productId, @RequestParam(name = "uuid", required = false) final String uuid)
 			throws NotFoundException, ValidationException {
-		final ProductResponseDTO productResponseDTO = productService.getProduct(productId, customerId, uuid, isAdmin, pincodeId);
+		final ProductResponseDTO productResponseDTO = productService.getProduct(productId, uuid);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.detail.message", null))
 				.setData(productResponseDTO).create();
 	}
 
 	/**
-	 * @param pageNumber
-	 * @param pageSize
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-
-	@GetMapping("/admin/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getProductList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "pincodeId", required = true) final Long pincodeId) throws NotFoundException, ValidationException {
-		final Page<Product> resultProducts = productService.getProductList(pageNumber, pageSize);
-		List<ProductResponseDTO> productResponseDTOs = productService.getProductDetailList(resultProducts.getContent());
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
-				.setData(productResponseDTOs).setHasNextPage(resultProducts.hasNext()).setHasPreviousPage(resultProducts.hasPrevious())
-				.setTotalPages(resultProducts.getTotalPages()).setPageNumber(resultProducts.getNumber() + 1).setTotalCount(resultProducts.getTotalElements())
-				.create();
-	}
-
-	@GetMapping("/vendor/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getProductList(@RequestHeader final Long vendorId, @PathVariable final Integer pageNumber,
-			@PathVariable final Integer pageSize, @RequestParam(name = "pincodeId", required = true) final Long pincodeId)
-			throws NotFoundException, ValidationException {
-		final Page<Product> resultProducts = productService.getProductList(pageNumber, pageSize);
-		List<ProductResponseDTO> productResponseDTOs = productService.getProductDetailList(resultProducts.getContent());
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
-				.setData(productResponseDTOs).setHasNextPage(resultProducts.hasNext()).setHasPreviousPage(resultProducts.hasPrevious())
-				.setTotalPages(resultProducts.getTotalPages()).setPageNumber(resultProducts.getNumber() + 1).setTotalCount(resultProducts.getTotalElements())
-				.create();
-	}
-
-	// /**
-	// * get result of global search
-	// *
-	// * @param searchKeyword
-	// * @return
-	// */
-	// @GetMapping("/globalsearch/{searchKeyword}")
-	// public ResponseEntity<Object> getResultOfGlobalSearch(@PathVariable("searchKeyword") final String searchKeyword) {
-	// LOGGER.info("Inside get result of global search for :{}", searchKeyword);
-	// GlobalSearchResponseDTO globalSearchResponseDTO = productService.getResultOfGlobalSearch(searchKeyword);
-	// LOGGER.info("Outside get result of global search for ");
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage("product.list.message", null))
-	// .setData(globalSearchResponseDTO).create();
-	// }
-
-	// /**
-	// * get category wise product count list
-	// *
-	// * @param searchKeyword
-	// * @return
-	// */
-	// @GetMapping("/categorywise/count")
-	// public ResponseEntity<Object> getCategoryWiseProductCountList() {
-	// LOGGER.info("Inside get category wise product count list");
-	// List<CategoryWiseProductCountDTO> categoryWiseProductCountDTOList = productService.getCategoryWiseProductCountList();
-	// LOGGER.info("Outside get category wise product count list");
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage("product.list.message", null))
-	// .setData(categoryWiseProductCountDTOList).create();
-	// }
-
-	/**
-	 * get related product list
+	 * Get Cuisine with count
 	 *
+	 * @param vendorId
 	 * @return
-	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	// @GetMapping("/list/related/{productId}")
-	// public ResponseEntity<Object> getRelatedProductList(@PathVariable final Long productId,
-	// @RequestParam(name = "customerId", required = false) final Long customerId, @RequestParam(name = "uuid", required =
-	// false) final String uuid,
-	// @RequestParam(name = "pincodeId", required = true) final Long pincodeId) throws NotFoundException,
-	// ValidationException {
-	// LOGGER.info("Inside get related product list for product :{} customerId:{} uuid :{}", productId, customerId, uuid);
-	// List<ProductResponseDTO> relatedProductList = productService.getRelatedProductList(productId, customerId, uuid,
-	// pincodeId);
-	// LOGGER.info("Outside get related product list for product");
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage(Constant.LIST_MESSAGE, new Object[] { Constant.PRODUCT
-	// })).setData(relatedProductList).create();
-	// }
+	@GetMapping("/category/count/{vendorId}")
+	public ResponseEntity<Object> getCategoryWiseProductCountList(@PathVariable final Long vendorId) throws NotFoundException {
+		LOGGER.info("Inside get category wise product count list");
+		List<CategoryWiseProductCountDTO> cuisineWiseProductCountDTOList = productService.getCuisineWiseProductCountList(vendorId);
+		LOGGER.info("Outside get category wise product count list");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("category.product.list.message", null)).setData(cuisineWiseProductCountDTOList).create();
+	}
 
 	/**
-	 * Get product list based on parameters for customer
+	 *
+	 * @param vendorId
+	 * @param cuisineId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/list/vendor/{vendorId}/cuisine/{cuisineId}")
+	public ResponseEntity<Object> getProductListForCuisine(@PathVariable final Long vendorId, @PathVariable final Long cuisineId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get cuise wise product list");
+		List<ProductResponseDTO> productList = productService.getProductListForVendorAndCuisine(vendorId, cuisineId);
+		LOGGER.info("Outside get cuisine wise product list");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("cuisine.product.list.message", null)).setData(productList).create();
+	}
+
+
+	/**
+	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
+	 * products will be shown to them.
 	 *
 	 * @param accessToken
 	 * @param productParamRequestDTO
@@ -263,8 +209,7 @@ public class ProductController {
 	 */
 	@PostMapping("/list/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getProductListBasedOnParams(@RequestBody final ProductParamRequestDTO productParamRequestDTO,
-			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "pincodeId", required = true) final Long pincodeId) throws NotFoundException, ValidationException {
+			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get Product List BasedOnParams {}", productParamRequestDTO);
 		Long totalCount = productService.getProductCountBasedOnParams(productParamRequestDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
@@ -272,35 +217,7 @@ public class ProductController {
 		 * for customer set isForAdmin flag false
 		 */
 		final List<ProductResponseDTO> productList = productService.getProductListBasedOnParams(productParamRequestDTO, paginationUtilDto.getStartIndex(),
-				pageSize, false, pincodeId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
-				.setData(productList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
-				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
-				.create();
-	}
-
-	/**
-	 * Get product list based on parameters for admin
-	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PostMapping("/list/admin/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getProductListBasedOnParamsForAdmin(@RequestBody final ProductParamRequestDTO productParamRequestDTO,
-			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside get Product List BasedOnParams {}", productParamRequestDTO);
-		Long totalCount = productService.getProductCountBasedOnParams(productParamRequestDTO);
-		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
-		/**
-		 * for admin set isForAdmin flag true
-		 */
-		final List<ProductResponseDTO> productList = productService.getProductListBasedOnParams(productParamRequestDTO, paginationUtilDto.getStartIndex(),
-				pageSize, true, null);
+				pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
 				.setData(productList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
 				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
@@ -320,10 +237,10 @@ public class ProductController {
 	 */
 
 	@PutMapping("/status/{productId}")
-	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
-			@PathVariable("productId") final Long productId, @RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("productId") final Long productId,
+			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of product for id {} and new status {}", productId, active);
-		productService.changeStatus(productId, active, userId);
+		productService.changeStatus(productId, active);
 		LOGGER.info("Outside change status of product ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.update.message", null))
 				.create();

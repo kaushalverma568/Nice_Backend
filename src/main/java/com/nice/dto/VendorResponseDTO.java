@@ -6,13 +6,17 @@ package com.nice.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -53,7 +57,7 @@ public class VendorResponseDTO implements Serializable {
 
 	private String status;
 
-	private String approxDeliveryTime;
+	private Integer approxDeliveryTime;
 
 	private Double minimumOrderAmt;
 
@@ -71,7 +75,11 @@ public class VendorResponseDTO implements Serializable {
 
 	private String deliveryType;
 
-	private String openingHours;
+	@Temporal(TemporalType.TIME)
+	private Date openingHoursFrom;
+
+	@Temporal(TemporalType.TIME)
+	private Date openingHoursTo;
 
 	private Long countryId;
 
@@ -96,4 +104,12 @@ public class VendorResponseDTO implements Serializable {
 	private String accepts;
 
 	private String profilePictureUrl;
+
+	private List<VendorCuisineDTO> vendorCuisines;
+
+	private Boolean active;
+
+	private Double distance;
+
+	private Boolean isContactVerified;
 }

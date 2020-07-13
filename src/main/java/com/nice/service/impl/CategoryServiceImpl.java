@@ -16,11 +16,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.CategoryDTO;
 import com.nice.dto.CategoryImport;
 import com.nice.dto.CategoryResponseDTO;
@@ -31,18 +35,21 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CategoryMapper;
 import com.nice.model.Category;
 import com.nice.model.SubCategory;
+import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.CategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
 import com.nice.service.FileStorageService;
 import com.nice.service.SubCategoryService;
+import com.nice.service.VendorService;
 import com.nice.util.CSVProcessor;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 26-06-2020
+ * @date : 26-06-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -63,6 +70,9 @@ public class CategoryServiceImpl implements CategoryService {
 	private SubCategoryService subCategoryService;
 
 	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
 	private CategoryMapper categoryMapper;
 
 	@Autowired
@@ -77,6 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public void addCategory(final CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException {
 		final Category category = categoryMapper.toEntity(categoryDTO);
+		category.setVendor(vendorService.getVendorDetail(categoryDTO.getVendorId()));
 		if (image != null) {
 			uploadImage(image, category);
 		}
@@ -89,11 +100,15 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage("category.id.not.null", null));
 		} else {
 			final Category existingCategory = getCategoryDetail(resultCategoryDTO.getId());
+			if (!existingCategory.getVendor().getId().equals(resultCategoryDTO.getVendorId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.unique", null));
+			}
 			final Category category = categoryMapper.toEntity(resultCategoryDTO);
 			if (image != null) {
 				deleteOldImage(existingCategory);
 				uploadImage(image, category);
 			}
+			category.setVendor(existingCategory.getVendor());
 			categoryRepository.save(category);
 		}
 	}
@@ -111,15 +126,43 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public Page<Category> getCategoryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword)
-			throws NotFoundException {
+	public Page<Category> getCategoryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
+			final Long vendorId) throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		if (vendorId != null) {
+			Vendor vendor = vendorService.getVendorDetail(vendorId);
+			if (activeRecords != null) {
+				if (searchKeyword != null) {
+					return categoryRepository.findAllByActiveAndNameContainingIgnoreCaseAndVendor(activeRecords, searchKeyword, vendor, pageable);
+				} else {
+					return categoryRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
+				}
+			} else {
+				if (searchKeyword != null) {
+					return categoryRepository.findAllByNameContainingIgnoreCaseAndVendor(searchKeyword, vendor, pageable);
+				} else {
+					return categoryRepository.findAllByVendor(vendor, pageable);
+				}
+			}
+		} else {
+			return findAllByActiveAndSearchKeyword(activeRecords, searchKeyword, pageable);
+		}
+	}
+
+	/**
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param pageable
+	 * @return
+	 */
+	private Page<Category> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
 				return categoryRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyword, pageable);
 			} else {
 				return categoryRepository.findAllByActive(activeRecords, pageable);
 			}
+
 		} else {
 			if (searchKeyword != null) {
 				return categoryRepository.findAllByNameContainingIgnoreCase(searchKeyword, pageable);
@@ -127,7 +170,6 @@ public class CategoryServiceImpl implements CategoryService {
 				return categoryRepository.findAll(pageable);
 			}
 		}
-
 	}
 
 	@Override
@@ -140,7 +182,8 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "category.active" : "category.deactive", null));
 		} else {
 			/**
-			 * deActive All subCategories related to this category at the time of deActivating Category
+			 * deActive All subCategories related to this category at the time of
+			 * deActivating Category
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Category {}", existingCategory);
@@ -157,17 +200,19 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public Boolean isCategoryExists(final CategoryDTO categoryDTO) {
+	public Boolean isCategoryExists(final CategoryDTO categoryDTO) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name exist or not except it's own id
+			 * At the time of update is category with same name exist or not except it's own
+			 * id
 			 */
-			return categoryRepository.findByNameIgnoreCaseAndIdNot(categoryDTO.getName(), categoryDTO.getId()).isPresent();
+			return categoryRepository.findByNameIgnoreCaseAndVendorAndIdNot(categoryDTO.getName(), vendor, categoryDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is category with same name exist or not
 			 */
-			return categoryRepository.findByNameIgnoreCase(categoryDTO.getName()).isPresent();
+			return categoryRepository.findByNameIgnoreCaseAndVendor(categoryDTO.getName(), vendor).isPresent();
 		}
 	}
 
@@ -194,8 +239,13 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public void exportCategoryList(final HttpServletResponse httpServletResponse) throws FileOperationException {
-		final List<CategoryResponseDTO> categoryList = categoryMapper.toDtos(categoryRepository.findAll());
+	public void exportCategoryList(final HttpServletResponse httpServletResponse) throws FileOperationException, ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+		final List<CategoryResponseDTO> categoryList = categoryMapper.toDtos(categoryRepository.findAllByVendor(vendor));
 		final Object[] categoryHeaderField = new Object[] { "Category Name", "Active" };
 		final Object[] categoryDataField = new Object[] { "name", "active" };
 		try {
@@ -226,20 +276,26 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param  categoryImports
-	 * @param  userId
+	 * @param categoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<CategoryImport> allResult = new ArrayList<>();
 		for (CategoryImport categoryImport : categoryImports) {
 			try {
-				if (categoryRepository.findByNameIgnoreCase(categoryImport.getName()).isPresent()) {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (categoryRepository.findByNameIgnoreCaseAndVendor(categoryImport.getName(), vendor).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("category.name.not.unique", null));
 				} else {
 					final CategoryDTO categoryDTO = new CategoryDTO();
 					categoryDTO.setName(categoryImport.getName());
 					categoryDTO.setActive(true);
+					categoryDTO.setVendorId(vendor.getId());
 					addCategory(categoryDTO, null);
 					categoryImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
 				}

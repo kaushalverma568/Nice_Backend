@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +39,12 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.DeliveryBoyMapper;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyLocation;
+import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.model.Vendor;
 import com.nice.repository.DeliveryBoyRepository;
+import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
@@ -84,6 +85,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	private DeliveryBoyLocationService deliveryBoyLocationService;
 
 	@Autowired
+	private DeliveryBoySendNotificationHistoryRepository deliveryBoySendNotificationHistoryRepository;
+
+	@Autowired
 	private AssetService assetService;
 
 	@Autowired
@@ -98,6 +102,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
+
+		/**
+		 * Check if delivery boy already exists, if so then lets only send him email
+		 * again.
+		 */
+		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail().toLowerCase());
+		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getIsEmailVerified().booleanValue()) {
+			deliveryBoy = optDeliveryBoy.get();
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoyDTO.getEmail().toLowerCase(),
+					Role.DELIVERY_BOY.name());
+			if (optUserLogin.isPresent()) {
+				sendOtpForEmailVerification(optUserLogin.get(), deliveryBoy);
+				return;
+			}
+		}
+
 		uploadImage(profilePicture, deliveryBoy);
 		deliveryBoy.setIsEmailVerified(false);
 		/**
@@ -108,6 +128,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 * it will be true when he is going for delivery
 		 */
 		deliveryBoy.setIsBusy(false);
+		deliveryBoy.setIsPhoneNumberVerified(false);
 		deliveryBoy.setActive(false);
 		deliveryBoy.setNoOfRating(0L);
 		deliveryBoy.setRating(0D);
@@ -137,7 +158,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyPersonalDetailsDTO.getId());
 		BeanUtils.copyProperties(deliveryBoyPersonalDetailsDTO, deliveryBoy);
 		String userName = null;
-		if (!deliveryBoy.getEmail().equals(deliveryBoyPersonalDetailsDTO.getEmail())) {
+		if (!deliveryBoy.getEmail().equalsIgnoreCase(deliveryBoyPersonalDetailsDTO.getEmail())) {
 			/**
 			 *
 			 * if delivery boy is out for delivery then he can not update his email
@@ -153,9 +174,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				deliveryBoy.setActive(false);
 				deliveryBoy.setIsLogin(false);
 
-				final Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoy.getEmail(), Role.DELIVERY_BOY.name());
+				final Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoy.getEmail().toLowerCase(),
+						Role.DELIVERY_BOY.name());
 				if (userLogin.isPresent()) {
-					userLogin.get().setEmail(deliveryBoyPersonalDetailsDTO.getEmail());
+					userLogin.get().setEmail(deliveryBoyPersonalDetailsDTO.getEmail().toLowerCase());
 					userLogin.get().setActive(false);
 					userLoginService.updateUserLogin(userLogin.get());
 					userName = userLogin.get().getEmail();
@@ -165,6 +187,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 					sendOtpForEmailVerification(userLogin.get(), deliveryBoy);
 				}
 			}
+		}
+		if (!deliveryBoy.getPhoneNumber().equals(deliveryBoyPersonalDetailsDTO.getPhoneNumber())) {
+			/**
+			 * send otp for contact verification
+			 */
+			deliveryBoy.setIsPhoneNumberVerified(false);
 		}
 		deliveryBoyRepository.save(deliveryBoy);
 		return userName;
@@ -189,14 +217,15 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public Page<DeliveryBoy> getDeliveryBoyList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Boolean isEmailVerified)
+	public Page<DeliveryBoy> getDeliveryBoyList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword)
 			throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
-		if (isEmailVerified != null) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
 			if (activeRecords != null) {
-				return deliveryBoyRepository.findAllByActiveAndIsEmailVerified(activeRecords, isEmailVerified, pageable);
+				return deliveryBoyRepository.findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(activeRecords, searchKeyword,
+						searchKeyword, pageable);
 			} else {
-				return deliveryBoyRepository.findAllByIsEmailVerified(isEmailVerified, pageable);
+				return deliveryBoyRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
 			}
 		} else {
 			if (activeRecords != null) {
@@ -225,6 +254,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				if (deliveryBoy.getIsBusy().booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("deactive.assigned.order.exist", null));
 				}
+				deliveryBoy.setIsLogin(false);
 			} else {
 				if (!deliveryBoy.getIsEmailVerified().booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("email.not.verified", null));
@@ -256,12 +286,23 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			 * At the time of update is deliveryBoy with same email exist or not except it's
 			 * own id
 			 */
-			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail(), deliveryBoyDTO.getId()).isPresent();
+			return deliveryBoyRepository.findByEmailIgnoreCaseAndIdNot(deliveryBoyDTO.getEmail(), deliveryBoyDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is deliveryBoy with same email exist or not
 			 */
-			return deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail()).isPresent();
+			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail());
+			if (optDeliveryboy.isPresent()) {
+				/**
+				 * If the delivery boy is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
+				 */
+
+				return optDeliveryboy.get().getIsEmailVerified();
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -277,24 +318,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public Boolean isUserLoginExists(final DeliveryBoyDTO deliveryBoyDTO) {
-		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoyDTO.getEmail(), Role.DELIVERY_BOY.name());
-		if (optUserLogin.isPresent()) {
-			if (deliveryBoyDTO.getId() != null && deliveryBoyDTO.getId().equals(optUserLogin.get().getEntityId())) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	public void verifyEmail(final Long deliveryBoyId) throws NotFoundException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
 		deliveryBoy.setIsEmailVerified(true);
 		deliveryBoyRepository.save(deliveryBoy);
+	}
+
+	@Override
+	public void updateIsLogin(final String userName) throws NotFoundException {
+		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(userName, Role.DELIVERY_BOY.name());
+		if (optUserLogin.isPresent()) {
+			DeliveryBoy deliveryBoy = getDeliveryBoyDetail(optUserLogin.get().getEntityId());
+			deliveryBoy.setIsLogin(true);
+			deliveryBoyRepository.save(deliveryBoy);
+		} else {
+			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists.email", new Object[] { userName }));
+		}
 	}
 
 	/**
@@ -333,20 +372,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 	}
 
-	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long vendorId, final List<Long> acceptDeliveryBoyIds) throws NotFoundException {
+	@Override
+	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
 		 * get all delivery boys who is logged in, not busy with any orders and has not
 		 * sended notification before
 		 */
-		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.findAllByIsLoginAndIsBusyAndIdNotIn(true, false, acceptDeliveryBoyIds);
+		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys();
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is less then three then go for a busy delivery boys who
-		 * is going for delivery of orders(not for replacement or return)
+		 * if idle delivery boys is not available then go for a busy delivery boys who
+		 * is going for delivery of orders(not for replacement or return) and at a time
+		 * assigned order count is 1
 		 */
-		if (availableDeliveryBoys.size() < 3) {
-			busyDeliveryBoys = deliveryBoyRepository.findAllByIsLoginAndIsBusyAndIdNotIn(true, true, acceptDeliveryBoyIds);
+		if (availableDeliveryBoys.isEmpty()) {
+			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
 		}
 		availableDeliveryBoys.addAll(busyDeliveryBoys);
 		Map<Long, Double> deliveryBoyWithDistanceMap = new HashMap<>();
@@ -356,23 +397,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		for (DeliveryBoy deliveryBoy : availableDeliveryBoys) {
 			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLatestLocation(deliveryBoy.getId());
-			Double distance;
-			if (deliveryBoy.getIsBusy().booleanValue()) {
-				/**
-				 * if delivery boy is out for delivery then total distance will be (his distance
-				 * from customer + distance between customer and vandor's location)
-				 */
-				// get customer's latitude and longitude here
+			Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
+					deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue());
 
-				Double customerLatidude = null;
-				Double customerLongitude = null;
-				distance = CommonUtility.distance(customerLatidude, customerLongitude, deliveryBoyLocation.getLatitude().doubleValue(),
-						deliveryBoyLocation.getLongitude().doubleValue())
-						+ CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(), customerLatidude, customerLongitude);
-			} else {
-				distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
-						deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue());
-			}
 			deliveryBoyWithDistanceMap.put(deliveryBoy.getId(), distance);
 		}
 
@@ -430,59 +457,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void sendNotificationToDeliveryBoysForAcceptingOrder(final Long orderId, final Long vendorId)
-			throws NotFoundException, InterruptedException, ValidationException {
-		/**
-		 * send notification to only those delivery boys for which we have not sended
-		 * previously
-		 */
-		List<Long> acceptDeliveryBoyIds = new ArrayList<>();
-		List<Long> nextNearestDeliveryBoys = getNextThreeNearestDeliveryBoysFromVendor(vendorId, acceptDeliveryBoyIds);
-		/**
-		 * if not a single delivery boy is logged in for accepting order then throw
-		 * exception
-		 */
-		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
-		} else {
-			sendNotificationForNewOrder(nextNearestDeliveryBoys, orderId);
-			acceptDeliveryBoyIds.addAll(nextNearestDeliveryBoys);
-			TimeUnit.SECONDS.sleep(30);
-			// check if order is accepted then do not send notification
-			nextNearestDeliveryBoys = getNextThreeNearestDeliveryBoysFromVendor(vendorId, acceptDeliveryBoyIds);
-			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-				sendNotificationForNewOrder(nextNearestDeliveryBoys, orderId);
-				acceptDeliveryBoyIds.addAll(nextNearestDeliveryBoys);
-				TimeUnit.SECONDS.sleep(30);
-			}
-			// check if order is accepted then do not send notification
-			nextNearestDeliveryBoys = getNextThreeNearestDeliveryBoysFromVendor(vendorId, acceptDeliveryBoyIds);
-			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-				sendNotificationForNewOrder(nextNearestDeliveryBoys, orderId);
-			}
-		}
-
-	}
-
-	/**
-	 * @param nextNearestDeliveryBoys
-	 */
-	private void sendNotificationForNewOrder(final List<Long> nextNearestDeliveryBoys, final Long orderId) {
-		// PushNotification pushNotification = new PushNotification();
-		// pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
-		// pushNotification.setOrderId(orderId);
-		// jmsQueuerService.sendPushNotification(NotificationQueueConstants.PUSH_NOTIFICATION_QUEUE_ACCEPT_ORDER,
-		// pushNotification);
-	}
-
-	@Override
 	public synchronized void acceptOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException, ValidationException {
-		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
-		if (deliveryBoy.getIsBusy().booleanValue()) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
-		}
+
 		// check is order already accepted then throw exception else set delivery boy in
 		// order
+		/**
+		 * remove order id from notification history table of delivery boy
+		 *
+		 */
+		List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
+				.findAllByOrderId(orderId);
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
+			for (DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory : deliveryBoySendNotificationHistoryList) {
+				deliveryBoyNotificationHistory.setOrderId(null);
+			}
+			deliveryBoySendNotificationHistoryRepository.saveAll(deliveryBoySendNotificationHistoryList);
+		}
 	}
 
 	@Override
@@ -503,4 +493,39 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 	}
 
+	@Override
+	public void deliverOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException {
+		// update order's status here
+		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
+		/**
+		 * set isBusy to false if delivery boy has no any other assigned orders
+		 */
+		deliveryBoy.setIsBusy(false);
+		deliveryBoyRepository.save(deliveryBoy);
+	}
+
+	@Override
+	public synchronized void updateDeliveryBoyRating(final Long deliveryBoyId, final Double ratingByClient) throws NotFoundException {
+		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
+		Double updatedRating = ((deliveryBoy.getRating() * deliveryBoy.getNoOfRating()) + ratingByClient) / (deliveryBoy.getNoOfRating() + 1);
+		deliveryBoy.setRating(updatedRating);
+		deliveryBoy.setNoOfRating(deliveryBoy.getNoOfRating() + 1);
+		deliveryBoyRepository.save(deliveryBoy);
+	}
+
+	@Override
+	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
+		if (deliveryBoyDTO.getId() != null) {
+			/**
+			 * At the time of update is delivery boy with same phone number exist or not
+			 * except it's own id
+			 */
+			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is delivery boy with same contact exist or not
+			 */
+			return deliveryBoyRepository.findByPhoneNumberIgnoreCase(deliveryBoyDTO.getPhoneNumber()).isPresent();
+		}
+	}
 }

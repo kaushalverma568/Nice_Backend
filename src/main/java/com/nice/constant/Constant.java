@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -35,18 +35,23 @@ public final class Constant {
 	public static final String SORT_TYPE_DESC = "DESC";
 	public static final String ADMIN = "Admin";
 	public static final String DELIVERY_BOY = "Delivery Boy";
+	public static final String USER = "USER";
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
 
-	
-	public static final String AVAILABLE = "Available";
-	public static final String RESERVED = "Reserved";
-	public static final String DELIVERED = "Delivered";
-	public static final String REPLACED = "Replaced";
-	public static final String RETURNED = "Returned";
+	public static final String VENDOR_SUBSCRIPTION_EXPIRE = "VENDOR_SUBSCRIPTION_EXPIRE";
+	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
 
 	public static final String EXPIRE_STOCK_SCHEDULER = "EXPIRE_STOCK_SCHEDULER";
-	
+	/**
+	 * average speed of delivery boy is 40 km/h
+	 */
+	public static final Double DELIVERY_BOY_AVERAGE_SPEED = 40d;
+	/**
+	 * maximum distance of vendor from customer to fetch in customer app (in km)
+	 */
+	public static final Double MAX_DISTANCE_FROM_CUSTOMER = 20d;
+
 	/**
 	 * Settings Flags:
 	 */
@@ -72,7 +77,7 @@ public final class Constant {
 	}
 
 	/**
-	 * @param  key
+	 * @param key
 	 * @return
 	 */
 	public static String getSettingsValue(final String key) {
@@ -93,8 +98,20 @@ public final class Constant {
 	public static final String CAN_DELETE = "CAN_DELETE";
 	public static final String CAN_IMPORT = "CAN_IMPORT";
 	public static final String CAN_EXPORT = "CAN_EXPORT";
+	public static final String ANONYMOUS_USER = "anonymousUser";
 
 	public static final String CLIENT_ID = "kody-client";
 	public static final String SECRET_ID = "kody-secret";
+	public static final String UNAUTHORIZED = "unauthorized";
+	public static final String PENDING = "Pending";
+	public static final String AVAILABLE = "Available";
+	public static final String IN_PROCESS = "In-Process";
+	public static final String RESERVED = "Reserved";
+	public static final String DELIVERED = "Delivered";
+	public static final String REPLACE_REQUESTED = "Replace Requested";
+	public static final String REPLACE_PROCESSED = "Replace Processed";
+	public static final String REPLACED = "Replaced";
+	public static final String CANCELLED = "Cancelled";
+	public static final String RETURNED = "Returned";
 
 }

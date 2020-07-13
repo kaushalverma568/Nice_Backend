@@ -62,28 +62,27 @@ public class DeliveryBoyValidator implements Validator {
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
+		DeliveryBoyDTO deliveryBoyDTO = null;
 		if (target instanceof DeliveryBoyDTO) {
-			final DeliveryBoyDTO deliveryBoyDTO = (DeliveryBoyDTO) target;
-			// to check deliveryBoy duplication
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoyDTO.getEmail())
-					&& (deliveryBoyService.isDeliveryBoyExists(deliveryBoyDTO).booleanValue()
-							|| deliveryBoyService.isUserLoginExists(deliveryBoyDTO).booleanValue())) {
-				errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage(DELIVERY_BOY_EMAIL_NOT_UNIQUE, null));
-			}
+			deliveryBoyDTO = (DeliveryBoyDTO) target;
 		} else if (target instanceof DeliveryBoyPersonalDetailsDTO) {
 			DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO = (DeliveryBoyPersonalDetailsDTO) target;
-			DeliveryBoyDTO deliveryBoyDTO = new DeliveryBoyDTO();
+			deliveryBoyDTO = new DeliveryBoyDTO();
 			BeanUtils.copyProperties(deliveryBoyPersonalDetailsDTO, deliveryBoyDTO);
-			/**
-			 * at time of update personal details check email is updatable or not
-			 */
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoyDTO.getEmail())
-					&& (deliveryBoyService.isDeliveryBoyExists(deliveryBoyDTO).booleanValue()
-							|| deliveryBoyService.isUserLoginExists(deliveryBoyDTO).booleanValue())) {
-				errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage(DELIVERY_BOY_EMAIL_NOT_UNIQUE, null));
-			}
 		} else {
 			LOGGER.info("target is not instance of DeliveryBoyDTO and ");
 		}
+		// to check deliveryBoy email duplication
+		if (deliveryBoyDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoyDTO.getEmail())
+				&& deliveryBoyService.isDeliveryBoyExists(deliveryBoyDTO).booleanValue()) {
+			errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage(DELIVERY_BOY_EMAIL_NOT_UNIQUE, null));
+		}
+		// to check deliveryBoy phone duplication
+		if (deliveryBoyDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoyDTO.getPhoneNumber())
+				&& deliveryBoyService.isPhoneNumberExists(deliveryBoyDTO).booleanValue()) {
+			errors.rejectValue("phoneNumber", "409", messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
+		}
+
 	}
+
 }

@@ -89,7 +89,8 @@ public class CustomerController {
 	public CustomerMapper customerMapper;
 
 	/**
-	 * Add customer
+	 * Add customer Whenever Login with OTP functionality exist then phone Number should be mandatory in customer sign-up
+	 * Other wise validation will not work.
 	 *
 	 * @param  userId
 	 * @param  customerDTO

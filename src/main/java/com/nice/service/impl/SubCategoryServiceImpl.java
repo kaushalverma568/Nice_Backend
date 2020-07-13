@@ -17,11 +17,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.SubCategoryDTO;
 import com.nice.dto.SubCategoryImport;
 import com.nice.dto.SubCategoryResponseDTO;
@@ -32,19 +36,22 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.SubCategoryMapper;
 import com.nice.model.Category;
 import com.nice.model.SubCategory;
+import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.CategoryRepository;
 import com.nice.repository.SubCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
 import com.nice.service.FileStorageService;
 import com.nice.service.SubCategoryService;
+import com.nice.service.VendorService;
 import com.nice.util.CSVProcessor;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- * @author      : Kody Technolab PVT. LTD.
- * @date        : 23-Mar-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date : 23-Mar-2020
  * @description :
  */
 @Transactional(rollbackFor = Throwable.class)
@@ -78,6 +85,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
 	@Autowired
 	private FileStorageService fileStorageService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@Override
 	public void addSubCategory(final SubCategoryDTO resultSubCategoryDTO, final MultipartFile image) throws ValidationException, NotFoundException {
@@ -227,8 +237,13 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	@Override
-	public void exportSubCategoryList(final HttpServletResponse httpServletResponse) throws FileOperationException {
-		final List<SubCategoryResponseDTO> subCategoryList = subCategoryMapper.toDtos(subCategoryRepository.findAll());
+	public void exportSubCategoryList(final HttpServletResponse httpServletResponse) throws FileOperationException, ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+		final List<SubCategoryResponseDTO> subCategoryList = subCategoryMapper.toDtos(subCategoryRepository.getAllByVendor(vendor));
 		final Object[] subCategoryHeaderField = new Object[] { "Subcategory Name", "Category Name", "Active" };
 		final Object[] subCategoryDataField = new Object[] { "name", "categoryName", "active" };
 		try {
@@ -260,15 +275,21 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param  subCategoryImports
-	 * @param  userId
+	 * @param subCategoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
 		final List<SubCategoryImport> allResult = new ArrayList<>();
 		for (SubCategoryImport subCategoryImport : subCategoryImports) {
 			try {
-				Optional<Category> category = categoryRepository.findByNameIgnoreCase(subCategoryImport.getCategoryName());
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				Optional<Category> category = categoryRepository.findByNameIgnoreCaseAndVendor(subCategoryImport.getCategoryName(), vendor);
 				if (!category.isPresent()) {
 					throw new ValidationException(
 							messageByLocaleService.getMessage("category.not.present", new Object[] { subCategoryImport.getCategoryName() }));

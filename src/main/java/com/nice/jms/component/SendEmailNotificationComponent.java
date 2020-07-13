@@ -20,6 +20,7 @@ import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.EmailConstants;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.Notification;
@@ -40,6 +41,16 @@ import net.sf.jasperreports.engine.JRException;
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
+
+	/**
+	 * 
+	 */
+	private static final String COMPANY_EMAIL = "companyEmail";
+
+	/**
+	 *
+	 */
+	private static final String RESET_PASSWORD = "resetPassword";
 
 	private static final String APPLICATION_NAME = "applicationName";
 
@@ -91,7 +102,7 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		if (NotificationQueueConstants.CUSTOMER_REGISTRATION.equals(emailNotification.getType())) {
 			customerRegistration(emailNotification);
-		} else if (NotificationQueueConstants.FORGOT_PWD.equals(emailNotification.getType())) {
+		} else if (NotificationQueueConstants.FORGOT_PASS.equals(emailNotification.getType())) {
 			forgotPassword(emailNotification);
 		} else if (NotificationQueueConstants.EMAIL_VERIFICATION.equals(emailNotification.getType())) {
 			emailVerification(emailNotification);
@@ -114,6 +125,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("customerUrl", customerUrl);
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
@@ -131,19 +143,33 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(GROCERUS_BIG_LOGO, CommonUtility.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
-
+			emailParameterMap.put("OTP", emailNotification.getOtp());
 			if (Constant.CUSTOMER.equalsIgnoreCase(emailNotification.getUserType())) {
-				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?userId=" + emailNotification.getCustomerId() + "&otp="
-						+ emailNotification.getOtp() + "&userType=" + Constant.CUSTOMER);
-			} else if (Constant.ADMIN.equalsIgnoreCase(emailNotification.getUserType())) {
+				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?otp=" + emailNotification.getOtp() + "&userType="
+						+ Constant.CUSTOMER + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
+			} else if (Constant.USER.equalsIgnoreCase(emailNotification.getUserType())) {
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
-						+ Constant.ADMIN + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&userId=" + emailNotification.getCustomerId());
+						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			}
+			/**
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
+			 */
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
+					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 			emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-					EmailTemplatesEnum.RESET_PASSWORD.name());
+						EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name());
+			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name());
+			} else {
+				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name());
 		}
+	}
 	}
 
 	private void emailVerification(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException, NotFoundException {
@@ -155,11 +181,28 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(GROCERUS_BIG_LOGO, CommonUtility.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getContactNo());
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?otp=" + emailNotification.getOtp());
+			emailParameterMap.put("OTP", emailNotification.getOtp());
+			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
+
+			/**
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
+			 */
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
+					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 			emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-					EmailTemplatesEnum.EMAIL_VERIFICATION.name());
+						EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name());
+			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
+				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name());
+			} else {
+				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
+						EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name());
 		}
+	}
 	}
 
 	private void sendOtp(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {

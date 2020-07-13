@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,10 +29,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.constant.VendorStatus;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
+import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.NotFoundException;
@@ -49,9 +50,8 @@ import com.nice.util.PaginationUtil;
 import com.nice.validator.VendorValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
@@ -69,8 +69,7 @@ public class VendorController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -103,18 +102,17 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param vendorDTO
-	 * @param result
-	 * @param userId
+	 * @param  vendorDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> addVendor(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture, @ModelAttribute @Valid final VendorDTO vendorDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> addVendor(@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
+			@ModelAttribute @Valid final VendorDTO vendorDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Vendor validation failed");
@@ -129,9 +127,9 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param vendorDTO
-	 * @param result
-	 * @param userId
+	 * @param  vendorDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -161,9 +159,9 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param vendorDTO
-	 * @param result
-	 * @param userId
+	 * @param  vendorDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -186,9 +184,9 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param vendorDTO
-	 * @param result
-	 * @param userId
+	 * @param  vendorDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -212,17 +210,18 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/{vendorId}/{subscriptionPlanId}")
 	public ResponseEntity<Object> updateSubscriptionPlan(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("vendorId") final Long vendorId, @PathVariable("subscriptionPlanId") final Long subscriptionPlanId) throws NotFoundException {
+			@PathVariable("vendorId") final Long vendorId, @PathVariable("subscriptionPlanId") final Long subscriptionPlanId)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update subscription plan for vendor:{} and planId:{}", vendorId, subscriptionPlanId);
 		vendorService.addUpdateSubscriptionPlan(vendorId, subscriptionPlanId);
 		LOGGER.info("Outside update subscription plan ");
@@ -233,10 +232,10 @@ public class VendorController {
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -255,8 +254,8 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param vendorId
-	 * @param userId
+	 * @param  vendorId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -272,8 +271,8 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param vendorId
-	 * @param userId
+	 * @param  vendorId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -289,15 +288,15 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
-	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PutMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getVendorListBasedOnParams(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final VendorFilterDTO vendorFilterDTO) throws ValidationException {
 		Long totalCount = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
@@ -313,8 +312,8 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param vendorId
-	 * @param active
+	 * @param  vendorId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -332,45 +331,6 @@ public class VendorController {
 	}
 
 	/**
-	 * upload profile picture of vendor
-	 *
-	 * @param vendorId
-	 * @param userId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PutMapping(value = "/profilepicture/{vendorId}")
-	public ResponseEntity<Object> uploadProfilePicture(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture, @PathVariable("vendorId") final Long vendorId)
-			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside upload profile picture of vendor id:{}", vendorId);
-		if (profilePicture == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("profile.image.required", null));
-		}
-		vendorService.uploadProfilePicture(profilePicture, vendorId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("profile.image.update.message", null)).create();
-	}
-
-	/**
-	 * Delete profile picture of vendor
-	 *
-	 * @param vendorId
-	 * @param userId
-	 * @return
-	 * @throws NotFoundException
-	 */
-	@DeleteMapping(value = "/profilepicture/{vendorId}")
-	public ResponseEntity<Object> deleteProfilePicture(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId)
-			throws NotFoundException {
-		LOGGER.info("Inside delete profile picture for id:{}", vendorId);
-		vendorService.deleteProfilePicture(vendorId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("profile.image.delete.message", null)).create();
-	}
-
-	/**
 	 * revoke token for the user
 	 *
 	 * @param userName
@@ -384,4 +344,39 @@ public class VendorController {
 		}
 		LOGGER.info("Successfully Revoked token for user {}", userName);
 	}
+
+	/**
+	 * Get vendor list for customer app
+	 *
+	 * @param  vendorListFilterDTO
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/app/list")
+	public ResponseEntity<Object> getVendorCustomerListBasedOnParams(@RequestBody @Valid final VendorListFilterDTO vendorListFilterDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error(VENDOR_VALIDATION_FAILED);
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		List<VendorResponseDTO> vendorList = vendorService.getVendorListForApp(vendorListFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
+				.setData(vendorList).create();
+
+	}
+
+	@PutMapping("/change/status/{vendorId}/{newStatus}")
+	public ResponseEntity<Object> changeVendorStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
+		String userName = vendorService.changeVendorStatus(vendorId, newStatus);
+		if (userName != null && VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)) {
+			revokeToken(userName);
+		}
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
+	}
+
 }

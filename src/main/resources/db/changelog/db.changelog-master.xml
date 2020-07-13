@@ -96,32 +96,87 @@
 				path="sql-files/1.0/scheduler_details.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
-	
 	<changeSet id="15" author="nisha.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/rating_system.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
+	<changeSet id="16" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/product_topping.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="17" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/product_attribute.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="18" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/temp_cart.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="19" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/cart.sql" relativeToChangelogFile="true"
+			splitStatements="true" stripComments="true" />
+			</changeSet>
+		
+	<changeSet id="20" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/vendor_cuisine.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="21" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/vendor_change.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="22" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/insert_query_role_permission_vendor.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="23" author="ankit.bhimani"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/delivery_boy_change.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 	
-	<changeSet id="16" author="nisha.parmar"
+	<changeSet id="24" author="nisha.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/inventory.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
 	
-	<changeSet id="17" author="nisha.parmar"
+	<changeSet id="25" author="nisha.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/expire_stock_scheduler.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
 	
-	<changeSet id="18" author="ankit.bhimani"
+	<changeSet id="26" author="ankit.bhimani"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/ticket.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
+	<changeSet id="27" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/order.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
 </databaseChangeLog>

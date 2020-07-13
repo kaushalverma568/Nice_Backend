@@ -20,24 +20,22 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jan-2020
+ * @date : 08-Jan-2020
  */
 @Component
 public class OrderRatingMapper {
-	
-	
+
 	@Autowired
 	private OrderItemRatingService orderItemRatingService;
-	
+
 	@Autowired
 	private DeliveryBoyService deliveryBoyService;
-	
+
 	@Autowired
 	private VendorService vendorService;
-	
+
 	@Autowired
 	private OrderItemRatingMapper orderItemRatingMapper;
-	
 
 	public OrderRatingResponseDTO toResponseDto(final OrderRating orderRating) throws NotFoundException {
 		OrderRatingResponseDTO orderRatingResponseDTO = new OrderRatingResponseDTO();
@@ -45,7 +43,7 @@ public class OrderRatingMapper {
 		Vendor vendor = vendorService.getVendorDetail(orderRating.getVendorId());
 		orderRatingResponseDTO.setVendorName(vendor.getFirstName() + " " + vendor.getLastName());
 		DeliveryBoy boy = deliveryBoyService.getDeliveryBoyDetail(orderRating.getDeliveryBoyId());
-		orderRatingResponseDTO.setDeliveryBoyName(boy.getFullName());
+		orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstName().concat(" ").concat(boy.getLastName()));
 		List<OrderItemRating> itemRatingList = orderItemRatingService.getOrderRatingByOrderRatingId(orderRating.getId());
 		orderRatingResponseDTO.setOrderItemRatingDtoList(orderItemRatingMapper.toDtos(itemRatingList));
 		return orderRatingResponseDTO;

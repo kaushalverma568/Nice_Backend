@@ -4,7 +4,11 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.util.List;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -33,11 +37,16 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	@NotBlank(message = "{accepts.not.null}")
 	private String accepts;
 
-	@NotBlank(message = "{openingHours.not.null}")
-	private String openingHours;
+	@Temporal(TemporalType.TIME)
+	@NotNull(message = "{openingHours.from.not.null}")
+	private Time openingHoursFrom;
 
-	@NotBlank(message = "{approxDeliveryTime.not.null}")
-	private String approxDeliveryTime;
+	@Temporal(TemporalType.TIME)
+	@NotNull(message = "{openingHours.to.not.null}")
+	private Time openingHoursTo;
+
+	@NotNull(message = "{approxDeliveryTime.not.null}")
+	private Integer approxDeliveryTime;
 
 	@NotNull(message = "{minimumOrderAmt.not.null}")
 	private Double minimumOrderAmt;
@@ -50,5 +59,13 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 
 	@NotBlank(message = "{deliveryType.not.null}")
 	private String deliveryType;
+
+	@NotNull(message = "{cuisine.ids.not.null}")
+	private List<Long> cuisineIds;
+
+	private List<VendorCuisineDTO> vendorCuisineDTOs;
+
+	@NotNull(message = "{isOrderServiceEnable.not.null}")
+	private Boolean isOrderServiceEnable;
 
 }

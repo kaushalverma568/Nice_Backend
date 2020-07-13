@@ -8,11 +8,12 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
-	VERIFICATION_PENDING("Verification_Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired");
+	VERIFICATION_PENDING("Verification_Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired"),
+	SUSPENDED("Suspended");
 
 	String statusValue;
 
@@ -50,18 +51,32 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 			nextStatus = new VendorStatus[] { ACTIVE };
 			break;
 		case ACTIVE:
-			nextStatus = new VendorStatus[] { EXPIRED };
+			nextStatus = new VendorStatus[] { EXPIRED, SUSPENDED };
 			break;
 		case EXPIRED:
-			nextStatus = new VendorStatus[] { ACTIVE };
+			nextStatus = new VendorStatus[] { ACTIVE, SUSPENDED };
+			break;
+		case SUSPENDED:
+			nextStatus = new VendorStatus[] { ACTIVE, EXPIRED };
 			break;
 		case REJECTED:
-			nextStatus = new VendorStatus[] {};
+			nextStatus = new VendorStatus[] { APPROVED };
 			break;
 		default:
 			break;
 		}
 
 		return nextStatus;
+	}
+
+	public boolean contains(final String newStatus) {
+		if (nextStatus() != null) {
+			for (final BasicStatus<VendorStatus> status : nextStatus()) {
+				if (newStatus.equals(status.getStatusValue())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -29,13 +29,9 @@ public class ProductMapper {
 		return productResponseDTO;
 	}
 
-	public Product toEntity(final ProductRequestDTO productRequestDTO, final Long userId) {
+	public Product toEntity(final ProductRequestDTO productRequestDTO) {
 		Product product = new Product();
 		BeanUtils.copyProperties(productRequestDTO, product);
-		if (productRequestDTO.getId() == null) {
-			product.setCreatedBy(userId);
-		}
-		product.setUpdatedBy(userId);
 		return product;
 	}
 
