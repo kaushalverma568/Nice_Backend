@@ -36,10 +36,11 @@ import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
+import com.nice.dto.ForgotPasswordParameterDTO;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
+import com.nice.dto.ResetPasswordParameterDTO;
 import com.nice.dto.SocialLoginDto;
-import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserLoginDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.UnAuthorizationException;
@@ -85,46 +86,47 @@ public class UserLoginController {
 	/**
 	 * Generic Forgot password API
 	 *
-	 * @param  updatePasswordParameterDTO
-	 * @param  result
+	 * @param forgotPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 */
 	@GetMapping("/forgotPassword")
-	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid final UpdatePasswordParameterDTO updatePasswordParameterDTO, final BindingResult result)
+	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid final ForgotPasswordParameterDTO forgotPasswordParameterDTO, final BindingResult result)
 			throws ValidationException, NotFoundException, MessagingException {
-		LOGGER.info("inside forgot password with UpdatePasswordParameterDTO : {}", updatePasswordParameterDTO);
+		LOGGER.info("inside forgot password with UpdatePasswordParameterDTO : {}", forgotPasswordParameterDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		userLoginService.forgotPassword(updatePasswordParameterDTO);
+		userLoginService.forgotPassword(forgotPasswordParameterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(
-				updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "check.email.reset.password" : "check.message.reset.password",
+				forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "check.email.reset.password" : "check.message.reset.password",
 				null)).create();
 		}
 
 	/**
 	 * Reset password after forgot password based on OTP, USER TYPE and TYPE
 	 *
-	 * @param  email
-	 * @param  otp
-	 * @param  password
-	 * @param  type
-	 * @param  userType
+	 * @param email
+	 * @param otp
+	 * @param password
+	 * @param type
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PostMapping("/resetPassword/{email}/{otp}/{type}/{userType}")
-	public ResponseEntity<Object> resetPassword(@PathVariable("email") final String email, @PathVariable("otp") final String otp,
-			@RequestBody final String password, @PathVariable("type") final String type, @PathVariable("userType") final String userType)
+	@PostMapping("/resetPassword")
+	public ResponseEntity<Object> resetPassword(@RequestBody @Valid final ResetPasswordParameterDTO resetPasswordParameterDTO, final BindingResult result)
 			throws ValidationException, NotFoundException {
-
-		String response = userLoginService.resetPassword(email, otp, password,
-				UserOtpTypeEnum.EMAIL.name().equalsIgnoreCase(type) ? UserOtpTypeEnum.EMAIL.name() : UserOtpTypeEnum.SMS.name(), userType);
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		String response = userLoginService.resetPassword(resetPasswordParameterDTO);
 		return new GenericResponseHandlers.Builder().setMessage(response).setData(response).setStatus(HttpStatus.OK).create();
 	}
 
@@ -188,7 +190,7 @@ public class UserLoginController {
 	/**
 	 * Logout API : Also revoke access of token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@GetMapping(path = "/logout")
@@ -260,8 +262,8 @@ public class UserLoginController {
 	/**
 	 * ADMIN & USER Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -284,8 +286,8 @@ public class UserLoginController {
 	/**
 	 * Customer Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -308,8 +310,8 @@ public class UserLoginController {
 	/**
 	 * Delivery boy Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -336,8 +338,8 @@ public class UserLoginController {
 	/**
 	 * Login with OTP for customer
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -360,9 +362,10 @@ public class UserLoginController {
 
 	/**
 	 * API is useful for generate OTP for login. </br>
-	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
+	 * If customer is not exist with respect to mobile then it will create customer
+	 * based on phoneNumber.
 	 *
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

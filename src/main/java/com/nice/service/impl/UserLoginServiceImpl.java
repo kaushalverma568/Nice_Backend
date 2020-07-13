@@ -39,11 +39,12 @@ import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.ForgotPasswordParameterDTO;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
+import com.nice.dto.ResetPasswordParameterDTO;
 import com.nice.dto.SocialLoginDto;
-import com.nice.dto.UpdatePasswordParameterDTO;
 import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.BaseRuntimeException;
@@ -188,15 +189,18 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
 			 * active but customer can not login with email and password but it can login with OTP.
 			 */
-			Customer customer = null;
-			try {
-				customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
-			} catch (final NotFoundException e) {
-				LOGGER.error("Customer not found for customer Id: {} ", optUserLogin.get().getEntityId());
-			}
-			if (customer != null && (customer.getEmailVerified() == null || !customer.getEmailVerified())) {
-				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
-						messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
+			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
+					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
+				Customer customer = null;
+				try {
+					customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
+				} catch (final NotFoundException e) {
+					LOGGER.error("Customer not found for customer Id: {} ", optUserLogin.get().getEntityId());
+				}
+				if (customer != null && (customer.getEmailVerified() == null || !customer.getEmailVerified())) {
+					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
+							messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
+				}
 			}
 		}
 
@@ -467,47 +471,47 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void forgotPassword(final UpdatePasswordParameterDTO updatePasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
+	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
 		 * verify type and if type is email then email is required and if type is sms then phone number is required
 		 */
-		if (!(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
-				|| updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
+		if (!(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				|| forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
-		} else if ((updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail()))
-				|| (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())
-						&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getPhoneNumber()))) {
+		} else if ((forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getEmail()))
+				|| (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())
+						&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getPhoneNumber()))) {
 			throw new ValidationException(messageByLocaleService
-					.getMessage(updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "email.not.null" : "phone.number.not.null", null));
+					.getMessage(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name()) ? "email.not.null" : "phone.number.not.null", null));
 		} else {
 			String userName;
-			if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
-				userName = updatePasswordParameterDTO.getEmail().toLowerCase();
+			if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+				userName = forgotPasswordParameterDTO.getEmail().toLowerCase();
 			} else {
-				userName = updatePasswordParameterDTO.getPhoneNumber().toLowerCase();
+				userName = forgotPasswordParameterDTO.getPhoneNumber().toLowerCase();
 			}
-			Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, updatePasswordParameterDTO.getUserType());
+			Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName, forgotPasswordParameterDTO.getUserType());
 			if (userLogin.isPresent()) {
 				/**
 				 * generate OTP
 				 */
 				final UserOtpDto userOtpDto = new UserOtpDto();
 				userOtpDto.setUserLoginId(userLogin.get().getId());
-				userOtpDto.setType(updatePasswordParameterDTO.getType());
+				userOtpDto.setType(forgotPasswordParameterDTO.getType());
 				final UserOtp userOtp = otpService.generateOtp(userOtpDto);
-				if (updatePasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
-					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), updatePasswordParameterDTO.getUserType(),
-							updatePasswordParameterDTO.getSendingType());
+				if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
+					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), forgotPasswordParameterDTO.getUserType(),
+							forgotPasswordParameterDTO.getSendingType());
 				} else {
-					userOtpDto.setPhoneNumber(updatePasswordParameterDTO.getPhoneNumber().toLowerCase());
+					userOtpDto.setPhoneNumber(forgotPasswordParameterDTO.getPhoneNumber().toLowerCase());
 					otpService.sendOtp(userOtpDto, userOtp.getUserLogin(), userOtp.getOtp());
 				}
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username",
-						new Object[] { CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(updatePasswordParameterDTO.getEmail())
-								? updatePasswordParameterDTO.getEmail()
-								: updatePasswordParameterDTO.getPhoneNumber() }));
+						new Object[] { CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getEmail())
+								? forgotPasswordParameterDTO.getEmail()
+								: forgotPasswordParameterDTO.getPhoneNumber() }));
 			}
 		}
 	}
@@ -530,18 +534,22 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public String resetPassword(final String userName, final String otp, final String password, final String type, final String userType)
-			throws ValidationException, NotFoundException {
-		if (!(Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.USER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType))) {
+	public String resetPassword(final ResetPasswordParameterDTO resetPasswordParameterDTO) throws ValidationException, NotFoundException {
+		if (!(Constant.CUSTOMER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
+				|| Constant.USER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
+				|| Constant.DELIVERY_BOY.equalsIgnoreCase(resetPasswordParameterDTO.getUserType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-		} else if (otpService.verifyOtp(userName.toLowerCase(), type, otp, userType)) {
-			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(userName.toLowerCase(), userType);
+		} else if (otpService.verifyOtp(resetPasswordParameterDTO.getEmail().toLowerCase(), resetPasswordParameterDTO.getType(),
+				resetPasswordParameterDTO.getOtp(), resetPasswordParameterDTO.getUserType())) {
+			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(resetPasswordParameterDTO.getEmail().toLowerCase(),
+					resetPasswordParameterDTO.getUserType());
 			if (userLogin.isPresent()) {
-				userLogin.get().setPassword(CommonUtility.generateBcrypt(password));
+				userLogin.get().setPassword(CommonUtility.generateBcrypt(resetPasswordParameterDTO.getPassword()));
 				userLoginRepository.save(userLogin.get());
 				return messageByLocaleService.getMessage("reset.password.successful", null);
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { userName }));
+				throw new ValidationException(
+						messageByLocaleService.getMessage("user.not.found.username", new Object[] { resetPasswordParameterDTO.getEmail() }));
 			}
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("reset.password.unsuccessful", null));
@@ -632,7 +640,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				customerRepository.save(customer);
 			}
 		} else {
-			throw new ValidationException("Invalid OTP");
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.expire.otp", null));
 		}
 	}
 
