@@ -23,6 +23,7 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.SchedulerDetails;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.DiscountService;
 import com.nice.service.SchedulerDetailsService;
 import com.nice.service.StockDetailsService;
 import com.nice.service.VendorService;
@@ -49,6 +50,9 @@ public class SchedulerController {
 
 	@Autowired
 	private StockDetailsService stockDetailsService;
+	
+	@Autowired
+	private DiscountService discountService;
 
 	@GetMapping
 	public ResponseEntity<Object> getSchedulerList(@RequestHeader("Authorization") final String accessToken) {
@@ -64,8 +68,8 @@ public class SchedulerController {
 		final LocalDate runDate = LocalDate.now();
 		LOGGER.info("Inside run Scheduler of discount for date :{}", runDate);
 
-		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name) || Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)
-				|| Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name))) {
+		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name) || Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name) ||
+				Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name) || Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name))) {
 			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", new Object[] { name }));
 		}
 		SchedulerDetails schedulerDetails = schedulerDetailsService.getLastSchedulerRunDate(name);
@@ -78,6 +82,9 @@ public class SchedulerController {
 		if (Constant.EXPIRE_STOCK_SCHEDULER.equals(name)) {
 			stockDetailsService.moveQtyToExpiredState(new Date());
 		}
+		if (Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name)) {
+			discountService.activateExpireDiscount(LocalDate.now());
+		} 
 		if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
 			vendorService.runVendorSubscriptionExpireScheduler(new Date());
 		} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {

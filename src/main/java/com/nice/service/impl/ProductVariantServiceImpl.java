@@ -30,6 +30,7 @@ import com.nice.model.UOM;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductVariantRepository;
 import com.nice.service.CartItemService;
+import com.nice.service.DiscountService;
 import com.nice.service.ProductAddonsService;
 import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductService;
@@ -78,6 +79,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private ProductToppingService productToppingService;
+	
+
+	@Autowired
+	private DiscountService discountService;
 
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
@@ -96,15 +101,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		if (productVariantRequestDTO.getId() == null) {
 			productVariant.setUom(uomService.getUOMDetail(productVariantRequestDTO.getUomId()));
 			productVariant.setProduct(product);
-			/**
-			 * Uncomment and modify this code in case of discount
-			 */
-			// if (product.getDiscountId() != null) {
-			// final Double discounteRate =
-			// discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
-			// productVariant.setDiscountedRate(productVariant.getRate() -
-			// ((productVariant.getRate() * discounteRate) / 100));
-			// }
+			if (product.getDiscountId() != null) {
+				final Double discounteRate = discountService.getDiscountDetails(product.getDiscountId()).getDiscountRate();
+				productVariant.setDiscountedRate(productVariant.getRate() - ((productVariant.getRate() * discounteRate) / 100));
+			}
 		} else {
 			final ProductVariant existingProductVariant = getProductVariantDetail(productVariantRequestDTO.getId());
 			if (!existingProductVariant.getProduct().getId().equals(productId)) {
@@ -114,15 +114,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			} else {
 				productVariant.setUom(existingProductVariant.getUom());
 				productVariant.setProduct(existingProductVariant.getProduct());
-				/**
-				 * Uncomment and modify this code in case of discount
-				 */
-				// if (existingProductVariant.getProduct().getDiscountId() != null) {
-				// final Double discounteRate =
-				// discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
-				// productVariant.setDiscountedRate(productVariant.getRate() -
-				// ((productVariant.getRate() * discounteRate) / 100));
-				// }
+				if (existingProductVariant.getProduct().getDiscountId() != null) {
+					final Double discounteRate = discountService.getDiscountDetails(existingProductVariant.getProduct().getDiscountId()).getDiscountRate();
+					productVariant.setDiscountedRate(productVariant.getRate() - ((productVariant.getRate() * discounteRate) / 100));
+				}
 			}
 		}
 		productVariantRepository.save(productVariant);

@@ -27,10 +27,6 @@ import com.nice.util.CommonUtility;
 @Repository(value = "niceProductCustomRepository")
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
-	/**
-	 *
-	 */
-	private static final String AND = " and ";
 
 	private static final String PRODUCT_TABLE_NAME = "product";
 	private static final String PRODUCT_VARIANT_TABLE_NAME = "product_variant";
@@ -97,6 +93,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			sqlQuery.append(" and p.vendor_id = :vendorId ");
 			paramMap.put("vendorId", productParamRequestDTO.getVendorId());
 		}
+		
+		if (productParamRequestDTO.getDiscountId() != null) {
+			sqlQuery.append(" and p.discount_id = :discountId ");
+			paramMap.put("discountId", productParamRequestDTO.getDiscountId());
+		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getCategoryIds())) {
 			sqlQuery.append(
@@ -112,7 +113,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			sqlQuery.append(
 					" and p.brand_id in (" + productParamRequestDTO.getBrandIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
 		}
-
+		
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getCuisineIds())) {
 			sqlQuery.append(
 					" and p.cuisine_id in (" + productParamRequestDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");

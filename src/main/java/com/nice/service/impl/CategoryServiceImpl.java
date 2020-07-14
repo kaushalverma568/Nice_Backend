@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
+import com.nice.constant.DiscountStatusEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CategoryDTO;
 import com.nice.dto.CategoryImport;
@@ -34,12 +36,15 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CategoryMapper;
 import com.nice.model.Category;
+import com.nice.model.Discount;
 import com.nice.model.SubCategory;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.CategoryRepository;
+import com.nice.repository.DiscountRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
+import com.nice.service.DiscountService;
 import com.nice.service.FileStorageService;
 import com.nice.service.SubCategoryService;
 import com.nice.service.VendorService;
@@ -83,6 +88,12 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Autowired
 	private FileStorageService fileStorageService;
+	
+	@Autowired
+	private DiscountRepository discountRepository;
+
+	@Autowired
+	private DiscountService discountService;
 
 	@Override
 	public void addCategory(final CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException {
@@ -190,6 +201,17 @@ public class CategoryServiceImpl implements CategoryService {
 				final List<SubCategory> subCategories = subCategoryService.getSubCategoryListByCategoryAndActive(existingCategory, Boolean.TRUE);
 				for (final SubCategory subCategory : subCategories) {
 					subCategoryService.changeStatus(subCategory.getId(), Boolean.FALSE);
+				}
+				
+				/**
+				 * deActive All discount related to this category at the time of deActivating Brand
+				 */
+				List<Discount> discountList = discountRepository.findAllByCategoryIdAndStatusIn(categoryId,
+						Arrays.asList(DiscountStatusEnum.ACTIVE.getStatusValue(), DiscountStatusEnum.UPCOMING.getStatusValue()));
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(discountList)) {
+					for (Discount discount : discountList) {
+						discountService.changeStatus(discount.getId(), DiscountStatusEnum.CANCELLED.getStatusValue());
+					}
 				}
 			} else {
 				LOGGER.info("Activating  Category");

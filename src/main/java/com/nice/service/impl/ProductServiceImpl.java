@@ -40,6 +40,7 @@ import com.nice.service.BrandService;
 import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
+import com.nice.service.DiscountService;
 import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
@@ -104,6 +105,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private TempCartItemService tempCartItemService;
+	
+	@Autowired
+	private DiscountService discountService;
 
 	private UserLogin getUserLoginFromToken() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -391,12 +395,10 @@ public class ProductServiceImpl implements ProductService {
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
 		productResponseDTO.setProductExtrasList(productExtrasService.getList(listForAdmin ? null : true, product.getId()));
-		// TODO
-		// uncomment and modify the below code for discount
-		// if (product.getDiscountId() != null) {
-		// productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
-		// }
 		LOGGER.info("Inside convertEntityToResponseDto");
+		 if (product.getDiscountId() != null) {
+		 productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
+		 }
 		return productResponseDTO;
 	}
 
