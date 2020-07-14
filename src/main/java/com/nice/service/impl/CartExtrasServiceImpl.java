@@ -50,6 +50,7 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 
 	@Override
 	public void addCartExtras(final CartExtrasDto cartExtrasDTO, final CartItem cartItem) throws ValidationException, NotFoundException {
+		LOGGER.info("Saving data to cart extra for cartItemId :{}", cartItem.getId());
 		CartExtras cartExtras = new CartExtras();
 		BeanUtils.copyProperties(cartExtrasDTO, cartExtras);
 		ProductExtras productExtras = productExtrasService.getProductExtrasDetail(cartExtrasDTO.getProductExtrasId());
@@ -58,6 +59,7 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 		 * Check if addons belongs to the product variant
 		 */
 		if (!productVariant.getProduct().getId().equals(productExtras.getProduct().getId())) {
+			LOGGER.error("extra not associated to product variant");
 			throw new ValidationException(messageByLocaleService.getMessage("extras.associated.to.product", null));
 		}
 
@@ -69,30 +71,37 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 		}
 		cartExtras.setProductExtras(productExtras);
 		cartExtras.setCartItem(cartItem);
+		LOGGER.error("All validations passed, saving extra data for cartItem :{}", cartItem.getId());
 		cartExtrasRepository.save(cartExtras);
 	}
 
 	@Override
 	public List<ProductExtrasDTO> getCartExtrasDtoListForCartItem(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside getProductextrasDtoListForCartItem cartItemId :{}", cartItemId);
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartExtras> cartExtrasList = cartExtrasRepository.findAllByCartItem(cartItem);
+		LOGGER.info("After getProductextrasDtoListForCartItem cartItemId :{}", cartItemId);
 		return convertEntityToDtos(cartExtrasList);
 	}
 
 	@Override
 	public void updateCartExtrasQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateCartextrasQty cartItemId :{}, and qty :{}", cartItemId, quantity);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartExtras> cartExtrasList = cartExtrasRepository.findAllByCartItem(cartItem);
 		for (CartExtras cartExtras : cartExtrasList) {
 			cartExtras.setQuantity(quantity);
 			cartExtrasRepository.save(cartExtras);
 		}
+		LOGGER.info("After successfully updateCartextrasQty cartItemId :{} with qty :{}", cartItemId, quantity);
 	}
 
 	@Override
 	public void deleteCartExtras(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartextras for cartItemId :{}", cartItemId);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		cartExtrasRepository.deleteAllByCartItem(cartItem);
+		LOGGER.info("After deleteCartextras for cartItemId :{}", cartItemId);
 	}
 
 	/**
@@ -111,10 +120,12 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 	 * @param cartExtrasList
 	 */
 	private List<ProductExtrasDTO> convertEntityToDtos(final List<CartExtras> cartExtrasList) {
+		LOGGER.info("Inside convertEntityToDtos");
 		List<ProductExtrasDTO> productExtrasDtoList = new ArrayList<>();
 		for (CartExtras cartExtras : cartExtrasList) {
 			productExtrasDtoList.add(convertEntityToDto(cartExtras));
 		}
+		LOGGER.info("After convertEntityToDtos");
 		return productExtrasDtoList;
 	}
 
@@ -123,18 +134,22 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 	 * @param cartExtras
 	 */
 	private boolean checkIfExistsCartExtrasForCartItemAndExtras(final CartItem cartItem, final ProductExtras productExtras) {
+		LOGGER.info("Inside checkIfExistsCartextrasForCartItemAndextras for cartItem : {} and productextras :{}", cartItem.getId(), productExtras);
 		return cartExtrasRepository.findAllByCartItemAndProductExtras(cartItem, productExtras).isPresent();
 
 	}
 
 	@Override
 	public List<CartExtras> getCartExtrasListForCartItem(final Long id) throws NotFoundException {
+		LOGGER.info("Inside getCartextrasListForCartItem using Id for cartItem : {}", id);
 		CartItem cartItem = cartItemService.getCartItemDetail(id);
+		LOGGER.info("After getCartextrasListForCartItem using Id for cartItem : {}", id);
 		return getCartExtrasListForCartItem(cartItem);
 	}
 
 	@Override
 	public List<CartExtras> getCartExtrasListForCartItem(final CartItem cartItem) {
+		LOGGER.info("Inside getCartextrasListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartExtrasRepository.findAllByCartItem(cartItem);
 	}
 }

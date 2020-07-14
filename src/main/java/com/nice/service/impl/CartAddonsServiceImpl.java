@@ -45,6 +45,7 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 
 	@Override
 	public void addCartAddons(final CartAddonsDTO cartAddonsDTO, final CartItem cartItem) throws ValidationException, NotFoundException {
+		LOGGER.info("Saving data to cart addon for cartItemId :{}", cartItem.getId());
 		CartAddons cartAddons = new CartAddons();
 		BeanUtils.copyProperties(cartAddonsDTO, cartAddons);
 		ProductAddons productAddons = productAddonsService.getProductAddonsDetail(cartAddonsDTO.getProductAddonsId());
@@ -53,6 +54,7 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 		 * Check if addons belongs to the product variant
 		 */
 		if (!cartItem.getProductVariant().getId().equals(productAddons.getProductVariant().getId())) {
+			LOGGER.error("addon not associated to product variant");
 			throw new ValidationException(messageByLocaleService.getMessage("addons.associated.to.variant", null));
 		}
 		/**
@@ -63,42 +65,51 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 		}
 		cartAddons.setProductAddons(productAddons);
 		cartAddons.setCartItem(cartItem);
-
+		LOGGER.error("All validations passed, saving addon data for cartItem :{}", cartItem.getId());
 		cartAddonsRepository.save(cartAddons);
 	}
 
 	@Override
 	public List<ProductAddonsDTO> getCartAddonsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside getProductAddonsDtoListForCartItem cartItemId :{}", cartItemId);
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartAddons> cartAddonsList = cartAddonsRepository.findAllByCartItem(cartItem);
+		LOGGER.info("After getProductAddonsDtoListForCartItem cartItemId :{}", cartItemId);
 		return convertEntityToDtos(cartAddonsList);
 	}
 
 	@Override
 	public List<CartAddons> getCartAddonsListForCartItem(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside getCartAddonsListForCartItem using Id for cartItem : {}", cartItemId);
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
+		LOGGER.info("After getCartAddonsListForCartItem using Id for cartItem : {}", cartItemId);
 		return getCartAddonsListForCartItem(cartItem);
 	}
 
 	@Override
 	public List<CartAddons> getCartAddonsListForCartItem(final CartItem cartItem) {
+		LOGGER.info("Inside getCartAddonsListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartAddonsRepository.findAllByCartItem(cartItem);
 	}
 
 	@Override
 	public void updateCartAddonsQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateCartAddonsQty cartItemId :{}, and qty :{}", cartItemId, quantity);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartAddons> cartAddonsList = cartAddonsRepository.findAllByCartItem(cartItem);
 		for (CartAddons cartAddons : cartAddonsList) {
 			cartAddons.setQuantity(quantity);
 			cartAddonsRepository.save(cartAddons);
 		}
+		LOGGER.info("After successfully updateCartAddonsQty cartItemId :{} with qty :{}", cartItemId, quantity);
 	}
 
 	@Override
 	public void deleteCartAddons(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartAddons for cartItemId :{}", cartItemId);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		cartAddonsRepository.deleteAllByCartItem(cartItem);
+		LOGGER.info("After deleteCartAddons for cartItemId :{}", cartItemId);
 	}
 
 	/**
@@ -115,10 +126,12 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 	 * @param cartAddonsList
 	 */
 	private List<ProductAddonsDTO> convertEntityToDtos(final List<CartAddons> cartAddonsList) {
+		LOGGER.info("Inside convertEntityToDtos");
 		List<ProductAddonsDTO> productAddonsDtoList = new ArrayList<>();
 		for (CartAddons cartAddons : cartAddonsList) {
 			productAddonsDtoList.add(convertEntityToDto(cartAddons));
 		}
+		LOGGER.info("After convertEntityToDtos");
 		return productAddonsDtoList;
 	}
 
@@ -127,7 +140,7 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 	 * @param cartAddons
 	 */
 	private boolean checkIfExistsCartAddonsForCartItemAndAddons(final CartItem cartItem, final ProductAddons productAddons) {
+		LOGGER.info("Inside checkIfExistsCartAddonsForCartItemAndAddons for cartItem : {} and productAddons :{}", cartItem.getId(), productAddons);
 		return cartAddonsRepository.findAllByCartItemAndProductAddons(cartItem, productAddons).isPresent();
-
 	}
 }

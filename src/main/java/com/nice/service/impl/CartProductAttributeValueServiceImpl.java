@@ -29,7 +29,7 @@ import com.nice.service.ProductAttributeValueService;
 public class CartProductAttributeValueServiceImpl implements CartProductAttributeValueService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CartProductAttributeValueServiceImpl.class);
 	@Autowired
-	private CartItemService tempCartItemService;
+	private CartItemService cartItemService;
 
 	@Autowired
 	private CartProductAttributeValueRepository cartAttributeValueRepository;
@@ -44,8 +44,9 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 	private MessageByLocaleService messageByLocaleService;
 
 	@Override
-	public void addCartProductAttributeValue(final CartProductAttributeValueDTO cartAttributeValueDTO, final CartItem tempCartItem)
+	public void addCartProductAttributeValue(final CartProductAttributeValueDTO cartAttributeValueDTO, final CartItem cartItem)
 			throws ValidationException, NotFoundException {
+		LOGGER.info("Saving data to cart ProductAttributeValue for cartItemId :{}", cartItem.getId());
 		CartProductAttributeValue cartAttributeValue = new CartProductAttributeValue();
 		BeanUtils.copyProperties(cartAttributeValueDTO, cartAttributeValue);
 		ProductAttributeValue productAttributeValue = productAttributeValueService
@@ -53,85 +54,99 @@ public class CartProductAttributeValueServiceImpl implements CartProductAttribut
 		/**
 		 * Check if addons belongs to the product variant
 		 */
-		if (!tempCartItem.getProductVariant().getId().equals(productAttributeValue.getProductVariant().getId())) {
+		if (!cartItem.getProductVariant().getId().equals(productAttributeValue.getProductVariant().getId())) {
+			LOGGER.error("ProductAttributeValue not associated to product variant");
 			throw new ValidationException(messageByLocaleService.getMessage("attribute.values.associated.to.variant", null));
 		}
 		/**
 		 * check for existing addons
 		 */
-		if (checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(tempCartItem, productAttributeValue)) {
+		if (checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(cartItem, productAttributeValue)) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
 					new Object[] { productAttributeValue.getProductAttribute().getName() }));
 		}
 		cartAttributeValue.setProductAttributeValue(productAttributeValue);
-		cartAttributeValue.setCartItem(tempCartItem);
-
+		cartAttributeValue.setCartItem(cartItem);
+		LOGGER.error("All validations passed, saving ProductAttributeValue data for cartItem :{}", cartItem.getId());
 		cartAttributeValueRepository.save(cartAttributeValue);
 	}
 
 	@Override
 	public List<ProductAttributeValueDTO> getProductAttributeValueDtoListForCartItem(final Long cartItemId) throws NotFoundException {
-		CartItem tempCartItem = tempCartItemService.getCartItemDetail(cartItemId);
-		List<CartProductAttributeValue> tempCartAttributeValueList = cartAttributeValueRepository.findAllByCartItem(tempCartItem);
-		return convertEntityToDtos(tempCartAttributeValueList);
+		LOGGER.info("Inside getProductProductAttributeValuesDtoListForCartItem cartItemId :{}", cartItemId);
+		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
+		List<CartProductAttributeValue> cartAttributeValueList = cartAttributeValueRepository.findAllByCartItem(cartItem);
+		LOGGER.info("After getProductProductAttributeValuesDtoListForCartItem cartItemId :{}", cartItemId);
+		return convertEntityToDtos(cartAttributeValueList);
 	}
 
 	@Override
 	public void updateCartProductAttributeValueQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
-		final CartItem cartItem = tempCartItemService.getCartItemDetail(cartItemId);
-		List<CartProductAttributeValue> tempCartAttributeValueList = cartAttributeValueRepository.findAllByCartItem(cartItem);
-		for (CartProductAttributeValue tempCartAttributeValue : tempCartAttributeValueList) {
-			tempCartAttributeValue.setQuantity(quantity);
-			cartAttributeValueRepository.save(tempCartAttributeValue);
+		LOGGER.info("Inside updateCartProductAttributeValuesQty cartItemId :{}, and qty :{}", cartItemId, quantity);
+		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
+		List<CartProductAttributeValue> cartAttributeValueList = cartAttributeValueRepository.findAllByCartItem(cartItem);
+		for (CartProductAttributeValue cartAttributeValue : cartAttributeValueList) {
+			cartAttributeValue.setQuantity(quantity);
+			cartAttributeValueRepository.save(cartAttributeValue);
 		}
+		LOGGER.info("After successfully updateCartProductAttributeValuesQty cartItemId :{} with qty :{}", cartItemId, quantity);
 	}
 
 	@Override
 	public void deleteCartProductAttributeValue(final Long cartItemId) throws NotFoundException {
-		final CartItem cartItem = tempCartItemService.getCartItemDetail(cartItemId);
+		LOGGER.info("Inside deleteCartProductAttributeValues for cartItemId :{}", cartItemId);
+		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		cartAttributeValueRepository.deleteAllByCartItem(cartItem);
+		LOGGER.info("After deleteCartProductAttributeValues for cartItemId :{}", cartItemId);
 	}
 
 	/**
 	 *
-	 * @param tempCartAddon
+	 * @param cartAddon
 	 * @return
 	 */
-	private ProductAttributeValueDTO convertEntityToDto(final CartProductAttributeValue tempCartAddon) {
+	private ProductAttributeValueDTO convertEntityToDto(final CartProductAttributeValue cartAddon) {
 		LOGGER.info("Inside convert Entity To Dto method");
-		return productAttributeValueMapper.toDto(tempCartAddon.getProductAttributeValue());
+		return productAttributeValueMapper.toDto(cartAddon.getProductAttributeValue());
 	}
 
 	/**
-	 * @param tempCartAttributeValueList
+	 * @param cartAttributeValueList
 	 */
-	private List<ProductAttributeValueDTO> convertEntityToDtos(final List<CartProductAttributeValue> tempCartAttributeValueList) {
+	private List<ProductAttributeValueDTO> convertEntityToDtos(final List<CartProductAttributeValue> cartAttributeValueList) {
+		LOGGER.info("Inside convertEntityToDtos");
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = new ArrayList<>();
-		for (CartProductAttributeValue tempCartAttributeValue : tempCartAttributeValueList) {
-			productAttributeValueDtoList.add(convertEntityToDto(tempCartAttributeValue));
+		for (CartProductAttributeValue cartAttributeValue : cartAttributeValueList) {
+			productAttributeValueDtoList.add(convertEntityToDto(cartAttributeValue));
 		}
+		LOGGER.info("After convertEntityToDtos");
 		return productAttributeValueDtoList;
 	}
 
 	/**
-	 * @param tempCartItem
-	 * @param tempCartAttributeValue
+	 * @param cartItem
+	 * @param cartAttributeValue
 	 */
-	private boolean checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(final CartItem tempCartItem,
+	private boolean checkIfExistsCartProductAttributeValueForCartItemAndAttributeValue(final CartItem cartItem,
 			final ProductAttributeValue productAttributeValue) {
-		return cartAttributeValueRepository.getCountByCartItemAndProductAttribute(tempCartItem.getId(),
-				productAttributeValue.getProductAttribute().getId()) > 0L;
+		LOGGER.info(
+				"Inside checkIfExistsCartProductAttributeValuesForCartItemAndProductAttributeValues for cartItem : {} and productProductAttributeValues :{}",
+				cartItem.getId(), productAttributeValue);
+		return cartAttributeValueRepository.getCountByCartItemAndProductAttribute(cartItem.getId(), productAttributeValue.getProductAttribute().getId()) > 0L;
 
 	}
 
 	@Override
 	public List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(final Long id) throws NotFoundException {
-		CartItem cartItem = tempCartItemService.getCartItemDetail(id);
+		LOGGER.info("Inside getCartProductAttributeValuesListForCartItem using Id for cartItem : {}", id);
+		CartItem cartItem = cartItemService.getCartItemDetail(id);
+		LOGGER.info("After getCartProductAttributeValuesListForCartItem using Id for cartItem : {}", id);
 		return cartAttributeValueRepository.findAllByCartItem(cartItem);
 	}
 
 	@Override
 	public List<CartProductAttributeValue> getCartProductAttributeValueListForCartItem(final CartItem cartItem) {
+		LOGGER.info("Inside getCartProductAttributeValuesListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartAttributeValueRepository.findAllByCartItem(cartItem);
 	}
 

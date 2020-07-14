@@ -86,21 +86,23 @@ public class CartItemServiceImpl implements CartItemService {
 		/**
 		 * Get Existing cartItem based on customerId
 		 */
-		cartItemDTO.setCustomerId(getCustomerIdForLoginUser());
+		Long customerId = getCustomerIdForLoginUser();
+		cartItemDTO.setCustomerId(customerId);
+		LOGGER.info("Updating cart for customer :{}, with CartItemDto :{}", customerId, cartItemDTO);
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor
-		 * delete the old cart and populate the new one
+		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
+		 * one
 		 */
 		if (!cartItemList.isEmpty()) {
 			CartItem cartItem = cartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new
-			 * products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new products are different
 			 */
 			if (!cartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
+				LOGGER.info("Deleting cart for customer :{} as products for different vendor exists", customerId);
 				deleteCartItemForCustomer(customer.getId());
 			}
 		}
@@ -120,12 +122,14 @@ public class CartItemServiceImpl implements CartItemService {
 				 * Check if all Addons are same
 				 */
 				List<ProductAddonsDTO> cartAddonsList = cartAddonsService.getCartAddonsDtoListForCartItem(cartItem.getId());
+				LOGGER.info("Checking for addons for cartItem :{}", cartItem.getId());
 				List<Long> existingProductAddonsList = cartAddonsList.isEmpty() ? null
 						: cartAddonsList.stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
 				boolean allAddonsSame = false;
 				if ((existingProductAddonsList == null && cartItemDTO.getProductAddonsId() == null) || (cartItemDTO.getProductAddonsId() != null
 						&& existingProductAddonsList != null && existingProductAddonsList.size() == cartItemDTO.getProductAddonsId().size()
 						&& existingProductAddonsList.containsAll(cartItemDTO.getProductAddonsId()))) {
+					LOGGER.info("All addons for cartItem :{} same", cartItem.getId());
 					allAddonsSame = true;
 				}
 
@@ -133,12 +137,14 @@ public class CartItemServiceImpl implements CartItemService {
 				 * Check if all Topppings are same
 				 */
 				List<ProductToppingDto> cartToppingsList = cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId());
+				LOGGER.info("Checking for toppings for cartItem :{}", cartItem.getId());
 				List<Long> existingProductToppingsList = cartToppingsList.isEmpty() ? null
 						: cartToppingsList.stream().map(ProductToppingDto::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
 				if ((existingProductToppingsList == null && cartItemDTO.getProductToppingsIds() == null) || (cartItemDTO.getProductToppingsIds() != null
 						&& existingProductToppingsList != null && existingProductToppingsList.size() == cartItemDTO.getProductToppingsIds().size()
 						&& existingProductToppingsList.containsAll(cartItemDTO.getProductToppingsIds()))) {
+					LOGGER.info("All toppings for cartItem :{} same", cartItem.getId());
 					allToppingsSame = true;
 				}
 
@@ -147,6 +153,7 @@ public class CartItemServiceImpl implements CartItemService {
 				 */
 				List<ProductAttributeValueDTO> productAttributeValueDtoList = cartProductAttributeValueService
 						.getProductAttributeValueDtoListForCartItem(cartItem.getId());
+				LOGGER.info("Checking for productAttributeValues for cartItem :{}", cartItem.getId());
 				List<Long> existingProductAttributeValueDtoList = productAttributeValueDtoList.isEmpty() ? null
 						: productAttributeValueDtoList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
 				boolean allProductAttributeValuesSame = false;
@@ -154,6 +161,7 @@ public class CartItemServiceImpl implements CartItemService {
 						|| (cartItemDTO.getAttributeValueIds() != null && existingProductAttributeValueDtoList != null
 								&& existingProductAttributeValueDtoList.size() == cartItemDTO.getAttributeValueIds().size()
 								&& existingProductAttributeValueDtoList.containsAll(cartItemDTO.getAttributeValueIds()))) {
+					LOGGER.info("All productAttributeValues for cartItem :{} same", cartItem.getId());
 					allProductAttributeValuesSame = true;
 				}
 
@@ -161,20 +169,24 @@ public class CartItemServiceImpl implements CartItemService {
 				 * Check if all Extras are same
 				 */
 				List<ProductExtrasDTO> cartExtrasList = cartExtrasService.getCartExtrasDtoListForCartItem(cartItem.getId());
+				LOGGER.info("Checking for Extras for cartItem :{}", cartItem.getId());
 				List<Long> existingProductExtrasList = cartExtrasList.isEmpty() ? null
 						: cartExtrasList.stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
 				boolean allExtrasSame = false;
 				if ((existingProductExtrasList == null && cartItemDTO.getProductExtrasId() == null) || (cartItemDTO.getProductExtrasId() != null
 						&& existingProductExtrasList != null && existingProductExtrasList.size() == cartItemDTO.getProductExtrasId().size()
 						&& existingProductExtrasList.containsAll(cartItemDTO.getProductExtrasId()))) {
+					LOGGER.info("All Extras for cartItem :{} same", cartItem.getId());
 					allExtrasSame = true;
 				}
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if
-					 * total of existing and new is greater then 15 , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
+					 * , then set quantity as 15
 					 **/
+					LOGGER.info("All Extras, Toppings, ProductAttributeValues, Addons same for cartItem :{} , hence updating the qty of existing product",
+							cartItem.getId());
 					updateCartItemQty(cartItem.getId(),
 							cartItem.getQuantity() + cartItemEntity.getQuantity() > 15 ? 15 : cartItem.getQuantity() + cartItemEntity.getQuantity());
 					productAlreadyAdded = true;
@@ -182,13 +194,16 @@ public class CartItemServiceImpl implements CartItemService {
 				}
 			}
 			if (!productAlreadyAdded) {
+				LOGGER.info("Different product detected and hence adding to cart");
 				saveItemsToCart(cartItemEntity, cartItemDTO);
 			}
 
 		} else {
 			if (cartItemEntity.getQuantity() > 15) {
+				LOGGER.error("Qty is greater than 15");
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_QTY, null));
 			}
+			LOGGER.info("Existing cart is empty, adding product to cart");
 			saveItemsToCart(cartItemEntity, cartItemDTO);
 		}
 		return cartItemEntity.getId();
@@ -201,6 +216,7 @@ public class CartItemServiceImpl implements CartItemService {
 		for (CartItem cartItem : cartItemList) {
 			deleteCartItem(cartItem.getId());
 		}
+		LOGGER.info("After delete Cart Item method {}", id);
 	}
 
 	/**
@@ -210,6 +226,7 @@ public class CartItemServiceImpl implements CartItemService {
 	 * @throws ValidationException
 	 */
 	private void saveItemsToCart(CartItem cartItemEntity, final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
+		LOGGER.info("Saving data to cart item");
 		cartItemEntity = cartItemRepository.save(cartItemEntity);
 		if (cartItemDTO.getProductToppingsIds() != null && !cartItemDTO.getProductToppingsIds().isEmpty()) {
 			for (Long id : cartItemDTO.getProductToppingsIds()) {
@@ -239,16 +256,18 @@ public class CartItemServiceImpl implements CartItemService {
 				cartExtrasService.addCartExtras(cartExtrasDto, cartItemEntity);
 			}
 		}
-
+		LOGGER.info("After Saving data to cart item");
 	}
 
 	@Override
 	public List<CartItem> getCartItemBasedOnCustomerAndProductVariant(final Customer customer, final ProductVariant productVariant) {
+		LOGGER.info("Inside getCartItemBasedOnCustomerAndProductVariant for customer : {}, productVariant : {}", customer.getId(), productVariant.getId());
 		return cartItemRepository.findAllByCustomerAndProductVariant(customer, productVariant);
 	}
 
 	@Override
 	public void updateCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateCartItemQty for cartItemId : {}, quantity : {}", cartItemId, quantity);
 		Long customerId = getCustomerIdForLoginUser();
 		if (quantity <= 0 || quantity > 15) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_QTY, null));
@@ -264,18 +283,14 @@ public class CartItemServiceImpl implements CartItemService {
 			cartToppingsService.updateCartToppingsQty(cartItemId, quantity);
 			cartProductAttributeValueService.updateCartProductAttributeValueQty(cartItemId, quantity);
 		}
+		LOGGER.info("After updateCartItemQty for cartItemId : {}, quantity : {}", cartItemId, quantity);
 	}
 
 	@Override
 	public CartItem getCartItemDetail(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Insdie getCartItemDetail for cartItemId : {}", cartItemId);
 		return cartItemRepository.findById(cartItemId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("cart.item.not.found.id", new Object[] { cartItemId })));
-	}
-
-	@Override
-	public CartItemResponseDTO getCartItem(final Long cartItemId, final Long pincodeId) throws NotFoundException, ValidationException {
-		final CartItem cartItem = getCartItemDetail(cartItemId);
-		return convertEntityToResponseDto(cartItem);
 	}
 
 	private CartItemResponseDTO convertEntityToResponseDto(final CartItem cartItem) throws NotFoundException, ValidationException {
@@ -305,12 +320,14 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public void addCartItemList(final List<CartItemDTO> cartItemDTOs) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside addCartItemList");
 		for (CartItemDTO cartItemDTO : cartItemDTOs) {
 			/**
 			 * add cart item
 			 */
 			addCartItem(cartItemDTO);
 		}
+		LOGGER.info("Inside addCartItemList");
 	}
 
 	@Override
@@ -321,11 +338,13 @@ public class CartItemServiceImpl implements CartItemService {
 		cartToppingsService.deleteCartToppings(cartItemId);
 		cartProductAttributeValueService.deleteCartProductAttributeValue(cartItemId);
 		cartItemRepository.deleteById(cartItemId);
+		LOGGER.info("After delete Cart Item method {}", cartItemId);
 	}
 
 	@Override
 	public Long getCartItemCount() throws ValidationException, NotFoundException {
-		UserLogin userLogin = getUserLoginFromToken();
+		LOGGER.info("Inside getCartItemCount ");
+		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			LOGGER.error("customerId is null");
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -345,13 +364,14 @@ public class CartItemServiceImpl implements CartItemService {
 		for (CartItem cartItem : cartItems) {
 			cartItemResponseDTOs.add(convertEntityToResponseDto(cartItem));
 		}
+		LOGGER.info("After get Cart Item List By customer {}", customerId);
 		return cartItemResponseDTOs;
 	}
 
 	@Override
 	public List<CartItem> getCartListBasedOnCustomer(final Long customerId) throws ValidationException, NotFoundException {
 		final List<CartItem> cartItems;
-
+		LOGGER.info("Inside get Cart Item List By customer with Id : {}", customerId);
 		if (customerId == null) {
 			LOGGER.error("customer id is null");
 			throw new ValidationException(messageByLocaleService.getMessage("cart.customer.id.not.null", null));
@@ -359,18 +379,22 @@ public class CartItemServiceImpl implements CartItemService {
 			Customer customer = customerService.getCustomerDetails(customerId);
 			cartItems = cartItemRepository.findAllByCustomer(customer);
 		}
+		LOGGER.info("After get Cart Item List By customer with Id : {}", customerId);
 		return cartItems;
 	}
 
 	@Override
 	public void deleteCart() throws NotFoundException, ValidationException {
 		Long customerId = getCustomerIdForLoginUser();
+		LOGGER.info("Inside deleteCart for customer {}", customerId);
 		deleteCartItemForCustomer(customerId);
+		LOGGER.info("After deleteCart for customer {}", customerId);
 	}
 
 	@Override
 	public Boolean checkIfExistsCartItemWithDifferentVendor(final Long vendorId) throws ValidationException, NotFoundException {
 		Long customerId = getCustomerIdForLoginUser();
+		LOGGER.info("Inside checkIfExistsCartItemWithDifferentVendor for customer: {} and vendor :{}", customerId, vendorId);
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(customerId);
 		return (!cartItemList.isEmpty() && !vendorId.equals(cartItemList.get(0).getProductVariant().getVendorId()));
 	}
@@ -407,6 +431,7 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public void moveFromTempCartToCart(final String uuid) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside moveFromTempCartToCart for uuid :{}", uuid);
 		List<CartItemResponseDTO> cartItemResponseList = tempCartItemService.getTempCartItemDetailListByParam(uuid);
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseList)) {
 			throw new ValidationException(messageByLocaleService.getMessage("cannot.move.cart.empty", null));
@@ -417,7 +442,9 @@ public class CartItemServiceImpl implements CartItemService {
 			cartItemDtoList.add(cartItemDto);
 		}
 		addCartItemList(cartItemDtoList);
+		LOGGER.info("After moveFromTempCartToCart for uuid :{}", uuid);
 		tempCartItemService.deleteTempCartItemForUuid(uuid);
+		LOGGER.info("Deleted tempcart for uuid :{} after moveFromTempCartToCart ", uuid);
 	}
 
 	private CartItemDTO convertFromCartItemResponseToCartItemDto(final CartItemResponseDTO cartItemResponseDto) {
@@ -452,14 +479,18 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Override
 	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartItemsForProductVariant for productVariantId :{} ", productVariantId);
 		cartItemRepository.deleteAllByProductVariantId(productVariantId);
+		LOGGER.info("After deleteCartItemsForProductVariant for productVariantId :{} ", productVariantId);
 	}
 
 	@Override
 	public void deleteCartItemForOnlineOrderId(final String onlineOrderId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartItemForOnlineOrderId for onlineOrderId :{} ", onlineOrderId);
 		List<CartItem> cartItemList = cartItemRepository.findAllByOnlineOrderId(onlineOrderId);
 		for (CartItem cartItem : cartItemList) {
 			deleteCartItem(cartItem.getId());
 		}
+		LOGGER.info("After deleteCartItemForOnlineOrderId for onlineOrderId :{} ", onlineOrderId);
 	}
 }

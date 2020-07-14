@@ -34,7 +34,7 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	private CartToppingsRepository cartToppingsRepository;
 
 	@Autowired
-	private ProductToppingService productAddonsService;
+	private ProductToppingService productToppingsService;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -43,90 +43,103 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	private ProductToppingService productToppingService;
 
 	@Override
-	public void addCartToppings(final CartToppingsDto cartAddonsDTO, final CartItem cartItem) throws ValidationException, NotFoundException {
+	public void addCartToppings(final CartToppingsDto cartToppingsDTO, final CartItem cartItem) throws ValidationException, NotFoundException {
+		LOGGER.info("Saving data to cart topping for cartItemId :{}", cartItem.getId());
 		CartToppings cartToppings = new CartToppings();
-		BeanUtils.copyProperties(cartAddonsDTO, cartToppings);
-		ProductTopping productAddons = productAddonsService.getProductToppingDetails(cartAddonsDTO.getProductToppingsId());
+		BeanUtils.copyProperties(cartToppingsDTO, cartToppings);
+		ProductTopping productToppings = productToppingsService.getProductToppingDetails(cartToppingsDTO.getProductToppingsId());
 		/**
-		 * Check if addons belongs to the product variant
+		 * Check if Toppings belongs to the product variant
 		 */
-		if (!cartItem.getProductVariant().getId().equals(productAddons.getProductVariant().getId())) {
+		if (!cartItem.getProductVariant().getId().equals(productToppings.getProductVariant().getId())) {
+			LOGGER.error("Topping not associated to product variant");
 			throw new ValidationException(messageByLocaleService.getMessage("topping.associated.to.variant", null));
 		}
 		/**
-		 * check for existing addons
+		 * check for existing Toppings
 		 */
-		if (checkIfExistsCartToppingsForCartItemAndAddons(cartItem, productAddons)) {
-			throw new ValidationException(messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productAddons.getName() }));
+		if (checkIfExistsCartToppingsForCartItemAndToppings(cartItem, productToppings)) {
+			throw new ValidationException(messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getName() }));
 		}
-		cartToppings.setProductToppings(productAddons);
+		cartToppings.setProductToppings(productToppings);
 		cartToppings.setCartItem(cartItem);
-
+		LOGGER.error("All validations passed, saving topping data for cartItem :{}", cartItem.getId());
 		cartToppingsRepository.save(cartToppings);
 	}
 
 	@Override
 	public List<ProductToppingDto> getProductToppingsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
-		CartItem tempCartItem = cartItemService.getCartItemDetail(cartItemId);
-		List<CartToppings> tempCartAddonsList = cartToppingsRepository.findAllByCartItem(tempCartItem);
-		return convertEntityToDtos(tempCartAddonsList);
+		LOGGER.info("Inside getProductToppingsDtoListForCartItem cartItemId :{}", cartItemId);
+		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
+		List<CartToppings> cartToppingsList = cartToppingsRepository.findAllByCartItem(cartItem);
+		LOGGER.info("After getProductToppingsDtoListForCartItem cartItemId :{}", cartItemId);
+		return convertEntityToDtos(cartToppingsList);
 	}
 
 	@Override
 	public void updateCartToppingsQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside updateCartToppingsQty cartItemId :{}, and qty :{}", cartItemId, quantity);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
-		List<CartToppings> tempCartAddonsList = cartToppingsRepository.findAllByCartItem(cartItem);
-		for (CartToppings tempCartAddons : tempCartAddonsList) {
-			tempCartAddons.setQuantity(quantity);
-			cartToppingsRepository.save(tempCartAddons);
+		List<CartToppings> cartToppingsList = cartToppingsRepository.findAllByCartItem(cartItem);
+		for (CartToppings cartToppings : cartToppingsList) {
+			cartToppings.setQuantity(quantity);
+			cartToppingsRepository.save(cartToppings);
 		}
+		LOGGER.info("After successfully updateCartToppingsQty cartItemId :{} with qty :{}", cartItemId, quantity);
 	}
 
 	@Override
 	public void deleteCartToppings(final Long cartItemId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartToppings for cartItemId :{}", cartItemId);
 		final CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		cartToppingsRepository.deleteAllByCartItem(cartItem);
+		LOGGER.info("After deleteCartToppings for cartItemId :{}", cartItemId);
 	}
 
 	/**
 	 *
-	 * @param tempCartAddon
+	 * @param cartAddon
 	 * @return
 	 */
-	private ProductToppingDto convertEntityToDto(final CartToppings tempCartAddon) {
+	private ProductToppingDto convertEntityToDto(final CartToppings cartAddon) {
 		LOGGER.info("Inside convert Entity To Dto method");
-		return productToppingService.convertFromEntityToDto(tempCartAddon.getProductToppings());
+		return productToppingService.convertFromEntityToDto(cartAddon.getProductToppings());
 
 	}
 
 	/**
-	 * @param cartAddonsList
+	 * @param cartToppingsList
 	 */
-	private List<ProductToppingDto> convertEntityToDtos(final List<CartToppings> cartAddonsList) {
-		List<ProductToppingDto> cartAddonsDtoList = new ArrayList<>();
-		for (CartToppings tempCartAddons : cartAddonsList) {
-			cartAddonsDtoList.add(convertEntityToDto(tempCartAddons));
+	private List<ProductToppingDto> convertEntityToDtos(final List<CartToppings> cartToppingsList) {
+		LOGGER.info("Inside convertEntityToDtos");
+		List<ProductToppingDto> cartToppingsDtoList = new ArrayList<>();
+		for (CartToppings cartToppings : cartToppingsList) {
+			cartToppingsDtoList.add(convertEntityToDto(cartToppings));
 		}
-		return cartAddonsDtoList;
+		LOGGER.info("After convertEntityToDtos");
+		return cartToppingsDtoList;
 	}
 
 	/**
-	 * @param tempCartItem
-	 * @param tempCartAddons
+	 * @param cartItem
+	 * @param cartToppings
 	 */
-	private boolean checkIfExistsCartToppingsForCartItemAndAddons(final CartItem tempCartItem, final ProductTopping productAddons) {
-		return cartToppingsRepository.findAllByCartItemAndProductToppings(tempCartItem, productAddons).isPresent();
-
+	private boolean checkIfExistsCartToppingsForCartItemAndToppings(final CartItem cartItem, final ProductTopping productToppings) {
+		LOGGER.info("Inside checkIfExistsCartToppingsForCartItemAndToppings for cartItem : {} and productToppings :{}", cartItem.getId(), productToppings);
+		return cartToppingsRepository.findAllByCartItemAndProductToppings(cartItem, productToppings).isPresent();
 	}
 
 	@Override
 	public List<CartToppings> getCartToppingsListForCartItem(final Long id) throws NotFoundException {
+		LOGGER.info("Inside getCartToppingsListForCartItem using Id for cartItem : {}", id);
 		CartItem cartItem = cartItemService.getCartItemDetail(id);
+		LOGGER.info("After getCartToppingsListForCartItem using Id for cartItem : {}", id);
 		return getCartToppingsListForCartItem(cartItem);
 	}
 
 	@Override
 	public List<CartToppings> getCartToppingsListForCartItem(final CartItem cartItem) {
+		LOGGER.info("Inside getCartToppingsListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartToppingsRepository.findAllByCartItem(cartItem);
 	}
 }

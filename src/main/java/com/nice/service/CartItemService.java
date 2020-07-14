@@ -85,15 +85,6 @@ public interface CartItemService {
 	void updateCartItemQty(Long cartItemId, Long quantity) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param cartItemId
-	 * @param pincodeId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	CartItemResponseDTO getCartItem(Long cartItemId, Long pincodeId) throws NotFoundException, ValidationException;
-
-	/**
 	 * @param customerId
 	 * @return
 	 * @throws ValidationException
@@ -139,8 +130,7 @@ public interface CartItemService {
 	void moveFromTempCartToCart(String uuid) throws NotFoundException, ValidationException;
 
 	/**
-	 * delete all cart item based on product variant id : this method is used at the
-	 * time of deactivating product variant
+	 * delete all cart item based on product variant id : this method is used at the time of deactivating product variant
 	 *
 	 * @param productVariantId
 	 * @throws NotFoundException
