@@ -16,10 +16,10 @@ import lombok.EqualsAndHashCode;
  */
 
 @Entity
-@Table(name = "order_item_rating")
+@Table(name = "rating_question")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class OrderItemRating extends CommonModel {
+public class RatingQuestion extends CommonModel {
 
 	/**
 	 * 
@@ -31,14 +31,11 @@ public class OrderItemRating extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "order_Rating_id", nullable = false)
-	private Long orderRatingId;
+	@Column(name = "type", nullable = false)
+	private String type;
 	
-	@Column(name = "product_id", nullable = false)
-	private Long productId;
+	@Column(name = "question", nullable = false)
+	private String question;
 	
-	@Column(name = "item_rating", nullable = false)
-	private Double itemRating;
-		
-
+	
 }

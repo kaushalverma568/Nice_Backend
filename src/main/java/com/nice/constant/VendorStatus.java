@@ -42,7 +42,7 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 		VendorStatus[] nextStatus = null;
 		switch (this) {
 		case VERIFICATION_PENDING:
-			nextStatus = new VendorStatus[] { NEW, ACTIVE };
+			nextStatus = new VendorStatus[] { NEW };
 			break;
 		case NEW:
 			nextStatus = new VendorStatus[] { APPROVED, REJECTED };

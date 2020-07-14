@@ -40,20 +40,29 @@ public class OrderRating extends CommonModel {
 	@Column(name = "delivery_boy_id")
 	private Long deliveryBoyId;
 	
-	@Column(name = "order_packing_rating", nullable = false)
-	private Double orderPackingRating;
+	@Column(name = "question1_rating", nullable = false)
+	private Double question1Rating;
 	
-	@Column(name = "food_quality_rating", nullable = false)
-	private Double foodQualityRating;
+	@Column(name = "question2_rating", nullable = false)
+	private Double question2Rating;
+	
+	@Column(name = "question3_rating", nullable = false)
+	private Double question3Rating;
+	
+	@Column(name = "question4_rating", nullable = false)
+	private Double question4Rating;
+	
+	@Column(name = "question5_rating", nullable = false)
+	private Double question5Rating;
 	
 	@Column(name = "delivery_boy_rating", nullable = false)
 	private Double deliveryBoyRating;
 	
-	@Column(name = "value_for_money_rating", nullable = false)
-	private Double valueOfMoneyRating;
+	@Column(name = "vendor_rating", nullable = false)
+	private Double vendorRating;
 	
-	@Column(name = "restaurant_rating", nullable = false)
-	private Double restaurantRating;
+	@Column(name = "avg_order_rating", nullable = false)
+	private Double avgOrderRating;
 	
 	@Column(name = "review", nullable = false)
 	private String review;

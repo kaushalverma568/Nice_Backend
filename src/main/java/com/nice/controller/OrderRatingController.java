@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nice.response.GenericResponseHandlers;
 import com.nice.dto.OrderRatingDTO;
 import com.nice.dto.OrderRatingResponseDTO;
-import com.nice.model.OrderRating;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderRatingMapper;
+import com.nice.model.OrderRating;
+import com.nice.response.GenericResponseHandlers;
 import com.nice.service.OrderRatingService;
 import com.nice.validator.OrderRatingValidator;
 
@@ -49,6 +49,7 @@ public class OrderRatingController {
 	/**
 	 * Locale message service - to display response messages from Property file
 	 */
+	private static final String DETAIL_MSG = "order.rating.detail.message";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -114,7 +115,7 @@ public class OrderRatingController {
 			throws NotFoundException {
 		OrderRatingResponseDTO resultOrderRating = orderRatingService.getOrderRating(orderRatingId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("order.rating.detail.message", null)).setData(resultOrderRating).create();
+				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null)).setData(resultOrderRating).create();
 	}
 	
 
@@ -132,9 +133,40 @@ public class OrderRatingController {
 			throws NotFoundException {
 		OrderRatingResponseDTO resultOrderRating = orderRatingService.getOrderRatingbyOrderId(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("order.rating.detail.message", null)).setData(resultOrderRating).create();
+				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null)).setData(resultOrderRating).create();
 	}
 
+	
+	/**
+	 * get list by vendor ID 
+	 * 
+	 * @param accessToken
+	 * @param vendorId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping(value = "/vendor/{vendorId}")
+	public ResponseEntity<Object> getByVendorId(@RequestHeader("Authorization") final String accessToken, 
+			@PathVariable("vendorId") final Long vendorId)
+			throws NotFoundException {
+		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(vendorId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
+				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();
+	}
+
+	
+	@GetMapping(value = "/deliveryBoy/{deliveryBoyId}")
+	public ResponseEntity<Object> getBydeliveryBoyId(@RequestHeader("Authorization") final String accessToken, 
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId)
+			throws NotFoundException {
+		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(deliveryBoyId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
+				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();
+	}
+
+	
 	/**
 	 * get list by pagination 
 	 * 

@@ -664,7 +664,6 @@ public class VendorServiceImpl implements VendorService {
 		if (!existingStatus.contains(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.status.not.allowed", new Object[] { newStatus, vendor.getStatus() }));
 		}
-		vendor.setStatus(newStatus);
 		if (VendorStatus.APPROVED.getStatusValue().equals(newStatus)) {
 			// send email for you account has been approved by admin kindly Login here
 		}
@@ -675,9 +674,11 @@ public class VendorServiceImpl implements VendorService {
 			// send email to vendor that your account is being suspended by admin kindly contact admin.
 			// revoke token
 		}
-		if (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+		if (VendorStatus.EXPIRED.getStatusValue().equals(newStatus)
+				|| (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed.here", new Object[] { newStatus }));
 		}
+		vendor.setStatus(newStatus);
 		vendorRepository.save(vendor);
 		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndRole(vendor.getEmail(), Role.VENDOR.name());
 		if (userLogin.isPresent()) {
