@@ -31,6 +31,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -65,6 +66,15 @@ public class OrdersController {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
+	/**
+	 *
+	 * @param token
+	 * @param orderRequestDto
+	 * @param bindingResult
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping("/placeOrder")
 	public ResponseEntity<Object> placeOrder(@RequestHeader("Authorization") final String token, @Valid @RequestBody final OrderRequestDTO orderRequestDto,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
@@ -93,6 +103,16 @@ public class OrdersController {
 		return new GenericResponseHandlers.Builder().setData(orderId).setMessage("Order Placed Successfully").setStatus(HttpStatus.OK).create();
 	}
 
+	/**
+	 *
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param orderListFilterDto
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getOrderList(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final OrderListFilterDto orderListFilterDto) throws ValidationException, NotFoundException {
@@ -109,6 +129,14 @@ public class OrdersController {
 				.create();
 	}
 
+	/**
+	 *
+	 * @param token
+	 * @param orderId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping("/{orderId}")
 	public ResponseEntity<Object> getOrderDetails(@RequestHeader("Authorization") final String token, @PathVariable final Long orderId)
 			throws NotFoundException, ValidationException {
@@ -123,6 +151,29 @@ public class OrdersController {
 	public ModelAndView createRazorPayFormForApp(@RequestHeader("Authorization") final String token,
 			@PathVariable("razorPayOrderId") final String razorPayOrderId, @RequestHeader final Long userId) {
 		return new ModelAndView(REDIRECT + customerUrl + "#/app-payment/'" + razorPayOrderId + "'");
+	}
+
+	/**
+	 *
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/cancel")
+	public ResponseEntity<Object> cancelOrder(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		orderService.cancelOrder(replaceCancelOrderDto);
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
 	}
 
 }

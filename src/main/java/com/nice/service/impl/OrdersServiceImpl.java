@@ -25,6 +25,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrderStatusDto;
 import com.nice.dto.OrdersResponseDTO;
+import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.AuthorizationException;
 import com.nice.exception.NotFoundException;
@@ -859,25 +860,90 @@ public class OrdersServiceImpl implements OrdersService {
 		return results;
 	}
 
-	// @Override
-	// public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto,
-	// final Long userId) throws
-	// NotFoundException, ValidationException {
-	// Orders order =
-	// ordersRepository.findById(replaceCancelOrderDto.getOrderId()).orElseThrow(
-	// () -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new
-	// Object[] { Constant.ORDER,
-	// replaceCancelOrderDto.getOrderId() })));
-	// if (!OrderStatusEnum.PENDING.getStatusValue().equals(order.getOrderStatus()))
-	// {
-	// throw new
-	// ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel",
-	// null));
-	// }
-	// order.setCancelReason(replaceCancelOrderDto.getReason());
-	// order.setDescription(replaceCancelOrderDto.getDescription());
-	// changeStatus(Constant.CANCELLED, userId, null, order);
-	// }
+	@Override
+	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+		Orders order = ordersRepository.findById(replaceCancelOrderDto.getOrderId())
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { replaceCancelOrderDto.getOrderId() })));
+		if (!OrderStatusEnum.PENDING.getStatusValue().equals(order.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel", null));
+		}
+		order.setCancelReason(replaceCancelOrderDto.getReason());
+		order.setDescription(replaceCancelOrderDto.getDescription());
+		/**
+		 * Add this method to cancel order.
+		 */
+		changeStatus(Constant.CANCELLED, null, order);
+	}
+
+	@Override
+	public void changeStatus(final String newStatus, final Long deliveryBoyId, final Orders order) throws NotFoundException, ValidationException {
+		if (order == null || order.getId() == 0) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.change.status", null));
+		}
+		order.setOrderStatus(newStatus);
+		ordersRepository.save(order);
+
+		saveOrderStatusHistory(order);
+
+		/**
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
+		 */
+
+		/**
+		 * Change inventory based on status
+		 */
+		/**
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
+		 */
+		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
+		// && !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+		// /**
+		// * Fetch list of all allocated stock based on lot and move one by one for the order.
+		// */
+		// List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
+		// allocatedFor);
+		// for (StockAllocation stockAllocation : stockAllocationList) {
+		// StockTransferDto stockTransferDto = new StockTransferDto();
+		// stockTransferDto.setTransferedFrom(existingStockStatus);
+		// stockTransferDto.setTransferedTo(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue());
+		// stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
+		// stockTransferDto.setQuantity(stockAllocation.getQuantity());
+		// stockTransferDto.setOrderId(order.getId());
+		// stockTransferDto.setStoreId(stockAllocation.getStoreId());
+		// stockTransferDto.setOrderFrom(OrderFromEnum.WEBSITE.name());
+		// internalStockTransferService.transferStock(stockTransferDto, userId);
+		// }
+		// }
+		/**
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
+		 */
+		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+		// List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
+		// TaskTypeEnum.REPLACEMENT.name());
+		// Set<Long> orderItemIdSet = new HashSet<>();
+		// for (StockAllocation stockAllocation : stockAllocationList) {
+		// orderItemIdSet.add(stockAllocation.getOrderItem().getId());
+		// }
+		// for (Long orderItem : orderItemIdSet) {
+		// List<StockAllocation> replacementStockAllocationList =
+		// stockAllocationService.getAllocatedStockForOrderItem(orderItem,
+		// TaskTypeEnum.DELIVERY.name());
+		// for (StockAllocation stockAllocation : replacementStockAllocationList) {
+		// StockTransferDto stockTransferDto = new StockTransferDto();
+		// stockTransferDto.setTransferedFrom(Constant.DELIVERED);
+		// stockTransferDto.setTransferedTo(Constant.REPLACED);
+		// stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
+		// stockTransferDto.setQuantity(stockAllocation.getQuantity());
+		// stockTransferDto.setOrderId(order.getId());
+		// stockTransferDto.setStoreId(stockAllocation.getStoreId());
+		// stockTransferDto.setOrderFrom(OrderFromEnum.WEBSITE.name());
+		// internalStockTransferService.transferStock(stockTransferDto, userId);
+		// }
+		// }
+		// }
+	}
 
 	@Override
 	public OrdersResponseDTO getOrderDetails(final Long orderId) throws NotFoundException, ValidationException {

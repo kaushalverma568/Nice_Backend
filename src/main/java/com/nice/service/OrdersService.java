@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
+import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.exception.AuthorizationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -122,6 +123,22 @@ public interface OrdersService {
 	 * @throws ValidationException
 	 */
 	Long getOrderCountBasedOnParams(OrderListFilterDto orderListFilterDto) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param replaceCancelOrderDto
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param newStatus
+	 * @param deliveryBoyId
+	 * @param order
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void changeStatus(String newStatus, Long deliveryBoyId, Orders order) throws NotFoundException, ValidationException;
 
 	/**
 	 * get all information for app payment
