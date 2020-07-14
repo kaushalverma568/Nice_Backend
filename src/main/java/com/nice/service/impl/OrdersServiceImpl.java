@@ -18,6 +18,7 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CartItemStatus;
 import com.nice.constant.Constant;
 import com.nice.constant.OrderStatusEnum;
+import com.nice.constant.PaymentMethod;
 import com.nice.constant.PaymentMode;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorStatus;
@@ -215,13 +216,18 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check if the vendor servicable and customer delivery belong to same city
 		 */
-		if (!(vendor.getActive() && VendorStatus.ACTIVE.name().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
+		if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
 		} else if (!vendor.getCity().getId().equals(city.getId())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getName() }));
+		} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
+				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
+			throw new ValidationException(
+					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
 		}
 		/**
-		 * check if the products in cart are active or not active then throw error also check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also
+		 * check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -432,7 +438,8 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in
+		 * orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -454,7 +461,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 		// TODO
 		/**
-		 * Check for respective payment gateway and implement based on same, currently is for razorpay
+		 * Check for respective payment gateway and implement based on same, currently
+		 * is for razorpay
 		 */
 		/**
 		 * Set Online Payment details for Order
@@ -690,7 +698,8 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for calculation
+			 * Add the addons , extras, product attribute values, toppings amount for
+			 * calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -886,22 +895,28 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All
+		 * the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer
+		 * the inventory, that will be a typical case of replacement of orders that will
+		 * be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
-		// && !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+		// &&
+		// !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue()))
+		// {
 		// /**
-		// * Fetch list of all allocated stock based on lot and move one by one for the order.
+		// * Fetch list of all allocated stock based on lot and move one by one for the
+		// order.
 		// */
-		// List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
+		// List<StockAllocation> stockAllocationList =
+		// stockAllocationService.getAllocatedStockForOrder(order.getId(),
 		// allocatedFor);
 		// for (StockAllocation stockAllocation : stockAllocationList) {
 		// StockTransferDto stockTransferDto = new StockTransferDto();
@@ -916,11 +931,12 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a
+		 * order will be moved from delivered to replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
-		// List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
+		// List<StockAllocation> stockAllocationList =
+		// stockAllocationService.getAllocatedStockForOrder(order.getId(),
 		// TaskTypeEnum.REPLACEMENT.name());
 		// Set<Long> orderItemIdSet = new HashSet<>();
 		// for (StockAllocation stockAllocation : stockAllocationList) {
@@ -966,7 +982,8 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = ordersRepository.findById(orderId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to him.
+		 * If the user is Vendor or customer, check if the order actually belongs to
+		 * him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
