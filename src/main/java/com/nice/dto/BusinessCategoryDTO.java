@@ -2,6 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -14,7 +15,6 @@ import lombok.EqualsAndHashCode;
  */
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class BusinessCategoryDTO implements Serializable {/**
 	 * 
 	 */
@@ -22,7 +22,7 @@ public class BusinessCategoryDTO implements Serializable {/**
 	
 	private Long id;
 
-	@NotNull(message = "{name.not.null}")
+	@NotBlank(message = "{name.not.null}")
 	private String name;
 
 	@NotNull(message = "{active.not.null}")

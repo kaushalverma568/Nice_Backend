@@ -2,6 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -29,7 +30,7 @@ public class ProductExtrasMasterDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	@NotEmpty(message = "{name.not.null}")
+	@NotBlank(message = "{name.not.null}")
 	private String name;
 
 	private String description;
