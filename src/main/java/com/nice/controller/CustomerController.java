@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerResponseDTO;
+import com.nice.dto.EmailUpdateDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -47,11 +48,21 @@ import com.nice.validator.CustomerValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @RequestMapping(path = "/customer")
 @RestController
 public class CustomerController {
+
+	/**
+	 * 
+	 */
+	private static final String CUSTOMER_UPDATE_MESSAGE = "customer.update.message";
+
+	/**
+	 * 
+	 */
+	private static final String KODY_CLIENT = "kody-client";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerController.class);
 
@@ -89,12 +100,12 @@ public class CustomerController {
 	public CustomerMapper customerMapper;
 
 	/**
-	 * Add customer Whenever Login with OTP functionality exist then phone Number should be mandatory in customer sign-up
-	 * Other wise validation will not work.
+	 * Add customer Whenever Login with OTP functionality exist then phone Number
+	 * should be mandatory in customer sign-up Other wise validation will not work.
 	 *
-	 * @param  userId
-	 * @param  customerDTO
-	 * @param  result
+	 * @param userId
+	 * @param customerDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -120,9 +131,9 @@ public class CustomerController {
 	/**
 	 * Update customer
 	 *
-	 * @param  userId
-	 * @param  customerDTO
-	 * @param  result
+	 * @param userId
+	 * @param customerDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -139,14 +150,14 @@ public class CustomerController {
 		}
 		final Customer resultCustomers = customerService.updateCustomer(customersDTO);
 		LOGGER.info("Outside update customer {}", customersDTO);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
 				.setData(resultCustomers).create();
 	}
 
 	/**
 	 * Get customer details based on id
 	 *
-	 * @param  customerId
+	 * @param customerId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -161,9 +172,9 @@ public class CustomerController {
 	/**
 	 * Get list of customer based on parameter
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -182,9 +193,9 @@ public class CustomerController {
 	/**
 	 * Change status of customer(active/deActive)
 	 *
-	 * @param  userId
-	 * @param  customerId
-	 * @param  active
+	 * @param userId
+	 * @param customerId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -197,15 +208,15 @@ public class CustomerController {
 		if (userName != null) {
 			revokeToken(userName);
 		}
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
 				.create();
 	}
 
 	/**
 	 * This API is used for verify Phone as well as change Phone.
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -218,12 +229,88 @@ public class CustomerController {
 	}
 
 	/**
+	 * Add/Update phone number
+	 *
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/phone")
+	public ResponseEntity<Object> addUpdatePhoneNumber(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add update PhoneNumber {} and otp: {}", phoneNumber, otp);
+
+		String userName = customerService.addUpdatePhoneNumber(phoneNumber, otp);
+		if (userName != null) {
+			/**
+			 * if token exist then revoke token and give new token with new number
+			 */
+			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(KODY_CLIENT, userName);
+			if (!tokens.isEmpty()) {
+				for (OAuth2AccessToken token : tokens) {
+					tokenStore.removeAccessToken(token);
+				}
+				/**
+				 * generate token here
+				 */
+			}
+		}
+		LOGGER.info("Outside add update PhoneNumber");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Add/Update email
+	 *
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/email")
+	public ResponseEntity<Object> addUpdateEmail(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add update email {} and otp: {}", emailUpdateDTO.getEmail(), emailUpdateDTO.getOtp());
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error("Customers validation failed");
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		String userName = customerService.addUpdateEmail(emailUpdateDTO);
+		if (userName != null) {
+			/**
+			 * if token exist then revoke token and give new token with new email and
+			 * password
+			 */
+			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(KODY_CLIENT, userName);
+			if (!tokens.isEmpty()) {
+				for (OAuth2AccessToken token : tokens) {
+					tokenStore.removeAccessToken(token);
+				}
+				/**
+				 * generate token here
+				 */
+			}
+		}
+		LOGGER.info("Outside  add update email");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
 	 * export customer list
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws IOException
 	 */
@@ -245,7 +332,7 @@ public class CustomerController {
 	private void revokeToken(final String userName) {
 		Long userId = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getId();
 		LOGGER.info("Revoking token for user {} by userId {}", userName, userId);
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("kody-client", userName);
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(KODY_CLIENT, userName);
 		for (OAuth2AccessToken token : tokens) {
 			tokenStore.removeAccessToken(token);
 		}
