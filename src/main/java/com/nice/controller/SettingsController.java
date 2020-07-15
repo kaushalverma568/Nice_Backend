@@ -1,6 +1,7 @@
 package com.nice.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.dto.SettingsDto;
+import com.nice.dto.SettingsListDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -110,6 +112,22 @@ public class SettingsController {
 		return new GenericResponseHandlers.Builder().setData("Total Setting updated : " + count)
 				.setMessage(messageByLocaleService.getMessage("settings.update.message", null)).setStatus(HttpStatus.OK).create();
 	}
+	
+	
+	@PutMapping("/list")
+	public ResponseEntity<Object> updateSettingsList(@RequestHeader(value = "Authorization") final String accessToken,
+			@RequestBody @Valid final SettingsListDto settingsDtoList, final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update Setting method : {}", settingsDtoList);
+		List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error(VALIDATION_FAILED_FOR_SETTINGS);
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		settingsService.updateSettingsList(settingsDtoList);
+		LOGGER.info("Updated Setting Successfully : {}", settingsDtoList);
+		return new GenericResponseHandlers.Builder()
+				.setMessage(messageByLocaleService.getMessage("settings.update.message", null)).setStatus(HttpStatus.OK).create();
+	}
 
 	/**
 	 * @return
@@ -120,6 +138,16 @@ public class SettingsController {
 		List<SettingsDto> settingsDtoList = settingsService.getAllSettingsList();
 		LOGGER.info("List fetched successfully, total objects returned : {}", settingsDtoList != null ? settingsDtoList.size() : 0);
 		return new GenericResponseHandlers.Builder().setData(settingsDtoList).setMessage(messageByLocaleService.getMessage("settings.list.message", null))
+				.setStatus(HttpStatus.OK).create();
+	}
+	
+	
+	@GetMapping("/map")
+	public ResponseEntity<Object> getSettingsMap(@RequestHeader(value = "Authorization") final String accessToken) {
+		LOGGER.info("Inside getAll Settings list");
+		Map<String, String> settingsMap = settingsService.getSettingsMap();
+		LOGGER.info("List fetched successfully, total objects returned : {}", settingsMap);
+		return new GenericResponseHandlers.Builder().setData(settingsMap).setMessage(messageByLocaleService.getMessage("settings.list.message", null))
 				.setStatus(HttpStatus.OK).create();
 	}
 

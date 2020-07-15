@@ -1,23 +1,30 @@
 package com.nice.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
 import com.nice.constant.SettingsConstant;
 import com.nice.dto.SettingsDto;
+import com.nice.dto.SettingsListDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.SettingsMapper;
 import com.nice.model.Settings;
+import com.nice.model.UserLogin;
 import com.nice.repository.SettingsRepository;
 import com.nice.service.SettingsService;
 
@@ -43,22 +50,27 @@ public class SettingsServiceImpl implements SettingsService {
 	private SettingsMapper settingsMapper;
 
 	@Override
-	public SettingsDto addSettings(SettingsDto settingsDto) {
+	public SettingsDto addSettings(SettingsDto settingsDto) throws ValidationException {
 		LOGGER.info("Inside add Settings method, {}", settingsDto);
 		Settings settings = settingsMapper.toEntity(settingsDto);
+		UserLogin user = checkForUserLogin();
+		settings.setCreatedBy(user.getId());
+		settings.setUpdatedBy(user.getId());
 		settings.setId(settingsRepository.addSettingsParameters(settings));
 		settingsDto = settingsMapper.toDto(settings);
 		return settingsDto;
 	}
 
 	@Override
-	public int updateSettings(final SettingsDto settingsDto) throws NotFoundException {
+	public int updateSettings(final SettingsDto settingsDto) throws NotFoundException, ValidationException {
 		/**
 		 * Check if settings for given Id exists
 		 */
 		getSettings(settingsDto.getId());
 		LOGGER.info("Inside update Settings method, {}", settingsDto);
 		Settings settings = settingsMapper.toEntity(settingsDto);
+		UserLogin user = checkForUserLogin();
+		settings.setUpdatedBy(user.getId());
 		int updateCount = settingsRepository.updateSettingsParameters(settings);
 		if (updateCount > 0) {
 			SettingsConstant.setSettingsValue(settingsDto.getFieldName(), settingsDto.getFieldValue());
@@ -161,5 +173,49 @@ public class SettingsServiceImpl implements SettingsService {
 		return settingsRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("settings.not.found", new Object[] { id })));
 	}
+
+	
+	
+	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
+		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
+	}
+
+		
+	@Override
+	public void updateSettingsList(SettingsListDto settingsListDto) throws NotFoundException, ValidationException {
+		for (SettingsDto settingsDto : settingsListDto.getSettingDtoList()) {
+			if (settingsDto.getId()!= null) {
+				updateSettings(settingsDto);
+			} else {
+				addSettings(settingsDto);
+			}
+		}
+		
+	}
+
+	@Override
+	public Map<String, String> getSettingsMap() {
+		LOGGER.info("Inside get Settings List method");
+		List<Settings> settingsList = settingsRepository.findAll();
+		Map<String, String> settingMap = new HashMap<>();
+		for (Settings settings : settingsList) {
+			settingMap.put(settings.getFieldName(), settings.getFieldValue());
+		}
+		return settingMap;
+	}
+
 
 }

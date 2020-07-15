@@ -8,6 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.SettingsDto;
+import com.nice.dto.SettingsListDto;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.SettingsService;
 
@@ -27,7 +28,7 @@ public class SettingsValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return SettingsDto.class.equals(clazz);
+		return SettingsDto.class.equals(clazz) || SettingsListDto.class.equals(clazz);
 	}
 
 	@Override

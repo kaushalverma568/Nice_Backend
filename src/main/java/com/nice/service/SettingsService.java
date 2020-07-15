@@ -1,8 +1,10 @@
 package com.nice.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.nice.dto.SettingsDto;
+import com.nice.dto.SettingsListDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 
@@ -12,9 +14,9 @@ import com.nice.exception.ValidationException;
  */
 public interface SettingsService {
 
-	SettingsDto addSettings(SettingsDto settingsDto);
+	SettingsDto addSettings(SettingsDto settingsDto) throws ValidationException;
 
-	int updateSettings(final SettingsDto settingsDto) throws NotFoundException;
+	int updateSettings(final SettingsDto settingsDto) throws NotFoundException, ValidationException;
 
 	List<SettingsDto> getAllSettingsList();
 
@@ -42,4 +44,19 @@ public interface SettingsService {
 	 * @throws ValidationException
 	 */
 	SettingsDto getSettingsDetailsByFieldName(String fieldName) throws ValidationException;
+
+	/**
+	 * 
+	 * @param settingsDtoList
+	 * @return
+	 * @throws NotFoundException 
+	 * @throws ValidationException 
+	 */
+	void updateSettingsList(SettingsListDto settingsDtoList) throws NotFoundException, ValidationException;
+
+	/**
+	 * 
+	 * @return
+	 */
+	Map<String, String> getSettingsMap();
 }
