@@ -151,9 +151,10 @@ public class UOMController {
 	 */
 	@GetMapping(name = "getUOMList", value = "/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getUOMList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException {
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get UOM List ");
-		final Page<UOM> resultUOMs = uomService.getUOMList(pageNumber, pageSize, activeRecords);
+		final Page<UOM> resultUOMs = uomService.getUOMList(pageNumber, pageSize, activeRecords, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null))
 				.setData(uomMapper.toDtos(resultUOMs.getContent())).setHasNextPage(resultUOMs.hasNext()).setHasPreviousPage(resultUOMs.hasPrevious())
 				.setTotalPages(resultUOMs.getTotalPages()).setPageNumber(resultUOMs.getNumber() + 1).setTotalCount(resultUOMs.getTotalElements()).create();

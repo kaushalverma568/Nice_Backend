@@ -79,9 +79,10 @@ public interface UOMService {
 	 * @param pageNumber
 	 * @param pageSize
 	 * @param activeRecords
+	 * @param vendorId 
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Page<UOM> getUOMList(Integer pageNumber, Integer pageSize, Boolean activeRecords) throws NotFoundException;
+	Page<UOM> getUOMList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException;
 
 }

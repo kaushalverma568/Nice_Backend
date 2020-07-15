@@ -2,6 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class ProductExtrasDTO implements Serializable {
+public class ProductExtrasMasterDTO implements Serializable {
 	/**
 	*
 	*/
@@ -28,24 +29,15 @@ public class ProductExtrasDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	@NotNull(message = "{productExtrasMaster.id.not.null}")
-	private Long productExtrasMasterId;
-
-	@NotNull(message = "{product.id.not.null}")
-	private Long productId;
-
-	private Long vendorId;
-
-	/**
-	 * This will be used in cart to determine the amount of quantity in cart
-	 */
-	private Long quantity;
-
-	/**
-	 * for response only
-	 */	
+	@NotEmpty(message = "{name.not.null}")
 	private String name;
+
 	private String description;
+
+	@NotNull(message = "{rate.not.null}")
 	private Double rate;
 	
+	private Long vendorId;
+
+
 }

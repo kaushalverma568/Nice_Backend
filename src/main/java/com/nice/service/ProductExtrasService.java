@@ -40,4 +40,14 @@ public interface ProductExtrasService {
 	 */
 	List<ProductExtrasDTO> getList(Boolean activeRecords, Long productId) throws NotFoundException;
 
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param productExtrasMasterId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<ProductExtras> getListByProductExtrasMaster(Boolean activeRecords, Long productExtrasMasterId)
+			throws NotFoundException;
+
 }

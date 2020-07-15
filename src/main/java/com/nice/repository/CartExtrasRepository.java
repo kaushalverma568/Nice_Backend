@@ -36,4 +36,17 @@ public interface CartExtrasRepository extends JpaRepository<CartExtras, Long> {
 	 * @param cartItem
 	 */
 	void deleteAllByCartItem(CartItem cartItem);
+
+	/**
+	 * 
+	 * @param productExtras
+	 * @return
+	 */
+	List<CartExtras> findAllByProductExtras(ProductExtras productExtras);
+
+	/**
+	 * 
+	 * @param productExtras
+	 */
+	void deleteByProductExtras(ProductExtras productExtras);
 }

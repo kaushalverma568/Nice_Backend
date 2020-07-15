@@ -1,5 +1,7 @@
 package com.nice.service.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,16 +9,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
+import com.nice.constant.UserType;
+import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.UOMDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.UOMMapper;
+import com.nice.model.Product;
 import com.nice.model.UOM;
+import com.nice.model.UserLogin;
 import com.nice.repository.UOMRepository;
+import com.nice.service.ProductService;
 import com.nice.service.UOMService;
 
 /**
@@ -42,9 +52,13 @@ public class UOMServiceImpl implements UOMService {
 
 	@Autowired
 	private UOMMapper uomMapper;
+	
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	public void addUOM(final UOMDTO uomDTO) throws ValidationException, NotFoundException {
+		validateDto(uomDTO);		
 		UOM uom = uomMapper.toEntity(uomDTO);
 		StringBuilder label = new StringBuilder();
 		if (uom.getQuantity() % 1 == 0) {
@@ -57,8 +71,23 @@ public class UOMServiceImpl implements UOMService {
 		uomRepository.save(uom);
 	}
 
+	private void validateDto(UOMDTO uomDTO) throws ValidationException {
+		/**
+		 * If the login user is not a vendor then throw an exception
+		 */
+		UserLogin userLogin = checkForUserLogin();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		if (!uomDTO.getVendorId().equals(userLogin.getEntityId())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		
+	}
+
 	@Override
 	public void updateUOM(final UOMDTO resultUOMDTO) throws NotFoundException, ValidationException {
+		validateDto(resultUOMDTO);
 		if (resultUOMDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("uom.id.not.null", null));
 		} else {
@@ -89,12 +118,21 @@ public class UOMServiceImpl implements UOMService {
 	}
 
 	@Override
-	public Page<UOM> getUOMList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) throws NotFoundException {
+	public Page<UOM> getUOMList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, Long vendorId) throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (activeRecords != null) {
-			return uomRepository.findAllByActive(activeRecords, pageable);
+			if (vendorId != null) {
+				return uomRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);
+			} else {
+				return uomRepository.findAllByActive(activeRecords, pageable);
+			}
 		} else {
-			return uomRepository.findAll(pageable);
+			if (vendorId != null) {
+				return uomRepository.findAllByVendorId(vendorId, pageable);
+			} else {
+				return uomRepository.findAll(pageable);
+			}
+			
 		}
 	}
 
@@ -115,17 +153,12 @@ public class UOMServiceImpl implements UOMService {
 			 * deActive UOM only if there is no product which is contain uom
 			 */
 			if (Boolean.FALSE.equals(active)) {
-				/**
-				 * Currently commenting the product check, for generic project. But in actual implementation once product module is
-				 * available it should be a part of code.
-				 */
-				// final ProductParamRequestDTO paramRequestDTO = new ProductParamRequestDTO();
-				// paramRequestDTO.setUomId(uomId);
-				// final List<ProductResponseDTO> productList = productService.getProductListBasedOnParams(paramRequestDTO, null, null,
-				// true, null);
-				// if (!productList.isEmpty()) {
-				// throw new ValidationException(messageByLocaleService.getMessage("uom.can.not.deactive", null));
-				// }
+				 final ProductParamRequestDTO paramRequestDTO = new ProductParamRequestDTO();
+				 paramRequestDTO.setUomId(uomId);
+				 final List<Product> productList = productService.getProductListBasedOnParamsWithoutPagination(paramRequestDTO);
+				 if (!productList.isEmpty()) {
+				 throw new ValidationException(messageByLocaleService.getMessage("uom.can.not.deactive", null));
+				 }
 			} else {
 				LOGGER.info("Activating  UOM");
 			}
@@ -149,4 +182,21 @@ public class UOMServiceImpl implements UOMService {
 		}
 	}
 
+	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
+		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	private UserLogin checkForUserLogin() throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
+		} else {
+			return userLogin;
+		}
+	}
+	
 }

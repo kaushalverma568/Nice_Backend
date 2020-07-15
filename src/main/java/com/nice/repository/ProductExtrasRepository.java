@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.Product;
 import com.nice.model.ProductExtras;
+import com.nice.model.ProductExtrasMaster;
 
 /**
  *
@@ -34,54 +35,6 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 */
 	List<ProductExtras> findAllByProduct(Product product);
 
-	/**
-	 *
-	 * @param name
-	 * @param id
-	 * @return
-	 */
-	Optional<ProductExtras> findByNameIgnoreCaseAndIdNot(String name, Long id);
-
-	/**
-	 *
-	 * @param name
-	 * @param product
-	 * @param id
-	 * @return
-	 */
-	Optional<ProductExtras> findByNameIgnoreCaseAndProductAndIdNot(String name, Product product, Long id);
-
-	/**
-	 *
-	 * @param name
-	 * @param product
-	 * @return
-	 */
-	Optional<ProductExtras> findByNameIgnoreCaseAndProduct(String name, Product product);
-
-	/**
-	 *
-	 * @param name
-	 * @param vendorId
-	 * @param id
-	 * @return
-	 */
-	List<ProductExtras> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
-
-	/**
-	 *
-	 * @param name
-	 * @return
-	 */
-	List<ProductExtras> findByNameIgnoreCase(String name);
-
-	/**
-	 *
-	 * @param name
-	 * @param vendorId
-	 * @return
-	 */
-	List<ProductExtras> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 * @param vendorId
@@ -89,5 +42,39 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 * @return
 	 */
 	Page<ProductExtras> findAllByVendorId(Long vendorId, Pageable pageable);
+
+	/**
+	 * 
+	 * @param product
+	 * @param extrasMaster
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductExtras> findByProductAndProductExtrasMasterAndIdNot(Product product,
+			ProductExtrasMaster extrasMaster, Long id);
+
+	/**
+	 * 
+	 * @param product
+	 * @param extrasMaster
+	 * @return
+	 */
+	Optional<ProductExtras> findByProductAndProductExtrasMaster(Product product, ProductExtrasMaster extrasMaster);
+
+	/**
+	 * 
+	 * @param productExtrasMaster
+	 * @param activeRecords
+	 * @return
+	 */
+	List<ProductExtras> findAllByProductExtrasMasterAndActive(ProductExtrasMaster productExtrasMaster,
+			Boolean activeRecords);
+
+	/**
+	 * 
+	 * @param productExtrasMaster
+	 * @return
+	 */
+	List<ProductExtras> findAllByProductExtrasMaster(ProductExtrasMaster productExtrasMaster);
 
 }

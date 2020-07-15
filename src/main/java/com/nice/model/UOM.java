@@ -34,4 +34,8 @@ public class UOM extends CommonModel {
 
 	@Column(name = "uom_label")
 	private String uomLabel;
+
+	@Column(name = "vendor_id", nullable = false)
+	private Long vendorId;
+	
 }

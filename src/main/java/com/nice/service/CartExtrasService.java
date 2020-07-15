@@ -60,4 +60,19 @@ public interface CartExtrasService {
 	 */
 	List<CartExtras> getCartExtrasListForCartItem(CartItem cartItem);
 
+	/**
+	 * 
+	 * @param productExtrasId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<CartExtras> getCartExtrasListFromProductExtrasId(Long productExtrasId) throws NotFoundException;
+
+	/**
+	 * 
+	 * @param productExtrasId
+	 * @throws NotFoundException
+	 */
+	void deleteCartExtrasByExtrasId(Long productExtrasId) throws NotFoundException;
+
 }

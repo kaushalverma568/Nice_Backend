@@ -9,6 +9,7 @@ import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.TempCartExtrasDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.TempCartExtras;
 import com.nice.model.TempCartItem;
 
 /**
@@ -45,5 +46,21 @@ public interface TempCartExtrasService {
 	 * @throws NotFoundException
 	 */
 	void deleteTempCartExtras(Long cartItemId) throws NotFoundException;
+
+	/**
+	 * get list by productExtrasId
+	 * 
+	 * @param productExtrasId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<TempCartExtras> getTempCartExtrasListFromProductExtrasId(Long productExtrasId) throws NotFoundException;
+
+	/**
+	 * 
+	 * @param productExtrasId
+	 * @throws NotFoundException
+	 */
+	void deleteTempCartExtrasByExtrasId(Long productExtrasId) throws NotFoundException;
 
 }

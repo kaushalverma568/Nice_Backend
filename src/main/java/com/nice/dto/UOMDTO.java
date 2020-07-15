@@ -31,6 +31,9 @@ public class UOMDTO implements Serializable {
 
 	@NotNull(message = "{uom.quantity.not.null}")
 	private Double quantity;
+	
+	@NotNull(message = "{vendor.id.not.null}")
+	private Long vendorId;
 
 	/**
 	 * for response purpose only

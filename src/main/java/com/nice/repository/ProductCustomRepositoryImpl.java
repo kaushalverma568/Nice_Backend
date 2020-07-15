@@ -94,6 +94,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			paramMap.put("vendorId", productParamRequestDTO.getVendorId());
 		}
 		
+		if (productParamRequestDTO.getUomId() != null) {
+			sqlQuery.append(" and pv.uom_id = :uom_id ");
+			paramMap.put("uom_id", productParamRequestDTO.getUomId());
+		}
+		
 		if (productParamRequestDTO.getDiscountId() != null) {
 			sqlQuery.append(" and p.discount_id = :discountId ");
 			paramMap.put("discountId", productParamRequestDTO.getDiscountId());

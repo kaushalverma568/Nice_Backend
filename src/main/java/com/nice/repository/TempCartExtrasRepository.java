@@ -36,4 +36,18 @@ public interface TempCartExtrasRepository extends JpaRepository<TempCartExtras, 
 	 * @param cartItem
 	 */
 	void deleteAllByTempCartItem(TempCartItem cartItem);
+
+	/**
+	 * 
+	 * @param productExtras
+	 * @return
+	 */
+	List<TempCartExtras> findAllByProductExtras(ProductExtras productExtras);
+
+	/**
+	 * 
+	 * @param productExtras
+	 */
+	void deleteByProductExtras(ProductExtras productExtras);
+
 }

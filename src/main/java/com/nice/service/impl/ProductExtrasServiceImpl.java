@@ -19,10 +19,14 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductExtrasMapper;
 import com.nice.model.Product;
 import com.nice.model.ProductExtras;
+import com.nice.model.ProductExtrasMaster;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductExtrasRepository;
+import com.nice.service.CartExtrasService;
+import com.nice.service.ProductExtrasMasterService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
+import com.nice.service.TempCartExtrasService;
 
 /**
  *
@@ -52,17 +56,29 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	private CartExtrasService cartExtrasService;
+	
+	@Autowired
+	private TempCartExtrasService tempCartExtrasService;
+	
+	@Autowired
+	private ProductExtrasMasterService productExtrasMasterService;
 
 	@Override
 	public Long addProductExtras(final ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside addProductExtras method, with productExtrasDTO : {}", productExtrasDTO);
 		Long vendorId = getVendorIdForLoginUser();
 		Product product = productService.getProductDetail(productExtrasDTO.getProductId());
+		ProductExtrasMaster extrasMaster = productExtrasMasterService.getProductExtrasMasterDetail(productExtrasDTO.getProductExtrasMasterId());
 		if (!product.getVendorId().equals(vendorId)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		ProductExtras productExtras = productExtrasMapper.toEntity(productExtrasDTO);
 
+		productExtras.setProductExtrasMaster(extrasMaster);
+		productExtras.setRate(extrasMaster.getRate());
 		productExtras.setProduct(product);
 		productExtras.setVendorId(vendorId);
 		productExtras = productExtrasRepository.save(productExtras);
@@ -84,6 +100,9 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		}
 		productExtras = productExtrasMapper.toEntity(productExtrasDTO);
 		Product prdoduct = productService.getProductDetail(productExtrasDTO.getProductId());
+		ProductExtrasMaster extrasMaster = productExtrasMasterService.getProductExtrasMasterDetail(productExtrasDTO.getProductExtrasMasterId());
+		productExtras.setProductExtrasMaster(extrasMaster);
+		productExtras.setRate(extrasMaster.getRate());
 		productExtras.setVendorId(vendorId);
 		productExtras.setProduct(prdoduct);
 		productExtrasRepository.save(productExtras);
@@ -111,11 +130,20 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductExtras.getActive().equals(active)) {
 			if (active) {
-				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.active", null));
+				throw new ValidationException(messageByLocaleService.getMessage("product.extras.active", null));
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.deactive", null));
+				throw new ValidationException(messageByLocaleService.getMessage("product.extras.deactive", null));
 			}
 		} else {
+			if (Boolean.FALSE.equals(active)) {
+				//delete from cart and temp cart 
+                 tempCartExtrasService.deleteTempCartExtrasByExtrasId(productExtrasId);
+                 cartExtrasService.deleteCartExtrasByExtrasId(productExtrasId);
+			} else {
+				if (Boolean.FALSE.equals(existingProductExtras.getProductExtrasMaster().getActive())) {
+					throw new ValidationException(messageByLocaleService.getMessage("product.extras.master.activate.first", null));
+				}
+			}
 			existingProductExtras.setActive(active);
 			productExtrasRepository.save(existingProductExtras);
 		}
@@ -157,16 +185,32 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		LOGGER.info("After getList method, with productId : {} and active :{}", productId, activeRecords);
 		return productExtrasMapper.toDtos(productExtraList);
 	}
+	
+	
+	@Override
+	public List<ProductExtras> getListByProductExtrasMaster(final Boolean activeRecords, final Long productExtrasMasterId) throws NotFoundException {
+		LOGGER.info("Inside getList method, with productId : {} and active :{}", productExtrasMasterId, activeRecords);
+		ProductExtrasMaster productExtrasMaster = productExtrasMasterService.getProductExtrasMasterDetail(productExtrasMasterId);
+		List<ProductExtras> productExtraList;
+		if (activeRecords != null) {
+			productExtraList = productExtrasRepository.findAllByProductExtrasMasterAndActive(productExtrasMaster, activeRecords);
+		} else {
+			productExtraList = productExtrasRepository.findAllByProductExtrasMaster(productExtrasMaster);
+		}
+		LOGGER.info("After getList method, with productId : {} and active :{}", productExtrasMasterId, activeRecords);
+		return productExtraList;
+	}
 
 	@Override
 	public boolean isExists(final ProductExtrasDTO productExtrasDTO) throws NotFoundException {
 		LOGGER.info("Inside isExists method, with productExtrasDTO : {} ", productExtrasDTO);
 		Product product = productService.getProductDetail(productExtrasDTO.getProductId());
+		ProductExtrasMaster extrasMaster = productExtrasMasterService.getProductExtrasMasterDetail(productExtrasDTO.getProductExtrasMasterId());
 		if (productExtrasDTO.getId() != null) {
-			return productExtrasRepository.findByNameIgnoreCaseAndProductAndIdNot(productExtrasDTO.getName(), product, productExtrasDTO.getId()).isPresent();
+			return productExtrasRepository.findByProductAndProductExtrasMasterAndIdNot(product, extrasMaster, productExtrasDTO.getId()).isPresent();
 
 		} else {
-			return productExtrasRepository.findByNameIgnoreCaseAndProduct(productExtrasDTO.getName(), product).isPresent();
+			return productExtrasRepository.findByProductAndProductExtrasMaster(product, extrasMaster).isPresent();
 		}
 	}
 

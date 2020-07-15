@@ -561,7 +561,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersExtras orderExtras = new OrdersExtras();
 				orderExtras.setActive(true);
 				orderExtras.setProductExtras(cartExtras.getProductExtras());
-				orderExtras.setExtrasName(cartExtras.getProductExtras().getName());
+				orderExtras.setExtrasName(cartExtras.getProductExtras().getProductExtrasMaster().getName());
 				orderExtras.setQuantity(cartExtras.getQuantity());
 				orderExtras.setAmount(cartExtras.getProductExtras().getRate() * cartExtras.getQuantity());
 				orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());

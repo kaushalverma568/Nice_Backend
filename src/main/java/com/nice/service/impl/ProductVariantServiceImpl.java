@@ -130,8 +130,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	private void validateProductVariant(final Product product, final ProductVariantRequestDTO productVariantRequestDTO)
 			throws ValidationException, NotFoundException {
 		validateDTOProperties(productVariantRequestDTO);
+		Long vendorId = getVendorIdForLoginUser();
 		final UOM uom = uomService.getUOMDetail(productVariantRequestDTO.getUomId());
-
+		if (!uom.getVendorId().equals(vendorId)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		if (productVariantRequestDTO.getActive()) {
 			if (Boolean.FALSE.equals(uom.getActive())) {
 				throw new ValidationException(messageByLocaleService.getMessage("uom.activate.first", null));
