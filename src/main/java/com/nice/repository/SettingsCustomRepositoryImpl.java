@@ -62,9 +62,9 @@ public class SettingsCustomRepositoryImpl implements SettingsCustomRepository {
 			LOGGER.info("Inside Settings DAO for update encrypted settings, {}", settings);
 			return entityManager
 					.createNativeQuery("UPDATE SETTINGS SET FIELD_NAME =?, FIELD_VALUE = PGP_SYM_ENCRYPT(?,'" + Constant.KEY_ENCRYPTION_SALT
-							+ "'), ENCRYPTED=?, UPDATED_AT=NOW(), UPDATED_BY=? WHERE ID = ?")
+							+ "'), ENCRYPTED=?, UPDATED_AT=NOW() WHERE ID = ?")
 					.setParameter(1, settings.getFieldName()).setParameter(2, settings.getFieldValue()).setParameter(3, settings.getEncrypted())
-					.setParameter(4, settings.getUpdatedBy()).setParameter(5, settings.getId()).executeUpdate();
+					.setParameter(4, settings.getId()).executeUpdate();
 		}
 		/**
 		 * If the value is to be stored in non encrypted format
@@ -72,9 +72,9 @@ public class SettingsCustomRepositoryImpl implements SettingsCustomRepository {
 		else {
 			LOGGER.info("Inside Settings DAO for update non encypted settings, {}", settings);
 			return entityManager
-					.createNativeQuery("UPDATE SETTINGS SET FIELD_NAME =?, FIELD_VALUE = ?, ENCRYPTED = ?, UPDATED_AT = NOW(), UPDATED_BY =? WHERE ID = ?")
+					.createNativeQuery("UPDATE SETTINGS SET FIELD_NAME =?, FIELD_VALUE = ?, ENCRYPTED = ?, UPDATED_AT = NOW() WHERE ID = ?")
 					.setParameter(1, settings.getFieldName()).setParameter(2, settings.getFieldValue()).setParameter(3, settings.getEncrypted())
-					.setParameter(4, settings.getUpdatedBy()).setParameter(5, settings.getId()).executeUpdate();
+					.setParameter(4, settings.getId()).executeUpdate();
 		}
 
 	}
