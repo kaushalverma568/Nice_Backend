@@ -15,7 +15,7 @@ import com.nice.model.TempCartItem;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 05-Jul-2020
+ * @date   : 05-Jul-2020
  */
 @Repository
 public interface TempCartAddonsRepository extends JpaRepository<TempCartAddons, Long> {
@@ -27,7 +27,7 @@ public interface TempCartAddonsRepository extends JpaRepository<TempCartAddons, 
 	Optional<TempCartAddons> findAllByTempCartItemAndProductAddons(TempCartItem tempCartItem, ProductAddons productAddons);
 
 	/**
-	 * @param tempCartItem
+	 * @param  tempCartItem
 	 * @return
 	 */
 	List<TempCartAddons> findAllByTempCartItem(TempCartItem tempCartItem);
@@ -37,4 +37,9 @@ public interface TempCartAddonsRepository extends JpaRepository<TempCartAddons, 
 	 */
 	void deleteAllByTempCartItem(TempCartItem cartItem);
 
+	/**
+	 * @param  productAddons
+	 * @return
+	 */
+	List<TempCartAddons> findAllByProductAddons(ProductAddons productAddons);
 }

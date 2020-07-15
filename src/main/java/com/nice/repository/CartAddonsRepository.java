@@ -15,7 +15,7 @@ import com.nice.model.ProductAddons;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 05-Jul-2020
+ * @date   : 05-Jul-2020
  */
 @Repository
 public interface CartAddonsRepository extends JpaRepository<CartAddons, Long> {
@@ -27,10 +27,16 @@ public interface CartAddonsRepository extends JpaRepository<CartAddons, Long> {
 	Optional<CartAddons> findAllByCartItemAndProductAddons(CartItem tempCartItem, ProductAddons productAddons);
 
 	/**
-	 * @param tempCartItem
+	 * @param  tempCartItem
 	 * @return
 	 */
 	List<CartAddons> findAllByCartItem(CartItem tempCartItem);
+
+	/**
+	 * @param  productAddons
+	 * @return
+	 */
+	List<CartAddons> findAllByProductAddons(ProductAddons productAddons);
 
 	/**
 	 * @param cartItem

@@ -1,7 +1,6 @@
 package com.nice.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,20 +18,24 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductAddonsMapper;
+import com.nice.model.Addons;
+import com.nice.model.CartAddons;
 import com.nice.model.ProductAddons;
 import com.nice.model.ProductVariant;
+import com.nice.model.TempCartAddons;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductAddonsRepository;
+import com.nice.service.AddonsService;
+import com.nice.service.CartAddonsService;
 import com.nice.service.ProductAddonsService;
 import com.nice.service.ProductVariantService;
-import com.nice.util.CommonUtility;
+import com.nice.service.TempCartAddonsService;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
-@Service
+@Service("productAddonsService")
 @Transactional(rollbackFor = Throwable.class)
 public class ProductAddonsServiceImpl implements ProductAddonsService {
 
@@ -52,10 +55,18 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	@Autowired
 	private ProductVariantService productVariantService;
 
+	@Autowired
+	private AddonsService addonsService;
+
+	@Autowired
+	private CartAddonsService cartAddonsService;
+
+	@Autowired
+	private TempCartAddonsService tempCartAddonsService;
+
 	@Override
 	public void addUpdateProductAddons(final List<ProductAddonsDTO> productAddonsDtoList, final Long productVariantId)
 			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside addUpdateProductAddons method, with productVariantId : {}", productVariantId);
 		Long vendorId = getVendorIdForLoginUser();
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		/**
@@ -66,10 +77,11 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 		}
 
 		for (ProductAddonsDTO productAddonsDto : productAddonsDtoList) {
-			if (isExists(productAddonsDto, productVariant)) {
-				throw new ValidationException(messageByLocaleService.getMessage("addons.already.exists", new Object[] { productAddonsDto.getName() }));
-			}
+			Addons addons = addonsService.getAddonsById(productAddonsDto.getAddonsId());
 			validateProductAddons(productVariant, productAddonsDto);
+			if (isExists(productAddonsDto, productVariant, addons)) {
+				throw new ValidationException(messageByLocaleService.getMessage("addons.already.exists", new Object[] { productAddonsDto.getAddonsId() }));
+			}
 			productAddonsDto.setProductVariantId(productVariantId);
 			ProductAddons productAddons = new ProductAddons();
 			if (productAddonsDto.getId() != null) {
@@ -83,18 +95,17 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 			BeanUtils.copyProperties(productAddonsDto, productAddons);
 			productAddons.setVendorId(vendorId);
 			productAddons.setProductVariant(productVariant);
+			productAddons.setAddons(addons);
 			productAddonsRepository.save(productAddons);
 		}
-		LOGGER.info("After addUpdateProductAddons method, with productVariantId : {}", productVariantId);
 	}
 
 	/**
-	 * @param productVariant
-	 * @param productAddonsDto
+	 * @param  productVariant
+	 * @param  productAddonsDto
 	 * @throws ValidationException
 	 */
 	private void validateProductAddons(final ProductVariant productVariant, final ProductAddonsDTO productAddonsDto) throws ValidationException {
-		LOGGER.info("Inside validateProductAddons method");
 		validateDTOProperties(productAddonsDto);
 		Long vendorId = getVendorIdForLoginUser();
 		if (vendorId == null) {
@@ -103,70 +114,50 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 		if (productAddonsDto.getActive().booleanValue() && Boolean.FALSE.equals(productVariant.getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
 		}
-		if (productAddonsDto.getId() != null) {
-			if (productAddonsRepository.findByProductVariantAndNameAndIdNot(productVariant, productAddonsDto.getName(), productAddonsDto.getId()).isPresent()) {
-				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
-			}
-		} else {
-			if (productAddonsRepository.findByProductVariantAndName(productVariant, productAddonsDto.getName()).isPresent()) {
-				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
-			}
-		}
-		LOGGER.info("After validateProductAddons method");
-	}
-
-	@Override
-	public ProductAddonsDTO updateProductAddons(final ProductAddonsDTO productAddonsDto) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside updateProductAddons method, with productAddonsDto : {}", productAddonsDto);
-		if (productAddonsDto.getId() == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.extras.id.not.null", null));
-		}
-		Optional<ProductAddons> optExistingProductAddons = productAddonsRepository.findById(productAddonsDto.getId());
-		if (!optExistingProductAddons.isPresent()) {
-			LOGGER.error("ProductAddons is not exists for ProductAddonsId {} ", productAddonsDto.getId());
-			throw new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND_ID, new Object[] { productAddonsDto.getId() }));
-		}
-		return productAddonsMapper.toDto(productAddonsRepository.save(productAddonsMapper.toEntity(productAddonsDto)));
 	}
 
 	@Override
 	public ProductAddonsDTO getProductAddons(final Long productAddonsId) throws NotFoundException {
-		LOGGER.info("Inside getProductAddons method, with productAddonsId : {}", productAddonsId);
-		ProductAddons productAddons = productAddonsRepository.findById(productAddonsId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND_ID, new Object[] { productAddonsId })));
-		return productAddonsMapper.toDto(productAddons);
+		return productAddonsMapper.toDto(getProductAddonsDetail(productAddonsId));
 	}
 
 	@Override
 	public void changeStatus(final Long productAddonsId, final Boolean active) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside changeStatus method, with productAddonsId : {}, active :{}", productAddonsId, active);
-		ProductAddons existingProductAddons = productAddonsRepository.findById(productAddonsId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND_ID, new Object[] { productAddonsId })));
+		ProductAddons existingProductAddons = getProductAddonsDetail(productAddonsId);
 		LOGGER.info("Existing  ProductAddons details {} ", existingProductAddons);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingProductAddons.getActive().equals(active)) {
-			if (active) {
-				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.active", null));
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.deactive", null));
-			}
+			throw new ValidationException(
+					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "product.attribute.active" : "product.attribute.deactive", null));
 		} else {
 			/**
 			 * at time of active addon check product variant is active or not
 			 */
-			if (Boolean.TRUE.equals(active) && Boolean.FALSE.equals(existingProductAddons.getProductVariant().getActive())) {
-				throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
+			if (Boolean.TRUE.equals(active)) {
+				if (Boolean.FALSE.equals(existingProductAddons.getProductVariant().getActive())) {
+					throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
+				}
+			} else {
+				/**
+				 * get cartAddons and delete them in order to deactivate product addon
+				 */
+				List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsByProductAddOns(productAddonsId);
+				for (CartAddons cartAddons : cartAddonsList) {
+					cartAddonsService.deleteByCartAddonsId(cartAddons.getId());
+				}
+				List<TempCartAddons> tempCartAddonsList = tempCartAddonsService.getTempCartAddonsForProductAddons(productAddonsId);
+				for (TempCartAddons tempCartAddons : tempCartAddonsList) {
+					tempCartAddonsService.deleteByTempCartAddonsId(tempCartAddons.getId());
+				}
 			}
 			existingProductAddons.setActive(active);
 			productAddonsRepository.save(existingProductAddons);
 		}
-		LOGGER.info("After changeStatus method, with productAddonsId : {}, active :{}", productAddonsId, active);
 	}
 
 	@Override
 	public List<ProductAddons> getList(final Boolean activeRecords, final Long productVariantId) throws NotFoundException {
-		LOGGER.info("Inside getList method, with productVariantId : {}, active :{}", productVariantId, activeRecords);
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		List<ProductAddons> productAddonsList = null;
 		if (activeRecords != null) {
@@ -174,13 +165,11 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 		} else {
 			productAddonsList = productAddonsRepository.findAllByProductVariant(productVariant);
 		}
-		LOGGER.info("After getList method, with productVariantId : {}, active :{}", productVariantId, activeRecords);
 		return productAddonsList;
 	}
 
 	@Override
 	public List<ProductAddonsDTO> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside getDtoListWithUserCheck method, with productVariantId : {}, active :{}", productVariantId, activeRecords);
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
@@ -196,34 +185,30 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 
 	@Override
 	public List<ProductAddonsDTO> getDtoList(final Boolean activeRecords, final Long productVariantId) throws NotFoundException {
-		LOGGER.info("Inside getDtoList method, with productVariantId : {}, active :{}", productVariantId, activeRecords);
 		List<ProductAddons> productAddonsList = getList(activeRecords, productVariantId);
 		return productAddonsMapper.toDtos(productAddonsList);
 	}
 
 	@Override
-	public boolean isExists(final ProductAddonsDTO productAddonsDto, final ProductVariant productVariant) throws ValidationException {
-		LOGGER.info("Inside isExists method");
+	public boolean isExists(final ProductAddonsDTO productAddonsDto, final ProductVariant productVariant, final Addons addons)
+			throws ValidationException, NotFoundException {
 		if (productAddonsDto.getId() != null) {
-			return !(productAddonsRepository.findByProductVariantAndNameAndIdNot(productVariant, productAddonsDto.getName(), productAddonsDto.getId())
-					.isEmpty());
+			return productAddonsRepository.findByProductVariantAndAddonsAndIdNot(productVariant, addons, productAddonsDto.getId()).isPresent();
+
 		} else {
-			return !(productAddonsRepository.findByProductVariantAndName(productVariant, productAddonsDto.getName()).isEmpty());
+			return productAddonsRepository.findByProductVariantAndAddons(productVariant, addons).isPresent();
 		}
 	}
 
 	@Override
 	public ProductAddons getProductAddonsDetail(final Long productAddonsId) throws NotFoundException {
-		LOGGER.info("Inside getProductAddonsDetail method with ProductAddonsId :{}", productAddonsId);
 		return productAddonsRepository.findById(productAddonsId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND_ID, new Object[] { productAddonsId })));
 	}
 
 	@Override
 	public void deleteProductAddons(final Long productAddonsId) {
-		LOGGER.info("Inside deleteProductAddons method with ProductAddonsId :{}", productAddonsId);
 		productAddonsRepository.deleteById(productAddonsId);
-		LOGGER.info("After deleteProductAddons method with ProductAddonsId :{}", productAddonsId);
 	}
 
 	/**
@@ -256,17 +241,18 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	}
 
 	private void validateDTOProperties(final ProductAddonsDTO productAddonsDto) throws ValidationException {
-		LOGGER.info("Inside validateDTOProperties method with productAddonsDto :{}", productAddonsDto);
 		if (productAddonsDto.getRate() == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("topping.rate.not.null", null));
+			throw new ValidationException(messageByLocaleService.getMessage("addons.rate.not.null", null));
 		} else if (productAddonsDto.getActive() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productAddonsDto.getName())) {
-			throw new ValidationException(messageByLocaleService.getMessage("name.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productAddonsDto.getDescription())) {
-			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
+		} else if (productAddonsDto.getAddonsId() == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("addons.not.null", null));
 		}
-		LOGGER.info("After validateDTOProperties method with productAddonsDto :{}", productAddonsDto);
+	}
+
+	@Override
+	public List<ProductAddons> getListByAddonsId(final Long addonsId) throws NotFoundException {
+		return productAddonsRepository.findAllByAddons(addonsService.getAddonsById(addonsId));
 	}
 
 }

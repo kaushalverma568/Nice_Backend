@@ -6,35 +6,34 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date   : 14-Jul-2020
  */
-
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ToString
-public class ProductAddonsDTO implements Serializable {
+public class AddonsDTO implements Serializable {
 	/**
-	*
-	*/
-	private static final long serialVersionUID = 8040711294987954136L;
+	 *
+	 */
+	private static final long serialVersionUID = 2098527942313428248L;
 
 	private Long id;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	private Long addonsId;
+	@NotNull(message = "{name.not.null}")
+	private String name;
 
-	private Double rate;
+	@NotNull(message = "{description.not.null}")
+	private String description;
 
-	private Long productVariantId;
-
+	/**
+	 * for response only
+	 */
 	private Long vendorId;
 
-	private String addonsName;
-
+	private String vendorName;
 }
