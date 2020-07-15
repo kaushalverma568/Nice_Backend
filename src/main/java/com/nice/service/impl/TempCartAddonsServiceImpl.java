@@ -58,7 +58,7 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsTempCartAddonsForCartItemAndAddons(tempCartItem, productAddons)) {
-			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getName() }));
+			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getAddons().getName() }));
 		}
 		tempCartAddons.setProductAddons(productAddons);
 		tempCartAddons.setTempCartItem(tempCartItem);
@@ -89,8 +89,7 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 	}
 
 	/**
-	 *
-	 * @param tempCartAddon
+	 * @param  tempCartAddon
 	 * @return
 	 */
 	private ProductAddonsDTO convertEntityToDto(final TempCartAddons tempCartAddon) {
@@ -116,5 +115,15 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 	private boolean checkIfExistsTempCartAddonsForCartItemAndAddons(final TempCartItem tempCartItem, final ProductAddons productAddons) {
 		return tempCartAddonsRepository.findAllByTempCartItemAndProductAddons(tempCartItem, productAddons).isPresent();
 
+	}
+
+	@Override
+	public List<TempCartAddons> getTempCartAddonsForProductAddons(final Long productAddonsId) throws NotFoundException {
+		return tempCartAddonsRepository.findAllByProductAddons(productAddonsService.getProductAddonsDetail(productAddonsId));
+	}
+
+	@Override
+	public void deleteByTempCartAddonsId(final Long id) {
+		tempCartAddonsRepository.deleteById(id);
 	}
 }

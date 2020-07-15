@@ -95,7 +95,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 05-Apr-2020
+ * @date   : 05-Apr-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -226,8 +226,7 @@ public class OrdersServiceImpl implements OrdersService {
 					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
 		}
 		/**
-		 * check if the products in cart are active or not active then throw error also
-		 * check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -392,9 +391,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -438,8 +437,7 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in
-		 * orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -461,8 +459,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 		// TODO
 		/**
-		 * Check for respective payment gateway and implement based on same, currently
-		 * is for razorpay
+		 * Check for respective payment gateway and implement based on same, currently is for razorpay
 		 */
 		/**
 		 * Set Online Payment details for Order
@@ -545,7 +542,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersAddons orderAddons = new OrdersAddons();
 				orderAddons.setActive(true);
 				orderAddons.setProductAddons(cartAddons.getProductAddons());
-				orderAddons.setAddonsName(cartAddons.getProductAddons().getName());
+				orderAddons.setAddonsName(cartAddons.getProductAddons().getAddons().getName());
 				orderAddons.setQuantity(cartAddons.getQuantity());
 				orderAddons.setAmount(cartAddons.getProductAddons().getRate() * cartAddons.getQuantity());
 				orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
@@ -674,8 +671,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
+	 * @param  cartItemList
+	 * @param  orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -698,8 +695,7 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for
-			 * calculation
+			 * Add the addons , extras, product attribute values, toppings amount for calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -756,7 +752,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orderAmt
+	 * @param  orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -846,8 +842,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -895,17 +891,15 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All
-		 * the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer
-		 * the inventory, that will be a typical case of replacement of orders that will
-		 * be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -931,8 +925,8 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a
-		 * order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -982,8 +976,7 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = ordersRepository.findById(orderId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to
-		 * him.
+		 * If the user is Vendor or customer, check if the order actually belongs to him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
@@ -1039,7 +1032,6 @@ public class OrdersServiceImpl implements OrdersService {
 
 	/**
 	 * @throws ValidationException
-	 *
 	 */
 	private Long getCustomerIdForLoginUser() throws ValidationException {
 		UserLogin userLogin = checkForUserLogin();

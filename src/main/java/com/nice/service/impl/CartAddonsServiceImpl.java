@@ -61,7 +61,7 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsCartAddonsForCartItemAndAddons(cartItem, productAddons)) {
-			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getName() }));
+			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getAddons().getName() }));
 		}
 		cartAddons.setProductAddons(productAddons);
 		cartAddons.setCartItem(cartItem);
@@ -113,8 +113,7 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 	}
 
 	/**
-	 *
-	 * @param cartAddon
+	 * @param  cartAddon
 	 * @return
 	 */
 	private ProductAddonsDTO convertEntityToDto(final CartAddons cartAddon) {
@@ -142,5 +141,15 @@ public class CartAddonsServiceImpl implements CartAddonsService {
 	private boolean checkIfExistsCartAddonsForCartItemAndAddons(final CartItem cartItem, final ProductAddons productAddons) {
 		LOGGER.info("Inside checkIfExistsCartAddonsForCartItemAndAddons for cartItem : {} and productAddons :{}", cartItem.getId(), productAddons);
 		return cartAddonsRepository.findAllByCartItemAndProductAddons(cartItem, productAddons).isPresent();
+	}
+
+	@Override
+	public List<CartAddons> getCartAddonsByProductAddOns(final Long productAddonsId) throws NotFoundException {
+		return cartAddonsRepository.findAllByProductAddons(productAddonsService.getProductAddonsDetail(productAddonsId));
+	}
+
+	@Override
+	public void deleteByCartAddonsId(final Long id) {
+		cartAddonsRepository.deleteById(id);
 	}
 }

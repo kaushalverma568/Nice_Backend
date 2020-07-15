@@ -23,7 +23,7 @@ public class VendorCuisineMapper {
 		vendorCuisineDTO.setVendorId(vendorCuisine.getVendor().getId());
 		vendorCuisineDTO.setCuisineName(vendorCuisine.getCuisine().getName());
 		vendorCuisineDTO.setStoreName(vendorCuisine.getVendor().getStoreName());
-		vendorCuisineDTO.setVendorName(vendorCuisine.getVendor().getFirstName().concat(vendorCuisine.getVendor().getLastName()));
+		vendorCuisineDTO.setVendorName(vendorCuisine.getVendor().getFirstName().concat(" ").concat(vendorCuisine.getVendor().getLastName()));
 		return vendorCuisineDTO;
 	}
 

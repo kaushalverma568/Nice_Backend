@@ -15,9 +15,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @Entity
 @Table(name = "product_addons")
@@ -35,11 +34,9 @@ public class ProductAddons extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
-
-	@Column(name = "description", nullable = false)
-	private String description;
+	@JoinColumn(name = "addons_id", nullable = false)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+	private Addons addons;
 
 	@Column(name = "rate", nullable = false)
 	private Double rate;
