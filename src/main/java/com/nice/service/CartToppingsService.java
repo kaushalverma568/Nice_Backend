@@ -6,11 +6,12 @@ package com.nice.service;
 import java.util.List;
 
 import com.nice.dto.CartToppingsDto;
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.CartItem;
 import com.nice.model.CartToppings;
+import com.nice.model.ProductTopping;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -31,7 +32,7 @@ public interface CartToppingsService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductToppingDto> getProductToppingsDtoListForCartItem(Long cartItemId) throws NotFoundException;
+	List<ProductToppingResponseDTO> getProductToppingsDtoListForCartItem(Long cartItemId) throws NotFoundException;
 
 	/**
 	 * @param cartItemId
@@ -59,5 +60,18 @@ public interface CartToppingsService {
 	 * @return
 	 */
 	List<CartToppings> getCartToppingsListForCartItem(CartItem cartItem);
+
+	/**
+	 * @param productTopping
+	 * @param active
+	 * @return
+	 */
+	List<CartToppings> getCartToppingsListBasedOnProductTopping(ProductTopping productTopping);
+
+	/**
+	 * @param cartToppingId
+	 * @throws NotFoundException
+	 */
+	void deleteCartToppingsById(Long cartToppingId) throws NotFoundException;
 
 }

@@ -8,9 +8,11 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.ProductTopping;
+import com.nice.model.Topping;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -32,7 +34,7 @@ public interface ProductToppingService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	ProductToppingDto getProductTopping(Long productVariantId) throws NotFoundException, ValidationException;
+	ProductToppingResponseDTO getProductTopping(Long productVariantId) throws NotFoundException, ValidationException;
 
 	/**
 	 *
@@ -40,7 +42,7 @@ public interface ProductToppingService {
 	 * @param active
 	 * @return
 	 */
-	List<ProductToppingDto> getToppingForProductVariant(Long productVariantId, Boolean active);
+	List<ProductToppingResponseDTO> getToppingForProductVariant(Long productVariantId, Boolean active);
 
 	/**
 	 * @param productToppingId
@@ -61,13 +63,13 @@ public interface ProductToppingService {
 	 * @param productToppingList
 	 * @return
 	 */
-	List<ProductToppingDto> convertEntityListToDtos(List<ProductTopping> productToppingList);
+	List<ProductToppingResponseDTO> convertEntityListToDtos(List<ProductTopping> productToppingList);
 
 	/**
 	 * @param productTopping
 	 * @return
 	 */
-	ProductToppingDto convertFromEntityToDto(ProductTopping productTopping);
+	ProductToppingResponseDTO convertFromEntityToDto(ProductTopping productTopping);
 
 	/**
 	 * @param activeRecords
@@ -76,6 +78,13 @@ public interface ProductToppingService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<ProductToppingDto> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
+	List<ProductToppingResponseDTO> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param topping
+	 * @param active
+	 * @return
+	 */
+	List<ProductTopping> getProductToppingListForTopping(Topping topping, Boolean active);
 
 }

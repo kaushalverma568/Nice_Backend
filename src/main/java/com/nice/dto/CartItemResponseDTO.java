@@ -27,7 +27,7 @@ public class CartItemResponseDTO implements Serializable {
 	private String uuid;
 	private ProductVariantResponseDTO productVariantResponseDto;
 	private List<ProductAddonsDTO> productAddonsDtoList;
-	private List<ProductToppingDto> productToppingsDtoList;
+	private List<ProductToppingResponseDTO> productToppingsDtoList;
 	/**
 	 * This Map<AttributeName, List<AttributeValues>>
 	 */

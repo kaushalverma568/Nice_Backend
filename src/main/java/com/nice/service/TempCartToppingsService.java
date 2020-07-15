@@ -5,7 +5,7 @@ package com.nice.service;
 
 import java.util.List;
 
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.TempCartToppingsDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -30,7 +30,7 @@ public interface TempCartToppingsService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductToppingDto> getTempCartToppingsListForCartItem(Long cartItemId) throws NotFoundException;
+	List<ProductToppingResponseDTO> getTempCartToppingsListForCartItem(Long cartItemId) throws NotFoundException;
 
 	/**
 	 * @param cartItemId

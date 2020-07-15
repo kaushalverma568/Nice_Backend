@@ -37,24 +37,19 @@ public class ProductTopping extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
-
-	@Column(name = "description", nullable = false)
-	private String description;
-
-	@Column(name = "vendor_id", nullable = false)
-	private Long vendorId;
-
-	@Column(name = "product_food_type")
-	private String productFoodType;
-
 	@Column(name = "rate", nullable = false)
 	private Double rate;
 
 	@JoinColumn(name = "product_variant_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	private ProductVariant productVariant;
+
+	@JoinColumn(name = "topping_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	private Topping topping;
+
+	@Column(name = "vendor_id", nullable = false)
+	private Long vendorId;
 
 	@Column(name = "discounted_rate", nullable = true)
 	private Double discountedRate;

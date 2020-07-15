@@ -25,7 +25,7 @@ import com.nice.dto.CartToppingsDto;
 import com.nice.dto.ProductAddonsDTO;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductExtrasDTO;
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -92,14 +92,15 @@ public class CartItemServiceImpl implements CartItemService {
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
-		 * one
+		 * If the vendor For existing cartItem is different from the new product vendor
+		 * delete the old cart and populate the new one
 		 */
 		if (!cartItemList.isEmpty()) {
 			CartItem cartItem = cartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new
+			 * products are different
 			 */
 			if (!cartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				LOGGER.info("Deleting cart for customer :{} as products for different vendor exists", customerId);
@@ -136,10 +137,10 @@ public class CartItemServiceImpl implements CartItemService {
 				/**
 				 * Check if all Topppings are same
 				 */
-				List<ProductToppingDto> cartToppingsList = cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId());
+				List<ProductToppingResponseDTO> cartToppingsList = cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId());
 				LOGGER.info("Checking for toppings for cartItem :{}", cartItem.getId());
 				List<Long> existingProductToppingsList = cartToppingsList.isEmpty() ? null
-						: cartToppingsList.stream().map(ProductToppingDto::getId).collect(Collectors.toList());
+						: cartToppingsList.stream().map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
 				if ((existingProductToppingsList == null && cartItemDTO.getProductToppingsIds() == null) || (cartItemDTO.getProductToppingsIds() != null
 						&& existingProductToppingsList != null && existingProductToppingsList.size() == cartItemDTO.getProductToppingsIds().size()
@@ -182,8 +183,8 @@ public class CartItemServiceImpl implements CartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
-					 * , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if
+					 * total of existing and new is greater then 15 , then set quantity as 15
 					 **/
 					LOGGER.info("All Extras, Toppings, ProductAttributeValues, Addons same for cartItem :{} , hence updating the qty of existing product",
 							cartItem.getId());
@@ -461,7 +462,7 @@ public class CartItemServiceImpl implements CartItemService {
 			cartItemDto.setProductAddonsId(productAddonsList);
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductToppingsDtoList())) {
-			List<Long> productToppingsList = cartItemResponseDto.getProductToppingsDtoList().stream().map(ProductToppingDto::getId)
+			List<Long> productToppingsList = cartItemResponseDto.getProductToppingsDtoList().stream().map(ProductToppingResponseDTO::getId)
 					.collect(Collectors.toList());
 			cartItemDto.setProductToppingsIds(productToppingsList);
 		}

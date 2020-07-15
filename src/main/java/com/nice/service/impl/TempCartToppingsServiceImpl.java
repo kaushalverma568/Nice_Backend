@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.TempCartToppingsDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -59,7 +59,8 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsTempCartToppingsForCartItemAndAddons(tempCartItem, productToppings)) {
-			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productToppings.getName() }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productToppings.getTopping().getName() }));
 		}
 		tempCartAddons.setProductToppings(productToppings);
 		tempCartAddons.setTempCartItem(tempCartItem);
@@ -67,7 +68,7 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 	}
 
 	@Override
-	public List<ProductToppingDto> getTempCartToppingsListForCartItem(final Long cartItemId) throws NotFoundException {
+	public List<ProductToppingResponseDTO> getTempCartToppingsListForCartItem(final Long cartItemId) throws NotFoundException {
 		TempCartItem tempCartItem = tempCartItemService.getTempCartItemDetail(cartItemId);
 		List<TempCartToppings> tempCartAddonsList = tempCartToppingsRepository.findAllByTempCartItem(tempCartItem);
 		return convertEntityToDtos(tempCartAddonsList);
@@ -94,7 +95,7 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 	 * @param tempCartAddon
 	 * @return
 	 */
-	private ProductToppingDto convertEntityToDto(final TempCartToppings tempCartAddon) {
+	private ProductToppingResponseDTO convertEntityToDto(final TempCartToppings tempCartAddon) {
 		LOGGER.info("Inside convert Entity To Dto method");
 		return productToppingService.convertFromEntityToDto(tempCartAddon.getProductToppings());
 
@@ -103,8 +104,8 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 	/**
 	 * @param tempCartAddonsList
 	 */
-	private List<ProductToppingDto> convertEntityToDtos(final List<TempCartToppings> tempCartAddonsList) {
-		List<ProductToppingDto> tempCartAddonsDtoList = new ArrayList<>();
+	private List<ProductToppingResponseDTO> convertEntityToDtos(final List<TempCartToppings> tempCartAddonsList) {
+		List<ProductToppingResponseDTO> tempCartAddonsDtoList = new ArrayList<>();
 		for (TempCartToppings tempCartAddons : tempCartAddonsList) {
 			tempCartAddonsDtoList.add(convertEntityToDto(tempCartAddons));
 		}

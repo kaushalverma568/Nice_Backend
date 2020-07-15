@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.CartToppingsDto;
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -59,7 +59,8 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 		 * check for existing Toppings
 		 */
 		if (checkIfExistsCartToppingsForCartItemAndToppings(cartItem, productToppings)) {
-			throw new ValidationException(messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getName() }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getName() }));
 		}
 		cartToppings.setProductToppings(productToppings);
 		cartToppings.setCartItem(cartItem);
@@ -68,7 +69,7 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	}
 
 	@Override
-	public List<ProductToppingDto> getProductToppingsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
+	public List<ProductToppingResponseDTO> getProductToppingsDtoListForCartItem(final Long cartItemId) throws NotFoundException {
 		LOGGER.info("Inside getProductToppingsDtoListForCartItem cartItemId :{}", cartItemId);
 		CartItem cartItem = cartItemService.getCartItemDetail(cartItemId);
 		List<CartToppings> cartToppingsList = cartToppingsRepository.findAllByCartItem(cartItem);
@@ -96,23 +97,29 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 		LOGGER.info("After deleteCartToppings for cartItemId :{}", cartItemId);
 	}
 
+	@Override
+	public void deleteCartToppingsById(final Long cartToppingId) throws NotFoundException {
+		LOGGER.info("Inside deleteCartToppings for cartToppingId :{}", cartToppingId);
+		cartToppingsRepository.deleteById(cartToppingId);
+	}
+
 	/**
 	 *
 	 * @param cartAddon
 	 * @return
 	 */
-	private ProductToppingDto convertEntityToDto(final CartToppings cartAddon) {
+	private ProductToppingResponseDTO convertEntityToDto(final CartToppings cartTopping) {
 		LOGGER.info("Inside convert Entity To Dto method");
-		return productToppingService.convertFromEntityToDto(cartAddon.getProductToppings());
+		return productToppingService.convertFromEntityToDto(cartTopping.getProductToppings());
 
 	}
 
 	/**
 	 * @param cartToppingsList
 	 */
-	private List<ProductToppingDto> convertEntityToDtos(final List<CartToppings> cartToppingsList) {
+	private List<ProductToppingResponseDTO> convertEntityToDtos(final List<CartToppings> cartToppingsList) {
 		LOGGER.info("Inside convertEntityToDtos");
-		List<ProductToppingDto> cartToppingsDtoList = new ArrayList<>();
+		List<ProductToppingResponseDTO> cartToppingsDtoList = new ArrayList<>();
 		for (CartToppings cartToppings : cartToppingsList) {
 			cartToppingsDtoList.add(convertEntityToDto(cartToppings));
 		}
@@ -141,5 +148,10 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	public List<CartToppings> getCartToppingsListForCartItem(final CartItem cartItem) {
 		LOGGER.info("Inside getCartToppingsListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartToppingsRepository.findAllByCartItem(cartItem);
+	}
+
+	@Override
+	public List<CartToppings> getCartToppingsListBasedOnProductTopping(final ProductTopping productTopping) {
+		return cartToppingsRepository.findAllByProductToppings(productTopping);
 	}
 }

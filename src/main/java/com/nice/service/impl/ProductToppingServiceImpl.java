@@ -20,22 +20,27 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.model.CartToppings;
 import com.nice.model.ProductTopping;
 import com.nice.model.ProductVariant;
+import com.nice.model.Topping;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductToppingRepository;
+import com.nice.service.CartToppingsService;
 import com.nice.service.ProductToppingService;
 import com.nice.service.ProductVariantService;
+import com.nice.service.ToppingService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date : 02-Jul-2020
  */
-@Service("productToppingServiceImpl")
+@Service("productToppingService")
 @Transactional(rollbackFor = Throwable.class)
 public class ProductToppingServiceImpl implements ProductToppingService {
 
@@ -47,6 +52,12 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 
 	@Autowired
 	private ProductVariantService productVariantService;
+
+	@Autowired
+	private CartToppingsService cartToppingsService;
+
+	@Autowired
+	private ToppingService toppingService;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -66,27 +77,26 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		for (ProductToppingDto productToppingDto : productToppingDTOList) {
-			validateProductTopping(productVariant, productToppingDto);
+			Topping topping = validateProductTopping(productVariant, productToppingDto);
 			productToppingDto.setProductVariantId(productVariantId);
 			ProductTopping productTopping = new ProductTopping();
 			if (productToppingDto.getId() != null) {
 				productTopping = getProductToppingDetails(productToppingDto.getId());
-				if (!productTopping.getVendorId().equals(vendorId)) {
-					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-				} else if (!productTopping.getProductVariant().getId().equals(productVariant.getId())) {
+				if (!productTopping.getProductVariant().getId().equals(productVariant.getId())) {
 					throw new ValidationException(messageByLocaleService.getMessage("topping.associated.to.variant", null));
 				}
 			}
 			BeanUtils.copyProperties(productToppingDto, productTopping);
-			productTopping.setVendorId(vendorId);
 			productTopping.setProductVariant(productVariant);
+			productTopping.setVendorId(vendorId);
+			productTopping.setTopping(topping);
 			productToppingRepository.save(productTopping);
 		}
 		LOGGER.info("After addUpdateProductTopping method, with productVariantId : {}", productVariantId);
 	}
 
 	@Override
-	public ProductToppingDto getProductTopping(final Long productToppingId) throws NotFoundException, ValidationException {
+	public ProductToppingResponseDTO getProductTopping(final Long productToppingId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getProductTopping method, with productToppingId : {}", productToppingId);
 		ProductTopping productTopping = getProductToppingDetails(productToppingId);
 		UserLogin userLogin = checkForUserLogin();
@@ -98,21 +108,28 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	}
 
 	@Override
-	public ProductToppingDto convertFromEntityToDto(final ProductTopping productTopping) {
+	public ProductToppingResponseDTO convertFromEntityToDto(final ProductTopping productTopping) {
 		LOGGER.info("Inside convertFromEntityToDto");
-		ProductToppingDto productToppingDto = new ProductToppingDto();
-		BeanUtils.copyProperties(productTopping, productToppingDto);
-		productToppingDto.setProductVariantId(productTopping.getProductVariant().getId());
-		return productToppingDto;
+		ProductToppingResponseDTO productToppingResponseDTO = new ProductToppingResponseDTO();
+		BeanUtils.copyProperties(productTopping, productToppingResponseDTO);
+		productToppingResponseDTO.setProductVariantId(productTopping.getProductVariant().getId());
+		productToppingResponseDTO.setName(productTopping.getTopping().getName());
+		productToppingResponseDTO.setDescription(productTopping.getTopping().getDescription());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(productTopping.getTopping().getProductFoodType())) {
+			productToppingResponseDTO.setProductFoodType(productTopping.getTopping().getProductFoodType());
+		}
+		return productToppingResponseDTO;
 	}
 
 	@Override
-	public List<ProductToppingDto> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId) throws NotFoundException, ValidationException {
+	public List<ProductToppingResponseDTO> getDtoListWithUserCheck(Boolean activeRecords, final Long productVariantId)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getDtoListWithUserCheck , active :{}, productVariantId : {}", activeRecords, productVariantId);
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
+		 * If the userLogin is null or userType is customer show only activeRecords
+		 * irrespective of what is sent from front end.
 		 */
 		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !productVariant.getVendorId().equals(userLogin.getEntityId()))) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -123,7 +140,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	}
 
 	@Override
-	public List<ProductToppingDto> getToppingForProductVariant(final Long productVariantId, final Boolean active) {
+	public List<ProductToppingResponseDTO> getToppingForProductVariant(final Long productVariantId, final Boolean active) {
 		LOGGER.info("Inside getToppingForProductVariant , active :{}, productVariantId : {}", active, productVariantId);
 		List<ProductTopping> productToppingList = null;
 		if (active == null) {
@@ -134,14 +151,24 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		return convertEntityListToDtos(productToppingList);
 	}
 
+	@Override
+	public List<ProductTopping> getProductToppingListForTopping(final Topping topping, final Boolean active) {
+		LOGGER.info("Inside getToppingForProductVariant , active :{}, toppingId : {}", active, topping.getId());
+		if (active == null) {
+			return productToppingRepository.findAllByTopping(topping);
+		} else {
+			return productToppingRepository.findAllByToppingAndActive(topping, active);
+		}
+	}
+
 	/**
 	 * @param productToppingList
 	 * @return
 	 */
 	@Override
-	public List<ProductToppingDto> convertEntityListToDtos(final List<ProductTopping> productToppingList) {
+	public List<ProductToppingResponseDTO> convertEntityListToDtos(final List<ProductTopping> productToppingList) {
 		LOGGER.info("Inside convertEntityListToDtos");
-		List<ProductToppingDto> productToppingDtos = new ArrayList<>();
+		List<ProductToppingResponseDTO> productToppingDtos = new ArrayList<>();
 		for (ProductTopping productTopping : productToppingList) {
 			productToppingDtos.add(convertFromEntityToDto(productTopping));
 		}
@@ -172,8 +199,13 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 					throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
 				}
 			} else {
-				// cartItemService.deleteCartItemsForProductVariant(productVariant.getId());
-				// tempCartItemService.deleteCartItemsForProductVariant(productVariant.getId());
+				/**
+				 * remove this topping from cart topping
+				 */
+				List<CartToppings> cartToppingList = cartToppingsService.getCartToppingsListBasedOnProductTopping(productTopping);
+				for (CartToppings cartToppings : cartToppingList) {
+					cartToppingsService.deleteCartToppingsById(cartToppings.getId());
+				}
 			}
 			productTopping.setActive(active);
 			productToppingRepository.save(productTopping);
@@ -217,7 +249,8 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		}
 	}
 
-	private void validateProductTopping(final ProductVariant productVariant, final ProductToppingDto productToppingDto) throws ValidationException {
+	private Topping validateProductTopping(final ProductVariant productVariant, final ProductToppingDto productToppingDto)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside validateProductTopping method ");
 		validateDTOProperties(productToppingDto);
 		Long vendorId = getVendorIdForLoginUser();
@@ -226,18 +259,21 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		}
 		if (productToppingDto.getActive().booleanValue() && Boolean.FALSE.equals(productVariant.getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.variant.activate.first", null));
+		} else if (productToppingDto.getToppingId() == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("topping.id.not.null", null));
 		}
+		Topping topping = toppingService.getToppingDetail(productToppingDto.getToppingId());
 		if (productToppingDto.getId() != null) {
-			if (productToppingRepository.findByProductVariantAndNameAndIdNot(productVariant, productToppingDto.getName(), productToppingDto.getId())
-					.isPresent()) {
+			if (productToppingRepository.findByProductVariantAndToppingAndIdNot(productVariant, topping, productToppingDto.getId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		} else {
-			if (productToppingRepository.findByProductVariantAndName(productVariant, productToppingDto.getName()).isPresent()) {
+			if (productToppingRepository.findByProductVariantAndTopping(productVariant, topping).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 			}
 		}
 		LOGGER.info("After validateProductTopping method ");
+		return topping;
 	}
 
 	private void validateDTOProperties(final ProductToppingDto productToppingDto) throws ValidationException {
@@ -246,10 +282,6 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage("topping.rate.not.null", null));
 		} else if (productToppingDto.getActive() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productToppingDto.getName())) {
-			throw new ValidationException(messageByLocaleService.getMessage("name.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productToppingDto.getDescription())) {
-			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
 		}
 		LOGGER.info("After validateDTOProperties method ");
 	}

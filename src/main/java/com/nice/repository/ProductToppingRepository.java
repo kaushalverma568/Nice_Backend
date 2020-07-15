@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.ProductTopping;
 import com.nice.model.ProductVariant;
+import com.nice.model.Topping;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -27,24 +28,38 @@ public interface ProductToppingRepository extends JpaRepository<ProductTopping, 
 	List<ProductTopping> findAllByProductVariantIdAndActive(Long productVariantId, Boolean active);
 
 	/**
-	 * @param productVariant
-	 * @param name
-	 * @param id
+	 *
+	 * @param topping
+	 * @param active
 	 * @return
 	 */
-	Optional<ProductTopping> findByProductVariantAndNameAndIdNot(ProductVariant productVariant, String name, Long id);
-
-	/**
-	 * @param productVariant
-	 * @param name
-	 * @return
-	 */
-	Optional<ProductTopping> findByProductVariantAndName(ProductVariant productVariant, String name);
+	List<ProductTopping> findAllByToppingAndActive(Topping topping, Boolean active);
 
 	/**
 	 * @param productVariantId
 	 * @return
 	 */
 	List<ProductTopping> findAllByProductVariantId(Long productVariantId);
+
+	/**
+	 * @param topping
+	 * @return
+	 */
+	List<ProductTopping> findAllByTopping(Topping topping);
+
+	/**
+	 * @param productVariant
+	 * @param topping
+	 * @return
+	 */
+	Optional<ProductTopping> findByProductVariantAndTopping(ProductVariant productVariant, Topping topping);
+
+	/**
+	 * @param productVariant
+	 * @param topping
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductTopping> findByProductVariantAndToppingAndIdNot(ProductVariant productVariant, Topping topping, Long id);
 
 }

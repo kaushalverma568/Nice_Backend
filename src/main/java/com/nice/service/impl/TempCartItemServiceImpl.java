@@ -16,7 +16,7 @@ import com.nice.dto.CartItemResponseDTO;
 import com.nice.dto.ProductAddonsDTO;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductExtrasDTO;
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.TempCartAddonsDTO;
 import com.nice.dto.TempCartExtrasDto;
@@ -74,14 +74,15 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 		List<TempCartItem> tempCartItemList = getCartListBasedOnUuid(tempCartItemDTO.getUuid());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
-		 * one
+		 * If the vendor For existing cartItem is different from the new product vendor
+		 * delete the old cart and populate the new one
 		 */
 		if (!tempCartItemList.isEmpty()) {
 			TempCartItem tempCartItem = tempCartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(tempCartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new
+			 * products are different
 			 */
 			if (!tempCartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				deleteTempCartItemForUuid(tempCartItemDTO.getUuid());
@@ -114,9 +115,9 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				/**
 				 * Check if all Topppings are same
 				 */
-				List<ProductToppingDto> tempCartToppingsList = tempCartToppingsService.getTempCartToppingsListForCartItem(tempCartItem.getId());
+				List<ProductToppingResponseDTO> tempCartToppingsList = tempCartToppingsService.getTempCartToppingsListForCartItem(tempCartItem.getId());
 				List<Long> existingProductToppingsList = tempCartToppingsList.isEmpty() ? null
-						: tempCartToppingsList.stream().map(ProductToppingDto::getId).collect(Collectors.toList());
+						: tempCartToppingsList.stream().map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
 				if ((existingProductToppingsList == null && tempCartItemDTO.getProductToppingsIds() == null) || (tempCartItemDTO.getProductToppingsIds() != null
 						&& existingProductToppingsList != null && existingProductToppingsList.size() == tempCartItemDTO.getProductToppingsIds().size()
@@ -154,8 +155,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
-					 * , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if
+					 * total of existing and new is greater then 15 , then set quantity as 15
 					 **/
 					updateTempCartItemQty(tempCartItem.getId(), tempCartItem.getQuantity() + tempCartItemEntity.getQuantity() > 15 ? 15
 							: tempCartItem.getQuantity() + tempCartItemEntity.getQuantity());

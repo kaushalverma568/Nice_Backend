@@ -16,7 +16,7 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeValueDTO;
-import com.nice.dto.ProductToppingDto;
+import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.ProductVariantRequestDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -79,7 +79,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private ProductToppingService productToppingService;
-	
 
 	@Autowired
 	private DiscountService discountService;
@@ -306,8 +305,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			/**
 			 * deActive toppings which is active for this variant
 			 */
-			List<ProductToppingDto> productToppingList = productToppingService.getToppingForProductVariant(productVariant.getId(), true);
-			for (ProductToppingDto productToppingDto : productToppingList) {
+			List<ProductToppingResponseDTO> productToppingList = productToppingService.getToppingForProductVariant(productVariant.getId(), true);
+			for (ProductToppingResponseDTO productToppingDto : productToppingList) {
 				productToppingService.changeStatus(productToppingDto.getId(), false);
 			}
 			/**

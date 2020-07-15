@@ -39,4 +39,10 @@ public interface CartToppingsRepository extends JpaRepository<CartToppings, Long
 	 */
 	void deleteAllByCartItem(CartItem cartItem);
 
+	/**
+	 * @param productTopping
+	 * @return
+	 */
+	List<CartToppings> findAllByProductToppings(ProductTopping productTopping);
+
 }

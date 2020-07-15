@@ -596,7 +596,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersToppings orderToppings = new OrdersToppings();
 				orderToppings.setActive(true);
 				orderToppings.setProductToppings(cartToppings.getProductToppings());
-				orderToppings.setToppingsName(cartToppings.getProductToppings().getName());
+				orderToppings.setToppingsName(cartToppings.getProductToppings().getTopping().getName());
 				orderToppings.setQuantity(cartToppings.getQuantity());
 				orderToppings.setAmount(cartToppings.getProductToppings().getRate() * cartToppings.getQuantity());
 				orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());

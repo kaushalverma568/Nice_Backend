@@ -40,7 +40,7 @@ public class ProductVariantResponseDTO implements Serializable {
 
 	private Boolean productAvailable;
 
-	private List<ProductToppingDto> productToppingsDtoList;
+	private List<ProductToppingResponseDTO> productToppingsDtoList;
 	private List<ProductAddonsDTO> productAddonsDtoList;
 	/**
 	 * This Map<AttributeName, List<AttributeValues>>
