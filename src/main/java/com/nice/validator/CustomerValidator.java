@@ -8,18 +8,20 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.EmailUpdateDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CustomerService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class CustomerValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from messages_en.properties
+	 * Locale message service - to display response messages from
+	 * messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -33,26 +35,27 @@ public class CustomerValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return CustomerDTO.class.equals(clazz);
+		return CustomerDTO.class.equals(clazz) || EmailUpdateDTO.class.equals(clazz);
 	}
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
+		if (target instanceof CustomerDTO) {
+			final CustomerDTO customerDTO = (CustomerDTO) target;
+			if (customerDTO.getBirthDate() != null && LocalDate.now().compareTo(customerDTO.getBirthDate().toLocalDate()) < 0) {
+				errors.rejectValue("birthdate", "409", messageByLocaleService.getMessage("birthdate.less.than.today", null));
+			}
+			/**
+			 * Check Customer
+			 */
 
-		final CustomerDTO customerDTO = (CustomerDTO) target;
-		if (customerDTO != null && customerDTO.getBirthDate() != null && LocalDate.now().compareTo(customerDTO.getBirthDate().toLocalDate()) < 0) {
-			errors.rejectValue("birthdate", "409", messageByLocaleService.getMessage("birthdate.less.than.today", null));
-		}
-		/**
-		 * Check Customer
-		 */
+			if (customerService.isExists(customerDTO)) {
+				errors.rejectValue("email", "409", messageByLocaleService.getMessage("customer.email.exists", null));
+			}
 
-		if (customerDTO != null && customerService.isExists(customerDTO)) {
-			errors.rejectValue("email", "409", messageByLocaleService.getMessage("customer.email.exists", null));
-		}
-
-		if (customerDTO != null && customerDTO.getPhoneNumber() != null && customerService.isPhoneExists(customerDTO)) {
-			errors.rejectValue("phoneNumber", "409", messageByLocaleService.getMessage("customer.phone.exists", null));
+			if (customerDTO.getPhoneNumber() != null && customerService.isPhoneExists(customerDTO)) {
+				errors.rejectValue("phoneNumber", "409", messageByLocaleService.getMessage("customer.phone.exists", null));
+			}
 		}
 	}
 }
