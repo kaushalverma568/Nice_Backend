@@ -1,0 +1,35 @@
+CHANGE EMAIL FOR CUSTOMER...
+
+generate otp for changing email 
+
+{
+    "email": "ankitbhimani56@gmail.com",      <-- new email
+    "userLoginId":2,
+    "type": "EMAIL"
+}
+
+after that hit this url (add/update email )
+ {{url}}/customer/email
+ 
+  {
+    "email": "ankitbhimani56@gmail.com",
+    "password": "1234567890",
+    "otp": "450119"
+  }
+  
+  
+ CHANGE PHONE FOR CUSTOMER...
+
+generate otp for changing phone 
+
+{
+    "phoneNumber": "9898989898",      <-- new phone
+    "userLoginId":2,
+    "type": "SMS"
+}
+
+after that hit this url (add/update phone )
+ {{url}}/customer/phone?otp=789788&phoneNumber=9624988605
+ 
+  
+  

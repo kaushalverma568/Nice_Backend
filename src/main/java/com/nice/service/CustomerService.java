@@ -10,23 +10,25 @@ import org.springframework.data.domain.Page;
 
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerResponseDTO;
+import com.nice.dto.EmailUpdateDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 public interface CustomerService {
 
 	/**
 	 * Add customer <br/>
-	 * If isAuthorized is true then email will not trigger and customer and user login is activated. (For Facebook & Google)
-	 * If isAuthorized is false then email will trigger and customer verified using email Only.(For normal users)
+	 * If isAuthorized is true then email will not trigger and customer and user
+	 * login is activated. (For Facebook & Google) If isAuthorized is false then
+	 * email will trigger and customer verified using email Only.(For normal users)
 	 *
-	 * @param  customerDto
-	 * @param  isAuthorized
+	 * @param customerDto
+	 * @param isAuthorized
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -39,7 +41,7 @@ public interface CustomerService {
 	/**
 	 * Update customer
 	 *
-	 * @param  CustomerDto
+	 * @param CustomerDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -49,7 +51,7 @@ public interface CustomerService {
 	/**
 	 * Get customer detail by id
 	 *
-	 * @param  id
+	 * @param id
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -58,10 +60,10 @@ public interface CustomerService {
 	/**
 	 * Get customer list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyword
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -72,8 +74,8 @@ public interface CustomerService {
 	/**
 	 * Change status of customer (active/deActive)
 	 *
-	 * @param  id
-	 * @param  isActive
+	 * @param id
+	 * @param isActive
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -82,7 +84,7 @@ public interface CustomerService {
 	/**
 	 * Check whether customer is exists or not
 	 *
-	 * @param  customersDto
+	 * @param customersDto
 	 * @return
 	 */
 	boolean isExists(CustomerDTO customersDto);
@@ -90,30 +92,30 @@ public interface CustomerService {
 	/**
 	 * Get customer details based on customerId : Specially for internal calls
 	 *
-	 * @param  customerId
+	 * @param customerId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Customer getCustomerDetails(Long customerId) throws NotFoundException;
 
 	/**
-	 * @param  customerId
-	 * @param  userId
-	 * @param  otp
-	 * @param  mobile
+	 * @param customerId
+	 * @param userId
+	 * @param otp
+	 * @param mobile
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void verifyPhoneNumber(Long customerId, String mobile, String otp) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  customerId
+	 * @param customerId
 	 * @throws NotFoundException
 	 */
 	void verifyEmail(Long customerId) throws NotFoundException;
 
 	/**
-	 * @param  active
+	 * @param active
 	 * @return
 	 */
 	Long getActiveCustomer(boolean active);
@@ -121,16 +123,37 @@ public interface CustomerService {
 	/**
 	 * export customer list filter by activeRacords
 	 *
-	 * @param  activeRecords
-	 * @param  httpServletResponse
+	 * @param activeRecords
+	 * @param httpServletResponse
 	 * @throws IOException
 	 */
 	void exportCustomerList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 	/**
-	 * @param  customerDTO
+	 * @param customerDTO
 	 * @return
 	 */
 	boolean isPhoneExists(CustomerDTO customerDTO);
+
+	/**
+	 * add/update phone number
+	 *
+	 * @param phoneNumber
+	 * @param customerId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String addUpdatePhoneNumber(String phoneNumber, String otp) throws NotFoundException, ValidationException;
+
+	/***
+	 * add/update email
+	 *
+	 * @param emailUpdateDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String addUpdateEmail(EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException;
 
 }
