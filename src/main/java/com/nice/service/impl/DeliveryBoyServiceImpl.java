@@ -1,11 +1,14 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +56,7 @@ import com.nice.service.OtpService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -74,7 +78,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Autowired
 	private VendorService vendorService;
-
+	
+	@Autowired
+	private ExportCSV exportCSV;
+	
 	@Autowired
 	private DeliveryBoyRepository deliveryBoyRepository;
 
@@ -236,6 +243,24 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 	}
 
+	
+	@Override
+	public void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+		List<DeliveryBoy> deliveryBoyList;
+		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
+		if (activeRecords != null) {
+			deliveryBoyList = deliveryBoyRepository.findAllByActive(activeRecords);
+		} else {
+			deliveryBoyList = deliveryBoyRepository.findAll();
+		}
+		for (DeliveryBoy deliveryBoy : deliveryBoyList) {
+			deliveryBoyDtoList.add( deliveryBoyMapper.toDto(deliveryBoy));
+		}
+		final Object[] deliveryBoyHeaderField = new Object[] {"Delivery Boy Name","Email","Gender","Phone Number","Bank Name","Branch Name","Acount Name","Bank Account Number","Kib No","Branch City"};
+		final Object[] deliveryBoyDataField = new Object[] { "name","email","gender","phoneNumber","bankName","branchName","accountName","bankAccountNumber","kibNo","branchCity"};
+		exportCSV.writeCSVFile(deliveryBoyDtoList, deliveryBoyDataField, deliveryBoyHeaderField, httpServletResponse);
+	}
+	
 	@Override
 	public String changeStatus(final Long deliveryBoyId, final Boolean active) throws NotFoundException, ValidationException {
 		final DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
@@ -528,4 +553,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCase(deliveryBoyDTO.getPhoneNumber()).isPresent();
 		}
 	}
+
+	
 }

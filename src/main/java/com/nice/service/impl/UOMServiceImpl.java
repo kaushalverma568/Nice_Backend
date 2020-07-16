@@ -1,6 +1,10 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,7 @@ import com.nice.model.UserLogin;
 import com.nice.repository.UOMRepository;
 import com.nice.service.ProductService;
 import com.nice.service.UOMService;
+import com.nice.util.ExportCSV;
 
 /**
  *
@@ -56,6 +61,9 @@ public class UOMServiceImpl implements UOMService {
 	@Autowired
 	private ProductService productService;
 
+	@Autowired
+	private ExportCSV exportCSV;
+	
 	@Override
 	public void addUOM(final UOMDTO uomDTO) throws ValidationException, NotFoundException {
 		validateDto(uomDTO);		
@@ -197,6 +205,23 @@ public class UOMServiceImpl implements UOMService {
 		} else {
 			return userLogin;
 		}
+	}
+
+	@Override
+	public void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+		List<UOM> uomList;
+		List<UOMDTO> uomExportList = new ArrayList<>();
+		if (activeRecords != null) {
+			uomList = uomRepository.findAllByActive(activeRecords);
+		} else {
+			uomList = uomRepository.findAll();
+		}
+		for (UOM uom : uomList) {
+			uomExportList.add(uomMapper.toDto(uom));
+		}
+		final Object[] uomHeaderField = new Object[] {"Measurement","Quantity","UOM Label"};
+		final Object[] uomDataField = new Object[] { "measurement","quantity","uomLabel"};
+		exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);		
 	}
 	
 }

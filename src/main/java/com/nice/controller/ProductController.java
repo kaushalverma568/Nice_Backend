@@ -1,8 +1,10 @@
 package com.nice.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -256,12 +258,12 @@ public class ProductController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	// @PostMapping(value = "/export/list", produces = "text/csv")
-	// public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
-	// @RequestBody final ProductParamRequestDTO productParamRequestDTO, @RequestHeader("userId") final Long userId,
-	// final HttpServletResponse httpServletResponse) throws IOException, ValidationException, NotFoundException {
-	// productService.exportProductList(httpServletResponse, productParamRequestDTO);
-	// return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	// .setMessage(messageByLocaleService.getMessage(Constant.LIST_MESSAGE, new Object[] { Constant.PRODUCT })).create();
-	// }
+	 @PostMapping(value = "/export/list", produces = "text/csv")
+	 public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
+	 @RequestBody final ProductParamRequestDTO productParamRequestDTO,
+	 final HttpServletResponse httpServletResponse) throws IOException, ValidationException, NotFoundException {
+	 productService.exportProductList(httpServletResponse, productParamRequestDTO);
+	 return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+	 .setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE,null)).create();
+	 }
 }

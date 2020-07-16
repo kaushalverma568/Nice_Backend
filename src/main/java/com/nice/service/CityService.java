@@ -1,6 +1,9 @@
 package com.nice.service;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.nice.dto.CityDTO;
 import com.nice.dto.CityResponseDTO;
@@ -90,5 +93,13 @@ public interface CityService {
 	 * @return
 	 */
 	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword);
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param httpServletResponse
+	 * @throws IOException 
+	 */
+	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 }

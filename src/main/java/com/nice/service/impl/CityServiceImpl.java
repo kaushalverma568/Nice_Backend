@@ -1,6 +1,10 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +25,7 @@ import com.nice.repository.CityRepository;
 import com.nice.service.CityService;
 import com.nice.service.PincodeService;
 import com.nice.service.StateService;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -46,7 +51,10 @@ public class CityServiceImpl implements CityService {
 
 	@Autowired
 	private PincodeService pincodeService;
-
+	
+	@Autowired
+	private ExportCSV exportCSV;
+	
 	@Override
 	public void addCity(final CityDTO cityDTO) throws ValidationException, NotFoundException {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
@@ -145,6 +153,23 @@ public class CityServiceImpl implements CityService {
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
 			final String searchKeyword) {
 		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword);
+	}
+
+	@Override
+	public void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+		List<City> cityList;
+		List<CityResponseDTO> cityExportList = new ArrayList<>();
+		if (activeRecords != null) {
+			cityList = cityRepository.findAllByActive(activeRecords);
+		} else {
+			cityList = cityRepository.findAll();
+		}
+		for (City city : cityList) {
+			cityExportList.add(cityMapper.toDto(city));
+		}
+		final Object[] cityHeaderField = new Object[] {"Name","State Name"};
+		final Object[] cityDataField = new Object[] { "name","stateName"};
+		exportCSV.writeCSVFile(cityExportList, cityDataField, cityHeaderField, httpServletResponse);		
 	}
 
 }

@@ -3,9 +3,11 @@
  */
 package com.nice.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -31,6 +34,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -128,6 +132,16 @@ public class OrdersController {
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.create();
 	}
+	
+	
+	 @PostMapping(value = "/export/list", produces = "text/csv")
+	 public ResponseEntity<Object> exportOrderList(@RequestHeader("Authorization") final String accessToken,
+	 @RequestBody final OrderListFilterDto orderListFilterDto,
+	 final HttpServletResponse httpServletResponse) throws IOException, ValidationException, NotFoundException {
+		 orderService.exportOrderList(httpServletResponse, orderListFilterDto);
+	 return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+	 .setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE,null)).create();
+	 }
 
 	/**
 	 *

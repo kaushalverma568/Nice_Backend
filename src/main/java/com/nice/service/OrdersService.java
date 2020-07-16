@@ -3,8 +3,11 @@
  */
 package com.nice.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
@@ -139,6 +142,15 @@ public interface OrdersService {
 	 * @throws ValidationException
 	 */
 	void changeStatus(String newStatus, Long deliveryBoyId, Orders order) throws NotFoundException, ValidationException;
+
+	/**
+	 * 
+	 * @param httpServletResponse
+	 * @param orderListFilterDto
+	 * @throws IOException 
+	 * @throws NotFoundException 
+	 */
+	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws IOException, NotFoundException;
 
 	/**
 	 * get all information for app payment

@@ -1,5 +1,9 @@
 package com.nice.service;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.UOMDTO;
@@ -84,5 +88,13 @@ public interface UOMService {
 	 * @throws NotFoundException
 	 */
 	Page<UOM> getUOMList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException;
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param httpServletResponse
+	 * @throws IOException 
+	 */
+	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 }

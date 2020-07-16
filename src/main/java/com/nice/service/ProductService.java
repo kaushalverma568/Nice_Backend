@@ -1,6 +1,9 @@
 package com.nice.service;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -145,6 +148,17 @@ public interface ProductService {
 	 * @throws ValidationException
 	 */
 	List<ProductResponseDTO> getProductListForVendorAndCuisine(Long vendorId, Long cuisineId) throws NotFoundException, ValidationException;
+
+	/**
+	 * export by filter dto
+	 * 
+	 * @param httpServletResponse
+	 * @param productParamRequestDTO
+	 * @throws IOException 
+	 * @throws ValidationException 
+	 * @throws NotFoundException 
+	 */
+	void exportProductList(HttpServletResponse httpServletResponse, ProductParamRequestDTO productParamRequestDTO) throws IOException, NotFoundException, ValidationException;
 
 	/**
 	 * get response of global search

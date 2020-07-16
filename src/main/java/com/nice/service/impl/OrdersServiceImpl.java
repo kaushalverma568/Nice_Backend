@@ -3,10 +3,13 @@
  */
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +94,7 @@ import com.nice.service.SettingsService;
 import com.nice.service.StateService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 import com.razorpay.RazorpayException;
 
 /**
@@ -197,6 +201,10 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private OrderProductAttributeValueRepository orderProductAttributeValueRepository;
+	
+	@Autowired
+	private ExportCSV exportCSV;
+
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -1041,4 +1049,15 @@ public class OrdersServiceImpl implements OrdersService {
 			return userLogin.getEntityId();
 		}
 	}
+
+	@Override
+	public void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws IOException, NotFoundException {
+		List<Orders> orderList = ordersRepository.getOrderListBasedOnParams(null, null, orderListFilterDto);
+		List<OrdersResponseDTO> orderDtoList = toDtos(orderList, true);
+		final Object[] orderHeaderField = new Object[] {"Customer Name","Phone Number","Total Order Amount","Order Status","Payment Mode","Vendor Name","Delivery Boy Name","Order Date" };
+		final Object[] orderDataField = new Object[] {"customerName","phoneNumber","totalOrderAmount","orderStatus","paymentMode","vendorName","deliveryBoyName","orderDate"};
+		exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
+	}
+
+
 }

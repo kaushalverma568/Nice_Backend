@@ -1,8 +1,10 @@
 package com.nice.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -182,4 +184,12 @@ public interface DeliveryBoyService {
 	 * @return
 	 */
 	Boolean isPhoneNumberExists(DeliveryBoyDTO deliveryBoyDTO);
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param httpServletResponse
+	 * @throws IOException 
+	 */
+	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 }

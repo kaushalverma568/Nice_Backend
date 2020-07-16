@@ -1,9 +1,11 @@
 package com.nice.controller;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -217,6 +219,17 @@ public class DeliveryBoyController {
 				.setData(deliveryBoyMapper.toDtos(resultDeliveryBoyPages.getContent())).setHasNextPage(resultDeliveryBoyPages.hasNext())
 				.setHasPreviousPage(resultDeliveryBoyPages.hasPrevious()).setTotalPages(resultDeliveryBoyPages.getTotalPages())
 				.setPageNumber(resultDeliveryBoyPages.getNumber() + 1).setTotalCount(resultDeliveryBoyPages.getTotalElements()).create();
+	}
+	
+	
+	
+	@GetMapping("/export/list")
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken,
+			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
+			throws IOException {
+		deliveryBoyService.exportList(activeRecords, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
+				.create();
 	}
 
 	/**

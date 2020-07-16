@@ -382,7 +382,7 @@ public class VendorController {
 	}
 	
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
 			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
 			throws IOException {
 		vendorService.exportVendorList(activeRecords, httpServletResponse);

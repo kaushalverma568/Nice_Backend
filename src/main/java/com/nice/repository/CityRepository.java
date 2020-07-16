@@ -1,5 +1,6 @@
 package com.nice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -44,5 +45,12 @@ public interface CityRepository extends JpaRepository<City, Long>, CityCustomRep
 	 * @return
 	 */
 	Optional<City> findByNameIgnoreCaseAndState(String name, State state);
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @return
+	 */
+	List<City> findAllByActive(Boolean activeRecords);
 
 }

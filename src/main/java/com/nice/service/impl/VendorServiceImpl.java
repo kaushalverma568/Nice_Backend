@@ -136,7 +136,6 @@ public class VendorServiceImpl implements VendorService {
 	@Autowired
 	private CustomerAddressService customerAddressService;
 	
-
 	@Autowired
 	private ExportCSV exportCSV;
 
@@ -712,7 +711,7 @@ public class VendorServiceImpl implements VendorService {
 			BeanUtils.copyProperties(vendor, vendorExport);
 			vendorExportList.add(vendorExport);
 		}
-		final Object[] vendorHeaderField = new Object[] {"firstName","lastName","email","storeName","contactNo"};
+		final Object[] vendorHeaderField = new Object[] {"First Name","Last Name","Email","Store Name","Contact No"};
 		final Object[] vendorDataField = new Object[] { "firstName","lastName","email","storeName","contactNo"};
 		exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
 		

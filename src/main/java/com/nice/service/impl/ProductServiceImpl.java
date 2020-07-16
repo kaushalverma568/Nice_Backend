@@ -1,10 +1,13 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,7 @@ import com.nice.service.SubCategoryService;
 import com.nice.service.TempCartItemService;
 import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -69,6 +73,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductMapper productMapper;
+	
+	@Autowired
+	private ExportCSV exportCSV;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -572,5 +579,21 @@ public class ProductServiceImpl implements ProductService {
 		product.setRating(updatedRating);
 		product.setNoOfRating(product.getNoOfRating() + 1);
 		productRepository.save(product);
+	}
+
+	@Override
+	public void exportProductList(HttpServletResponse httpServletResponse,
+			ProductParamRequestDTO productParamRequestDTO) throws IOException, NotFoundException, ValidationException {
+		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
+		LOGGER.info("Inside export product list Based On Params {}", productParamRequestDTO);
+		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
+		for (Product product : products) {
+			ProductResponseDTO responseDTO = convertEntityToResponseDto(product, false, null);
+			responseDTOs.add(responseDTO);
+		}
+		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
+		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
+		exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
+		
 	}
 }
