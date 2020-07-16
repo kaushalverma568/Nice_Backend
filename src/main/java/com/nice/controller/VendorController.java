@@ -1,9 +1,11 @@
 package com.nice.controller;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -376,6 +378,15 @@ public class VendorController {
 			revokeToken(userName);
 		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
+	}
+	
+	@GetMapping("/export/list")
+	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
+			throws IOException {
+		vendorService.exportVendorList(activeRecords, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
 				.create();
 	}
 

@@ -1,5 +1,6 @@
 package com.nice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -73,5 +74,12 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	 * @return
 	 */
 	Optional<Vendor> findByContactNo(String contactNo);
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @return
+	 */
+	List<Vendor> findAllByActive(Boolean activeRecords);
 
 }

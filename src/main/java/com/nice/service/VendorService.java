@@ -1,7 +1,10 @@
 package com.nice.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -242,5 +245,13 @@ public interface VendorService {
 	 * @throws ValidationException
 	 */
 	String changeVendorStatus(Long vendorId, String newStatus) throws NotFoundException, ValidationException;
+
+    /**
+     * 
+     * @param activeRecords
+     * @param httpServletResponse
+     * @throws IOException 
+     */
+	void exportVendorList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 }

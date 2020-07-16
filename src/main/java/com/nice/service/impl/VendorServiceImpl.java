@@ -1,5 +1,6 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -7,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,7 @@ import com.nice.dto.UserOtpDto;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorCuisineDTO;
 import com.nice.dto.VendorDTO;
+import com.nice.dto.VendorExport;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
@@ -70,6 +74,7 @@ import com.nice.service.UserLoginService;
 import com.nice.service.VendorCuisineService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author      : Kody Technolab PVT. LTD.
@@ -130,6 +135,10 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private CustomerAddressService customerAddressService;
+	
+
+	@Autowired
+	private ExportCSV exportCSV;
 
 	@Override
 	public void addVendor(final VendorDTO vendorDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
@@ -686,6 +695,27 @@ public class VendorServiceImpl implements VendorService {
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists.email", new Object[] { vendor.getEmail() }));
 		}
+	}
+	
+
+	@Override
+	public void exportVendorList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+		List<Vendor> vendorList;
+		List<VendorExport> vendorExportList = new ArrayList<>();
+		if (activeRecords != null) {
+			vendorList = vendorRepository.findAllByActive(activeRecords);
+		} else {
+			vendorList = vendorRepository.findAll();
+		}
+		for (Vendor vendor : vendorList) {
+			final VendorExport vendorExport = new VendorExport();
+			BeanUtils.copyProperties(vendor, vendorExport);
+			vendorExportList.add(vendorExport);
+		}
+		final Object[] vendorHeaderField = new Object[] {"firstName","lastName","email","storeName","contactNo"};
+		final Object[] vendorDataField = new Object[] { "firstName","lastName","email","storeName","contactNo"};
+		exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
+		
 	}
 
 }
