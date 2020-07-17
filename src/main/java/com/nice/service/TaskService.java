@@ -142,4 +142,12 @@ public interface TaskService {
 	 */
 	List<TaskResponseDto> getTaskListFromPayment(Long paymentId) throws ValidationException, NotFoundException;
 
+	/**
+	 * 
+	 * @param taskId
+	 * @return
+	 * @throws NotFoundException 
+	 */
+	Task getTaskDetail(Long taskId) throws NotFoundException;
+
 }

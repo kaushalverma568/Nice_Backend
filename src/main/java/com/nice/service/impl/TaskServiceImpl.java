@@ -18,6 +18,7 @@ import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMode;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
+import com.nice.dto.CashCollectionDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
@@ -33,6 +34,7 @@ import com.nice.model.Task;
 import com.nice.repository.OrdersRepository;
 import com.nice.repository.TaskHistoryRepository;
 import com.nice.repository.TaskRepository;
+import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
 import com.nice.service.TaskService;
@@ -65,6 +67,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
 	private TaskHistoryRepository taskHistoryRepostory;
+	
+	@Autowired
+	private CashcollectionService cashCollectionService;
 
 	@Autowired
 	private VendorService vendorService;
@@ -186,9 +191,14 @@ public class TaskServiceImpl implements TaskService {
 			 * If its a COD task then make an entry in cash collection for the delivery person
 			 */
 			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())) {
-				// TODO
-				// call cash collection service here
-				// Take the TotalOrderAmount as the cash collection amount.
+				CashCollectionDTO cashCollection = new  CashCollectionDTO();
+				cashCollection.setAmount( task.getOrder().getTotalOrderAmount());
+				cashCollection.setDeliveryboyId(task.getOrder().getDeliveryBoy().getId());
+				cashCollection.setOrderId(task.getOrder().getId());
+                cashCollection.setTaskId(task.getId());
+                cashCollection.setActive(true);
+                cashCollection.setPaidDate(task.getUpdatedAt());
+                cashCollectionService.addCashCollection(cashCollection);
 			}
 		} else if (taskStatus.equals(TaskStatusEnum.ON_THE_WAY.getStatusValue())) {
 			task.setStatus(TaskStatusEnum.ON_THE_WAY.getStatusValue());
@@ -330,5 +340,11 @@ public class TaskServiceImpl implements TaskService {
 		}
 		return taskResponseDtoList;
 
+	}
+
+	@Override
+	public Task getTaskDetail(Long taskId) throws NotFoundException {
+		return taskRepository.findById(taskId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("task.not.found", new Object[] {  taskId })));
 	}
 }
