@@ -23,8 +23,10 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.SettingsMapper;
+import com.nice.model.SettingHistory;
 import com.nice.model.Settings;
 import com.nice.model.UserLogin;
+import com.nice.repository.SettingHistoryRepository;
 import com.nice.repository.SettingsRepository;
 import com.nice.service.SettingsService;
 
@@ -43,6 +45,9 @@ public class SettingsServiceImpl implements SettingsService {
 	@Autowired
 	private SettingsRepository settingsRepository;
 
+	@Autowired
+	private SettingHistoryRepository settingsHistoryRepository;
+	
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
@@ -66,7 +71,7 @@ public class SettingsServiceImpl implements SettingsService {
 		/**
 		 * Check if settings for given Id exists
 		 */
-		getSettings(settingsDto.getId());
+		String previousFieldValue = getSettings(settingsDto.getId()).getFieldValue();
 		LOGGER.info("Inside update Settings method, {}", settingsDto);
 		Settings settings = settingsMapper.toEntity(settingsDto);
 		UserLogin user = checkForUserLogin();
@@ -75,6 +80,19 @@ public class SettingsServiceImpl implements SettingsService {
 		if (updateCount > 0) {
 			SettingsConstant.setSettingsValue(settingsDto.getFieldName(), settingsDto.getFieldValue());
 		}
+		if (!settings.getEncrypted() && !previousFieldValue.equals(settings.getFieldValue())) {
+			SettingHistory settingHistory = new SettingHistory();
+			settingHistory.setActive(true);
+			settingHistory.setCreatedAt(settings.getUpdatedAt());
+			settingHistory.setUpdatedAt(settings.getUpdatedAt());
+			settingHistory.setCreatedBy(settings.getUpdatedBy());
+			settingHistory.setUpdatedBy(settings.getUpdatedBy());
+			settingHistory.setCurrentFieldValue(settings.getFieldValue());
+			settingHistory.setFieldName(settings.getFieldName());
+			settingHistory.setPreviousFieldValue(previousFieldValue);
+			settingsHistoryRepository.save(settingHistory);
+		}
+		
 		return updateCount;
 	}
 
