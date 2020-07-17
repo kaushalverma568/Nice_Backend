@@ -114,4 +114,9 @@ public class VendorResponseDTO implements Serializable {
 	private Boolean isContactVerified;
 
 	private String vendorContactNo;
+
+	/**
+	 * Consolidated Vendor address.
+	 */
+	private String vendorAddress;
 }

@@ -114,7 +114,7 @@ public final class Constant {
 	public static final String CLIENT_ID = "kody-client";
 	public static final String SECRET_ID = "kody-secret";
 	public static final String UNAUTHORIZED = "unauthorized";
-	public static final String PENDING = "Pending";
+	public static final String AWAITING_APPROVAL = "Awaiting Approval";
 	public static final String AVAILABLE = "Available";
 	public static final String IN_PROCESS = "In-Process";
 	public static final String RESERVED = "Reserved";
