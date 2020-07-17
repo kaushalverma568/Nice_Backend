@@ -51,9 +51,6 @@ public class CashCollection extends CommonModel {
 	@JoinColumn(name = "task_id", nullable = false)
 	private Task task;
 
-	@Column(name = "paid_date", nullable = false)
-	private Date paidDate;
-
 	@Column(name = "amount", nullable = false)
 	private Double amount;
 }

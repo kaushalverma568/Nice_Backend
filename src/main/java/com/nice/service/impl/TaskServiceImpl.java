@@ -197,7 +197,6 @@ public class TaskServiceImpl implements TaskService {
 				cashCollection.setOrderId(task.getOrder().getId());
                 cashCollection.setTaskId(task.getId());
                 cashCollection.setActive(true);
-                cashCollection.setPaidDate(task.getUpdatedAt());
                 cashCollectionService.addCashCollection(cashCollection);
 			}
 		} else if (taskStatus.equals(TaskStatusEnum.ON_THE_WAY.getStatusValue())) {

@@ -21,8 +21,6 @@ public class CashCollectionDTO implements Serializable {
 
 	private Long id;
 	
-	private Date paidDate;
-	
 	private Double amount;
 
 	private Long orderId;
