@@ -30,9 +30,7 @@ public class AddonsDTO implements Serializable {
 	@NotNull(message = "{description.not.null}")
 	private String description;
 
-	/**
-	 * for response only
-	 */
+	@NotNull(message = "{vendor.not.null}")
 	private Long vendorId;
 
 	private String vendorName;

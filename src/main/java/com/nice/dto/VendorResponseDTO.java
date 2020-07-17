@@ -112,4 +112,6 @@ public class VendorResponseDTO implements Serializable {
 	private Double distance;
 
 	private Boolean isContactVerified;
+
+	private String vendorContactNo;
 }

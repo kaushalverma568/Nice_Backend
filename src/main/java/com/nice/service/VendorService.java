@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
@@ -111,8 +112,9 @@ public interface VendorService {
 	 *
 	 * @param  vendorBankDetailsDTO
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	void updateBankDetails(VendorBankDetailsDTO vendorBankDetailsDTO) throws NotFoundException;
+	void updateBankDetails(VendorBankDetailsDTO vendorBankDetailsDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * get page of delivery boy by parameters
@@ -151,7 +153,7 @@ public interface VendorService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	String updatePersonalDetails(VendorDTO vendorDTO, MultipartFile profilePicture) throws NotFoundException, ValidationException;
+	void updatePersonalDetails(VendorDTO vendorDTO, MultipartFile profilePicture) throws NotFoundException, ValidationException;
 
 	/**
 	 * add update subscription plan
@@ -246,12 +248,33 @@ public interface VendorService {
 	 */
 	String changeVendorStatus(Long vendorId, String newStatus) throws NotFoundException, ValidationException;
 
-    /**
-     * 
-     * @param activeRecords
-     * @param httpServletResponse
-     * @throws IOException 
-     */
+	/**
+	 * change email for vendor
+	 *
+	 * @param  vendorId
+	 * @param  emailUpdateDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String changeVendorEmail(Long vendorId, EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException;
+
+	/**
+	 * generate otp to change email
+	 *
+	 * @param  email
+	 * @param  vendorId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String generateOTPForChangeEmail(String email, Long vendorId) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param  activeRecords
+	 * @param  httpServletResponse
+	 * @throws IOException
+	 */
 	void exportVendorList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 }

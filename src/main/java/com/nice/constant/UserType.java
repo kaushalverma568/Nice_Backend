@@ -20,5 +20,6 @@ public enum UserType {
 	public static final List<String> ADMIN_PANEL_USER_LIST = new ArrayList<>();
 	static {
 		ADMIN_PANEL_USER_LIST.add(USER.name());
+		ADMIN_PANEL_USER_LIST.add(VENDOR.name());
 	}
 }

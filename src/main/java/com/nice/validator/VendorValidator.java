@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
@@ -18,7 +19,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @Component
 public class VendorValidator implements Validator {
@@ -38,8 +39,7 @@ public class VendorValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -53,12 +53,11 @@ public class VendorValidator implements Validator {
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return VendorDTO.class.equals(clazz) || VendorRestaurantDetailsDTO.class.equals(clazz) || VendorBankDetailsDTO.class.equals(clazz)
-				|| VendorFilterDTO.class.equals(clazz) || VendorListFilterDTO.class.equals(clazz);
+				|| VendorFilterDTO.class.equals(clazz) || VendorListFilterDTO.class.equals(clazz) || EmailUpdateDTO.class.equals(clazz);
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override

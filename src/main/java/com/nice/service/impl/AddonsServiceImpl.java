@@ -11,12 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
-import com.nice.constant.UserType;
 import com.nice.dto.AddonsDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -24,7 +21,6 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.AddonsMapper;
 import com.nice.model.Addons;
 import com.nice.model.ProductAddons;
-import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.AddonsRepository;
 import com.nice.service.AddonsService;
@@ -61,8 +57,7 @@ public class AddonsServiceImpl implements AddonsService {
 
 	@Override
 	public Boolean isExists(final AddonsDTO addonsDto) throws ValidationException, NotFoundException {
-		Long vendorId = getVendorIdForLoginUser();
-		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		Vendor vendor = vendorService.getVendorDetail(addonsDto.getVendorId());
 		if (addonsDto.getId() != null) {
 			return addonsRepository.findByNameIgnoreCaseAndVendorAndIdNot(addonsDto.getName(), vendor, addonsDto.getId()).isPresent();
 		} else {
@@ -72,15 +67,13 @@ public class AddonsServiceImpl implements AddonsService {
 
 	@Override
 	public void addAddons(final AddonsDTO addonsDTO) throws NotFoundException, ValidationException {
-		Long vendorId = getVendorIdForLoginUser();
 		Addons addons = addonsMapper.toEntity(addonsDTO);
-		addons.setVendor(vendorService.getVendorDetail(vendorId));
+		addons.setVendor(vendorService.getVendorDetail(addonsDTO.getVendorId()));
 		addonsRepository.save(addons);
 	}
 
 	@Override
 	public void updateAddons(final AddonsDTO addonsDTO) throws NotFoundException, ValidationException {
-		Long vendorId = getVendorIdForLoginUser();
 		if (addonsDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("addons.id.not.null", null));
 		} else {
@@ -88,7 +81,7 @@ public class AddonsServiceImpl implements AddonsService {
 			/**
 			 * if vendor is different than previous then throw an error
 			 */
-			if (!existingAddons.getVendor().getId().equals(vendorId)) {
+			if (!existingAddons.getVendor().getId().equals(addonsDTO.getVendorId())) {
 				throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 			}
 			final Addons addons = addonsMapper.toEntity(addonsDTO);
@@ -182,29 +175,4 @@ public class AddonsServiceImpl implements AddonsService {
 		}
 	}
 
-	private Long getVendorIdForLoginUser() throws ValidationException {
-		UserLogin userLogin = checkForUserLogin();
-		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		} else {
-			return userLogin.getEntityId();
-		}
-	}
-
-	private UserLogin checkForUserLogin() throws ValidationException {
-		UserLogin userLogin = getUserLoginFromToken();
-		if (userLogin == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("login.first", null));
-		} else {
-			return userLogin;
-		}
-	}
-
-	private UserLogin getUserLoginFromToken() {
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (Constant.ANONYMOUS_USER.equals(principal)) {
-			return null;
-		}
-		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-	}
 }

@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 26, 2020
+ * @date   : Jun 26, 2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -67,5 +67,8 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 
 	@NotNull(message = "{isOrderServiceEnable.not.null}")
 	private Boolean isOrderServiceEnable;
+
+	@NotBlank(message = "{vendor.contact.not.null}")
+	private String vendorContactNo;
 
 }

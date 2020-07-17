@@ -648,4 +648,26 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnEmailAndRole(final String email, final String role) {
 		return userLoginRepository.findByEmailAndRole(email, role);
 	}
+
+	@Override
+	public LoginResponse adminLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
+		Optional<UserLogin> optUserLogin = userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userLoginDto.getUserName(),
+				UserType.ADMIN_PANEL_USER_LIST);
+		if (optUserLogin.isPresent()) {
+			userLoginDto.setUserType(optUserLogin.get().getEntityType());
+			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
+			return checkUserLogin(userLoginDto);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.username", null));
+		}
+	}
+
+	@Override
+	public void checkPasswordForUser(final Long entityId, final String entityType, final String password) throws ValidationException {
+		UserLogin userLogin = getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
+		if (!BCrypt.checkpw(password, userLogin.getPassword())) {
+			throw new ValidationException(messageByLocaleService.getMessage("password.match.failed", null));
+		}
+	}
+
 }

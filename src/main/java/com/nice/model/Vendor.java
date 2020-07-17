@@ -156,4 +156,7 @@ public class Vendor extends CommonModel {
 	@Column(name = "is_contact_verified", nullable = false)
 	private Boolean isContactVerified;
 
+	@Column(name = "vendor_contact_no")
+	private String vendorContactNo;
+
 }

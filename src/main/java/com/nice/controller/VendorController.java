@@ -31,8 +31,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.constant.Constant;
 import com.nice.constant.VendorStatus;
+import com.nice.dto.EmailUpdateDTO;
+import com.nice.dto.LoginResponse;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.UserLoginDto;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
@@ -40,14 +44,15 @@ import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.UnAuthorizationException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.VendorMapper;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
-import com.nice.util.CommonUtility;
 import com.nice.util.PaginationUtil;
 import com.nice.validator.VendorValidator;
 
@@ -101,6 +106,9 @@ public class VendorController {
 	@Autowired
 	private VendorMapper vendorMapper;
 
+	@Autowired
+	private UserLoginService userLoginService;
+
 	/**
 	 * Add Vendor
 	 *
@@ -146,13 +154,7 @@ public class VendorController {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		String userName = vendorService.updatePersonalDetails(vendorDTO, profilePicture);
-		/**
-		 * revoke token at the time of changing an email
-		 */
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userName)) {
-			revokeToken(userName);
-		}
+		vendorService.updatePersonalDetails(vendorDTO, profilePicture);
 		LOGGER.info("Outside update vendor");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
@@ -340,7 +342,7 @@ public class VendorController {
 	 */
 	private void revokeToken(final String userName) {
 		LOGGER.info("Revoking token for user {} }", userName);
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("grocerus-client", userName);
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID, userName);
 		for (OAuth2AccessToken token : tokens) {
 			tokenStore.removeAccessToken(token);
 		}
@@ -390,4 +392,33 @@ public class VendorController {
 				.create();
 	}
 
+	@PutMapping("/change/email/{vendorId}")
+	public ResponseEntity<Object> changeVendorEmail(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result)
+			throws NotFoundException, ValidationException, UnAuthorizationException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error(VENDOR_VALIDATION_FAILED);
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		LOGGER.info("Inside change email of Vendor of id {} and email {} and otp {}", vendorId, emailUpdateDTO.getEmail(), emailUpdateDTO.getOtp());
+		String userName = vendorService.changeVendorEmail(vendorId, emailUpdateDTO);
+		LOGGER.info("Outside change email of vendor");
+		revokeToken(userName);
+		UserLoginDto userLoginDto = new UserLoginDto();
+		userLoginDto.setUserName(emailUpdateDTO.getEmail());
+		userLoginDto.setPassword(emailUpdateDTO.getPassword());
+		LoginResponse loginResponse = userLoginService.adminLogin(userLoginDto);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.setData(loginResponse).create();
+	}
+
+	@PutMapping("/email/generate/{vendorId}")
+	public ResponseEntity<Object> changeVendorEmail(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@RequestParam(name = "email", required = true) final String email) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside generate otp for change email of Vendor of id {} and email {} ", vendorId, email);
+		String otp = vendorService.generateOTPForChangeEmail(email, vendorId);
+		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
+	}
 }
