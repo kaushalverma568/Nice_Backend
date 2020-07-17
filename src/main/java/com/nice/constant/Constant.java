@@ -71,8 +71,7 @@ public final class Constant {
 	private static String smsApiKey = "default";
 
 	/**
-	 * Sets the values of static fields</b> The value specified is set for the key
-	 * specified in the arguments</br>
+	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
 	 *
 	 * @param key
 	 * @param value
@@ -129,4 +128,5 @@ public final class Constant {
 	public static final String RETURN_PROCESSED = "Return Processed";
 	public static final String ORDER_IS_READY = "Order is ready";
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
+	public static final String PENDING = "Pending";
 }
