@@ -1,7 +1,14 @@
 package com.nice.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeDTO;
+import com.nice.dto.ProductAttributeImport;
 import com.nice.dto.VendorResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -26,10 +37,15 @@ import com.nice.mapper.ProductAttributeMapper;
 import com.nice.model.ProductAttribute;
 import com.nice.model.ProductAttributeValue;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.ProductAttributeRepository;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductAttributeService;
 import com.nice.service.ProductAttributeValueService;
 import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
+import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  *
@@ -58,9 +74,16 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-
+	
 	@Autowired
 	private VendorService vendorService;
+
+	@Autowired
+	private ExportCSV exportCSV;
+
+	@Autowired
+	private FileStorageService fileStorageService;
+	
 
 	@Override
 	public ProductAttributeDTO addProductAttribute(final ProductAttributeDTO productAttributeDTO) throws NotFoundException, ValidationException {
@@ -217,5 +240,57 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			return userLogin;
 		}
 	}
+
+	@Override
+	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "productAttribute_"+System.currentTimeMillis(), AssetConstant.ATTRIBUTE);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.ATTRIBUTE);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<ProductAttributeImport> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<ProductAttributeImport> attributeImports = csvProcessor.convertCSVFileToListOfBean(file, ProductAttributeImport.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(attributeImports)) {
+				final List<ProductAttributeImport> insertListOfBean = insertListOfUoms(
+						attributeImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
+				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name","Description", "Result" };
+				Object[] attributeDetailsField = new Object[] { "name", "description","uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, attributeDetailsField, attributeDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+		
+	}
+	
+	
+	
+	private List<ProductAttributeImport> insertListOfUoms(final List<ProductAttributeImport> productAttributeImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		final List<ProductAttributeImport> allResult = new ArrayList<>();
+		for (ProductAttributeImport productAttributeImport : productAttributeImports) {
+			try {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (productAttributeRepository.findByNameIgnoreCaseAndVendorId(productAttributeImport.getName(), vendor.getId()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("productAttribute.not.unique", null));
+				} else {
+					final ProductAttributeDTO productAttributeDTO = new ProductAttributeDTO();
+					productAttributeDTO.setName(productAttributeImport.getName());
+					productAttributeDTO.setDescription(productAttributeImport.getDescription());
+					productAttributeDTO.setActive(true);
+					productAttributeDTO.setVendorId(vendor.getId());
+					addProductAttribute(productAttributeDTO);
+					productAttributeImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+				}
+			} catch (Exception e) {
+				productAttributeImport.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(productAttributeImport);
+		}
+		return allResult;
+	}
+	
 
 }

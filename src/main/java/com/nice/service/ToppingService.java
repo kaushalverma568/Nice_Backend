@@ -1,8 +1,12 @@
 package com.nice.service;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.ToppingDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Topping;
@@ -86,4 +90,12 @@ public interface ToppingService {
 	 * @throws NotFoundException
 	 */
 	Page<Topping> getToppingList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword);
+
+	/**
+	 * 
+	 * @param file
+	 * @param httpServletResponse
+	 * @throws FileOperationException 
+	 */
+	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 }

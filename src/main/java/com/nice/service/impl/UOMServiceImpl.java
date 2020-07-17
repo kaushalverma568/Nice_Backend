@@ -1,8 +1,11 @@
 package com.nice.service.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,12 +19,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.UOMDTO;
+import com.nice.dto.UOMImport;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -29,9 +36,14 @@ import com.nice.mapper.UOMMapper;
 import com.nice.model.Product;
 import com.nice.model.UOM;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.UOMRepository;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductService;
 import com.nice.service.UOMService;
+import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
+import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
@@ -62,7 +74,13 @@ public class UOMServiceImpl implements UOMService {
 	private ProductService productService;
 
 	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
 	private ExportCSV exportCSV;
+
+	@Autowired
+	private FileStorageService fileStorageService;
 	
 	@Override
 	public void addUOM(final UOMDTO uomDTO) throws ValidationException, NotFoundException {
@@ -222,6 +240,58 @@ public class UOMServiceImpl implements UOMService {
 		final Object[] uomHeaderField = new Object[] {"Measurement","Quantity","UOM Label"};
 		final Object[] uomDataField = new Object[] { "measurement","quantity","uomLabel"};
 		exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);		
+	}
+
+	@Override
+	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "uom", AssetConstant.UOM);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.UOM);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<UOMImport> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<UOMImport> uomImports = csvProcessor.convertCSVFileToListOfBean(file, UOMImport.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(uomImports)) {
+				final List<UOMImport> insertListOfBean = insertListOfUoms(
+						uomImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getMeasurement())).collect(Collectors.toList()));
+				Object[] uomDetailsHeadersField = new Object[] { "UOM Measurement","Quantity", "Result" };
+				Object[] uomDetailsField = new Object[] { "measurement", "Quantity","uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, uomDetailsField, uomDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+		
+	}
+	
+	
+	
+	private List<UOMImport> insertListOfUoms(final List<UOMImport> uomImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		final List<UOMImport> allResult = new ArrayList<>();
+		for (UOMImport uomImport : uomImports) {
+			try {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (uomRepository.findByMeasurementIgnoreCaseAndQuantityAndVendorId(uomImport.getMeasurement(),
+						uomImport.getQuantity(), vendor.getId()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("uom.not.unique", null));
+				} else {
+					final UOMDTO uomDTO = new UOMDTO();
+					uomDTO.setMeasurement(uomImport.getMeasurement());
+					uomDTO.setQuantity(uomImport.getQuantity());
+					uomDTO.setActive(true);
+					uomDTO.setVendorId(vendor.getId());
+					addUOM(uomDTO);
+					uomImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+				}
+			} catch (Exception e) {
+				uomImport.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(uomImport);
+		}
+		return allResult;
 	}
 	
 }

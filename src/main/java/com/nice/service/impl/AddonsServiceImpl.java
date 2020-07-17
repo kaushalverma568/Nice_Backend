@@ -1,7 +1,13 @@
 package com.nice.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -11,21 +17,33 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.AddonsDTO;
+import com.nice.dto.AddonsImport;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.AddonsMapper;
 import com.nice.model.Addons;
 import com.nice.model.ProductAddons;
+import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.AddonsRepository;
 import com.nice.service.AddonsService;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductAddonsService;
 import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
+import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -54,6 +72,12 @@ public class AddonsServiceImpl implements AddonsService {
 
 	@Autowired
 	private ProductAddonsService productAddonsService;
+
+	@Autowired
+	private ExportCSV exportCSV;
+
+	@Autowired
+	private FileStorageService fileStorageService;
 
 	@Override
 	public Boolean isExists(final AddonsDTO addonsDto) throws ValidationException, NotFoundException {
@@ -173,6 +197,57 @@ public class AddonsServiceImpl implements AddonsService {
 			existingAddons.setActive(active);
 			addonsRepository.save(existingAddons);
 		}
+	}
+
+	@Override
+	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "addons_"+System.currentTimeMillis(), AssetConstant.ADDONS);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.ADDONS);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<AddonsImport> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<AddonsImport> addonsImports = csvProcessor.convertCSVFileToListOfBean(file, AddonsImport.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(addonsImports)) {
+				final List<AddonsImport> insertListOfBean = insertListOfUoms(
+						addonsImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
+				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name","Description", "Result" };
+				Object[] addonsDetailsField = new Object[] { "name", "description","uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, addonsDetailsField, addonsDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+		
+	}
+	
+	
+	
+	private List<AddonsImport> insertListOfUoms(final List<AddonsImport> addonsImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		final List<AddonsImport> allResult = new ArrayList<>();
+		for (AddonsImport addonsImport : addonsImports) {
+			try {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (addonsRepository.findByNameIgnoreCaseAndVendor(addonsImport.getName(), vendor).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("addons.not.unique", null));
+				} else {
+					final AddonsDTO addonsDTO = new AddonsDTO();
+					addonsDTO.setName(addonsImport.getName());
+					addonsDTO.setDescription(addonsImport.getDescription());
+					addonsDTO.setActive(true);
+					addonsDTO.setVendorId(vendor.getId());
+					addAddons(addonsDTO);
+					addonsImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+				}
+			} catch (Exception e) {
+				addonsImport.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(addonsImport);
+		}
+		return allResult;
 	}
 
 }
