@@ -40,7 +40,7 @@ public final class Constant {
 	public static final int MAX_BANNER_IMAGES = 3;
 
 	public static final String ACTIVATE_EXPIRE_DISCOUNT = "ACTIVATE_EXPIRE_DISCOUNT";
-	
+
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE = "VENDOR_SUBSCRIPTION_EXPIRE";
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
 
@@ -105,7 +105,7 @@ public final class Constant {
 	public static final String CLIENT_ID = "kody-client";
 	public static final String SECRET_ID = "kody-secret";
 	public static final String UNAUTHORIZED = "unauthorized";
-	public static final String PENDING = "Pending";
+	public static final String AWAITING_APPROVAL = "Awaiting Approval";
 	public static final String AVAILABLE = "Available";
 	public static final String IN_PROCESS = "In-Process";
 	public static final String RESERVED = "Reserved";

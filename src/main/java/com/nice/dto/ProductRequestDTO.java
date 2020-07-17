@@ -6,7 +6,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
  *
@@ -14,7 +13,6 @@ import lombok.ToString;
  * @date : 10-Jul-2020
  */
 @Data
-@ToString
 public class ProductRequestDTO implements Serializable {
 
 	/**
