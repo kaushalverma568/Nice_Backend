@@ -4,6 +4,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,10 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.CartItemStatus;
 import com.nice.constant.Constant;
+import com.nice.constant.DeliveryType;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMethod;
 import com.nice.constant.PaymentMode;
 import com.nice.constant.UserType;
+import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
@@ -99,7 +102,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 05-Apr-2020
+ * @date : 05-Apr-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -201,10 +204,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private OrderProductAttributeValueRepository orderProductAttributeValueRepository;
-	
+
 	@Autowired
 	private ExportCSV exportCSV;
-
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -232,9 +234,13 @@ public class OrdersServiceImpl implements OrdersService {
 				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
 			throw new ValidationException(
 					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
+		} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
+				&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
 		}
 		/**
-		 * check if the products in cart are active or not active then throw error also check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also
+		 * check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -297,6 +303,8 @@ public class OrdersServiceImpl implements OrdersService {
 					onlineCart.setAddress(customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
 							.concat(customerAddress.getLandmark()).concat(" ").concat(customerAddress.getCity().getName()).concat(" ")
 							.concat(customerAddress.getPincode().getCodeValue()).concat(" ").concat(customerAddress.getState().getName()));
+					onlineCart.setLatitude(customerAddress.getLatitude());
+					onlineCart.setLongitude(customerAddress.getLongitude());
 					onlineCart.setFirstName(customerAddress.getFirstName());
 					onlineCart.setLastName(customerAddress.getLastName());
 					onlineCart.setPhoneNumber(customerAddress.getPhoneNumber());
@@ -399,9 +407,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -433,6 +441,8 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setAddress(customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
 					.concat(customerAddress.getLandmark()).concat(" ").concat(customerAddress.getCity().getName()).concat(" ")
 					.concat(customerAddress.getPincode().getCodeValue()).concat(" ").concat(customerAddress.getState().getName()));
+			order.setLatitude(customerAddress.getLatitude());
+			order.setLongitude(customerAddress.getLongitude());
 			order.setFirstName(customerAddress.getFirstName());
 			order.setLastName(customerAddress.getLastName());
 			order.setPhoneNumber(customerAddress.getPhoneNumber());
@@ -445,7 +455,8 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in
+		 * orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -453,6 +464,8 @@ public class OrdersServiceImpl implements OrdersService {
 			City city = cityService.getCityDetails(orderRequestDto.getCityId());
 
 			order.setAddress(orderRequestDto.getAddress());
+			order.setLatitude(orderRequestDto.getLatitude());
+			order.setLongitude(orderRequestDto.getLongitude());
 			order.setFirstName(orderRequestDto.getFirstName());
 			order.setLastName(orderRequestDto.getLastName());
 			order.setPhoneNumber(orderRequestDto.getPhoneNumber());
@@ -467,7 +480,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 		// TODO
 		/**
-		 * Check for respective payment gateway and implement based on same, currently is for razorpay
+		 * Check for respective payment gateway and implement based on same, currently
+		 * is for razorpay
 		 */
 		/**
 		 * Set Online Payment details for Order
@@ -679,8 +693,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
+	 * @param cartItemList
+	 * @param orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -703,7 +717,8 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for calculation
+			 * Add the addons , extras, product attribute values, toppings amount for
+			 * calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -760,7 +775,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orderAmt
+	 * @param orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -850,8 +865,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -874,24 +889,14 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
-		Orders order = ordersRepository.findById(replaceCancelOrderDto.getOrderId())
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { replaceCancelOrderDto.getOrderId() })));
-		if (!OrderStatusEnum.PENDING.getStatusValue().equals(order.getOrderStatus())) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel", null));
-		}
-		order.setCancelReason(replaceCancelOrderDto.getReason());
-		order.setDescription(replaceCancelOrderDto.getDescription());
-		/**
-		 * Add this method to cancel order.
-		 */
-		changeStatus(Constant.CANCELLED, null, order);
-	}
-
-	@Override
-	public void changeStatus(final String newStatus, final Long deliveryBoyId, final Orders order) throws NotFoundException, ValidationException {
+	public void changeStatus(final String newStatus, final Orders order) throws NotFoundException, ValidationException {
 		if (order == null || order.getId() == 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.change.status", null));
+		}
+
+		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		if (!existingOrderStatus.contains(newStatus)) {
+			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		order.setOrderStatus(newStatus);
 		ordersRepository.save(order);
@@ -899,15 +904,17 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All
+		 * the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer
+		 * the inventory, that will be a typical case of replacement of orders that will
+		 * be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -933,8 +940,8 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a
+		 * order will be moved from delivered to replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -984,7 +991,8 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = ordersRepository.findById(orderId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to him.
+		 * If the user is Vendor or customer, check if the order actually belongs to
+		 * him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
@@ -1051,13 +1059,104 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws IOException, NotFoundException {
+	public void exportOrderList(final HttpServletResponse httpServletResponse, final OrderListFilterDto orderListFilterDto)
+			throws IOException, NotFoundException {
 		List<Orders> orderList = ordersRepository.getOrderListBasedOnParams(null, null, orderListFilterDto);
 		List<OrdersResponseDTO> orderDtoList = toDtos(orderList, true);
-		final Object[] orderHeaderField = new Object[] {"Customer Name","Phone Number","Total Order Amount","Order Status","Payment Mode","Vendor Name","Delivery Boy Name","Order Date" };
-		final Object[] orderDataField = new Object[] {"customerName","phoneNumber","totalOrderAmount","orderStatus","paymentMode","vendorName","deliveryBoyName","orderDate"};
+		final Object[] orderHeaderField = new Object[] { "Customer Name", "Phone Number", "Total Order Amount", "Order Status", "Payment Mode", "Vendor Name",
+				"Delivery Boy Name", "Order Date" };
+		final Object[] orderDataField = new Object[] { "customerName", "phoneNumber", "totalOrderAmount", "orderStatus", "paymentMode", "vendorName",
+				"deliveryBoyName", "orderDate" };
 		exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
 	}
 
+	@Override
+	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!OrderStatusEnum.PENDING.getStatusValue().equals(orders.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel", null));
+		}
+		orders.setCancelReason(replaceCancelOrderDto.getReason());
+		orders.setDescription(replaceCancelOrderDto.getDescription());
+		/**
+		 * Add this method to cancel order.
+		 */
+		changeStatus(Constant.CANCELLED, orders);
+	}
 
+	@Override
+	public void replaceOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+
+		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!Constant.DELIVERED.equals(orders.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.not.delivered.already.replaced", null));
+		}
+		/**
+		 * if vendor does not accepts replacement then throw error
+		 */
+		if (!VendorAccepts.REPLACEMENT.getStatusValue().equals(orders.getVendor().getAccepts())) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts", new Object[] { orders.getVendor().getAccepts() }));
+		}
+		Optional<OrderStatusHistory> orderStatusHistory = orderStatusRepository.findByOrderIdAndStatus(orders.getId(),
+				OrderStatusEnum.DELIVERED.getStatusValue());
+		if (orderStatusHistory.isPresent()) {
+			/**
+			 * If the replacement request has come after a maximum days for which vendor can
+			 * accepts then throw error.
+			 */
+			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
+					.isBefore(LocalDate.now())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("order.outside.replacement.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
+			}
+
+			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
+			orders.setDescription(replaceCancelOrderDto.getDescription());
+			changeStatus(Constant.REPLACE_REQUESTED, orders);
+		}
+	}
+
+	@Override
+	public List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(final String status, final String deliveryType, final Integer assignmentTryCount,
+			final Date notificationTimer) {
+		return ordersRepository.findAllByOrderStatusAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(status, deliveryType,
+				assignmentTryCount, notificationTimer);
+	}
+
+	@Override
+	public void returnOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws ValidationException, NotFoundException {
+		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!Constant.DELIVERED.equals(orders.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.not.delivered.already.returned", null));
+		}
+		/**
+		 * if vendor does not accepts return then throw error
+		 */
+		if (!VendorAccepts.RETURN.getStatusValue().equals(orders.getVendor().getAccepts())) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts", new Object[] { orders.getVendor().getAccepts() }));
+		}
+		Optional<OrderStatusHistory> orderStatusHistory = orderStatusRepository.findByOrderIdAndStatus(orders.getId(),
+				OrderStatusEnum.DELIVERED.getStatusValue());
+		if (orderStatusHistory.isPresent()) {
+			/**
+			 * If the return request has come after a maximum days for which vendor can
+			 * accepts then throw error.
+			 */
+			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
+					.isBefore(LocalDate.now())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("order.outside.replacement.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
+			}
+
+			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
+			orders.setDescription(replaceCancelOrderDto.getDescription());
+			changeStatus(Constant.RETURN_REQUESTED, orders);
+		}
+	}
+
+	@Override
+	public void changeStatus(final Long ordersId, final String status) throws NotFoundException, ValidationException {
+		Orders orders = getOrderById(ordersId);
+		changeStatus(status, orders);
+	}
 }

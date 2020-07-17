@@ -12,9 +12,12 @@ import java.util.Map;
  * @date : 09-Jul-2020
  */
 public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
-	PENDING(Constant.PENDING, Constant.AVAILABLE), IN_PROCESS(Constant.IN_PROCESS, Constant.RESERVED), DELIVERED(Constant.DELIVERED, Constant.DELIVERED),
-	REPLACE_REQUESTED(Constant.REPLACE_REQUESTED, Constant.AVAILABLE), REPLACE_PROCESSED(Constant.REPLACE_PROCESSED, Constant.RESERVED),
-	REPLACED(Constant.REPLACED, Constant.DELIVERED), CANCELLED(Constant.CANCELLED, Constant.AVAILABLE);
+	PENDING(Constant.PENDING, Constant.AVAILABLE), CONFIRMED(Constant.CONFIRMED, Constant.RESERVED), IN_PROCESS(Constant.IN_PROCESS, Constant.RESERVED),
+	ORDER_IS_READY(Constant.ORDER_IS_READY, Constant.RESERVED), ORDER_PICKED_UP(Constant.ORDER_PICKED_UP, Constant.RESERVED),
+	DELIVERED(Constant.DELIVERED, Constant.DELIVERED), REPLACE_REQUESTED(Constant.REPLACE_REQUESTED, Constant.AVAILABLE),
+	REPLACE_PROCESSED(Constant.REPLACE_PROCESSED, Constant.RESERVED), REPLACED(Constant.REPLACED, Constant.DELIVERED),
+	CANCELLED(Constant.CANCELLED, Constant.AVAILABLE), RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.DELIVERED),
+	RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.DELIVERED), RETURNED(Constant.RETURNED, Constant.RETURNED);
 
 	String statusValue;
 	String stockStatus;
@@ -52,13 +55,22 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 		OrderStatusEnum[] nextStatus = null;
 		switch (this) {
 		case PENDING:
-			nextStatus = new OrderStatusEnum[] { IN_PROCESS, CANCELLED };
+			nextStatus = new OrderStatusEnum[] { CONFIRMED, CANCELLED };
+			break;
+		case CONFIRMED:
+			nextStatus = new OrderStatusEnum[] { IN_PROCESS };
 			break;
 		case IN_PROCESS:
+			nextStatus = new OrderStatusEnum[] { ORDER_IS_READY };
+			break;
+		case ORDER_IS_READY:
+			nextStatus = new OrderStatusEnum[] { ORDER_PICKED_UP };
+			break;
+		case ORDER_PICKED_UP:
 			nextStatus = new OrderStatusEnum[] { DELIVERED };
 			break;
 		case DELIVERED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_REQUESTED };
+			nextStatus = new OrderStatusEnum[] { REPLACE_REQUESTED, RETURN_REQUESTED };
 			break;
 		case REPLACE_REQUESTED:
 			nextStatus = new OrderStatusEnum[] { REPLACE_PROCESSED };
@@ -67,6 +79,15 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACED };
 			break;
 		case REPLACED:
+			nextStatus = new OrderStatusEnum[] {};
+			break;
+		case RETURN_REQUESTED:
+			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED };
+			break;
+		case RETURN_PROCESSED:
+			nextStatus = new OrderStatusEnum[] { RETURNED };
+			break;
+		case RETURNED:
 			nextStatus = new OrderStatusEnum[] {};
 			break;
 		case CANCELLED:

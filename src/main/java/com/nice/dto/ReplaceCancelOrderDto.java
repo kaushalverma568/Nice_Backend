@@ -4,7 +4,6 @@
 package com.nice.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -26,7 +25,6 @@ public class ReplaceCancelOrderDto implements Serializable {
 
 	@NotNull(message = "{order.id.not.null}")
 	private Long orderId;
-	private List<Long> orderItem;
 	@NotBlank(message = "{reason.required}")
 	private String reason;
 	@NotBlank(message = "{description.required}")

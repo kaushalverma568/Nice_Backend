@@ -9,13 +9,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.AssignedOrdersCountDTO;
+import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
+import com.nice.dto.OrderNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoy;
+import com.nice.model.DeliveryBoyCurrentStatus;
 
 /**
  *
@@ -92,7 +96,7 @@ public interface DeliveryBoyService {
 	 * @return
 	 * @throws ValidationException
 	 */
-	String updatePersonalDetails(DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO) throws NotFoundException, ValidationException;
+	void updatePersonalDetails(DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * Update account details
@@ -186,10 +190,82 @@ public interface DeliveryBoyService {
 	Boolean isPhoneNumberExists(DeliveryBoyDTO deliveryBoyDTO);
 
 	/**
-	 * 
+	 *
 	 * @param activeRecords
 	 * @param httpServletResponse
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
+
+	/**
+	 * @param email
+	 * @param otp
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String changeEmail(String email, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param phoneNumber
+	 * @param otp
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void changePhoneNumber(String phoneNumber, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * get delivery boy current status details
+	 *
+	 * @param deliveryBoy
+	 * @return
+	 * @throws NotFoundException
+	 */
+	DeliveryBoyCurrentStatus getDeliveryBoyCurrentStatusDetail(DeliveryBoy deliveryBoy) throws NotFoundException;
+
+	/**
+	 * update delivery boy is available for delivering orders
+	 *
+	 * @param isAvailable
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void updateIsAvailable(Boolean isAvailable) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param orderId
+	 * @param deliveryBoyId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	OrderNotificationDTO getOrderDetailInDeliveryBoyAcceptNotification(Long orderId, Long deliveryBoyId) throws NotFoundException;
+
+	/**
+	 * reject order by delivery boy
+	 *
+	 * @param deliveryBoyId
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	void rejectOrder(Long deliveryBoyId, Long orderId) throws NotFoundException;
+
+	/**
+	 * get assigned ordres count(regular orders ,return orders,replace orders
+	 * separate counts)
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	AssignedOrdersCountDTO getAssignedOrdersCount(Long deliveryBoyId) throws NotFoundException, ValidationException;
+
+	/**
+	 * get delivery boy dash board
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	DashBoardDetailDTO getDashBoard(Long deliveryBoyId) throws NotFoundException;
 }

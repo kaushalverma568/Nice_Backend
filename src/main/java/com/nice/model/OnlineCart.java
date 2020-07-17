@@ -1,5 +1,7 @@
 package com.nice.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,6 +65,12 @@ public class OnlineCart extends CommonModel {
 
 	@Column(name = "pincode_id", nullable = false)
 	private Long pincodeId;
+
+	@Column(name = "latitude", nullable = false)
+	private BigDecimal latitude;
+
+	@Column(name = "longitude", nullable = false)
+	private BigDecimal longitude;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;

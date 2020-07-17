@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -34,6 +35,11 @@ public class OrderRequestDTO implements Serializable {
 
 	@NotBlank(message = "{payment.mode.required}")
 	private String paymentMode;
+	/**
+	 * this will be either Pick-Up or Delivery
+	 */
+	@NotBlank(message = "{delivery.type.required}")
+	private String deliveryType;
 
 	private String transactionId;
 
@@ -46,6 +52,10 @@ public class OrderRequestDTO implements Serializable {
 	private String lastName;
 
 	private String address;
+
+	private BigDecimal latitude;
+
+	private BigDecimal longitude;
 
 	private Long stateId;
 

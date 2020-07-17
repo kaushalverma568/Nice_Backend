@@ -4,6 +4,7 @@
 package com.nice.service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +49,8 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	// void replaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId) throws NotFoundException,
+	// void replaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId)
+	// throws NotFoundException,
 	// ValidationException;
 
 	/**
@@ -57,7 +59,8 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	// void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId) throws NotFoundException,
+	// void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId)
+	// throws NotFoundException,
 	// ValidationException;
 
 	/**
@@ -136,21 +139,58 @@ public interface OrdersService {
 
 	/**
 	 * @param newStatus
-	 * @param deliveryBoyId
 	 * @param order
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void changeStatus(String newStatus, Long deliveryBoyId, Orders order) throws NotFoundException, ValidationException;
+	void changeStatus(String newStatus, Orders order) throws NotFoundException, ValidationException;
 
 	/**
-	 * 
+	 *
 	 * @param httpServletResponse
 	 * @param orderListFilterDto
-	 * @throws IOException 
-	 * @throws NotFoundException 
+	 * @throws IOException
+	 * @throws NotFoundException
 	 */
 	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws IOException, NotFoundException;
+
+	/**
+	 * get all qualified orders for sending accept order notification
+	 *
+	 * @param status
+	 * @param assignmentTryCount
+	 * @param notificationTimer
+	 * @return
+	 */
+	List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(String status, String deliveryType, Integer assignmentTryCount, Date notificationTimer);
+
+	/**
+	 * replace order
+	 *
+	 * @param replaceCancelOrderDto
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void replaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
+
+	/**
+	 * return order
+	 *
+	 * @param replaceCancelOrderDto
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	void returnOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws ValidationException, NotFoundException;
+
+	/**
+	 * this method is used for change status to ready
+	 *
+	 * @param ordersId
+	 * @param status
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void changeStatus(Long ordersId, String status) throws NotFoundException, ValidationException;
 
 	/**
 	 * get all information for app payment
@@ -160,6 +200,7 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	// AppPaymentDTO getDataByRazorpayOrder(String razorPayOrderId) throws NotFoundException, ValidationException;
+	// AppPaymentDTO getDataByRazorpayOrder(String razorPayOrderId) throws
+	// NotFoundException, ValidationException;
 
 }

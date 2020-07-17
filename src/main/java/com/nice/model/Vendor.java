@@ -22,7 +22,7 @@ import lombok.ToString;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Entity
 @Data
@@ -83,6 +83,12 @@ public class Vendor extends CommonModel {
 	// this will be in minutes
 	@Column(name = "approx_delivery_time")
 	private Integer approxDeliveryTime;
+
+	/**
+	 * maximum time for which vendor can accept return/replace (in days)
+	 */
+	@Column(name = "max_days_for_accept")
+	private Integer maxDaysForAccept;
 
 	@Column(name = "minimum_order_amt")
 	private Double minimumOrderAmt;

@@ -43,6 +43,9 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
 
+	@Column(name = "status", nullable = false)
+	private String status;
+
 	@Column(name = "gender")
 	private String gender;
 
@@ -69,15 +72,6 @@ public class DeliveryBoy extends CommonModel {
 
 	@Column(name = "is_phone_number_verified", nullable = false)
 	private Boolean isPhoneNumberVerified;
-
-	@Column(name = "is_login", nullable = false)
-	private Boolean isLogin;
-
-	/**
-	 * when delivery boy accepts order it will be mark as isBusy
-	 */
-	@Column(name = "is_busy", nullable = false)
-	private Boolean isBusy;
 
 	@Column(name = "rating", nullable = false)
 	private Double rating;

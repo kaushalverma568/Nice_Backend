@@ -1,5 +1,6 @@
 package com.nice.scheduler;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.nice.constant.Constant;
+import com.nice.constant.DeliveryType;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.OrderStatusEnum;
 import com.nice.dto.PushNotification;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -16,8 +20,11 @@ import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoySendNotificationHistory;
+import com.nice.model.Orders;
 import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
+import com.nice.repository.OrdersRepository;
 import com.nice.service.DeliveryBoyService;
+import com.nice.service.OrdersService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -34,6 +41,12 @@ public class AcceptingOrderNotificationScheduler {
 	private DeliveryBoyService deliveryBoyService;
 
 	@Autowired
+	private OrdersService ordersService;
+
+	@Autowired
+	private OrdersRepository ordersRepository;
+
+	@Autowired
 	private DeliveryBoySendNotificationHistoryRepository deliveryBoySendNotificationHistoryRepository;
 
 	@Autowired
@@ -43,42 +56,50 @@ public class AcceptingOrderNotificationScheduler {
 	private MessageByLocaleService messageByLocaleService;
 
 	// @Scheduled(fixedRate = 7000)
-	public void AcceptingOrderNotification() throws NotFoundException, ValidationException {
-// get order list which is appproved and assignmentTryCount < 3 and timer is less then current time
-		// for(Orders order : orders)
-		Long orderId = 1l;
-		Long vendorId = 1l;
-		List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orderId, vendorId);
+	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
 		/**
-		 * if not a single delivery boy is logged in for accepting order then throw
-		 * exception
+		 * get order list which is appproved and notification not sended more then three
+		 * times and next time we have to send is less then current time
 		 */
-		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
-		} else {
-			PushNotification pushNotification = new PushNotification();
-			pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
-			pushNotification.setOrderId(orderId);
-			pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
-			jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
+		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(OrderStatusEnum.CONFIRMED.getStatusValue(),
+				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date(System.currentTimeMillis()));
+		for (Orders orders : ordersList) {
+
+			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 			/**
-			 * update delivery boy notification history
+			 * if not a single delivery boy is logged in for accepting order then throw
+			 * exception
 			 */
-			for (Long deliveryBoyId : nextNearestDeliveryBoys) {
-				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
-				Optional<DeliveryBoySendNotificationHistory> optDeliveryBoyNotificationHistory = deliveryBoySendNotificationHistoryRepository
-						.findByDeliveryBoy(deliveryBoy);
-				if (optDeliveryBoyNotificationHistory.isPresent()) {
-					optDeliveryBoyNotificationHistory.get().setOrderId(orderId);
-					deliveryBoySendNotificationHistoryRepository.save(optDeliveryBoyNotificationHistory.get());
-				} else {
-					DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory = new DeliveryBoySendNotificationHistory();
-					deliveryBoyNotificationHistory.setActive(true);
-					deliveryBoyNotificationHistory.setDeliveryBoy(deliveryBoy);
-					deliveryBoyNotificationHistory.setOrderId(orderId);
-					deliveryBoySendNotificationHistoryRepository.save(deliveryBoyNotificationHistory);
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
+				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+			} else {
+				PushNotification pushNotification = new PushNotification();
+				pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
+				pushNotification.setOrderId(orders.getId());
+				pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
+				jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
+				/**
+				 * update delivery boy notification history
+				 */
+				for (Long deliveryBoyId : nextNearestDeliveryBoys) {
+					DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
+					Optional<DeliveryBoySendNotificationHistory> optDeliveryBoyNotificationHistory = deliveryBoySendNotificationHistoryRepository
+							.findByDeliveryBoy(deliveryBoy);
+					if (optDeliveryBoyNotificationHistory.isPresent()) {
+						optDeliveryBoyNotificationHistory.get().setOrderId(orders.getId());
+						deliveryBoySendNotificationHistoryRepository.save(optDeliveryBoyNotificationHistory.get());
+					} else {
+						DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory = new DeliveryBoySendNotificationHistory();
+						deliveryBoyNotificationHistory.setActive(true);
+						deliveryBoyNotificationHistory.setDeliveryBoy(deliveryBoy);
+						deliveryBoyNotificationHistory.setOrderId(orders.getId());
+						deliveryBoySendNotificationHistoryRepository.save(deliveryBoyNotificationHistory);
+					}
 				}
 			}
+			orders.setAssignmentTryCount(orders.getAssignmentTryCount() + 1);
+			orders.setNotificationTimer(new Date(System.currentTimeMillis() + Constant.NOTIFICATION_SENDING_TIME_IN_MILIS));
+			ordersRepository.save(orders);
 		}
 	}
 }

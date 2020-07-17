@@ -40,7 +40,7 @@ public final class Constant {
 	public static final int MAX_BANNER_IMAGES = 3;
 
 	public static final String ACTIVATE_EXPIRE_DISCOUNT = "ACTIVATE_EXPIRE_DISCOUNT";
-	
+
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE = "VENDOR_SUBSCRIPTION_EXPIRE";
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
 
@@ -53,6 +53,14 @@ public final class Constant {
 	 * maximum distance of vendor from customer to fetch in customer app (in km)
 	 */
 	public static final Double MAX_DISTANCE_FROM_CUSTOMER = 20d;
+	/**
+	 * maximum assignment try count for sending notification to delivery boy
+	 */
+	public static final Integer MAX_ASSIGNMENT_TRY_COUNT = 3;
+	/**
+	 * a time after we have to send notification for order
+	 */
+	public static final Long NOTIFICATION_SENDING_TIME_IN_MILIS = 45000L;
 
 	/**
 	 * Settings Flags:
@@ -63,7 +71,8 @@ public final class Constant {
 	private static String smsApiKey = "default";
 
 	/**
-	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
+	 * Sets the values of static fields</b> The value specified is set for the key
+	 * specified in the arguments</br>
 	 *
 	 * @param key
 	 * @param value
@@ -115,5 +124,9 @@ public final class Constant {
 	public static final String REPLACED = "Replaced";
 	public static final String CANCELLED = "Cancelled";
 	public static final String RETURNED = "Returned";
-
+	public static final String CONFIRMED = "Confirmed";
+	public static final String RETURN_REQUESTED = "Return Requested";
+	public static final String RETURN_PROCESSED = "Return Processed";
+	public static final String ORDER_IS_READY = "Order is ready";
+	public static final String ORDER_PICKED_UP = "Order Picked Up";
 }

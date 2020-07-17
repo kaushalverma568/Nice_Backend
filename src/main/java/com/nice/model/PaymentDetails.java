@@ -1,6 +1,6 @@
 package com.nice.model;
 
-import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,32 +18,38 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 19, 2020
+ * @date : 15-07-2020
  */
-@Entity
-@Table(name = "delivery_boy_location")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class DeliveryBoyLocation extends CommonModel {
+@Table(name = "payment_details")
+@Entity()
+public class PaymentDetails extends CommonModel {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 4698538221311296723L;
+	private static final long serialVersionUID = 6090484153949186195L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Long id;
 
+	@Column(name = "transaction_no", nullable = false, unique = true)
+	private String transactionNo;
+
+	@Column(name = "paid_on", nullable = false)
+	private Date paidOn;
+
+	@Column(name = "payment_amount", nullable = false)
+	private Double paymentAmount;
+
 	@JoinColumn(name = "delivery_boy_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY)
 	private DeliveryBoy deliveryBoy;
 
-	@Column(name = "latitude", nullable = false)
-	private BigDecimal latitude;
-
-	@Column(name = "longitude", nullable = false)
-	private BigDecimal longitude;
+	@Column(name = "no_of_orders", nullable = false)
+	private Integer noOfOrders;
 
 }
