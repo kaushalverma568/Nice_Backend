@@ -382,7 +382,7 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
 	}
-	
+
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
 			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
@@ -414,10 +414,32 @@ public class VendorController {
 	}
 
 	@PutMapping("/email/generate/{vendorId}")
-	public ResponseEntity<Object> changeVendorEmail(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
-			@RequestParam(name = "email", required = true) final String email) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> generateOTPForChangeEmail(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId, @RequestParam(name = "email", required = true) final String email)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside generate otp for change email of Vendor of id {} and email {} ", vendorId, email);
 		String otp = vendorService.generateOTPForChangeEmail(email, vendorId);
+		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
+	}
+
+	@PutMapping("/change/contact/{vendorId}")
+	public ResponseEntity<Object> changeVendorContact(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@RequestParam(name = "contactNo", required = true) final String contactNo, @RequestParam(name = "otp", required = true) final String otp)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside change Contact of Vendor of id {} and contact {} and otp {}", vendorId, contactNo, otp);
+		vendorService.changeVendorContact(vendorId, contactNo, otp);
+		LOGGER.info("Outside change contact of vendor");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	@PutMapping("/contact/generate/{vendorId}")
+	public ResponseEntity<Object> generateOTPForChangeContact(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId, @RequestParam(name = "contactNo", required = true) final String contactNo)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside generate otp for change contact of Vendor of id {} and contact no {} ", vendorId, contactNo);
+		String otp = vendorService.generateOTPForChangeContact(contactNo, vendorId);
 		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
 	}
