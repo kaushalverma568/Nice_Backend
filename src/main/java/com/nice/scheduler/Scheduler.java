@@ -1,4 +1,4 @@
-package com.nice.schedular;
+package com.nice.scheduler;
 
 import java.time.LocalDate;
 import java.util.Date;
