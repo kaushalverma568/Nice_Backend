@@ -256,14 +256,7 @@
 				path="sql-files/1.0/setting_query.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
-	
-	<changeSet id="37" author="ronit.macwan"
-			context="post-process-db-changes">
-			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
-				path="sql-files/1.0/order_location.sql" relativeToChangelogFile="true"
-				splitStatements="true" stripComments="true" />
-	</changeSet> 
-	
+		
 	<changeSet id="37" author="ankit.bhimani"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -298,5 +291,10 @@
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 	
-	
+	<changeSet id="42" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/order_location.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
 </databaseChangeLog>
