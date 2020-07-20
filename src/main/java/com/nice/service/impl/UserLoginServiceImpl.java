@@ -602,7 +602,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
 			userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName().toLowerCase(), userLoginDto.getUserType());
 		} else {
-			userLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(userLoginDto.getUserName().toLowerCase(), userLoginDto.getUserType());
+			userLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(userLoginDto.getUserName(), userLoginDto.getUserType());
 		}
 		if (userLogin.isPresent()) {
 			BeanUtils.copyProperties(userLogin.get(), loginResponse);
@@ -610,6 +610,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			if (Role.CUSTOMER.getStatusValue().equals(userLogin.get().getRole())) {
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
+			}
+		} else {
+			userLogin = userLoginRepository.findByEmailIgnoreCaseAndRole(userLoginDto.getUserName(), Role.SUPER_ADMIN.getStatusValue());
+			if (userLogin.isPresent()) {
+				BeanUtils.copyProperties(userLogin.get(), loginResponse);
+				loginResponse.setUserId(userLogin.get().getId());
 			}
 		}
 		return loginResponse;

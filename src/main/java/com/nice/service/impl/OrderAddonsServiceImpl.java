@@ -3,8 +3,6 @@ package com.nice.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +19,14 @@ import com.nice.service.OrderAddonsService;
 import com.nice.service.OrderItemService;
 import com.nice.service.ProductAddonsService;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Transactional(rollbackFor = Throwable.class)
 @Service("orderAddonsService")
 public class OrderAddonsServiceImpl implements OrderAddonsService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OrderAddonsServiceImpl.class);
+
 	@Autowired
 	private OrderItemService orderItemService;
 
@@ -52,8 +54,7 @@ public class OrderAddonsServiceImpl implements OrderAddonsService {
 	}
 
 	/**
-	 *
-	 * @param orderAddon
+	 * @param  orderAddon
 	 * @return
 	 */
 	private OrderAddonsDTO convertEntityToDto(final OrdersAddons orderAddon) {

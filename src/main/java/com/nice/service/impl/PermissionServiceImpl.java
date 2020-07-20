@@ -30,9 +30,8 @@ import com.nice.service.PermissionService;
 import com.nice.service.RoleService;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -113,9 +112,9 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	/**
-	 * @param roleId
-	 * @param moduleId
-	 * @param pageable
+	 * @param  roleId
+	 * @param  moduleId
+	 * @param  pageable
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -158,8 +157,7 @@ public class PermissionServiceImpl implements PermissionService {
 
 		if (permissionDTO.getId() != null) {
 			/**
-			 * At the time of update is role with same id for same module exist or not
-			 * except it's own ID
+			 * At the time of update is role with same id for same module exist or not except it's own ID
 			 */
 			return permissionRepository.findByRoleAndModulesAndIdNot(role, modules, permissionDTO.getId()).isPresent();
 		} else {

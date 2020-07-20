@@ -44,7 +44,6 @@ import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
 import com.nice.service.DiscountService;
-import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
@@ -56,7 +55,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -73,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductMapper productMapper;
-	
+
 	@Autowired
 	private ExportCSV exportCSV;
 
@@ -96,9 +95,6 @@ public class ProductServiceImpl implements ProductService {
 	private AssetService assetService;
 
 	@Autowired
-	private FileStorageService fileStorageService;
-
-	@Autowired
 	private CuisineService cuisineService;
 
 	@Autowired
@@ -112,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private TempCartItemService tempCartItemService;
-	
+
 	@Autowired
 	private DiscountService discountService;
 
@@ -194,6 +190,7 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("After updating image for Product : {}", product.getId());
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<Long, List<? extends Object>> getCartMap(final Long customerId, final String uuid) throws ValidationException, NotFoundException {
 		Map<Long, List<?>> cartMap = new HashMap<>();
 		LOGGER.info("Inside getCart for Customer : {} and uuid :{}", customerId, uuid);
@@ -281,7 +278,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param productRequestDTO
+	 * @param  productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -327,10 +324,10 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param product
-	 * @param listForAdmin
-	 * @param productParamRequestDTO
-	 * @param pincodeId
+	 * @param  product
+	 * @param  listForAdmin
+	 * @param  productParamRequestDTO
+	 * @param  pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -351,7 +348,7 @@ public class ProductServiceImpl implements ProductService {
 		if (productResponseDTO.getCuisineId() != null) {
 			productResponseDTO.setCuisineName(cuisineService.getCuisineDetails(productResponseDTO.getCuisineId()).getName());
 		}
-		productResponseDTO.setImage(CommonUtility.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
+		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
 		 * if we are fetching product list For admin then set product variants to empty list
 		 */
@@ -403,9 +400,9 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
 		productResponseDTO.setProductExtrasList(productExtrasService.getList(listForAdmin ? null : true, product.getId()));
 		LOGGER.info("Inside convertEntityToResponseDto");
-		 if (product.getDiscountId() != null) {
-		 productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
-		 }
+		if (product.getDiscountId() != null) {
+			productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
+		}
 		return productResponseDTO;
 	}
 
@@ -435,9 +432,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param active
-	 * @param existingProduct
-	 * @param productId
+	 * @param  active
+	 * @param  existingProduct
+	 * @param  productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -467,7 +464,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param existingProduct
+	 * @param  existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -528,7 +525,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	private void deleteOldImage(final Product product) {
 		LOGGER.info("Inside deleteOldImage for product :{}", product.getId());
-		fileStorageService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
+		assetService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
 		LOGGER.info("After deleteOldImage for product :{}", product.getId());
 	}
 
@@ -582,8 +579,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void exportProductList(HttpServletResponse httpServletResponse,
-			ProductParamRequestDTO productParamRequestDTO) throws IOException, NotFoundException, ValidationException {
+	public void exportProductList(final HttpServletResponse httpServletResponse, final ProductParamRequestDTO productParamRequestDTO)
+			throws IOException, NotFoundException, ValidationException {
 		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
 		LOGGER.info("Inside export product list Based On Params {}", productParamRequestDTO);
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
@@ -594,6 +591,6 @@ public class ProductServiceImpl implements ProductService {
 		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
 		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
 		exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
-		
+
 	}
 }

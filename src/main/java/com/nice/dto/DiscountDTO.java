@@ -10,16 +10,14 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
- * @description :
+ * @date   : 20-Jul-2020
  */
 @Data
 public class DiscountDTO implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -938955587866004964L;
 
@@ -42,7 +40,7 @@ public class DiscountDTO implements Serializable {
 
 	@NotNull(message = "{category.id.not.null}")
 	private Long categoryId;
-	
+
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;
 }

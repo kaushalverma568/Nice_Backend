@@ -14,9 +14,8 @@ import com.nice.service.CategoryService;
 import com.nice.util.CommonUtility;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Component
 public class CategoryValidator implements Validator {
@@ -26,8 +25,7 @@ public class CategoryValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -44,8 +42,7 @@ public class CategoryValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override

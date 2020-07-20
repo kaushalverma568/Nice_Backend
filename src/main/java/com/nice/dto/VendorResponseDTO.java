@@ -12,14 +12,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
  * @date   : Jun 25, 2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class VendorResponseDTO implements Serializable {
 
 	/**

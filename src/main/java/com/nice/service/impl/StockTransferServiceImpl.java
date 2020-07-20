@@ -12,16 +12,16 @@ import com.nice.dto.StockTransferDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.mapper.StockTransferMapper;
-import com.nice.model.StockTransfer;
 import com.nice.model.ProductVariant;
 import com.nice.model.StockDetails;
+import com.nice.model.StockTransfer;
 import com.nice.repository.StockTransferRepository;
-import com.nice.service.StockTransferService;
 import com.nice.service.StockDetailsService;
+import com.nice.service.StockTransferService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 31-Jan-2020
+ * @date   : 20-Jul-2020
  */
 @Service("stockTransferService")
 @Transactional(rollbackFor = Throwable.class)
@@ -32,7 +32,6 @@ public class StockTransferServiceImpl implements StockTransferService {
 
 	@Autowired
 	private StockDetailsService stockDetailsService;
-
 
 	@Autowired
 	private StockTransferMapper stockTransferMapper;
@@ -45,8 +44,10 @@ public class StockTransferServiceImpl implements StockTransferService {
 		 * Add the transaction in the internal stock transfer table
 		 */
 		StockTransfer stockTransfer = stockTransferMapper.toEntity(stockTransferDto);
-		ProductVariant productVariant =stockDetailsService.getproductVariantFromProductIdAndUomId(stockTransferDto.getProductId(), stockTransferDto.getUomId());
-		StockDetails stockDetails = stockDetailsService.getStockDetailsForProductVarientAndLot(productVariant, stockTransferDto.getVendorId(), stockTransferDto.getLotNo());
+		ProductVariant productVariant = stockDetailsService.getproductVariantFromProductIdAndUomId(stockTransferDto.getProductId(),
+				stockTransferDto.getUomId());
+		StockDetails stockDetails = stockDetailsService.getStockDetailsForProductVarientAndLot(productVariant, stockTransferDto.getVendorId(),
+				stockTransferDto.getLotNo());
 		stockTransfer.setStockDetails(stockDetails);
 		stockTransfer.setVendorId(stockTransferDto.getVendorId());
 		stockTransfer.setIsManual(Boolean.valueOf(false));
@@ -66,8 +67,5 @@ public class StockTransferServiceImpl implements StockTransferService {
 		}
 		LOGGER.info("Internal Stock Transfer list entry done");
 	}
-
-
-
 
 }

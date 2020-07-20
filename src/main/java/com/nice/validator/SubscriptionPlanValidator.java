@@ -8,8 +8,13 @@ import org.springframework.validation.Validator;
 import com.nice.dto.SubscriptionPlanDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.SubscriptionPlanService;
+
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Component
-public class SubscriptionPlanValidator  implements Validator {
+public class SubscriptionPlanValidator implements Validator {
 
 	/**
 	 * Locale message service - to display response messages from messages_en.properties
@@ -34,7 +39,7 @@ public class SubscriptionPlanValidator  implements Validator {
 
 		final SubscriptionPlanDTO subscriptionPlanDTO = (SubscriptionPlanDTO) target;
 
-		if ( subscriptionPlanService.isExists(subscriptionPlanDTO)) {
+		if (subscriptionPlanService.isExists(subscriptionPlanDTO)) {
 			errors.rejectValue("name", "409", messageByLocaleService.getMessage("subscription.plan.name.not.unique", null));
 		}
 	}

@@ -26,6 +26,7 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.model.OrdersItem;
 import com.nice.model.ProductVariant;
 import com.nice.repository.OrderItemRepository;
+import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
 import com.nice.service.OrderAddonsService;
 import com.nice.service.OrderExtrasService;
@@ -36,9 +37,8 @@ import com.nice.service.ProductVariantService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 @Service(value = "orderItemService")
 @Transactional(rollbackFor = Throwable.class)
@@ -74,6 +74,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
 	@Autowired
 	private OrderProductAttributeValueService orderProductAttributeValueService;
+
+	@Autowired
+	private AssetService assetService;
 
 	@Override
 	public OrdersItem getOrderItemDetails(final Long orderItemId) throws NotFoundException {
@@ -123,7 +126,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	/**
-	 * @param orderItem
+	 * @param  orderItem
 	 * @throws NotFoundException
 	 */
 	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {
@@ -135,7 +138,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		orderItemResponseDTO.setProductName(productVariant.getProduct().getName());
 		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
 		orderItemResponseDTO.setProductVariantId(productVariant.getId());
-		orderItemResponseDTO.setProductImageUrl(CommonUtility.getGeneratedUrl(productVariant.getProduct().getImage(), AssetConstant.PRODUCT_DIR));
+		orderItemResponseDTO.setProductImageUrl(assetService.getGeneratedUrl(productVariant.getProduct().getImage(), AssetConstant.PRODUCT_DIR));
 		orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
 		orderItemResponseDTO.setOrderQty(orderItem.getQuantity());
 		Double totalOrderItemAmount = orderItem.getTotalAmt();

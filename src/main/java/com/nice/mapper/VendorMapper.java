@@ -16,6 +16,7 @@ import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
+import com.nice.service.AssetService;
 import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
@@ -28,6 +29,9 @@ public class VendorMapper {
 
 	@Autowired
 	private VendorCuisineService vendorCuisineService;
+
+	@Autowired
+	private AssetService assetService;
 
 	public VendorResponseDTO toDto(final Vendor vendor) {
 		VendorResponseDTO vendorResponseDTO = new VendorResponseDTO();
@@ -46,7 +50,7 @@ public class VendorMapper {
 		vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
 		vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getProfilePictureName())) {
-			vendorResponseDTO.setProfilePictureUrl(CommonUtility.getGeneratedUrl(vendor.getProfilePictureName(), AssetConstant.VENDOR));
+			vendorResponseDTO.setProfilePictureUrl(assetService.getGeneratedUrl(vendor.getProfilePictureName(), AssetConstant.VENDOR));
 		}
 		return vendorResponseDTO;
 	}

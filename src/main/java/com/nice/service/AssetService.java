@@ -19,4 +19,24 @@ public interface AssetService {
 	 */
 	String saveAsset(MultipartFile image, String subDirectory, int count);
 
+	/**
+	 * @param fileName
+	 * @param direcotry
+	 */
+	void deleteFile(String fileName, String direcotry);
+
+	/**
+	 * @param  newFileName
+	 * @param  subDirPath
+	 * @return
+	 */
+	String getGeneratedUrl(String newFileName, String subDirPath);
+
+	/**
+	 * @param fileName
+	 * @param sourceDirectory
+	 * @param destinationDirctory
+	 */
+	void moveFiles(final String fileName, final String sourceDirectory, final String destinationDirctory);
+
 }

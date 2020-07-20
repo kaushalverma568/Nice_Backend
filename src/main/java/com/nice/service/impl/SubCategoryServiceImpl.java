@@ -51,8 +51,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 23-Mar-2020
- * @description :
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
@@ -232,7 +231,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	 */
 	private void deleteOldImage(final SubCategory subCategory) {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subCategory.getImage())) {
-			fileStorageService.deleteFile(subCategory.getImage(), AssetConstant.SUB_CATEGORY);
+			assetService.deleteFile(subCategory.getImage(), AssetConstant.SUB_CATEGORY);
 		}
 	}
 
@@ -275,8 +274,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param subCategoryImports
-	 * @param userId
+	 * @param  subCategoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {

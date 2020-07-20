@@ -7,21 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
 import com.nice.dto.SubCategoryDTO;
 import com.nice.dto.SubCategoryResponseDTO;
 import com.nice.model.SubCategory;
-import com.nice.util.CommonUtility;
+import com.nice.service.AssetService;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Component
 public class SubCategoryMapper {
+
+	@Autowired
+	private AssetService assetService;
 
 	public SubCategoryResponseDTO toDto(final SubCategory subCategory) {
 		SubCategoryResponseDTO subCategoryResponseDTO = new SubCategoryResponseDTO();
@@ -29,7 +32,7 @@ public class SubCategoryMapper {
 		subCategoryResponseDTO.setCategoryId(subCategory.getCategory().getId());
 		subCategoryResponseDTO.setCategoryName(subCategory.getCategory().getName());
 		if (subCategory.getImage() != null) {
-			subCategoryResponseDTO.setImage(CommonUtility.getGeneratedUrl(subCategory.getImage(), AssetConstant.SUB_CATEGORY));
+			subCategoryResponseDTO.setImage(assetService.getGeneratedUrl(subCategory.getImage(), AssetConstant.SUB_CATEGORY));
 		}
 		return subCategoryResponseDTO;
 	}

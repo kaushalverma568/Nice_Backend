@@ -17,13 +17,11 @@ import com.nice.mapper.SliderImageMapper;
 import com.nice.model.SliderImage;
 import com.nice.repository.SliderImageRepository;
 import com.nice.service.AssetService;
-import com.nice.service.FileStorageService;
 import com.nice.service.SliderImageService;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service("sliderImageService")
 @Transactional(rollbackFor = Throwable.class)
@@ -40,9 +38,6 @@ public class SliderImageServiceImpl implements SliderImageService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-
-	@Autowired
-	private FileStorageService fileStorageService;
 
 	@Override
 	public void addSliderBanner(final SliderImageDTO sliderImageDTO, final MultipartFile image) throws ValidationException {
@@ -66,7 +61,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 		if (!existingSliderBanner.getType().equals(sliderImageDTO.getType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.type.cannot.change", null));
 		}
-		fileStorageService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
 		sliderBanner.setImageName(assetService.saveAsset(image, AssetConstant.SLIDER_IMAGES, 0));
 		sliderBanner.setOrigionalImageName(image.getOriginalFilename());
@@ -102,7 +97,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 		}
 		SliderImage existingSliderBanner = getSliderBannerById(id);
 
-		fileStorageService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
 		sliderImageRepository.delete(existingSliderBanner);
 
 	}

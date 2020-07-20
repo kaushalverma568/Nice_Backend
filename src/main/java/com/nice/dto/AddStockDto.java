@@ -6,15 +6,13 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jan-2020
+ * @date   : 29-Jan-2020
  */
 
 @Data
-@ToString
 public class AddStockDto implements Serializable {
 	/**
 	*

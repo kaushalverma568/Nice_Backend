@@ -5,18 +5,13 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ToString
 public class ProductExtrasDTO implements Serializable {
 	/**
 	*
@@ -43,9 +38,9 @@ public class ProductExtrasDTO implements Serializable {
 
 	/**
 	 * for response only
-	 */	
+	 */
 	private String name;
 	private String description;
 	private Double rate;
-	
+
 }

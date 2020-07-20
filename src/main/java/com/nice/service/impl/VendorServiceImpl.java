@@ -70,7 +70,6 @@ import com.nice.service.BusinessCategoryService;
 import com.nice.service.CityService;
 import com.nice.service.CountryService;
 import com.nice.service.CustomerAddressService;
-import com.nice.service.FileStorageService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
 import com.nice.service.SubscriptionPlanService;
@@ -82,11 +81,9 @@ import com.nice.util.ExportCSV;
 import com.nice.util.SMSUtil;
 
 /**
- * @author      : Kody Technolab PVT. LTD.
- * @date        : 24-Mar-2020
- * @description :
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Mar-2020
  */
-
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
 public class VendorServiceImpl implements VendorService {
@@ -128,9 +125,6 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private OtpService otpService;
-
-	@Autowired
-	private FileStorageService fileStorageService;
 
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
@@ -402,7 +396,7 @@ public class VendorServiceImpl implements VendorService {
 	 */
 	private void deleteOldImage(final Vendor vendor) {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getProfilePictureName())) {
-			fileStorageService.deleteFile(vendor.getProfilePictureName(), AssetConstant.VENDOR);
+			assetService.deleteFile(vendor.getProfilePictureName(), AssetConstant.VENDOR);
 		}
 	}
 

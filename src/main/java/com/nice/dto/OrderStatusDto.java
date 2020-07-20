@@ -7,14 +7,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Apr-2020
+ * @date   : 20-Apr-2020
  */
 @Data
-@EqualsAndHashCode
 public class OrderStatusDto implements Serializable {
 
 	/**

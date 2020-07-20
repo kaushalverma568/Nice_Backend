@@ -9,15 +9,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 14-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Data
-@ToString
 public class ToppingDTO implements Serializable {
 
 	/**

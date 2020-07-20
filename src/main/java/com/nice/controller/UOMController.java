@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -41,9 +40,8 @@ import com.nice.service.UOMService;
 import com.nice.validator.UOMValidator;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/uom")
 @RestController
@@ -80,9 +78,9 @@ public class UOMController {
 	/**
 	 * Add UOM
 	 *
-	 * @param uomDTO
-	 * @param result
-	 * @param userId
+	 * @param  uomDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -104,10 +102,9 @@ public class UOMController {
 
 	/**
 	 * update UOM
-	 * 
-	 * @param uomDTO
-	 * @param result
 	 *
+	 * @param  uomDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -130,8 +127,8 @@ public class UOMController {
 	/**
 	 * Get UOM Details based on id
 	 *
-	 * @param uomId
-	 * @param userId
+	 * @param  uomId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -147,10 +144,10 @@ public class UOMController {
 	/**
 	 * Get UOM list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -168,8 +165,8 @@ public class UOMController {
 	/**
 	 * Change status of UOM (active/deActive)
 	 *
-	 * @param uomId
-	 * @param active
+	 * @param  uomId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -182,23 +179,18 @@ public class UOMController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.update.message", null))
 				.create();
 	}
-	
-	
+
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, 
-			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
-			throws IOException {
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
 		uomService.exportList(activeRecords, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null)).create();
 	}
-	
-	
+
 	/**
-	 * 
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */

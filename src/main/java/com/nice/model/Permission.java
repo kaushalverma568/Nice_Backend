@@ -14,9 +14,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Table(name = "permission")
 @Entity

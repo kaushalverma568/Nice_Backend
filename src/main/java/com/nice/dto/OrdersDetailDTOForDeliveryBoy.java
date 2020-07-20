@@ -8,19 +8,16 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 04-Apr-2020
+ * @date   : 04-Apr-2020
  */
-
 @Data
-@EqualsAndHashCode
 public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5327575779094211103L;
 

@@ -9,14 +9,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 14-Apr-2020
+ * @date   : 14-Apr-2020
  */
 @Data
-@EqualsAndHashCode
 public class ReplaceCancelOrderDto implements Serializable {
 	/**
 	*

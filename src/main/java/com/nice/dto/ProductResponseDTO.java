@@ -6,6 +6,10 @@ import java.util.List;
 
 import lombok.Data;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Data
 public class ProductResponseDTO implements Serializable {
 

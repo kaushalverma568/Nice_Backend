@@ -40,6 +40,7 @@ import com.nice.repository.DiscountAppliedProductHistoryRepository;
 import com.nice.repository.DiscountRepository;
 import com.nice.repository.ProductRepository;
 import com.nice.repository.ProductVariantRepository;
+import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
 import com.nice.service.DiscountService;
 import com.nice.service.ProductService;
@@ -49,8 +50,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 27-Mar-2020
- * @description :
+ * @date   : 20-Jul-2020
  */
 @Service("discountService")
 @Transactional(rollbackFor = Throwable.class)
@@ -92,6 +92,9 @@ public class DiscountServiceImpl implements DiscountService {
 	@Autowired
 	private SchedulerDetailsService schedulerDetailsService;
 
+	@Autowired
+	private AssetService assetService;
+
 	@Override
 	public void addDiscount(final DiscountDTO discountDTO) throws ValidationException, NotFoundException {
 		Discount discount = discountMapper.toEntity(discountDTO);
@@ -127,8 +130,7 @@ public class DiscountServiceImpl implements DiscountService {
 		} else {
 			final Discount existingDiscount = getDiscountDetails(discountDTO.getId());
 			if (!DiscountStatusEnum.UPCOMING.getStatusValue().equals(existingDiscount.getStatus())) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("discount.can.not.update", new Object[] { existingDiscount.getStatus() }));
+				throw new ValidationException(messageByLocaleService.getMessage("discount.can.not.update", new Object[] { existingDiscount.getStatus() }));
 			}
 			final Discount discount = discountMapper.toEntity(discountDTO);
 			final LocalDate todayLocalDate = LocalDateTime.now().toLocalDate();
@@ -152,8 +154,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discountDTO
-	 * @param discount
+	 * @param  discountDTO
+	 * @param  discount
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -172,9 +174,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * in discount updation if we are removing some product for this discount then
-		 * remove them from product history (all the other things are same as we written
-		 * for category specific discount)
+		 * in discount updation if we are removing some product for this discount then remove them from product history (all the
+		 * other things are same as we written for category specific discount)
 		 */
 		if (!isCreation.booleanValue()) {
 			/**
@@ -190,16 +191,14 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * if product have an upcoming/active discount then throw exception (if old
-		 * discount start date is between new start date & end date or end date is
-		 * between new start date & end date)
+		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start
+		 * date & end date or end date is between new start date & end date)
 		 */
 		for (Long productId : discountDTO.getProductIds()) {
 			Optional<DiscountAppliedProductHistory> existingHistory = discountAppliedProductHistoryRepository.isDiscountExist(productId, discount.getId(),
 					discountDTO.getStartDate(), discountDTO.getEndDate());
 			if (existingHistory.isPresent()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("discount.exist", new Object[] {  existingHistory.get().getProductId() }));
+				throw new ValidationException(messageByLocaleService.getMessage("discount.exist", new Object[] { existingHistory.get().getProductId() }));
 			}
 			Optional<DiscountAppliedProductHistory> existingDiscountAppliedProductHistory = discountAppliedProductHistoryRepository
 					.findByProductIdAndDiscountId(productId, discount.getId());
@@ -234,8 +233,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discountId
-	 * @param status
+	 * @param  discountId
+	 * @param  status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -259,8 +258,7 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		} else {
 			/**
-			 * there is the case that product does not exist with discount if we directly
-			 * cancel from upcoming status
+			 * there is the case that product does not exist with discount if we directly cancel from upcoming status
 			 */
 			LOGGER.info("product not exist with this discount");
 		}
@@ -282,7 +280,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discount
+	 * @param  discount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -299,8 +297,8 @@ public class DiscountServiceImpl implements DiscountService {
 
 	@Override
 	public Discount getDiscountDetails(final Long discountId) throws NotFoundException {
-		return discountRepository.findById(discountId).orElseThrow(
-				() -> new NotFoundException(messageByLocaleService.getMessage("discount.not.found", new Object[] { discountId })));
+		return discountRepository.findById(discountId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("discount.not.found", new Object[] { discountId })));
 	}
 
 	@Override
@@ -340,7 +338,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param existingDiscount
+	 * @param  existingDiscount
 	 * @throws NotFoundException
 	 */
 	private void setDiscountInProducts(final Discount existingDiscount) throws NotFoundException {
@@ -423,8 +421,8 @@ public class DiscountServiceImpl implements DiscountService {
 				}
 			}
 			/**
-			 * cancel discount if run date is after end date and still in upcoming state
-			 * (this could be happend if scheduler will not run for some day )
+			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will
+			 * not run for some day )
 			 */
 			if (runDate.isAfter(endDate) && discount.getStatus().equals(DiscountStatusEnum.UPCOMING.getStatusValue())) {
 				try {
@@ -455,7 +453,7 @@ public class DiscountServiceImpl implements DiscountService {
 		List<DiscountAppliedProductHistory> discountAppliedProductHistoryList = discountAppliedProductHistoryRepository.findAllByDiscountId(discountId);
 		for (Long productId : discountAppliedProductHistoryList.stream().map(DiscountAppliedProductHistory::getProductId).collect(Collectors.toList())) {
 			final Product product = productService.getProductDetail(productId);
-			productMap.put(CommonUtility.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR), product.getName());
+			productMap.put(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR), product.getName());
 		}
 		return productMap;
 	}

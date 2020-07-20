@@ -5,15 +5,12 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 31-Jan-2020
+ * @date   : 20-Jul-2020
  */
-
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class TicketResponseDTO implements Serializable {
 
 	/**

@@ -29,7 +29,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 13-Apr-2020
+ * @date   : 13-Apr-2020
  */
 @Repository
 public class OrderCustomRepositoryImpl implements OrderCustomRepository {
@@ -38,10 +38,6 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	 *
 	 */
 	private static final String PAYMENT_MODE = "paymentMode";
-	/**
-	 *
-	 */
-	private static final String DELIVERY_DATE = "deliveryDate";
 	/**
 	 *
 	 */
@@ -65,8 +61,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		CriteriaQuery<Orders> criteriaQuery = criteriaBuilder.createQuery(Orders.class);
 
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<Orders> orders = criteriaQuery.from(Orders.class);
 
@@ -80,8 +75,8 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		criteriaQuery.orderBy(criteriaBuilder.desc(orders.get("id")));
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Orders> fetchGraph = entityManager.createEntityGraph(Orders.class);
 		fetchGraph.addSubgraph(VENDOR_PARAM);
@@ -105,8 +100,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<Orders> orders = criteriaQuery.from(Orders.class);
 
@@ -299,10 +293,10 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	// }
 
 	/**
-	 * @param month
-	 * @param sales
-	 * @param salesReportDto2
-	 * @param salesReportDto
+	 * @param  month
+	 * @param  sales
+	 * @param  salesReportDto2
+	 * @param  salesReportDto
 	 * @return
 	 */
 	// private void setSalesValue(final String month, final Double sales, final

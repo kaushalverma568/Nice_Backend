@@ -6,10 +6,12 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Data
-@EqualsAndHashCode
 public class LotwiseStockRequestDTO implements Serializable {
 
 	/**

@@ -8,14 +8,12 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 01-Jul-2020
+ * @date   : 01-Jul-2020
  */
 @Data
-@ToString
 public class ProductToppingDto implements Serializable {
 
 	/**

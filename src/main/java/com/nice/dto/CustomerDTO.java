@@ -7,14 +7,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date   : 22-Jun-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class CustomerDTO implements Serializable {
 
 	/**

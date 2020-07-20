@@ -16,17 +16,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.constant.AssetConstant;
-
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 19-Jun-2020
+ * @date   : 19-Jun-2020
  */
 @Component
 public class CommonUtility {
@@ -34,16 +31,6 @@ public class CommonUtility {
 	@Autowired
 	private CommonUtility() {
 		super();
-	}
-
-	@Value("${service.url}")
-	private String url;
-
-	private static String serviceUrl;
-
-	@Value("${service.url}")
-	public void setServiceUrl(final String url) {
-		CommonUtility.serviceUrl = url;
 	}
 
 	public static final Predicate<String> NOT_NULL_NOT_EMPTY_STRING = s -> (s != null) && !s.isEmpty();
@@ -57,7 +44,7 @@ public class CommonUtility {
 	/**
 	 * Encoding String in BCryptPasswordEncoder Used for Oauth
 	 *
-	 * @param string
+	 * @param  string
 	 * @return
 	 */
 	public static String generateBcrypt(final String string) {
@@ -77,7 +64,7 @@ public class CommonUtility {
 	/**
 	 * Return Map with new DistinctFileName,fileNameWithOutExtension,extension
 	 *
-	 * @param file
+	 * @param  file
 	 * @return
 	 */
 	public static Map<String, String> getDistinctFileProperties(final MultipartFile file) {
@@ -100,18 +87,6 @@ public class CommonUtility {
 		fileProperties.put("newFileName", newFileName.toString());
 
 		return fileProperties;
-	}
-
-	public static String getGeneratedUrl(final String newFileName, final String subDirPath) {
-		if (newFileName != null) {
-			final StringBuilder imgUrl = new StringBuilder();
-			imgUrl.append(serviceUrl).append(AssetConstant.DIGITAL_ASSET_DOWNLOAD).append(newFileName);
-			if (subDirPath != null) {
-				imgUrl.append("?subDir=" + subDirPath);
-			}
-			return imgUrl.toString();
-		}
-		return null;
 	}
 
 	public static String getDistinctFileName(final String fileName) {
@@ -163,11 +138,11 @@ public class CommonUtility {
 	public static Date getTomorrowDateWithoutTime(final Date date) {
 		return Date.from(convetUtilDatetoLocalDate(date).plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
-	
+
 	public static Date convertLocalDateToUtilDate(final LocalDate localDate) {
 		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
-	
+
 	public static Double distance(final Double lat1, final Double lon1, final Double lat2, final Double lon2) {
 		if ((lat1.equals(lat2)) && (lon1.equals(lon2))) {
 			return 0d;
