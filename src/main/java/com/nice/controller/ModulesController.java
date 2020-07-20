@@ -170,7 +170,7 @@ public class ModulesController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{moduleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("moduleId") final Long moduleId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of module of id {} and status {}", moduleId, isActive);

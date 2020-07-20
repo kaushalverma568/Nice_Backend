@@ -131,7 +131,7 @@ public class RoleController {
 	}
 
 	@PutMapping("/status/{roleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of role of id {} and status {}", roleId, isActive);
