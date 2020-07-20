@@ -172,7 +172,7 @@ public class CountryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{countryId}")
-	@PreAuthorize("hasPermission('Country','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Country','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("countryId") final Long countryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of country ofr id {} and status {}", countryId, active);
