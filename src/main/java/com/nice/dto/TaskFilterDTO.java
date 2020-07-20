@@ -5,6 +5,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,7 +28,9 @@ public class TaskFilterDTO implements Serializable {
 	private Long deliveryBoyId;
 
 	@NotNull(message = "{task.status.required}")
-	private String status;
+	private List<String> statusList;
+
+	private List<String> statusListNotIn;
 
 	@NotNull(message = "{task.type.required}")
 	private String taskType;
@@ -35,5 +38,7 @@ public class TaskFilterDTO implements Serializable {
 	private Date updatedAt;
 
 	private String searchKeyWord;
+
+	private Date deliveredDate;
 
 }

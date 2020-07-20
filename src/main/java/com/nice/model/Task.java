@@ -3,6 +3,8 @@
  */
 package com.nice.model;
 
+import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -70,4 +74,9 @@ public class Task extends CommonModel {
 
 	@Column(name = "vendor_payable_amt", nullable = false, columnDefinition = "double default 0.0")
 	private Double vendorPayableAmt;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "delivered_date")
+	private Date deliveredDate;
+
 }

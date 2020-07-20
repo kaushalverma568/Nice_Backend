@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -35,6 +35,6 @@ public class PaymentDetailsDTO implements Serializable {
 	@NotNull(message = "{payment.amount.not.null}")
 	private Double paymentAmount;
 
-	@NotBlank(message = "{transactionNo.not.null}")
+	@NotEmpty(message = "{transactionNo.not.null}")
 	private String transactionNo;
 }

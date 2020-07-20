@@ -1,5 +1,7 @@
 package com.nice.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import com.nice.model.DeliveryBoyLocation;
 import com.nice.repository.DeliveryBoyLocationRepository;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
+import com.nice.util.CommonUtility;
 
 /**
  *
@@ -92,4 +95,22 @@ public class DeliveryBoyLocationServiceImpl implements DeliveryBoyLocationServic
 		}
 	}
 
+	@Override
+	public List<DeliveryBoyLocation> getDeliveryBoyLocationList(final Long deliveryBoyId, final Boolean isLatestLocationRequired)
+			throws NotFoundException, ValidationException {
+		if (deliveryBoyId == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.id.not.null", null));
+		} else {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
+			if (isLatestLocationRequired.booleanValue()) {
+				return deliveryBoyLocationRepository.findAllByDeliveryBoy(deliveryBoy);
+			} else {
+				List<DeliveryBoyLocation> locationList = deliveryBoyLocationRepository.findAllByDeliveryBoyOrderByUpdatedAtDesc(deliveryBoy);
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(locationList)) {
+					locationList.remove(0);
+				}
+				return locationList;
+			}
+		}
+	}
 }

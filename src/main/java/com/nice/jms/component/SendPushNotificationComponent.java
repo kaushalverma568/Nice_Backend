@@ -47,6 +47,7 @@ public class SendPushNotificationComponent {
 			for (Long deliveryBoyId : pushNotification.getDeliveryBoyIds()) {
 				UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
 				DeviceDetail deviceDetail = deviceDetailService.getDeviceDetailByUserId(userLogin.getId());
+				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotification.getOrderId());
 				sendPushNotification(message.toString(), deviceDetail.getDeviceId());
 			}
 		}

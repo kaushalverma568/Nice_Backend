@@ -2,6 +2,8 @@ package com.nice.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,8 @@ import com.nice.constant.DeliveryBoyStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.Role;
+import com.nice.constant.TaskStatusEnum;
+import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.AssignedOrdersCountDTO;
@@ -40,17 +44,21 @@ import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.Notification;
 import com.nice.dto.OrderNotificationDTO;
+import com.nice.dto.TaskDto;
+import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.DeliveryBoyMapper;
+import com.nice.model.CashCollection;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
 import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.Orders;
+import com.nice.model.Task;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.model.Vendor;
@@ -58,20 +66,22 @@ import com.nice.repository.DeliveryBoyCurrentStatusRepository;
 import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.service.AssetService;
+import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.FileStorageService;
 import com.nice.service.OrdersService;
 import com.nice.service.OtpService;
+import com.nice.service.TaskService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
- * @description :
+ *
+ * @author : Kody Technolab Pvt. Ltd.
+ * @date : 19-07-2020
  */
 
 @Transactional(rollbackFor = Throwable.class)
@@ -122,6 +132,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Autowired
 	private OrdersService ordersService;
 
+	@Autowired
+	private TaskService taskService;
+
+	@Autowired
+	private CashcollectionService cashCollectionService;
+
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
@@ -167,6 +183,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 * delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
+		deliveryBoyCurrentStatus.setActive(true);
 		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 
 		/**
@@ -511,10 +528,28 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
 		}
+		/**
+		 * update delivery boy's current status to is busy
+		 */
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
+		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
+		deliveryBoyCurrentStatus.setIsBusy(true);
+		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+		/**
+		 * change order status
+		 */
 		orders.setDeliveryBoy(deliveryBoy);
-
 		ordersService.changeStatus(Constant.IN_PROCESS, orders);
+
+		/**
+		 * create a delivery task for delivery boy
+		 */
+		TaskDto taskDto = new TaskDto();
+		taskDto.setDeliveryBoyId(deliveryBoyId);
+		taskDto.setOrderId(orders.getId());
+		taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+
+		taskService.createTask(taskDto);
 
 		/**
 		 * remove order id from notification history table of delivery boy
@@ -559,18 +594,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			deliveryBoySendNotificationHistory.get().setOrderId(null);
 			deliveryBoySendNotificationHistoryRepository.save(deliveryBoySendNotificationHistory.get());
 		}
-	}
-
-	@Override
-	public void deliverOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException {
-		// update order's status here
-		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
-		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
-		/**
-		 * set isBusy to false if delivery boy has no any other assigned orders
-		 */
-		deliveryBoyCurrentStatus.setIsBusy(false);
-		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 	}
 
 	@Override
@@ -704,29 +727,72 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public AssignedOrdersCountDTO getAssignedOrdersCount(final Long deliveryBoyId) throws NotFoundException, ValidationException {
 		AssignedOrdersCountDTO assignedOrdersCountDTO = new AssignedOrdersCountDTO();
-		Map<String, Integer> assignedOrdersCountMap = null;
-
+		Map<String, Integer> assignedOrdersCountMap = new HashMap<>();
 		/**
 		 * regular orders
 		 */
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		taskFilterDTO.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		Long regularOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		assignedOrdersCountMap.put("Regular Orders", regularOrders.intValue());
 		assignedOrdersCountDTO.setDeliveryBoyId(deliveryBoyId);
 		assignedOrdersCountDTO.setAssignedOrdersCountMap(assignedOrdersCountMap);
+		// return replace remaininig
 		return assignedOrdersCountDTO;
 	}
 
 	@Override
-	public DashBoardDetailDTO getDashBoard(final Long deliveryBoyId) throws NotFoundException {
+	public DashBoardDetailDTO getDashBoard(final Long deliveryBoyId) throws NotFoundException, ValidationException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
 		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
 		DashBoardDetailDTO dashBoardDetailDTO = new DashBoardDetailDTO();
+		dashBoardDetailDTO.setDeliveryBoyId(deliveryBoyId);
 		/**
 		 * delivery boy is active(available) for taking orders
 		 */
 		dashBoardDetailDTO.setIsAvailable(deliveryBoyCurrentStatus.getIsAvailable());
 		/**
+		 * assigned orders count
+		 */
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		dashBoardDetailDTO.setAssignedOrdersCount(count.intValue());
+		/**
+		 *
 		 * today's delivered orders count
 		 */
-
+		taskFilterDTO.setStatusListNotIn(null);
+		taskFilterDTO.setTaskType(null);
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		taskFilterDTO.setDeliveredDate(new Date(System.currentTimeMillis()));
+		count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		dashBoardDetailDTO.setDeliveredOrdersCount(count.intValue());
+		/**
+		 * for on going order
+		 */
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue(), TaskStatusEnum.REACHED_VENDOR.getStatusValue(),
+				TaskStatusEnum.ON_THE_WAY.getStatusValue()));
+		taskFilterDTO.setDeliveredDate(null);
+		List<Task> taskList = taskService.getTaskListBasedOnParams(taskFilterDTO, null, null);
+		if (taskList.size() > 1) {
+			throw new ValidationException("morethen.one.ongoing.order", null);
+		}
+		for (Task task : taskList) {
+			dashBoardDetailDTO.setOnGoingOrderId(task.getOrder().getId());
+		}
+		/**
+		 * for today's total cash collection
+		 */
+		Double totalCash = 0d;
+		List<CashCollection> cashCollectionList = cashCollectionService.getListBasedOnParams(null, null, deliveryBoyId, new Date(System.currentTimeMillis()));
+		for (CashCollection cashCollection : cashCollectionList) {
+			totalCash += cashCollection.getAmount();
+		}
+		dashBoardDetailDTO.setTodaysCashCollection(totalCash);
 		return dashBoardDetailDTO;
 	}
 

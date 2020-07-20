@@ -48,7 +48,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType);
 
 	/**
-	 * get orders count according to status ,taskType and date for delivery boy(get today's delivered /replaced count)
+	 * get orders count according to status ,taskType and date for delivery boy(get
+	 * today's delivered /replaced count)
 	 *
 	 * @param deliveryBoy
 	 * @param status
@@ -59,8 +60,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeAndDateForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType, Date date);
 
 	/**
-	 * get task list count based on parameters (for today's delivered/replaced order list for delivery boy created at will
-	 * be current date)
+	 * get task list count based on parameters (for today's delivered/replaced order
+	 * list for delivery boy created at will be current date)
 	 *
 	 * @param taskFilterDTO
 	 * @return
@@ -143,11 +144,29 @@ public interface TaskService {
 	List<TaskResponseDto> getTaskListFromPayment(Long paymentId) throws ValidationException, NotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param taskId
 	 * @return
-	 * @throws NotFoundException 
+	 * @throws NotFoundException
 	 */
 	Task getTaskDetail(Long taskId) throws NotFoundException;
+
+	/**
+	 * update task status to pick up on way
+	 * 
+	 * @param taskId
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void updateStatusToPickOnWay(Long taskId) throws NotFoundException, ValidationException;
+
+	/**
+	 * update task status to delivered
+	 *
+	 * @param taskId
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void completeTask(Long taskId) throws NotFoundException, ValidationException;
 
 }

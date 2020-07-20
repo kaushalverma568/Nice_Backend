@@ -15,7 +15,8 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	/**
 	 * For Regular Delivery
 	 */
-	PICK_UP_ON_WAY("Pick Up On Way"), REACHED_VENDOR("Reached Vendor"), ON_THE_WAY("Delivery On The Way"), DELIVERED("Delivered"), CANCELLED("Cancelled");
+	ORDER_ACCEPTED("Order Accepted"), PICK_UP_ON_WAY("Pick Up On Way"), REACHED_VENDOR("Reached Vendor"), ON_THE_WAY("Delivery On The Way"),
+	DELIVERED("Delivered"), CANCELLED("Cancelled");
 
 	private String statusValue;
 
@@ -46,6 +47,9 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	public BasicStatus<TaskStatusEnum>[] nextStatus() {
 		TaskStatusEnum[] nextStatus = null;
 		switch (this) {
+		case ORDER_ACCEPTED:
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, CANCELLED };
+			break;
 		case PICK_UP_ON_WAY:
 			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR, CANCELLED };
 			break;

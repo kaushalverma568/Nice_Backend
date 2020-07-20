@@ -26,7 +26,7 @@ public interface PaymentDetailsService {
 	 * @throws NotFoundException
 	 */
 
-	void addPaymentDetails(PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException;
+	void addPaymentDetails(PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * get DTO object of paymentDetails

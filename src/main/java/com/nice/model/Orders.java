@@ -125,7 +125,7 @@ public class Orders extends CommonModel {
 	 * this will be either Pick-Up or Delivery
 	 */
 	@Column(name = "delivery_type", nullable = false)
-	private Boolean deliveryType;
+	private String deliveryType;
 
 	/**
 	 * this property is used at the time of sending notification through scheduler
@@ -134,10 +134,10 @@ public class Orders extends CommonModel {
 	private Integer assignmentTryCount;
 
 	/**
-	 * this property is used for sending notification after 30 sec
+	 * this property is used for sending notification after 45 sec
 	 */
 	@Temporal(TemporalType.TIME)
-	@Column(name = "notification_timer")
+	@Column(name = "notification_timer", columnDefinition = "TIME WITH TIME ZONE default CURRENT_TIME")
 	private Date notificationTimer;
 
 }

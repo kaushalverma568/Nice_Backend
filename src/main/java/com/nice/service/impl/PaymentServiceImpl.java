@@ -86,6 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setFirstName(onlineCart.getFirstName());
 			orderRequestDTO.setLastName(onlineCart.getLastName());
 			orderRequestDTO.setCustomerId(onlineCart.getCustomer().getId());
+			orderRequestDTO.setDeliveryType(onlineCart.getDeliveryType());
 			orderRequestDTO.setPaymentMode(PaymentMode.ONLINE.name());
 			calculatedOrderAmt = onlineCart.getPaymentAmount();
 		}

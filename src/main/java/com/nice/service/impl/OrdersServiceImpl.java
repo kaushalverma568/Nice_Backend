@@ -308,7 +308,7 @@ public class OrdersServiceImpl implements OrdersService {
 					onlineCart.setFirstName(customerAddress.getFirstName());
 					onlineCart.setLastName(customerAddress.getLastName());
 					onlineCart.setPhoneNumber(customerAddress.getPhoneNumber());
-
+					onlineCart.setDeliveryType(orderRequestDto.getDeliveryType());
 					onlineCart.setStatus(CartItemStatus.PAYMENT_WAITING.getStatusValue());
 					onlineCart.setPaymentAmount(calculatedOrderAmt);
 					cartItem.setOnlineOrderId(onlineOrderId);
@@ -425,6 +425,9 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setCustomer(customer);
 		order.setActive(true);
 		order.setPaymentMode(orderRequestDto.getPaymentMode());
+		order.setDeliveryType(orderRequestDto.getDeliveryType());
+		order.setAssignmentTryCount(0);
+		order.setNotificationTimer(new Date(System.currentTimeMillis()));
 		Long vendorId = cartItemList.get(0).getProductVariant().getVendorId();
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 

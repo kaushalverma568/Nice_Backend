@@ -109,7 +109,7 @@ public class PaymentDetailsController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@GetMapping(name = "getPaymentDetails", value = "/{paymentDetailsId}")
+	@GetMapping("/{paymentDetailsId}")
 	public ResponseEntity<Object> getPaymentDetails(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("paymentDetailsId") final Long paymentDetailsId) throws NotFoundException {
 		LOGGER.info("Inside get PaymentDetails for id:{} ", paymentDetailsId);
@@ -120,14 +120,14 @@ public class PaymentDetailsController {
 
 	/**
 	 * Get payment History
-	 * 
+	 *
 	 * @param accessToken
 	 * @param fromDate
 	 * @param toDate
 	 * @return
 	 */
 	@GetMapping("/history")
-	public ResponseEntity<Object> getPaymentDetails(@RequestHeader("Authorization") final String accessToken,
+	public ResponseEntity<Object> getPaymentHistory(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "fromDate", required = false) final Date fromDate, @RequestParam(name = "toDate", required = false) final Date toDate) {
 		LOGGER.info("Inside get payment history for fromDate:{} and toDate:{} ", fromDate, toDate);
 		final List<PaymentDetails> paymentHistory = paymentDetailsService.getPaymentHistory(fromDate, toDate);

@@ -163,15 +163,6 @@ public interface DeliveryBoyService {
 	void updateIsLogin(String userName) throws NotFoundException;
 
 	/**
-	 * deliver order
-	 *
-	 * @param deliveryBoyId
-	 * @param orderId
-	 * @throws NotFoundException
-	 */
-	void deliverOrder(Long deliveryBoyId, Long orderId) throws NotFoundException;
-
-	/**
 	 * update the rating of the delivery boy.(provide the rating provided by the
 	 * client and deliveryBoyId)
 	 *
@@ -266,6 +257,7 @@ public interface DeliveryBoyService {
 	 * @param deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	DashBoardDetailDTO getDashBoard(Long deliveryBoyId) throws NotFoundException;
+	DashBoardDetailDTO getDashBoard(Long deliveryBoyId) throws NotFoundException, ValidationException;
 }

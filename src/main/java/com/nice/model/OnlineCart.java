@@ -87,4 +87,11 @@ public class OnlineCart extends CommonModel {
 
 	@Column(name = "payment_amount")
 	private Double paymentAmount;
+
+	/**
+	 * this will be either Pick-Up or Delivery
+	 */
+	@Column(name = "delivery_type", nullable = false)
+	private String deliveryType;
+
 }

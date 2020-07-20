@@ -266,24 +266,6 @@ public class DeliveryBoyController {
 	}
 
 	/**
-	 * Deliver order
-	 *
-	 * @param orderId
-	 * @param active
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PutMapping("/deliver/order/{deliveryBoyId}/{orderId}")
-	public ResponseEntity<Object> deliverOrder(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside deliver order by delivery boy {} and order {}", deliveryBoyId, orderId);
-		deliveryBoyService.deliverOrder(deliveryBoyId, orderId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * revoke token for the user
 	 *
 	 * @param userName
@@ -352,7 +334,7 @@ public class DeliveryBoyController {
 	 */
 	@GetMapping("/dashboard/{deliveryBoyId}")
 	public ResponseEntity<Object> getDashBoard(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException {
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get dash board for id:{}", deliveryBoyId);
 		final DashBoardDetailDTO assignedOrdersCountDTO = deliveryBoyService.getDashBoard(deliveryBoyId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))

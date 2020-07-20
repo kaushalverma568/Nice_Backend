@@ -53,9 +53,32 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		Join<Task, Orders> orders = task.join(ORDER, JoinType.INNER);
 
 		List<Predicate> predicates = new ArrayList<>();
+		addConditions(parameterObject, criteriaBuilder, task, orders, predicates);
 
-		if (parameterObject.getStatus() != null) {
-			predicates.add(criteriaBuilder.equal(task.get("status"), parameterObject.getStatus()));
+		/**
+		 * Add the clauses for the query.
+		 */
+		criteriaQuery.select(criteriaBuilder.count(task)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
+		return query.getSingleResult();
+	}
+
+	/**
+	 * @param parameterObject
+	 * @param criteriaBuilder
+	 * @param task
+	 * @param orders
+	 * @param predicates
+	 */
+	private void addConditions(final TaskFilterDTO parameterObject, final CriteriaBuilder criteriaBuilder, final Root<Task> task,
+			final Join<Task, Orders> orders, final List<Predicate> predicates) {
+
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(parameterObject.getStatusList())) {
+			predicates.add(task.get("status").in(parameterObject.getStatusList()));
+		}
+
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(parameterObject.getStatusListNotIn())) {
+			predicates.add(criteriaBuilder.not(task.get("status").in(parameterObject.getStatusListNotIn())));
 		}
 		if (parameterObject.getTaskType() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("taskType"), parameterObject.getTaskType()));
@@ -63,7 +86,9 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		if (parameterObject.getUpdatedAt() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("updatedAt").as(Date.class), parameterObject.getUpdatedAt()));
 		}
-
+		if (parameterObject.getDeliveredDate() != null) {
+			predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), parameterObject.getDeliveredDate()));
+		}
 		if (parameterObject.getDeliveryBoyId() != null) {
 			Join<Task, DeliveryBoy> deliveryBoy = task.join(DELIVERY_BOY, JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(deliveryBoy.get("id"), parameterObject.getDeliveryBoyId()));
@@ -79,13 +104,6 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 			Predicate predicateForSearch = criteriaBuilder.or(predicateForFirstname, predicateForLastname, predicateForOrderId);
 			predicates.add(predicateForSearch);
 		}
-
-		/**
-		 * Add the clauses for the query.
-		 */
-		criteriaQuery.select(criteriaBuilder.count(task)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
-		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
-		return query.getSingleResult();
 	}
 
 	@Override
@@ -104,31 +122,7 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		List<Predicate> predicates = new ArrayList<>();
 
-		if (parameterObject.getStatus() != null) {
-			predicates.add(criteriaBuilder.equal(task.get("status"), parameterObject.getStatus()));
-		}
-		if (parameterObject.getTaskType() != null) {
-			predicates.add(criteriaBuilder.equal(task.get("taskType"), parameterObject.getTaskType()));
-		}
-		if (parameterObject.getUpdatedAt() != null) {
-			predicates.add(criteriaBuilder.equal(task.get("updatedAt").as(Date.class), parameterObject.getUpdatedAt()));
-		}
-
-		if (parameterObject.getDeliveryBoyId() != null) {
-			Join<Task, DeliveryBoy> deliveryBoy = task.join(DELIVERY_BOY, JoinType.INNER);
-			predicates.add(criteriaBuilder.equal(deliveryBoy.get("id"), parameterObject.getDeliveryBoyId()));
-		}
-
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(parameterObject.getSearchKeyWord())) {
-			Predicate predicateForFirstname = criteriaBuilder.like(criteriaBuilder.lower(orders.get("firstName")),
-					"%" + parameterObject.getSearchKeyWord().toLowerCase() + "%");
-			Predicate predicateForLastname = criteriaBuilder.like(criteriaBuilder.lower(orders.get("lastName")),
-					"%" + parameterObject.getSearchKeyWord().toLowerCase() + "%");
-			Predicate predicateForOrderId = criteriaBuilder.like(criteriaBuilder.lower(orders.get("id").as(String.class)),
-					"%" + parameterObject.getSearchKeyWord().toLowerCase() + "%");
-			Predicate predicateForSearch = criteriaBuilder.or(predicateForFirstname, predicateForLastname, predicateForOrderId);
-			predicates.add(predicateForSearch);
-		}
+		addConditions(parameterObject, criteriaBuilder, task, orders, predicates);
 
 		/**
 		 * Add the clauses for the query.
@@ -137,8 +131,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);

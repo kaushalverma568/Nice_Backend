@@ -3,6 +3,8 @@
  */
 package com.nice.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.DeliveryBoyLocationDTO;
@@ -67,7 +69,7 @@ public interface DeliveryBoyLocationService {
 	DeliveryBoyLocation getDeliveryBoyLatestLocation(Long deliveryBoyId) throws NotFoundException;
 
 	/**
-	 * get delivery boy location list
+	 * get delivery boy location page
 	 *
 	 * @param pageNumber
 	 * @param pageSize
@@ -76,5 +78,16 @@ public interface DeliveryBoyLocationService {
 	 * @throws NotFoundException
 	 */
 	Page<DeliveryBoyLocation> getDeliveryBoyLocationList(Integer pageNumber, Integer pageSize, Long deliveryBoyId) throws NotFoundException;
+
+	/**
+	 * get delivery boy location list
+	 *
+	 * @param deliveryBoyId
+	 * @param isLatestLocationRequired
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<DeliveryBoyLocation> getDeliveryBoyLocationList(Long deliveryBoyId, Boolean isLatestLocationRequired) throws NotFoundException, ValidationException;
 
 }

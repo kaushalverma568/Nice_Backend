@@ -4,7 +4,6 @@
 package com.nice.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.constant.TaskStatusEnum;
-import com.nice.constant.TaskTypeEnum;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskResponseDto;
 import com.nice.exception.NotFoundException;
@@ -43,6 +41,11 @@ import com.nice.validator.TaskValidator;
 @RestController
 @RequestMapping("/task")
 public class TaskController {
+
+	/**
+	 *
+	 */
+	private static final String TASK_UPDATE_MESSAGE = "task.update.message";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -81,6 +84,7 @@ public class TaskController {
 	}
 
 	/**
+	 * complete task:(Used for deliver order)
 	 *
 	 * @param token
 	 * @param userId
@@ -92,32 +96,33 @@ public class TaskController {
 	@PutMapping("/deliver/{taskId}")
 	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @RequestHeader final Long userId,
 			@PathVariable final Long taskId) throws ValidationException, NotFoundException {
-
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.DELIVERED.getStatusValue());
+		LOGGER.info("Inside complete task method for task Id: {}", taskId);
+		taskService.completeTask(taskId);
 		/**
 		 * send email start here
 		 */
-		/**
-		 * send email to customer when order delivered successfully
-		 */
-		Optional<Task> optTask = taskRepository.findById(taskId);
-		if (optTask.isPresent() && TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(optTask.get().getTaskType())) {
-			taskService.sendEmailForOrderDeliveryConfirmation(optTask.get().getOrder().getId());
-		}
-		if (optTask.isPresent()) {
-			/**
-			 * Push Notification code
-			 */
-			// ordersService.sendPushNotificationOnStatus(optTask.get().getOrder().getId(),
-			// NotificationQueueConstants.ORDER_DELIVERY_CONFIRMATION_FOR_DELIVERY_BOY);
-		} /**
-			 * send email ends here
-			 */
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("task.update.message", null)).setStatus(HttpStatus.OK)
-				.create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
+	 * update task status to pickup on way
+	 *
+	 * @param token
+	 * @param taskId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/pickup/onway/{taskId}")
+	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
+		taskService.updateStatusToPickOnWay(taskId);
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+	}
+
+	/**
+	 * update task status to reached at vendor
 	 *
 	 * @param token
 	 * @param taskId
@@ -126,15 +131,15 @@ public class TaskController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/reach/restaurant/{taskId}")
-	public ResponseEntity<Object> attemptTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
-
+		LOGGER.info("Inside update task status to reach at restaurant method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("task.update.message", null)).setStatus(HttpStatus.OK)
-				.create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
+	 * update task status to on the way
 	 *
 	 * @param token
 	 * @param taskId
@@ -142,13 +147,12 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/order/pickup/{taskId}")
-	public ResponseEntity<Object> orderPickup(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+	@PutMapping("/ontheway/{taskId}")
+	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
-
+		LOGGER.info("Inside update task status to one the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("task.update.message", null)).setStatus(HttpStatus.OK)
-				.create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	@GetMapping("/payment/{paymentDetailsId}")
