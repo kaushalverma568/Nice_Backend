@@ -193,7 +193,7 @@ public class SubCategoryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{subCategoryId}")
-	@PreAuthorize("hasPermission('Sub Category','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {

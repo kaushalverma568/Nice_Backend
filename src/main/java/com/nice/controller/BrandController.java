@@ -186,7 +186,7 @@ public class BrandController {
 	 * @throws ValidationException
 	 */
 	@PutMapping(name = "changeStatus", value = "/status/{brandId}")
-	@PreAuthorize("hasPermission('Brand','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Brand','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("brandId") final Long brandId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of brand of id {} and status {}", brandId, active);

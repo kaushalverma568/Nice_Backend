@@ -199,7 +199,7 @@ public class CategoryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{categoryId}")
-	@PreAuthorize("hasPermission('Category','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Category','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of category of id {} and status {}", categoryId, active);

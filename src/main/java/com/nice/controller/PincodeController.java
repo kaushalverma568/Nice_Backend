@@ -156,7 +156,7 @@ public class PincodeController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{pincodeId}")
-	@PreAuthorize("hasPermission('Pincode','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Pincode','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("pincodeId") final Long pincodeId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of pincode for id {} and new status {}", pincodeId, active);

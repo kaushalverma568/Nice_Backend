@@ -196,7 +196,7 @@ public class CityController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{cityId}")
-	@PreAuthorize("hasPermission('City','CAN_EDIT')")
+	@PreAuthorize("hasPermission('City','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("cityId") final Long cityId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of city for id {} and new status {}", cityId, active);
