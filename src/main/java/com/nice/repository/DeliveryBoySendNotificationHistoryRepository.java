@@ -26,4 +26,13 @@ public interface DeliveryBoySendNotificationHistoryRepository extends JpaReposit
 	 * @param orderId
 	 */
 	List<DeliveryBoySendNotificationHistory> findAllByOrderId(Long orderId);
+
+	/**
+	 * get delivery boy send notification history by delivery boy and order id
+	 *
+	 * @param deliveryBoy
+	 * @return
+	 */
+	Optional<DeliveryBoySendNotificationHistory> findByDeliveryBoyAndOrderId(DeliveryBoy deliveryBoy, Long orderId);
+
 }

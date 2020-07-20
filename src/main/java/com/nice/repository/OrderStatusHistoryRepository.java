@@ -4,6 +4,7 @@
 package com.nice.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -23,4 +24,8 @@ public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusH
 	 */
 	List<OrderStatusHistory> findAllByOrderId(Long id);
 
+	/**
+	 * @param id
+	 */
+	Optional<OrderStatusHistory> findByOrderIdAndStatus(Long id, String status);
 }

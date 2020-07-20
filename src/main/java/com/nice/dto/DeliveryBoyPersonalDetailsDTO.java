@@ -29,12 +29,6 @@ public class DeliveryBoyPersonalDetailsDTO implements Serializable {
 	@NotBlank(message = "{lastName.not.null}")
 	private String lastName;
 
-	@NotBlank(message = "{email.not.null}")
-	private String email;
-
-	@NotBlank(message = "{phone.number.not.null}")
-	private String phoneNumber;
-
 	@NotBlank(message = "{gender.not.null}")
 	private String gender;
 

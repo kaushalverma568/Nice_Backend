@@ -33,10 +33,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.constant.Constant;
+import com.nice.dto.AssignedOrdersCountDTO;
+import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
+import com.nice.dto.OrderNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -61,6 +65,7 @@ public class DeliveryBoyController {
 	 * by logging, display operation detail in console
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryBoyController.class);
+	private static final String DELIVERYBOY_DETAIL_MESSAGE = "deliveryboy.detail.message";
 	/**
 	 * Locale message service - to display response messages from
 	 * messages_en_US.properties
@@ -125,38 +130,6 @@ public class DeliveryBoyController {
 	}
 
 	/**
-	 * Update personal details
-	 *
-	 * @param deliveryBoyDTO
-	 * @param result
-	 * @param userId
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping()
-	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO, final BindingResult result)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside update personal details {}", deliveryBoyPersonalDetailsDTO);
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error("delivery boy validation failed");
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		String userName = deliveryBoyService.updatePersonalDetails(deliveryBoyPersonalDetailsDTO);
-		/**
-		 * revoke token at the time of changing an email
-		 */
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userName)) {
-			revokeToken(userName);
-		}
-		LOGGER.info("Outside update personal details ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * Update account details
 	 *
 	 * @param deliveryBoyDTO
@@ -195,7 +168,7 @@ public class DeliveryBoyController {
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException {
 		LOGGER.info("Inside get DeliveryBoy for id:{}", deliveryBoyId);
 		final DeliveryBoyResponseDTO resultDeliveryBoyResponseDTO = deliveryBoyService.getDeliveryBoy(deliveryBoyId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.detail.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
 				.setData(resultDeliveryBoyResponseDTO).create();
 	}
 
@@ -220,13 +193,10 @@ public class DeliveryBoyController {
 				.setHasPreviousPage(resultDeliveryBoyPages.hasPrevious()).setTotalPages(resultDeliveryBoyPages.getTotalPages())
 				.setPageNumber(resultDeliveryBoyPages.getNumber() + 1).setTotalCount(resultDeliveryBoyPages.getTotalElements()).create();
 	}
-	
-	
-	
+
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken,
-			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
-			throws IOException {
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
 		deliveryBoyService.exportList(activeRecords, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.create();
@@ -296,24 +266,6 @@ public class DeliveryBoyController {
 	}
 
 	/**
-	 * Deliver order
-	 *
-	 * @param orderId
-	 * @param active
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PutMapping("/deliver/order/{deliveryBoyId}/{orderId}")
-	public ResponseEntity<Object> deliverOrder(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside deliver order by delivery boy {} and order {}", deliveryBoyId, orderId);
-		deliveryBoyService.deliverOrder(deliveryBoyId, orderId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * revoke token for the user
 	 *
 	 * @param userName
@@ -321,7 +273,7 @@ public class DeliveryBoyController {
 	 */
 	private void revokeToken(final String userName) {
 		LOGGER.info("Revoking token for user {} ", userName);
-		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName("grocerus-client", userName);
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID, userName);
 		for (OAuth2AccessToken token : tokens) {
 			tokenStore.removeAccessToken(token);
 		}
@@ -344,5 +296,178 @@ public class DeliveryBoyController {
 		String tokenValue = accessToken.replace("Bearer", "").trim();
 		consumerTokenServices.revokeToken(tokenValue);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("logout.message", null)).create();
+	}
+
+	/**
+	 * Update personal details
+	 *
+	 * @param deliveryBoyDTO
+	 * @param result
+	 * @param userId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping()
+	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody @Valid final DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO, final BindingResult result)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update personal details {}", deliveryBoyPersonalDetailsDTO);
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error("delivery boy validation failed");
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		deliveryBoyService.updatePersonalDetails(deliveryBoyPersonalDetailsDTO);
+		LOGGER.info("Outside update personal details ");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Get delivered orders count
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/dashboard/{deliveryBoyId}")
+	public ResponseEntity<Object> getDashBoard(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get dash board for id:{}", deliveryBoyId);
+		final DashBoardDetailDTO assignedOrdersCountDTO = deliveryBoyService.getDashBoard(deliveryBoyId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
+				.setData(assignedOrdersCountDTO).create();
+	}
+
+	/**
+	 * Get assigned orders count
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/order/assigned/{deliveryBoyId}")
+	public ResponseEntity<Object> getAssignedOrdersCount(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get assigned orders count for id:{}", deliveryBoyId);
+		final AssignedOrdersCountDTO assignedOrdersCountDTO = deliveryBoyService.getAssignedOrdersCount(deliveryBoyId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
+				.setData(assignedOrdersCountDTO).create();
+	}
+
+	/**
+	 * update is available status for delivering orders
+	 *
+	 * @param deliveryBoyId
+	 * @param active
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/available")
+	public ResponseEntity<Object> updateIsAvailable(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam("isAvailable") final Boolean isAvailable) throws NotFoundException, ValidationException {
+		LOGGER.info("update is available for delivery, isAvailable : {}", isAvailable);
+		deliveryBoyService.updateIsAvailable(isAvailable);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Reject order
+	 *
+	 * @param accessToken
+	 * @param deliveryBoyId
+	 * @param orderId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/reject/order/{deliveryBoyId}/{orderId}")
+	public ResponseEntity<Object> rejectOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("deliveryBoyId") final Long deliveryBoyId,
+			@PathVariable("orderId") final Long orderId) throws NotFoundException {
+		LOGGER.info("Inside reject order by delivery boy {} and order {}", deliveryBoyId, orderId);
+		deliveryBoyService.rejectOrder(deliveryBoyId, orderId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * change phone number
+	 *
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/phone")
+	public ResponseEntity<Object> changePhoneNumber(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside change PhoneNumber for delivery boy {} and otp: {}", phoneNumber, otp);
+		deliveryBoyService.changePhoneNumber(phoneNumber, otp);
+		LOGGER.info("Outside change PhoneNumber");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Change email
+	 *
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/email")
+	public ResponseEntity<Object> changeEmail(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "email", required = true) final String email)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add change email for delivery boy, email: {} and otp: {}", email, otp);
+
+		String userName = deliveryBoyService.changeEmail(email, otp);
+		if (userName != null) {
+			/**
+			 * if token exist then revoke token and give new token with new email and
+			 * password
+			 */
+			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID, userName);
+			if (!tokens.isEmpty()) {
+				for (OAuth2AccessToken token : tokens) {
+					tokenStore.removeAccessToken(token);
+				}
+				/**
+				 * generate token here
+				 */
+			}
+		}
+		LOGGER.info("Outside change email");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Get order detail in accept notification
+	 *
+	 * @param accessToken
+	 * @param deliveryBoyId
+	 * @param orderId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/notification/order/{deliveryBoyId}/{orderId}")
+	public ResponseEntity<Object> getOrderDetailInDeliveryBoyAcceptNotification(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId) throws NotFoundException {
+		LOGGER.info("Inside get order detail in delivery boy accept notification for id:{} and orderId:{}", deliveryBoyId, orderId);
+		final OrderNotificationDTO orderNotificationDTO = deliveryBoyService.getOrderDetailInDeliveryBoyAcceptNotification(orderId, deliveryBoyId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
+				.setData(orderNotificationDTO).create();
 	}
 }

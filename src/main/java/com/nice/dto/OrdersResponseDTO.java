@@ -54,7 +54,8 @@ public class OrdersResponseDTO implements Serializable {
 	 */
 	private String city;
 	/**
-	 * pincode field is added for set pincode in email and puch notification templates
+	 * pincode field is added for set pincode in email and push notification
+	 * templates
 	 */
 	private String pincode;
 

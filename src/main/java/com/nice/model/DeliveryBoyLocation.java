@@ -9,7 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -37,7 +37,7 @@ public class DeliveryBoyLocation extends CommonModel {
 	private Long id;
 
 	@JoinColumn(name = "delivery_boy_id", nullable = false)
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private DeliveryBoy deliveryBoy;
 
 	@Column(name = "latitude", nullable = false)

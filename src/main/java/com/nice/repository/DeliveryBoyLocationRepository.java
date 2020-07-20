@@ -1,5 +1,6 @@
 package com.nice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -29,5 +30,17 @@ public interface DeliveryBoyLocationRepository extends JpaRepository<DeliveryBoy
 	 * @return
 	 */
 	Page<DeliveryBoyLocation> findAllByDeliveryBoy(DeliveryBoy deliveryBoy, Pageable pageable);
+
+	/**
+	 * @param deliveryBoy
+	 * @return
+	 */
+	List<DeliveryBoyLocation> findAllByDeliveryBoy(DeliveryBoy deliveryBoy);
+
+	/**
+	 * @param deliveryBoy
+	 * @return
+	 */
+	List<DeliveryBoyLocation> findAllByDeliveryBoyOrderByUpdatedAtDesc(DeliveryBoy deliveryBoy);
 
 }

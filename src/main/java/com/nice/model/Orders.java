@@ -1,5 +1,8 @@
 package com.nice.model;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,6 +55,12 @@ public class Orders extends CommonModel {
 
 	@Column(name = "address", nullable = false)
 	private String address;
+
+	@Column(name = "latitude", nullable = false)
+	private BigDecimal latitude;
+
+	@Column(name = "longitude", nullable = false)
+	private BigDecimal longitude;
 
 	@JoinColumn(name = "state_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
@@ -110,4 +121,23 @@ public class Orders extends CommonModel {
 
 	@Column(name = "replaced", nullable = false)
 	private Boolean replaced;
+	/**
+	 * this will be either Pick-Up or Delivery
+	 */
+	@Column(name = "delivery_type", nullable = false)
+	private String deliveryType;
+
+	/**
+	 * this property is used at the time of sending notification through scheduler
+	 */
+	@Column(name = "assignment_try_count", columnDefinition = "integer default 0")
+	private Integer assignmentTryCount;
+
+	/**
+	 * this property is used for sending notification after 45 sec
+	 */
+	@Temporal(TemporalType.TIME)
+	@Column(name = "notification_timer", columnDefinition = "TIME WITH TIME ZONE default CURRENT_TIME")
+	private Date notificationTimer;
+
 }

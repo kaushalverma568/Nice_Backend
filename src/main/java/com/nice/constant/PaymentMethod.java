@@ -19,7 +19,7 @@ public enum PaymentMethod {
 	/**
 	 * Vendor supports payment method from one of this option
 	 */
-	ONLINE("Online"), OFFLINE("Offline"), BOTH("Both");
+	ONLINE("Online"), COD("COD"), BOTH("Both");
 
 	String statusValue;
 

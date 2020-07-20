@@ -41,22 +41,12 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	Page<DeliveryBoy> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * Get delivery boy list by isLogin,isBusy and id not in
-	 *
-	 * @param isLogiIn
-	 * @param isBusy
-	 * @param acceptDeliveryBoyIds
-	 * @return
-	 */
-	List<DeliveryBoy> findAllByIsLoginAndIsBusyAndIdNotIn(Boolean isLoggedIn, Boolean isBusy, List<Long> acceptDeliveryBoyIds);
-
-	/**
 	 * find all by isLogin true,isBusy false and not order id is null or not
 	 *
 	 * @param orderId
 	 * @return
 	 */
-	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id where d.isLogin='true' and d.isBusy='false' and dn.orderId IS NULL")
+	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and dn.orderId IS NULL")
 	List<DeliveryBoy> getAllNextAvailableDeliveryBoys();
 
 	/**
@@ -65,7 +55,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	 * @param orderId
 	 * @return
 	 */
-	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id where d.isLogin='true' and d.isBusy='true' and (dn.orderId IS NULL or dn.orderId != :orderId)")
+	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and (dn.orderId IS NULL or dn.orderId != :orderId)")
 	List<DeliveryBoy> getAllNextAvailableDeliveryBoysOnBusyTime(Long orderId);
 
 	/**
@@ -108,7 +98,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 			String searchKeyword2, Pageable pageable);
 
 	/**
-	 * 
+	 *
 	 * @param activeRecords
 	 * @return
 	 */

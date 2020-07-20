@@ -21,7 +21,7 @@ import lombok.ToString;
 public class ToppingDTO implements Serializable {
 
 	/**
-	* 
+	*
 	*/
 	private static final long serialVersionUID = 3156141752740167407L;
 
@@ -32,6 +32,9 @@ public class ToppingDTO implements Serializable {
 
 	@NotBlank(message = "{description.not.null}")
 	private String description;
+
+	@NotNull(message = "{vendor.id.not.null}")
+	private Long vendorId;
 
 	private String productFoodType;
 

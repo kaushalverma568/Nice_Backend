@@ -81,9 +81,7 @@ public class ToppingServiceImpl implements ToppingService {
 	
 	@Override
 	public void addTopping(final ToppingDTO toppingDTO) throws ValidationException, NotFoundException {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final Topping topping = toppingMapper.toEntity(toppingDTO);
-		topping.setVendorId(userLogin.getEntityId());
 		toppingRepository.save(topping);
 	}
 
@@ -92,9 +90,8 @@ public class ToppingServiceImpl implements ToppingService {
 		if (resultToppingDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("topping.id.not.null", null));
 		} else {
-			UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 			final Topping existingTopping = getToppingDetail(resultToppingDTO.getId());
-			if (!existingTopping.getVendorId().equals(userLogin.getEntityId())) {
+			if (!existingTopping.getVendorId().equals(resultToppingDTO.getVendorId())) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.unique", null));
 			}
 			final Topping topping = toppingMapper.toEntity(resultToppingDTO);
@@ -141,9 +138,12 @@ public class ToppingServiceImpl implements ToppingService {
 
 	@Override
 	public void changeStatus(final Long toppingId, final Boolean active) throws NotFoundException, ValidationException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final Topping existingTopping = getToppingDetail(toppingId);
 		LOGGER.info("Existing topping details {} ", existingTopping);
-		if (active == null) {
+		if (!userLogin.getEntityId().equals(existingTopping.getVendorId())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		} else if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingTopping.getActive().equals(active)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "topping.active" : "topping.deactive", null));
@@ -168,18 +168,17 @@ public class ToppingServiceImpl implements ToppingService {
 
 	@Override
 	public Boolean isToppingExists(final ToppingDTO toppingDTO) {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (toppingDTO.getId() != null) {
 			/**
 			 * At the time of update is topping with same name and vendor id exist or not
 			 * except it's own id
 			 */
-			return toppingRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getName(), userLogin.getEntityId(), toppingDTO.getId()).isPresent();
+			return toppingRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getName(), toppingDTO.getVendorId(), toppingDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is topping with same name and vendor id exist or not
 			 */
-			return toppingRepository.findByNameIgnoreCaseAndVendorId(toppingDTO.getName(), userLogin.getEntityId()).isPresent();
+			return toppingRepository.findByNameIgnoreCaseAndVendorId(toppingDTO.getName(), toppingDTO.getVendorId()).isPresent();
 		}
 	}
 

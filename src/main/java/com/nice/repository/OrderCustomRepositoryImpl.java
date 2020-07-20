@@ -65,7 +65,8 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		CriteriaQuery<Orders> criteriaQuery = criteriaBuilder.createQuery(Orders.class);
 
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Orders> orders = criteriaQuery.from(Orders.class);
 
@@ -79,8 +80,8 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		criteriaQuery.orderBy(criteriaBuilder.desc(orders.get("id")));
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Orders> fetchGraph = entityManager.createEntityGraph(Orders.class);
 		fetchGraph.addSubgraph(VENDOR_PARAM);
@@ -104,7 +105,8 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Orders> orders = criteriaQuery.from(Orders.class);
 
@@ -165,9 +167,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		if (orderListFilterDto.getOrderDate() != null) {
 			predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), orderListFilterDto.getOrderDate()));
 		}
-		if (orderListFilterDto.getReplacedOn() != null) {
-			predicates.add(criteriaBuilder.equal(orders.get("replacementDate").as(Date.class), orderListFilterDto.getReplacedOn()));
-		}
+
 		// if (orderListFilterDto.getDeliveryDate() != null) {
 		// predicates.add(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class),
 		// orderListFilterDto.getDeliveryDate()));
@@ -176,87 +176,112 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 			/***
 			 * get orders which payment is online or offline and delivered
 			 */
-			// if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode()) &&
+			// if
+			// (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
+			// &&
 			// orderListFilterDto.getPaymentDate() == null) {
-			// predicates.add(criteriaBuilder.or(criteriaBuilder.equal(orders.get(PAYMENT_MODE), PaymentMode.ONLINE.name()),
+			// predicates.add(criteriaBuilder.or(criteriaBuilder.equal(orders.get(PAYMENT_MODE),
+			// PaymentMode.ONLINE.name()),
 			// criteriaBuilder.isNotNull(orders.get(DELIVERY_DATE))));
 			// }
 			// /**
 			// * get all offline orders
 			// */
-			// else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
-			// && PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() == null)
+			// else if
+			// (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
+			// && PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) &&
+			// orderListFilterDto.getPaymentDate() == null)
 			// {
 			// predicates.add(criteriaBuilder.isNotNull(orders.get(DELIVERY_DATE)));
 			// }
 			// /**
 			// * get online order for date
 			// */
-			// else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
-			// && PaymentMode.ONLINE.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() !=
+			// else if
+			// (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
+			// && PaymentMode.ONLINE.name().equals(orderListFilterDto.getPaymentMode()) &&
+			// orderListFilterDto.getPaymentDate() !=
 			// null) {
-			// predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), orderListFilterDto.getPaymentDate()));
+			// predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class),
+			// orderListFilterDto.getPaymentDate()));
 			// }
 			// /**
 			// * get offline order for date
 			// */
-			// else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
-			// && PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() != null)
+			// else if
+			// (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
+			// && PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) &&
+			// orderListFilterDto.getPaymentDate() != null)
 			// {
-			// predicates.add(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class), orderListFilterDto.getPaymentDate()));
+			// predicates.add(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class),
+			// orderListFilterDto.getPaymentDate()));
 			// }
 		}
 	}
 
 	// @Override
-	// public Double getTotalCashCollectionByDeliveryBoyForToday(final Long deliveryBoyId) {
+	// public Double getTotalCashCollectionByDeliveryBoyForToday(final Long
+	// deliveryBoyId) {
 	// /**
 	// * Create Criteria builder instance using entity manager
 	// */
 	// CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 	//
-	// CriteriaQuery<Double> criteriaQuery = criteriaBuilder.createQuery(Double.class);
+	// CriteriaQuery<Double> criteriaQuery =
+	// criteriaBuilder.createQuery(Double.class);
 	//
 	// Root<Orders> orders = criteriaQuery.from(Orders.class);
 	//
-	// Join<Orders, DeliveryBoy> deliveryBoy = orders.join(DELIVERY_BOY, JoinType.LEFT);
+	// Join<Orders, DeliveryBoy> deliveryBoy = orders.join(DELIVERY_BOY,
+	// JoinType.LEFT);
 	//
 	// criteriaQuery.select(criteriaBuilder.sum(orders.get("totalOrderAmount")))
-	// .where(criteriaBuilder.and(criteriaBuilder.equal(orders.get(ORDER_STATUS), "Delivered"),
+	// .where(criteriaBuilder.and(criteriaBuilder.equal(orders.get(ORDER_STATUS),
+	// "Delivered"),
 	// criteriaBuilder.and(criteriaBuilder.equal(orders.get(PAYMENT_MODE), "COD")),
-	// criteriaBuilder.and(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class), new
+	// criteriaBuilder.and(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class),
+	// new
 	// Date(System.currentTimeMillis()))),
-	// criteriaBuilder.and(criteriaBuilder.equal(deliveryBoy.get("id"), deliveryBoyId))));
+	// criteriaBuilder.and(criteriaBuilder.equal(deliveryBoy.get("id"),
+	// deliveryBoyId))));
 	// TypedQuery<Double> query = entityManager.createQuery(criteriaQuery);
 	// return query.getSingleResult();
 	// }
 
 	// @SuppressWarnings("unchecked")
 	// @Override
-	// public SalesReportDto getSalesReport(final Integer year, final Long storeId, final String orderType) throws
+	// public SalesReportDto getSalesReport(final Integer year, final Long storeId,
+	// final String orderType) throws
 	// ValidationException {
 	// StringBuilder sqlQuery = new StringBuilder();
 	// if (OrderTypeEnum.CART.getStatusValue().equals(orderType)) {
 	// sqlQuery.append(
-	// "SELECT sum(orders.total_order_amt),EXTRACT(MONTH FROM orders.created_at) as months FROM orders inner join store on
+	// "SELECT sum(orders.total_order_amt),EXTRACT(MONTH FROM orders.created_at) as
+	// months FROM orders inner join store on
 	// orders.store_id=store.id where orders.status !='Cancelled' and 1=1 ");
 	// if (storeId != null) {
 	// sqlQuery.append(" and store.id=").append(storeId).append(" ");
 	// }
-	// sqlQuery.append(" and EXTRACT(YEAR FROM orders.created_at)=? group by months;");
+	// sqlQuery.append(" and EXTRACT(YEAR FROM orders.created_at)=? group by
+	// months;");
 	// } else if (OrderTypeEnum.POS.getStatusValue().equals(orderType)) {
-	// sqlQuery.append("SELECT sum(pos_orders.total_order_amt),EXTRACT(MONTH FROM pos_orders.created_at) as months FROM
+	// sqlQuery.append("SELECT sum(pos_orders.total_order_amt),EXTRACT(MONTH FROM
+	// pos_orders.created_at) as months FROM
 	// pos_orders \r\n"
 	// + "inner join store on pos_orders.store_id=store.id where 1=1 ");
 	// if (storeId != null) {
 	// sqlQuery.append(" and store.id=").append(storeId).append(" ");
 	// }
-	// sqlQuery.append(" and EXTRACT(YEAR FROM pos_orders.created_at)=? group by months;");
+	// sqlQuery.append(" and EXTRACT(YEAR FROM pos_orders.created_at)=? group by
+	// months;");
 	// } else {
 	// throw new ValidationException("Invalid Order type");
 	// }
-	// List<Object> objectList = entityManager.createNativeQuery(sqlQuery.toString()).setParameter(1, year).getResultList();
-	// List<String> months = new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0",
+	// List<Object> objectList =
+	// entityManager.createNativeQuery(sqlQuery.toString()).setParameter(1,
+	// year).getResultList();
+	// List<String> months = new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0",
+	// "4.0", "5.0", "6.0", "7.0", "8.0", "9.0",
 	// "10.0", "11.0", "12.0"));
 	// SalesReportDto salesReportDto = new SalesReportDto();
 	// for (Object object : objectList) {
@@ -280,7 +305,8 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	 * @param salesReportDto
 	 * @return
 	 */
-	// private void setSalesValue(final String month, final Double sales, final SalesReportDto salesReportDto) {
+	// private void setSalesValue(final String month, final Double sales, final
+	// SalesReportDto salesReportDto) {
 	//
 	// if (month.equals("1.0")) {
 	// salesReportDto.setJan(sales);
