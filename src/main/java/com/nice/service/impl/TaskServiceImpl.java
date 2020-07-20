@@ -22,6 +22,7 @@ import com.nice.constant.PaymentMode;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
 import com.nice.dto.CashCollectionDTO;
+import com.nice.dto.DeliveryBoyOrderCountDto;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
@@ -45,6 +46,7 @@ import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
+import com.nice.service.PaymentDetailsService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
@@ -99,6 +101,9 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private DeliveryBoyCurrentStatusRepository deliveryBoyCurrentStatusRepository;
 
+	@Autowired
+	private PaymentDetailsService paymentDetailService;
+
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
 
@@ -108,9 +113,8 @@ public class TaskServiceImpl implements TaskService {
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor
-		 * for the task, this code is only for regular order, not for replacement or
-		 * return, for replacement and return the calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
+		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
 		 * different.
 		 *
 		 */
@@ -127,8 +131,8 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same
-		 * order for delivery donot end up have the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
+		 * the same order.
 		 */
 		synchronized (this) {
 			/**
@@ -205,17 +209,14 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is
-			 * replacement, the order is being replaced and hence the order should be moved
-			 * to replaced status, else its first time delivery and order will be moved to
-			 * delivered status, this would be applicable only if there is replacement in
-			 * place.
+			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
+			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
+			 * status, this would be applicable only if there is replacement in place.
 			 */
 			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
 
 			/**
-			 * If its a COD task then make an entry in cash collection for the delivery
-			 * person
+			 * If its a COD task then make an entry in cash collection for the delivery person
 			 */
 			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())) {
 				CashCollectionDTO cashCollection = new CashCollectionDTO();
@@ -340,15 +341,22 @@ public class TaskServiceImpl implements TaskService {
 		taskResponseDto.setPickupLongitude(vendorResponseDto.getLongitude());
 		taskResponseDto.setVendorAddress(vendorResponseDto.getVendorAddress());
 		taskResponseDto.setVendorContactNumber(vendorResponseDto.getContactNo());
+		taskResponseDto.setOrderDate(order.getCreatedAt());
+		/**
+		 * Get Details related to Payment, if payment is done
+		 */
+		if (task.getPaymentDetails() != null) {
+			taskResponseDto.setPaymentDetailsId(task.getPaymentDetails().getId());
+			taskResponseDto.setTransactionId(task.getPaymentDetails().getTransactionNo());
+			taskResponseDto.setPaidOn(task.getPaymentDetails().getCreatedAt());
+		}
 		return taskResponseDto;
 	}
 
 	@Override
-	public void updatePaymentDetailsInTask(final List<Long> taskIds, final Long paymentId) throws ValidationException {
-		// TODO : call the paymentdetailsservice and get the paymentdetails object for
-		// the id and set it in tasks.
-		PaymentDetails paymentDetails = null;
+	public void updatePaymentDetailsInTask(final List<Long> taskIds, final Long paymentId) throws ValidationException, NotFoundException {
 
+		PaymentDetails paymentDetails = paymentDetailService.getPaymentDetailsDetail(paymentId);
 		List<Task> taskList = taskRepository.findAllById(taskIds);
 		for (Task task : taskList) {
 			if (task.getPaymentDetails() != null) {
@@ -361,9 +369,7 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public List<TaskResponseDto> getTaskListFromPayment(final Long paymentId) throws ValidationException, NotFoundException {
-		// TODO : call the paymentdetailsservice and get the paymentdetails object for
-		// the id and set it in tasks.
-		PaymentDetails paymentDetails = null;
+		PaymentDetails paymentDetails = paymentDetailService.getPaymentDetailsDetail(paymentId);
 
 		List<Task> taskList = taskRepository.findAllByPaymentDetails(paymentDetails);
 		List<TaskResponseDto> taskResponseDtoList = new ArrayList<>();
@@ -385,8 +391,7 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not
-		 * accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -434,5 +439,15 @@ public class TaskServiceImpl implements TaskService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public DeliveryBoyOrderCountDto getTaskTypeWiseCountForPaymentDetailsId(final Long deliveryBoyId) {
+		DeliveryBoyOrderCountDto deliveryBoyOrderCount = new DeliveryBoyOrderCountDto();
+		deliveryBoyOrderCount.setCartOrders(taskRepository.getCountCartOrderCountForDeliveryPerson(deliveryBoyId));
+		deliveryBoyOrderCount.setReplaceOrders(taskRepository.getCountReplacementOrderCountForDeliveryPerson(deliveryBoyId));
+		deliveryBoyOrderCount.setReturnOrders(taskRepository.getCountReturnOrderCountForDeliveryPerson(deliveryBoyId));
+		deliveryBoyOrderCount.setTotalAmountPaid(taskRepository.getTotalDeliveryChargeForDeliveryPerson(deliveryBoyId));
+		return deliveryBoyOrderCount;
 	}
 }

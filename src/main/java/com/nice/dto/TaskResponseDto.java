@@ -5,6 +5,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -24,6 +25,7 @@ public class TaskResponseDto implements Serializable {
 	private Double orderAmount;
 	private String paymentMode;
 	private Double orderAmtWithoutDeliveryCharge;
+	private Date orderDate;
 	/**
 	 * Details related to vendor
 	 */
@@ -42,4 +44,16 @@ public class TaskResponseDto implements Serializable {
 	private Long deliveryLatitude;
 	private Long deliveryLongitude;
 
+	/**
+	 * Details related to payment
+	 */
+	private Long paymentDetailsId;
+	private String transactionId;
+	private Date paidOn;
+
+	/**
+	 * Details related to Task
+	 */
+	private String taskType;
+	private Date createdAt;
 }

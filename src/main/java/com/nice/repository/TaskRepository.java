@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
@@ -130,4 +131,33 @@ public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRep
 	 */
 	List<Task> findAllByPaymentDetails(PaymentDetails paymentDetails);
 
+	/**
+	 * @param deliveryBoyId
+	 */
+	@Query(value = "Select count(*) from Task t where t.deliveryBoy.id = :deliveryBoyId and t.taskType ='Delivery'")
+	Long getCountCartOrderCountForDeliveryPerson(Long deliveryBoyId);
+
+	/**
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 */
+	@Query(value = "Select count(*) from Task t where t.deliveryBoy.id = :deliveryBoyId and t.taskType ='Replacement'")
+	Long getCountReplacementOrderCountForDeliveryPerson(Long deliveryBoyId);
+
+	/**
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 */
+	@Query(value = "Select count(*) from Task t where t.deliveryBoy.id = :deliveryBoyId and t.taskType ='Return'")
+	Long getCountReturnOrderCountForDeliveryPerson(Long deliveryBoyId);
+
+	/**
+	 *
+	 * @param deliveryBoyId
+	 * @return
+	 */
+	@Query(value = "Select sum(t.deliveryCharge) from Task t where t.deliveryBoy.id = :deliveryBoyId")
+	Double getTotalDeliveryChargeForDeliveryPerson(Long deliveryBoyId);
 }

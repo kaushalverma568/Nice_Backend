@@ -28,7 +28,6 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Task;
-import com.nice.repository.TaskRepository;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.TaskService;
 import com.nice.validator.TaskValidator;
@@ -52,9 +51,6 @@ public class TaskController {
 
 	@Autowired
 	private TaskService taskService;
-
-	@Autowired
-	private TaskRepository taskRepository;
 
 	@Autowired
 	private TaskValidator taskValidator;
