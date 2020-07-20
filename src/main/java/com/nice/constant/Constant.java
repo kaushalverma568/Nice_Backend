@@ -115,5 +115,5 @@ public final class Constant {
 	public static final String REPLACED = "Replaced";
 	public static final String CANCELLED = "Cancelled";
 	public static final String RETURNED = "Returned";
-
+	public static final String PENDING = "Pending";
 }
