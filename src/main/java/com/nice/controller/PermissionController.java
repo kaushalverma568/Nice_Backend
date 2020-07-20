@@ -176,7 +176,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{permissionId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("permissionId") final Long permissionId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of permission ofr id {} and status {}", permissionId, isActive);
