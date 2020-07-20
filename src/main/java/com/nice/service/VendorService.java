@@ -290,7 +290,7 @@ public interface VendorService {
 
 	/**
 	 * change vendor contactNo
-	 * 
+	 *
 	 * @param  vendorId
 	 * @param  contactNo
 	 * @param  otp
@@ -298,4 +298,24 @@ public interface VendorService {
 	 * @throws ValidationException
 	 */
 	void changeVendorContact(Long vendorId, String contactNo, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * verify vendor contact
+	 *
+	 * @param  vendorId
+	 * @param  otp
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void verifyVendorContact(Long vendorId, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * generate otp for verify contact
+	 *
+	 * @param  vendorId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String generateOTPForVerifyContact(Long vendorId) throws NotFoundException, ValidationException;
 }

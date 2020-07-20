@@ -443,4 +443,23 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
 	}
+
+	@PutMapping("/contact/verify/generate/{vendorId}")
+	public ResponseEntity<Object> generateOTPForVerifyContact(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside generate otp for change contact of Vendor of id {} ", vendorId);
+		String otp = vendorService.generateOTPForVerifyContact(vendorId);
+		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
+	}
+
+	@PutMapping("/verify/contact/{vendorId}")
+	public ResponseEntity<Object> verifyVendorContact(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
+			@RequestParam(name = "otp", required = true) final String otp) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside verify Contact of Vendor of id {} and otp {}", vendorId, otp);
+		vendorService.verifyVendorContact(vendorId, otp);
+		LOGGER.info("Outside verify contact of vendor");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
+	}
 }

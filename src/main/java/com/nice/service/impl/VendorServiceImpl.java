@@ -189,10 +189,7 @@ public class VendorServiceImpl implements VendorService {
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
-		sendOtpForEmailVerification(userLogin, vendor);/**
-														 * send otp for mobile verification
-														 */
-
+		sendOtpForEmailVerification(userLogin, vendor);
 	}
 
 	@Override
@@ -780,7 +777,7 @@ public class VendorServiceImpl implements VendorService {
 			if (vendor.getContactNo().equals(contactNo)) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.change.same.contact", null));
 			}
-			String otp = generateOTP(UserOtpTypeEnum.EMAIL.name(), contactNo);
+			String otp = generateOTP(UserOtpTypeEnum.SMS.name(), contactNo);
 			sendOTPSms(contactNo, otp);
 			return otp;
 		} else {
@@ -798,12 +795,34 @@ public class VendorServiceImpl implements VendorService {
 
 	@Override
 	public void changeVendorContact(final Long vendorId, final String contactNo, final String otp) throws NotFoundException, ValidationException {
+		boolean isVendorContactExists = vendorRepository.findByContactNoAndIdNot(contactNo, vendorId).isPresent();
+		if (!isVendorContactExists) {
+			Vendor vendor = getVendorDetail(vendorId);
+			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
+				String placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
+				UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+				if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
+					vendor.setContactNo(contactNo);
+					vendor.setIsContactVerified(true);
+					vendorRepository.save(vendor);
+				} else {
+					throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
+				}
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+			}
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
+		}
+	}
+
+	@Override
+	public void verifyVendorContact(final Long vendorId, final String otp) throws NotFoundException, ValidationException {
 		Vendor vendor = getVendorDetail(vendorId);
-		if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive()) {
+		if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
 			String placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
 			UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
-				vendor.setContactNo(contactNo);
 				vendor.setIsContactVerified(true);
 				vendorRepository.save(vendor);
 			} else {
@@ -812,6 +831,15 @@ public class VendorServiceImpl implements VendorService {
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
 		}
+
+	}
+
+	@Override
+	public String generateOTPForVerifyContact(final Long vendorId) throws NotFoundException, ValidationException {
+		Vendor vendor = getVendorDetail(vendorId);
+		String otp = generateOTP(UserOtpTypeEnum.SMS.name(), vendor.getContactNo());
+		sendOTPSms(vendor.getContactNo(), otp);
+		return otp;
 	}
 
 }
