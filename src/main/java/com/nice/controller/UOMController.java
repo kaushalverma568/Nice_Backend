@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -26,8 +27,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.UOMDTO;
+import com.nice.exception.BaseException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -191,5 +194,23 @@ public class UOMController {
 	}
 	
 	
+	/**
+	 * 
+	 * @param accessToken
+	 * @param file
+	 * @param httpServletResponse
+	 * @return
+	 * @throws BaseException
+	 */
+	@PostMapping(path = "/upload")
+	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+		if (file == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
+		}
+		uomService.uploadFile(file, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.create.message", null))
+				.create();
+	}
 
 }

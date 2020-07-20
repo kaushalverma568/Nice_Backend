@@ -277,4 +277,45 @@ public interface VendorService {
 	 */
 	void exportVendorList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
+	/**
+	 * generate OTP for change contact
+	 *
+	 * @param  contactNo
+	 * @param  vendorId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String generateOTPForChangeContact(String contactNo, Long vendorId) throws NotFoundException, ValidationException;
+
+	/**
+	 * change vendor contactNo
+	 *
+	 * @param  vendorId
+	 * @param  contactNo
+	 * @param  otp
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void changeVendorContact(Long vendorId, String contactNo, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * verify vendor contact
+	 *
+	 * @param  vendorId
+	 * @param  otp
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void verifyVendorContact(Long vendorId, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * generate otp for verify contact
+	 *
+	 * @param  vendorId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String generateOTPForVerifyContact(Long vendorId) throws NotFoundException, ValidationException;
 }

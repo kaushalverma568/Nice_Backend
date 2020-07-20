@@ -29,5 +29,10 @@ public final class AssetConstant {
 	public static final String DELIVERY_BOY = "/delivery boy/";
 	public static final String VENDOR = "/vendor/";
 	public static final String PRODUCT_DIR = "/product/";
+	public static final String UOM = "/uom/";
+	public static final String ADDONS = "/addons/";
+	public static final String TOPPING = "/topping/";
+	public static final String EXTRAS = "/extras/";
+	public static final String ATTRIBUTE = "/attribute/";
 
 }

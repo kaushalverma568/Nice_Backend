@@ -1,6 +1,13 @@
 package com.nice.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +19,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.ToppingDTO;
+import com.nice.dto.ToppingImport;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -23,10 +35,15 @@ import com.nice.mapper.ToppingMapper;
 import com.nice.model.ProductTopping;
 import com.nice.model.Topping;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.ToppingRepository;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductToppingService;
 import com.nice.service.ToppingService;
+import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
@@ -53,6 +70,15 @@ public class ToppingServiceImpl implements ToppingService {
 	@Autowired
 	private ToppingMapper toppingMapper;
 
+	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
+	private ExportCSV exportCSV;
+
+	@Autowired
+	private FileStorageService fileStorageService;
+	
 	@Override
 	public void addTopping(final ToppingDTO toppingDTO) throws ValidationException, NotFoundException {
 		final Topping topping = toppingMapper.toEntity(toppingDTO);
@@ -154,5 +180,56 @@ public class ToppingServiceImpl implements ToppingService {
 			 */
 			return toppingRepository.findByNameIgnoreCaseAndVendorId(toppingDTO.getName(), toppingDTO.getVendorId()).isPresent();
 		}
+	}
+
+	@Override
+	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "topping_"+System.currentTimeMillis(), AssetConstant.TOPPING);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.TOPPING);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<ToppingImport> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<ToppingImport> toppingImports = csvProcessor.convertCSVFileToListOfBean(file, ToppingImport.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(toppingImports)) {
+				final List<ToppingImport> insertListOfBean = insertListOfUoms(
+						toppingImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
+				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name","Description", "Product Food type", "Result" };
+				Object[] toppingDetailsField = new Object[] { "name", "description","productFoodType","uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, toppingDetailsField, toppingDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+		
+	}
+	
+	
+	
+	private List<ToppingImport> insertListOfUoms(final List<ToppingImport> toppingImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		final List<ToppingImport> allResult = new ArrayList<>();
+		for (ToppingImport toppingImport : toppingImports) {
+			try {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (toppingRepository.findByNameIgnoreCaseAndVendorId(toppingImport.getName(), vendor.getId()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
+				} else {
+					final ToppingDTO toppingDTO = new ToppingDTO();
+					toppingDTO.setName(toppingImport.getName());
+					toppingDTO.setDescription(toppingImport.getDescription());
+					toppingDTO.setProductFoodType(toppingImport.getProductFoodType());
+					toppingDTO.setActive(true);
+					addTopping(toppingDTO);
+					toppingImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+				}
+			} catch (Exception e) {
+				toppingImport.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(toppingImport);
+		}
+		return allResult;
 	}
 }

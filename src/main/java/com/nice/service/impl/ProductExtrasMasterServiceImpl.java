@@ -1,6 +1,13 @@
 package com.nice.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
+import com.nice.dto.ExtrasImport;
 import com.nice.dto.ProductExtrasMasterDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -21,11 +32,17 @@ import com.nice.model.Product;
 import com.nice.model.ProductExtras;
 import com.nice.model.ProductExtrasMaster;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.ProductExtrasMasterRepository;
 import com.nice.repository.ProductExtrasRepository;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasMasterService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
+import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
+import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  *
@@ -62,6 +79,16 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	@Autowired
 	private ProductExtrasRepository productExtrasRepository;
 
+	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
+	private ExportCSV exportCSV;
+
+	@Autowired
+	private FileStorageService fileStorageService;
+	
+	
 	@Override
 	public Long addProductExtrasMaster(final ProductExtrasMasterDTO productExtrasMasterDTO) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside addProductExtrasMaster method, with productExtrasMasterDTO : {}", productExtrasMasterDTO);
@@ -228,5 +255,59 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 			return userLogin.getEntityId();
 		}
 	}
+
+	@Override
+	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "productExtrasMaster_"+System.currentTimeMillis(), AssetConstant.EXTRAS);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.EXTRAS);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<ExtrasImport> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<ExtrasImport> extrasImports = csvProcessor.convertCSVFileToListOfBean(file, ExtrasImport.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(extrasImports)) {
+				final List<ExtrasImport> insertListOfBean = insertListOfUoms(
+						extrasImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName()) 
+								&&	x.getRate() > 0).collect(Collectors.toList()));
+				Object[] extrasDetailsHeadersField = new Object[] { "Name","Description","Rate", "Result" };
+				Object[] extrasDetailsField = new Object[] { "Name", "description", "rate", "uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, extrasDetailsField, extrasDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+		
+	}
+	
+	
+	
+	private List<ExtrasImport> insertListOfUoms(final List<ExtrasImport> productExtrasMasterImports) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		final List<ExtrasImport> allResult = new ArrayList<>();
+		for (ExtrasImport productExtrasMasterImport : productExtrasMasterImports) {
+			try {
+				if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+				}
+				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+				if (!productExtrasMasterRepository.findByNameIgnoreCaseAndVendorId(productExtrasMasterImport.getName(), vendor.getId()).isEmpty()) {
+					throw new ValidationException(messageByLocaleService.getMessage("productExtrasMaster.not.unique", null));
+				} else {
+					final ProductExtrasMasterDTO productExtrasMasterDTO = new ProductExtrasMasterDTO();
+					productExtrasMasterDTO.setName(productExtrasMasterImport.getName());
+					productExtrasMasterDTO.setDescription(productExtrasMasterImport.getDescription());
+					productExtrasMasterDTO.setRate(productExtrasMasterImport.getRate());
+					productExtrasMasterDTO.setActive(true);
+					productExtrasMasterDTO.setVendorId(vendor.getId());
+					addProductExtrasMaster(productExtrasMasterDTO);
+					productExtrasMasterImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+				}
+			} catch (Exception e) {
+				productExtrasMasterImport.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(productExtrasMasterImport);
+		}
+		return allResult;
+	}
+	
 
 }

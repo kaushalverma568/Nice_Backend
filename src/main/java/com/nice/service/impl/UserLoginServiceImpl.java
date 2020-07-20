@@ -654,7 +654,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		Optional<UserLogin> optUserLogin = userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userLoginDto.getUserName(),
 				UserType.ADMIN_PANEL_USER_LIST);
 		if (optUserLogin.isPresent()) {
-			userLoginDto.setUserType(optUserLogin.get().getEntityType());
+			String entityType = optUserLogin.get().getEntityType() == null ? UserType.USER.name() : optUserLogin.get().getEntityType();
+			userLoginDto.setUserType(entityType);
 			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 			return checkUserLogin(userLoginDto);
 		} else {

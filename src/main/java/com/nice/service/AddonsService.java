@@ -1,8 +1,12 @@
 package com.nice.service;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.AddonsDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Addons;
@@ -80,5 +84,13 @@ public interface AddonsService {
 	 * @throws ValidationException
 	 */
 	void changeStatus(Long addonsId, Boolean active) throws NotFoundException, ValidationException;
+
+	/**
+	 * 
+	 * @param file
+	 * @param httpServletResponse
+	 * @throws FileOperationException 
+	 */
+	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 
 }

@@ -5,8 +5,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.UOMDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.UOM;
@@ -96,5 +98,13 @@ public interface UOMService {
 	 * @throws IOException 
 	 */
 	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
+
+	/**
+	 * 
+	 * @param file
+	 * @param httpServletResponse
+	 * @throws FileOperationException 
+	 */
+	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 
 }

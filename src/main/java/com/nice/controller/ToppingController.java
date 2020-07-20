@@ -3,6 +3,7 @@ package com.nice.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -24,8 +25,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.ToppingDTO;
+import com.nice.exception.BaseException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -183,6 +186,25 @@ public class ToppingController {
 		LOGGER.info("Inside change status of topping of id {} and status {}", toppingId, active);
 		toppingService.changeStatus(toppingId, active);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.update.message", null))
+				.create();
+	}
+	
+	/**
+	 * 
+	 * @param accessToken
+	 * @param file
+	 * @param httpServletResponse
+	 * @return
+	 * @throws BaseException
+	 */
+	@PostMapping(path = "/upload")
+	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+		if (file == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
+		}
+		toppingService.uploadFile(file, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.create.message", null))
 				.create();
 	}
 }
