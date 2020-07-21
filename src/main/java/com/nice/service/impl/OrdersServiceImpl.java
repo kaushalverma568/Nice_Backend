@@ -102,7 +102,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -406,9 +406,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -567,7 +567,9 @@ public class OrdersServiceImpl implements OrdersService {
 				orderAddons.setAddonsName(cartAddons.getProductAddons().getAddons().getName());
 				orderAddons.setQuantity(cartAddons.getQuantity());
 				orderAddons.setAmount(cartAddons.getProductAddons().getRate() * cartAddons.getQuantity());
-				orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
+				if (cartAddons.getProductAddons().getDiscountedRate() != null) {
+					orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
+				}
 				orderAddonsList.add(orderAddons);
 			}
 			orderItem.setOrderAddonsList(orderAddonsList);
@@ -583,7 +585,10 @@ public class OrdersServiceImpl implements OrdersService {
 				orderExtras.setExtrasName(cartExtras.getProductExtras().getProductExtrasMaster().getName());
 				orderExtras.setQuantity(cartExtras.getQuantity());
 				orderExtras.setAmount(cartExtras.getProductExtras().getRate() * cartExtras.getQuantity());
-				orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
+				if (cartExtras.getProductExtras().getDiscountedRate() != null) {
+					orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
+				}
+
 				orderExtrasList.add(orderExtras);
 			}
 			orderItem.setOrderExtrasList(orderExtrasList);
@@ -602,8 +607,10 @@ public class OrdersServiceImpl implements OrdersService {
 				orderProductAttributeValue.setAttributeName(productAttributeValue.getProductAttribute().getName());
 				orderProductAttributeValue.setQuantity(cartProductAttribute.getQuantity());
 				orderProductAttributeValue.setAmount(cartProductAttribute.getProductAttributeValue().getRate() * cartProductAttribute.getQuantity());
-				orderProductAttributeValue
-						.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate() * cartProductAttribute.getQuantity());
+				if (cartProductAttribute.getProductAttributeValue().getDiscountedRate() != null) {
+					orderProductAttributeValue
+							.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate() * cartProductAttribute.getQuantity());
+				}
 				orderProductAttributeValuesList.add(orderProductAttributeValue);
 			}
 			orderItem.setOrderProductAttributeValuesList(orderProductAttributeValuesList);
@@ -618,7 +625,9 @@ public class OrdersServiceImpl implements OrdersService {
 				orderToppings.setToppingsName(cartToppings.getProductToppings().getTopping().getName());
 				orderToppings.setQuantity(cartToppings.getQuantity());
 				orderToppings.setAmount(cartToppings.getProductToppings().getRate() * cartToppings.getQuantity());
-				orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
+				if (cartToppings.getProductToppings().getDiscountedRate() != null) {
+					orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
+				}
 				orderToppingsList.add(orderToppings);
 			}
 			orderItem.setOrderToppingsList(orderToppingsList);
@@ -693,8 +702,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
+	 * @param cartItemList
+	 * @param orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -774,7 +783,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orderAmt
+	 * @param orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -864,8 +873,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
