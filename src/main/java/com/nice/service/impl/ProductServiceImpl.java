@@ -55,7 +55,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -278,7 +278,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -324,10 +324,10 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -341,7 +341,10 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Inside convertEntityToResponseDto");
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
 		productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getName());
-		productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
+		if (productResponseDTO.getSubcategoryId() != null) {
+			productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
+		}
+
 		if (productResponseDTO.getBrandId() != null) {
 			productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getName());
 		}
@@ -432,9 +435,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -464,7 +467,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
