@@ -33,7 +33,7 @@ import com.nice.service.TempCartAddonsService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 @Service("productAddonsService")
 @Transactional(rollbackFor = Throwable.class)
@@ -101,8 +101,8 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 	}
 
 	/**
-	 * @param  productVariant
-	 * @param  productAddonsDto
+	 * @param productVariant
+	 * @param productAddonsDto
 	 * @throws ValidationException
 	 */
 	private void validateProductAddons(final ProductVariant productVariant, final ProductAddonsDTO productAddonsDto) throws ValidationException {
@@ -206,14 +206,6 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND_ID, new Object[] { productAddonsId })));
 	}
 
-	@Override
-	public void deleteProductAddons(final Long productAddonsId) {
-		productAddonsRepository.deleteById(productAddonsId);
-	}
-
-	/**
-	 *
-	 */
 	private Long getVendorIdForLoginUser() throws ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {

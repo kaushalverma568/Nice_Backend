@@ -78,6 +78,14 @@ public class CartItemController {
 				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(cartItemId).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param uuid
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/move/{uuid}")
 	public ResponseEntity<Object> moveFromTempCartToCart(@RequestHeader("Authorization") final String accessToken, @PathVariable final String uuid)
 			throws ValidationException, NotFoundException {
@@ -182,6 +190,14 @@ public class CartItemController {
 				.setMessage(messageByLocaleService.getMessage("cart.item.deleted.successfully", null)).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param vendorId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@GetMapping("/check/{vendorId}")
 	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable final Long vendorId) throws ValidationException, NotFoundException {

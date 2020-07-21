@@ -49,6 +49,16 @@ public class ProductAddonsController {
 	@Autowired
 	private ProductAddonsService productAddonsService;
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productVariantId
+	 * @param productAddonsDtoList
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping("/{productVariantId}")
 	public ResponseEntity<Object> addProductAddons(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@RequestBody @Valid final List<ProductAddonsDTO> productAddonsDtoList, final BindingResult result) throws ValidationException, NotFoundException {
@@ -64,6 +74,13 @@ public class ProductAddonsController {
 				.create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productAddonsId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@GetMapping(value = "/{productAddonsId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("productAddonsId") final Long productAddonsId)
 			throws NotFoundException {
@@ -74,6 +91,14 @@ public class ProductAddonsController {
 				.setData(resultProductAddons).create();
 	}
 
+	/**
+	 *
+	 * @param productVariantId
+	 * @param activeRecords
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping("/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
@@ -84,6 +109,13 @@ public class ProductAddonsController {
 				.setData(resultProductAddons).create();
 	}
 
+	/**
+	 *
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping("/cust/list/{productVariantId}")
 	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getList with productVariant :{}", productVariantId);
@@ -93,6 +125,16 @@ public class ProductAddonsController {
 				.setData(resultProductAddons).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param userId
+	 * @param productAddonsId
+	 * @param active
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{productAddonsId}")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
 			@PathVariable("productAddonsId") final Long productAddonsId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {

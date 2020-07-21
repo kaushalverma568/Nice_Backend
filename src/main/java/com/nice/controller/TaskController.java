@@ -151,6 +151,14 @@ public class TaskController {
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
+	/**
+	 *
+	 * @param token
+	 * @param paymentDetailsId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping("/payment/{paymentDetailsId}")
 	public ResponseEntity<Object> getTaskListForPaymentDetails(@RequestHeader("Authorization") final String token, @PathVariable final Long paymentDetailsId)
 			throws NotFoundException, ValidationException {

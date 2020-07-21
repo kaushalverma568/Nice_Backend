@@ -11,31 +11,71 @@ import com.nice.model.ProductVariant;
 
 public interface ProductAddonsService {
 
+	/**
+	 *
+	 * @param productAddonsDto
+	 * @param productVariant
+	 * @param addons
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	boolean isExists(ProductAddonsDTO productAddonsDto, ProductVariant productVariant, Addons addons) throws ValidationException, NotFoundException;
 
+	/**
+	 *
+	 * @param productAddonsDtoList
+	 * @param productVariantId
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	void addUpdateProductAddons(List<ProductAddonsDTO> productAddonsDtoList, Long productVariantId) throws NotFoundException, ValidationException;
 
+	/**
+	 *
+	 * @param productAddonsId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	ProductAddonsDTO getProductAddons(Long productAddonsId) throws NotFoundException;
 
+	/**
+	 *
+	 * @param activeRecords
+	 * @param productVariantId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	List<ProductAddons> getList(Boolean activeRecords, Long productVariantId) throws NotFoundException;
 
+	/**
+	 *
+	 * @param productAddonsId
+	 * @param active
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	void changeStatus(Long productAddonsId, Boolean active) throws ValidationException, NotFoundException;
 
+	/**
+	 *
+	 * @param productAddonsId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	ProductAddons getProductAddonsDetail(Long productAddonsId) throws NotFoundException;
 
-	void deleteProductAddons(Long productAddonsId);
-
 	/**
-	 * @param  activeRecords
-	 * @param  productVariantId
+	 * @param activeRecords
+	 * @param productVariantId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<ProductAddonsDTO> getDtoList(Boolean activeRecords, Long productVariantId) throws NotFoundException;
 
 	/**
-	 * @param  activeRecords
-	 * @param  productVariantId
+	 * @param activeRecords
+	 * @param productVariantId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -43,7 +83,7 @@ public interface ProductAddonsService {
 	List<ProductAddonsDTO> getDtoListWithUserCheck(Boolean activeRecords, Long productVariantId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  addonsId
+	 * @param addonsId
 	 * @return
 	 * @throws NotFoundException
 	 */

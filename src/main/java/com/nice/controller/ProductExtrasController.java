@@ -70,6 +70,15 @@ public class ProductExtrasController {
 		binder.addValidators(productExtrasValidator);
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productExtrasDTO
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping
 	public ResponseEntity<Object> addProductExtras(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasDTO productExtrasDTO, final BindingResult result) throws ValidationException, NotFoundException {
@@ -85,6 +94,15 @@ public class ProductExtrasController {
 				.setMessage(messageByLocaleService.getMessage("product.extras.create.message", null)).setData(productExtrasId).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productExtrasDTO
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping
 	public ResponseEntity<Object> updateProductExtras(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasDTO productExtrasDTO, final BindingResult result) throws ValidationException, NotFoundException {
@@ -100,6 +118,13 @@ public class ProductExtrasController {
 				.setMessage(messageByLocaleService.getMessage("product.extras.update.message", null)).setData(productExtrasId).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productExtrasId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@GetMapping(value = "/{productExtrasId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("productExtrasId") final Long productExtrasId)
 			throws NotFoundException {
@@ -108,6 +133,15 @@ public class ProductExtrasController {
 				.setMessage(messageByLocaleService.getMessage("product.extras.detail.message", null)).setData(resultProductExtras).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param productId
+	 * @param activeRecords
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping("/list/{productId}")
 	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
@@ -116,6 +150,12 @@ public class ProductExtrasController {
 				.setData(resultProductExtras).create();
 	}
 
+	/**
+	 *
+	 * @param productId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@GetMapping("/cust/list/{productId}")
 	public ResponseEntity<Object> getListForCustomer(@PathVariable final Long productId) throws NotFoundException {
 		final List<ProductExtrasDTO> resultProductExtras = productExtrasService.getList(true, productId);
@@ -123,6 +163,16 @@ public class ProductExtrasController {
 				.setData(resultProductExtras).create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param userId
+	 * @param productExtrasId
+	 * @param active
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{productExtrasId}")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
 			@PathVariable("productExtrasId") final Long productExtrasId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
