@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(final StompEndpointRegistry registry) {
-		registry.addEndpoint("/nice-socket").setAllowedOrigins("http://localhost:4200").withSockJS();
+		registry.addEndpoint("/nice-socket").setAllowedOrigins("*").withSockJS();
 	}
 
 	@Override
