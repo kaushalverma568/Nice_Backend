@@ -84,6 +84,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	/**
 	 *
 	 */
+	private static final String INVALID_USER_TYPE = "invalid.user.type";
+
+	/**
+	 *
+	 */
 	private static final String CUSTOMER_NOT_FOUND_PHONE = "customer.not.found.phone";
 
 	/**
@@ -370,10 +375,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 				deliveryBoyService.verifyEmail(userLogin.getEntityId());
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
-
+				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 			}
-
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
 		}
@@ -554,7 +557,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name(), userName,
 					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
+			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 	}
 
@@ -563,7 +566,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (!(Constant.CUSTOMER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
 				|| Constant.USER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
 				|| Constant.DELIVERY_BOY.equalsIgnoreCase(resetPasswordParameterDTO.getUserType()))) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
+			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		} else if (otpService.verifyOtp(resetPasswordParameterDTO.getEmail().toLowerCase(), resetPasswordParameterDTO.getType(),
 				resetPasswordParameterDTO.getOtp(), resetPasswordParameterDTO.getUserType())) {
 			final Optional<UserLogin> userLogin = getUserLoginBasedOnUserNameAndUserType(resetPasswordParameterDTO.getEmail().toLowerCase(),

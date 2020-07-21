@@ -133,8 +133,7 @@ public class UserLoginController {
 	}
 
 	/**
-	 * This method is use to verify the user.</br>
-	 * We verify user through email only
+	 * This method is use to verify WEB user We verify user through email only
 	 *
 	 * @param userId
 	 * @param otp
@@ -162,6 +161,33 @@ public class UserLoginController {
 		} catch (Exception e) {
 			return new ModelAndView(REDIRECT + customerUrl + "failed-error?message=" + e.getMessage() + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		}
+	}
+
+	/**
+	 * This method is use to verify MOBILE user We verify user through email only
+	 *
+	 * @param userId
+	 * @param otp
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 * @throws MessagingException
+	 * @throws IOException
+	 * @throws GeneralSecurityException
+	 */
+	@GetMapping("/mobile/verify/email/{userId}")
+	public ResponseEntity<Object> verifyEmailForMobile(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp)
+			throws ValidationException, NotFoundException {
+		userLoginService.verifyUser(userId, otp);
+		/**
+		 * send email code starts from here
+		 */
+		userLoginService.sendWelComeEmail(userId);
+		/**
+		 * send email code ends from here
+		 */
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("verify.user.success", null))
+				.create();
 	}
 
 	/**
