@@ -79,7 +79,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -137,7 +137,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
-		 * Check if delivery boy already exists, if so then lets only send him email again.
+		 * Check if delivery boy already exists, if so then lets only send him email
+		 * again.
 		 */
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getIsEmailVerified().booleanValue()) {
@@ -172,7 +173,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		deliveryBoyCurrentStatus.setIsBusy(false);
 		/**
-		 * it will be true when he is able to deliver order(getting notifications for delivery)
+		 * it will be true when he is able to deliver order(getting notifications for
+		 * delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
@@ -320,7 +322,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isDeliveryBoyExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is deliveryBoy with same email exist or not except it's own id
+			 * At the time of update is deliveryBoy with same email exist or not except it's
+			 * own id
 			 */
 			return deliveryBoyRepository.findByEmailIgnoreCaseAndIdNot(deliveryBoyDTO.getEmail(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -330,8 +333,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
-				 * again, if the email is verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
 				 */
 
 				return optDeliveryboy.get().getIsEmailVerified();
@@ -389,8 +393,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  deliveryBoy
+	 * @param userLogin
+	 * @param deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -428,17 +432,33 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
-		 * get all delivery boys who is logged in, not busy with any orders and has not sended notification before
+		 * get all delivery boys who is logged in, not busy with any orders and has not
+		 * sended notification before
 		 */
-		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys();
+		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for
-		 * replacement or return) and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who
+		 * is going for delivery of orders(not for replacement or return) and at a time
+		 * assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
 		}
+		/**
+		 * remove all busy delivery boys who has more then one assigned orders
+		 */
+		List<DeliveryBoy> removeDeliveryBoys = new ArrayList<>();
+		for (DeliveryBoy deliveryBoy : busyDeliveryBoys) {
+			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+			taskFilterDTO.setDeliveryBoyId(deliveryBoy.getId());
+			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+			if (count > 1) {
+				removeDeliveryBoys.add(deliveryBoy);
+			}
+		}
+		busyDeliveryBoys.removeAll(removeDeliveryBoys);
 		availableDeliveryBoys.addAll(busyDeliveryBoys);
 		Map<Long, Double> deliveryBoyWithDistanceMap = new HashMap<>();
 		List<Long> nearestDeliveryBoys = new ArrayList<>();
@@ -461,7 +481,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Long thirdMinDeliveryBoyId = null;
 		for (Entry<Long, Double> deliveryBoyWithDistanceEntrySet : deliveryBoyWithDistanceMap.entrySet()) {
 			/**
-			 * Check if delivery boy's distance is less than first min distance, then update first, second and third
+			 * Check if delivery boy's distance is less than first min distance, then update
+			 * first, second and third
 			 */
 			if (deliveryBoyWithDistanceEntrySet.getValue() < firstMin) {
 				thirdMin = secMin;
@@ -473,7 +494,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than sec min distance then update second and third
+			 * Check if delivery boy's distance is less than sec min distance then update
+			 * second and third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < secMin) {
 				thirdMin = secMin;
@@ -483,7 +505,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than third min distance then update third
+			 * Check if delivery boy's distance is less than third min distance then update
+			 * third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < thirdMin) {
 				thirdMin = deliveryBoyWithDistanceEntrySet.getValue();
@@ -506,7 +529,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public synchronized void acceptOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException, ValidationException {
 		/**
-		 * check is order already accepted then throw exception else set delivery boy in order
+		 * check is order already accepted then throw exception else set delivery boy in
+		 * order
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
@@ -536,15 +560,13 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		taskService.createTask(taskDto);
 
 		/**
-		 * remove order id from notification history table of delivery boy
+		 * remove delivery boy notification history for this order
+		 *
 		 */
 		List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
 				.findAllByOrderId(orderId);
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
-			for (DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory : deliveryBoySendNotificationHistoryList) {
-				deliveryBoyNotificationHistory.setOrderId(null);
-			}
-			deliveryBoySendNotificationHistoryRepository.saveAll(deliveryBoySendNotificationHistoryList);
+			deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
 		}
 	}
 
@@ -566,19 +588,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void rejectOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException {
-		/**
-		 * if delivery boy's notification history contains this order id as last sended notification then remove it
-		 */
-		Optional<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistory = deliveryBoySendNotificationHistoryRepository
-				.findByDeliveryBoyAndOrderId(getDeliveryBoyDetail(deliveryBoyId), orderId);
-		if (deliveryBoySendNotificationHistory.isPresent()) {
-			deliveryBoySendNotificationHistory.get().setOrderId(null);
-			deliveryBoySendNotificationHistoryRepository.save(deliveryBoySendNotificationHistory.get());
-		}
-	}
-
-	@Override
 	public synchronized void updateDeliveryBoyRating(final Long deliveryBoyId, final Double ratingByClient) throws NotFoundException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
 		Double updatedRating = ((deliveryBoy.getRating() * deliveryBoy.getNoOfRating()) + ratingByClient) / (deliveryBoy.getNoOfRating() + 1);
@@ -591,7 +600,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is delivery boy with same phone number exist or not except it's own id
+			 * At the time of update is delivery boy with same phone number exist or not
+			 * except it's own id
 			 */
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -667,7 +677,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = getVendorAddress(orders.getVendor());
 			dropAddress = orders.getAddress();
 			/**
-			 * distance will be delivery boy's distance from vendor + distance between vendor and delivery location
+			 * distance will be delivery boy's distance from vendor + distance between
+			 * vendor and delivery location
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue())
@@ -681,7 +692,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = orders.getAddress();
 			dropAddress = getVendorAddress(orders.getVendor());
 			/**
-			 * distance will be delivery boy's distance from customer + 2 times distance between vendor and customer
+			 * distance will be delivery boy's distance from customer + 2 times distance
+			 * between vendor and customer
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue())

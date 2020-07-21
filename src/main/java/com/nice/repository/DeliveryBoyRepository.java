@@ -41,16 +41,17 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	Page<DeliveryBoy> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * find all by isLogin true,isBusy false and not order id is null or not
+	 * find all by isLogin true,isBusy false,is available and not order id is null
+	 * or not
 	 *
 	 * @param orderId
 	 * @return
 	 */
-	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and dn.orderId IS NULL")
-	List<DeliveryBoy> getAllNextAvailableDeliveryBoys();
+	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and (dn.orderId IS NULL or dn.orderId != :orderId)")
+	List<DeliveryBoy> getAllNextAvailableDeliveryBoys(Long orderId);
 
 	/**
-	 * find all by isLogin true,isBusy true and not order id is null or not
+	 * find all by isLogin true,is available and not order id is null or not
 	 *
 	 * @param orderId
 	 * @return

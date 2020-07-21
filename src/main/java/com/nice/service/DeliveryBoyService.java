@@ -232,15 +232,6 @@ public interface DeliveryBoyService {
 	OrderNotificationDTO getOrderDetailInDeliveryBoyAcceptNotification(Long orderId, Long deliveryBoyId) throws NotFoundException;
 
 	/**
-	 * reject order by delivery boy
-	 *
-	 * @param deliveryBoyId
-	 * @param orderId
-	 * @throws NotFoundException
-	 */
-	void rejectOrder(Long deliveryBoyId, Long orderId) throws NotFoundException;
-
-	/**
 	 * get assigned ordres count(regular orders ,return orders,replace orders
 	 * separate counts)
 	 *

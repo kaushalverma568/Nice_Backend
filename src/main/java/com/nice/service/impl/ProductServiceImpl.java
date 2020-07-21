@@ -1,17 +1,22 @@
 package com.nice.service.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,32 +29,46 @@ import com.nice.constant.UserType;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.ProductExtrasDTO;
+import com.nice.dto.ProductImportDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductMapper;
+import com.nice.model.Brand;
 import com.nice.model.CartItem;
+import com.nice.model.Category;
+import com.nice.model.Cuisine;
 import com.nice.model.Product;
 import com.nice.model.ProductVariant;
+import com.nice.model.SubCategory;
 import com.nice.model.TempCartItem;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
+import com.nice.repository.BrandRepository;
+import com.nice.repository.CategoryRepository;
+import com.nice.repository.CuisineRepository;
 import com.nice.repository.ProductRepository;
+import com.nice.repository.SubCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BrandService;
 import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
 import com.nice.service.DiscountService;
+import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SubCategoryService;
 import com.nice.service.TempCartItemService;
 import com.nice.service.VendorCuisineService;
+import com.nice.service.VendorService;
+import com.nice.util.CSVProcessor;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
@@ -111,6 +130,33 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private DiscountService discountService;
+
+	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
+	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private SubCategoryRepository subCategoryRepository;
+
+	@Autowired
+	private BrandRepository brandRepository;
+
+	@Autowired
+	private CuisineRepository cuisineRepository;
+
+	@Autowired
+	private FileStorageService fileStorageService;
+
+	@Value("${default.product}")
+	private String defaultProduct;
+
+	private static final String NON_VEG = "Non_Veg";
+
+	private static final String EGG = "Egg";
+
+	private static final String VEG = "Veg";
 
 	private UserLogin getUserLoginFromToken() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -321,8 +367,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
-	 * entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true
+	 * means get product list for admin convert entity to response dto
 	 *
 	 * @param product
 	 * @param listForAdmin
@@ -353,7 +399,8 @@ public class ProductServiceImpl implements ProductService {
 		}
 		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
-		 * if we are fetching product list For admin then set product variants to empty list
+		 * if we are fetching product list For admin then set product variants to empty
+		 * list
 		 */
 		List<ProductVariantResponseDTO> productVariantList = new ArrayList<>();
 
@@ -367,12 +414,14 @@ public class ProductServiceImpl implements ProductService {
 		}
 		LOGGER.info("Before setting available qty");
 		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out of stock
+		 * if product variant is null/empty or availableQty=0 then product will go out
+		 * of stock
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
-		 * and productOutOfStock for any other category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced
+		 * here, as we dont need the available qty and productOutOfStock for any other
+		 * category type except grocery.
 		 */
 		Integer availableQty = 0;
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
@@ -415,7 +464,8 @@ public class ProductServiceImpl implements ProductService {
 		Product product = getProductDetail(productId);
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Only the vendor who created the produce and the admin can deactivate the product
+		 * Only the vendor who created the produce and the admin can deactivate the
+		 * product
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
@@ -497,8 +547,9 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
-		 * null or the userLogin->entityType is customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no
+		 * user login and hence if the userLogin is null or the userLogin->entityType is
+		 * customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -570,7 +621,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
+	 * This method will update the rating of the product. Just provide the rating
+	 * provided by the client and productId.
 	 */
 	@Override
 	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {
@@ -594,6 +646,136 @@ public class ProductServiceImpl implements ProductService {
 		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
 		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
 		exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
+	}
 
+	@Override
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "product", AssetConstant.PRODUCT_DIR);
+		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.PRODUCT_DIR);
+		final File file = new File(filePath.toString());
+		final CSVProcessor<ProductImportDTO> csvProcessor = new CSVProcessor<>();
+		try {
+			final List<ProductImportDTO> productImportDTOs = csvProcessor.convertCSVFileToListOfBean(file, ProductImportDTO.class);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productImportDTOs)) {
+				final List<ProductImportDTO> insertListOfBean = insertListOfProducts(productImportDTOs);
+				Object[] brandDetailsHeadersField = new Object[] { "Product Name", "Result" };
+				Object[] brandDetailsField = new Object[] { "name", "uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, brandDetailsField, brandDetailsHeadersField, httpServletResponse);
+			}
+		} catch (SecurityException | IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
+		}
+	}
+
+	/**
+	 * @param productImportDTOs
+	 * @param userId
+	 * @return
+	 */
+	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
+		final List<ProductImportDTO> allResult = new ArrayList<>();
+		for (ProductImportDTO productImportDTO : productImportDTOs) {
+			try {
+				ProductRequestDTO productRequestDTO = validationForProductImport(productImportDTO);
+				addProduct(productRequestDTO, null);
+				productImportDTO.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
+			} catch (Exception e) {
+				productImportDTO.setUploadMessage(messageByLocaleService.getMessage("upload.failure", new Object[] { e.getMessage() }));
+			}
+			allResult.add(productImportDTO);
+		}
+		return allResult;
+
+	}
+
+	private ProductRequestDTO validationForProductImport(final ProductImportDTO productImportDTO) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside validation for product import for productImportDTO : {}", productImportDTO);
+		Long brandId = null;
+		UserLogin userLogin = checkForUserLogin();
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+
+		final ProductRequestDTO productRequestDTO = new ProductRequestDTO();
+		BeanUtils.copyProperties(productImportDTO, productRequestDTO);
+		productRequestDTO.setVendorId(vendor.getId());
+		productRequestDTO.setActive(true);
+
+		if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getName())) {
+			throw new ValidationException(messageByLocaleService.getMessage("product.name.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryName())) {
+			throw new ValidationException(messageByLocaleService.getMessage("category.name.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescription())) {
+			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getProductFoodType())) {
+			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.null", null));
+		} else if (productImportDTO.getVendorId() == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.null", null));
+		} else if (!(VEG.equalsIgnoreCase(productImportDTO.getProductFoodType()) || NON_VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())
+				|| EGG.equalsIgnoreCase(productImportDTO.getProductFoodType()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.proper", new Object[] { VEG, NON_VEG, EGG }));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
+			throw new ValidationException(messageByLocaleService.getMessage("brand.cuisine.required", null));
+		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
+			throw new ValidationException(messageByLocaleService.getMessage("one.of.brand.cuisine.required", null));
+		}
+		if (VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())) {
+			productRequestDTO.setProductFoodType(1);
+		} else if (NON_VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())) {
+			productRequestDTO.setProductFoodType(2);
+		} else {
+			productRequestDTO.setProductFoodType(3);
+		}
+		validateAndSetProductImport(productImportDTO, brandId, vendor, productRequestDTO);
+		return productRequestDTO;
+	}
+
+	/**
+	 * @param productImportDTO
+	 * @param brandId
+	 * @param vendor
+	 * @param productRequestDTO
+	 * @throws ValidationException
+	 */
+	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, Long brandId, final Vendor vendor,
+			final ProductRequestDTO productRequestDTO) throws ValidationException {
+		Optional<Category> category = categoryRepository.findByNameIgnoreCaseAndVendor(productImportDTO.getCategoryName(), vendor);
+		if (!category.isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("category.not.found.name", new Object[] { productImportDTO.getCategoryName() }));
+		} else {
+			productRequestDTO.setCategoryId(category.get().getId());
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getSubcategoryName())) {
+			Optional<SubCategory> subCategory = subCategoryRepository.findByNameIgnoreCaseAndCategory(productImportDTO.getSubcategoryName(), category.get());
+			if (!subCategory.isPresent()) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("subcategory.not.found.name", new Object[] { productImportDTO.getSubcategoryName() }));
+			} else {
+				productRequestDTO.setSubcategoryId(subCategory.get().getId());
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())) {
+			Optional<Cuisine> cuisine = cuisineRepository.findByNameIgnoreCase(productImportDTO.getCuisineName());
+			if (!cuisine.isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("cuisine.not.found.name", new Object[] { productImportDTO.getCuisineName() }));
+			} else {
+				productRequestDTO.setCuisineId(cuisine.get().getId());
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
+			Optional<Brand> brand = brandRepository.findByNameIgnoreCase(productImportDTO.getBrandName());
+			if (!brand.isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("brand.not.found.name", new Object[] { productImportDTO.getBrandName() }));
+			} else {
+				brandId = brand.get().getId();
+				productRequestDTO.setBrandId(brandId);
+			}
+		}
+		if (productRepository.findByNameIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getName(), brandId, vendor.getId()).isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("product.already.exists", null));
+		}
 	}
 }

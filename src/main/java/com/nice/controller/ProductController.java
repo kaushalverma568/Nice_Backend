@@ -36,6 +36,7 @@ import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
+import com.nice.exception.BaseException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -198,8 +199,8 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
-	 * products will be shown to them.
+	 * Get product list based on parameters.This method will be used by all:
+	 * Customer, Vendor and Admin and respective products will be shown to them.
 	 *
 	 * @param accessToken
 	 * @param productParamRequestDTO
@@ -258,12 +259,33 @@ public class ProductController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	 @PostMapping(value = "/export/list", produces = "text/csv")
-	 public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
-	 @RequestBody final ProductParamRequestDTO productParamRequestDTO,
-	 final HttpServletResponse httpServletResponse) throws IOException, ValidationException, NotFoundException {
-	 productService.exportProductList(httpServletResponse, productParamRequestDTO);
-	 return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-	 .setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE,null)).create();
-	 }
+	@PostMapping(value = "/export/list", produces = "text/csv")
+	public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody final ProductParamRequestDTO productParamRequestDTO, final HttpServletResponse httpServletResponse)
+			throws IOException, ValidationException, NotFoundException {
+		productService.exportProductList(httpServletResponse, productParamRequestDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Upload product
+	 *
+	 * @param accessToken
+	 * @param userId
+	 * @param file
+	 * @param httpServletResponse
+	 * @return
+	 * @throws BaseException
+	 */
+	@PostMapping(path = "/upload")
+	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+		if (file == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
+		}
+		productService.uploadFile(file, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
+				.create();
+	}
 }

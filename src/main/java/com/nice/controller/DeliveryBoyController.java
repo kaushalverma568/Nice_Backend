@@ -377,25 +377,6 @@ public class DeliveryBoyController {
 	}
 
 	/**
-	 * Reject order
-	 *
-	 * @param accessToken
-	 * @param deliveryBoyId
-	 * @param orderId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PutMapping("/reject/order/{deliveryBoyId}/{orderId}")
-	public ResponseEntity<Object> rejectOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("deliveryBoyId") final Long deliveryBoyId,
-			@PathVariable("orderId") final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside reject order by delivery boy {} and order {}", deliveryBoyId, orderId);
-		deliveryBoyService.rejectOrder(deliveryBoyId, orderId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * change phone number
 	 *
 	 * @param accessToken

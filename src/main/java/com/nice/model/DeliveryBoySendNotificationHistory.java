@@ -34,7 +34,7 @@ public class DeliveryBoySendNotificationHistory extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@JoinColumn(name = "delivery_boy_id", nullable = false, unique = true)
+	@JoinColumn(name = "delivery_boy_id", nullable = false)
 	@OneToOne(fetch = FetchType.LAZY)
 	private DeliveryBoy deliveryBoy;
 

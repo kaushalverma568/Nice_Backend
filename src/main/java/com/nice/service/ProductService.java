@@ -11,6 +11,7 @@ import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Product;
@@ -151,14 +152,22 @@ public interface ProductService {
 
 	/**
 	 * export by filter dto
-	 * 
+	 *
 	 * @param httpServletResponse
 	 * @param productParamRequestDTO
-	 * @throws IOException 
-	 * @throws ValidationException 
-	 * @throws NotFoundException 
+	 * @throws IOException
+	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
-	void exportProductList(HttpServletResponse httpServletResponse, ProductParamRequestDTO productParamRequestDTO) throws IOException, NotFoundException, ValidationException;
+	void exportProductList(HttpServletResponse httpServletResponse, ProductParamRequestDTO productParamRequestDTO)
+			throws IOException, NotFoundException, ValidationException;
+
+	/**
+	 * @param multipartFile
+	 * @param httpServletResponse
+	 * @throws FileOperationException
+	 */
+	void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException;
 
 	/**
 	 * get response of global search
