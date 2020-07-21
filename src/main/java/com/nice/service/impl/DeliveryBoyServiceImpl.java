@@ -632,6 +632,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), otp)) {
 				userName = userLogin.getEmail();
 				deliveryBoy.setIsEmailVerified(true);
+				deliveryBoy.setEmail(email.toLowerCase());
 				userLogin.setEmail(email.toLowerCase());
 				userLoginService.updateUserLogin(userLogin);
 				deliveryBoyRepository.save(deliveryBoy);

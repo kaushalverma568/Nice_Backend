@@ -110,7 +110,8 @@ public class UsersServiceImpl implements UsersService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	private Users getUsersDetails(final Long usersId) throws NotFoundException {
+	@Override
+	public Users getUsersDetails(final Long usersId) throws NotFoundException {
 		return usersRepository.findById(usersId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { usersId })));
 	}

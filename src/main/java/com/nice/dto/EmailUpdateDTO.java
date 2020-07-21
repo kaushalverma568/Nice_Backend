@@ -24,9 +24,11 @@ public class EmailUpdateDTO implements Serializable {
 
 	@NotBlank(message = "{email.not.null}")
 	private String email;
-	@NotNull(message = "{password.not.null}")
+
 	private String password;
 	@NotNull(message = "{otp.not.null}")
 	private String otp;
+	@NotBlank(message = "{user.type.not.null}")
+	private String userType;
 
 }

@@ -11,32 +11,32 @@ import com.nice.model.UserOtp;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Repository(value = "userOtpRepository")
 public interface UserOtpRepository extends JpaRepository<UserOtp, Long> {
 
-	Optional<UserOtp> findAllByTypeAndUserLoginAndOtpAndActive(String type, UserLogin userLogin, String otp, boolean active);
+	Optional<UserOtp> findAllByTypeIgnoreCaseAndUserLoginAndOtpAndActive(String type, UserLogin userLogin, String otp, boolean active);
 
 	/**
-	 * @param  userlogin
+	 * @param userlogin
 	 * @return
 	 */
 	UserOtp findByUserLogin(Optional<UserLogin> userlogin);
 
 	/**
-	 * @param  userlogin
-	 * @param  type
+	 * @param userlogin
+	 * @param type
 	 * @return
 	 */
-	UserOtp findByUserLoginAndType(Optional<UserLogin> userlogin, String type);
+	UserOtp findByUserLoginAndTypeIgnoreCase(Optional<UserLogin> userlogin, String type);
 
 	/**
 	 * Get user OTP by user id
 	 *
-	 * @param  type
-	 * @param  userLogin
+	 * @param type
+	 * @param userLogin
 	 * @return
 	 */
-	Optional<UserOtp> findAllByTypeAndUserLogin(String type, UserLogin userLogin);
+	Optional<UserOtp> findAllByTypeIgnoreCaseAndUserLogin(String type, UserLogin userLogin);
 }

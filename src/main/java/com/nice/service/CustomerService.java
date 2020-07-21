@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerResponseDTO;
-import com.nice.dto.EmailUpdateDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
@@ -145,15 +144,5 @@ public interface CustomerService {
 	 * @throws ValidationException
 	 */
 	String addUpdatePhoneNumber(String phoneNumber, String otp) throws NotFoundException, ValidationException;
-
-	/***
-	 * add/update email
-	 *
-	 * @param emailUpdateDTO
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	String addUpdateEmail(EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException;
 
 }

@@ -31,7 +31,6 @@ import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerExport;
 import com.nice.dto.CustomerResponseDTO;
-import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
@@ -43,6 +42,7 @@ import com.nice.model.Customer;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.repository.CustomerRepository;
+import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
@@ -88,6 +88,9 @@ public class CustomerServiceImpl implements CustomerService {
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
 
+	@Autowired
+	private DeliveryBoyRepository deliveryBoyRepository;
+
 	@Override
 	public Long addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
 
@@ -115,15 +118,15 @@ public class CustomerServiceImpl implements CustomerService {
 				LOGGER.info("same email and phone Number exist");
 			}
 			if (!optCustomer.get().getEmailVerified().booleanValue()) {
-			customer = optCustomer.get();
+				customer = optCustomer.get();
 				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
-			if (optUserLogin.isPresent()) {
-				sendOtpForEmailVerification(optUserLogin.get(), customer);
-				return optUserLogin.get().getId();
-			}
+				if (optUserLogin.isPresent()) {
+					sendOtpForEmailVerification(optUserLogin.get(), customer);
+					return optUserLogin.get().getId();
+				}
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
-		}
+			}
 		} else {
 			optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
 			if (optCustomer.isPresent()) {
@@ -174,10 +177,10 @@ public class CustomerServiceImpl implements CustomerService {
 		if (isAuthorized) {
 			if (RegisterVia.GOOGLE.getStatusValue().equals(customerDTO.getRegisteredVia())
 					|| RegisterVia.FACEBOOK.getStatusValue().equals(customerDTO.getRegisteredVia())) {
-			customer.setEmailVerified(true);
-			customer.setMobileVerified(false);
-			customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
-			userLogin.setActive(true);
+				customer.setEmailVerified(true);
+				customer.setMobileVerified(false);
+				customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
+				userLogin.setActive(true);
 			}
 		} else {
 			customer.setEmailVerified(false);
@@ -422,10 +425,10 @@ public class CustomerServiceImpl implements CustomerService {
 					return false;
 				} else {
 					return true;
-		}
+				}
 			} else {
 				return false;
-	}
+			}
 		}
 	}
 
@@ -463,47 +466,6 @@ public class CustomerServiceImpl implements CustomerService {
 			Customer customer = getCustomerDetails(userLogin.getEntityId());
 			customer.setMobileVerified(true);
 			customer.setPhoneNumber(phoneNumber);
-			customerRepository.save(customer);
-			return userName;
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
-		}
-	}
-
-	@Override
-	public String addUpdateEmail(final EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException {
-		String userName = null;
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-
-		/**
-		 * if any other customer has same email then throw exception
-		 */
-		if (customerRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("customer.email.exists", null));
-		}
-
-		if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
-
-			/**
-			 * if email is not null it means there is possibility that customer is logged in
-			 * with old email right now
-			 */
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail())) {
-				/**
-				 * revoke token of this user name if exist
-				 */
-				userName = userLogin.getEmail();
-			}
-			/**
-			 * set phone number and otp in user login of this customer
-			 */
-			userLogin.setEmail(emailUpdateDTO.getEmail().toLowerCase());
-			userLogin.setPassword(CommonUtility.generateBcrypt(emailUpdateDTO.getPassword()));
-			userLoginService.updateUserLogin(userLogin);
-
-			Customer customer = getCustomerDetails(userLogin.getEntityId());
-			customer.setEmailVerified(true);
-			customer.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			customerRepository.save(customer);
 			return userName;
 		} else {

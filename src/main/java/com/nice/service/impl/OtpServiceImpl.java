@@ -91,7 +91,7 @@ public class OtpServiceImpl implements OtpService {
 		 * Check if otp already generated in past for the user with this OTP Type, if
 		 * yes update the existing row, if not make a new object and persist it
 		 */
-		UserOtp userOtp = userOtpRepository.findByUserLoginAndType(userlogin, userOtpDto.getType());
+		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
 			userOtp = userOtpMapper.toEntity(userOtpDto, 1L);
 
@@ -142,7 +142,7 @@ public class OtpServiceImpl implements OtpService {
 	public boolean verifyOtp(final Long userLoginId, final String type, final String otp) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside fetching OTP for userLogin {} with {} for otp {}", userLoginId, type, otp);
 		String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
-		if (UserOtpTypeEnum.SMS.name().equals(type)) {
+		if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(type)) {
 			placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
 		}
 		Optional<UserLogin> userlogin = userLoginService.getUserLogin(userLoginId);
@@ -151,7 +151,7 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userLoginId }));
 		}
 
-		Optional<UserOtp> optionalUserOtp = userOtpRepository.findAllByTypeAndUserLogin(type, userlogin.get());
+		Optional<UserOtp> optionalUserOtp = userOtpRepository.findAllByTypeIgnoreCaseAndUserLogin(type, userlogin.get());
 
 		if (optionalUserOtp.isPresent()) {
 			if (optionalUserOtp.get().getOtp().equals(otp)) {

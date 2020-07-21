@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerResponseDTO;
-import com.nice.dto.EmailUpdateDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -55,12 +54,12 @@ import com.nice.validator.CustomerValidator;
 public class CustomerController {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String CUSTOMER_UPDATE_MESSAGE = "customer.update.message";
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String KODY_CLIENT = "kody-client";
 
@@ -260,46 +259,6 @@ public class CustomerController {
 			}
 		}
 		LOGGER.info("Outside add update PhoneNumber");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
-	 * Add/Update email
-	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param phoneNumber
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping("/email")
-	public ResponseEntity<Object> addUpdateEmail(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside add update email {} and otp: {}", emailUpdateDTO.getEmail(), emailUpdateDTO.getOtp());
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error("Customers validation failed");
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		String userName = customerService.addUpdateEmail(emailUpdateDTO);
-		if (userName != null) {
-			/**
-			 * if token exist then revoke token and give new token with new email and
-			 * password
-			 */
-			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(KODY_CLIENT, userName);
-			if (!tokens.isEmpty()) {
-				for (OAuth2AccessToken token : tokens) {
-					tokenStore.removeAccessToken(token);
-				}
-				/**
-				 * generate token here
-				 */
-			}
-		}
-		LOGGER.info("Outside  add update email");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
 				.create();
 	}
