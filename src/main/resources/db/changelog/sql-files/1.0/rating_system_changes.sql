@@ -1,7 +1,3 @@
-DROP TABLE IF EXISTS ORDER_ITEM_RATING ; 
-DROP TABLE IF EXISTS ORDER_RATING ;
-
-
 CREATE TABLE IF NOT EXISTS ORDER_RATING
 (
     ID BIGSERIAL NOT NULL,
@@ -23,9 +19,9 @@ CREATE TABLE IF NOT EXISTS ORDER_RATING
 	AVG_ORDER_RATING   NUMERIC(7,2),
 	REVIEW CHARACTER VARYING(255),
     CONSTRAINT ORDER_RATING_PKEY PRIMARY KEY (ID),
-	CONSTRAINT ORDER_RATING_VENDOR_fK FOREIGN KEY (VENDOR_ID)
+	CONSTRAINT ORDER_RATING_VENDOR_FK FOREIGN KEY (VENDOR_ID)
         REFERENCES VENDOR (ID),
-	CONSTRAINT ORDER_RATING_BOY_fK FOREIGN KEY (DELIVERY_BOY_ID)
+	CONSTRAINT ORDER_RATING_BOY_FK FOREIGN KEY (DELIVERY_BOY_ID)
         REFERENCES DELIVERY_BOY (ID)
 );
 
@@ -44,25 +40,25 @@ CREATE TABLE IF NOT EXISTS RATING_QUESTION
 
 
 
-INSERT INTO rating_question(
-	 active, created_at, created_by, updated_at, updated_by, question, type)
-	VALUES ( true, now(), 1,now(), 1, 'give rate for order packing' , 'Vendor');
+INSERT INTO RATING_QUESTION(
+	 ACTIVE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, QUESTION, TYPE)
+	VALUES ( TRUE, NOW(), 1,NOW(), 1, 'GIVE RATE FOR ORDER PACKING' , 'VENDOR');
 	
-INSERT INTO rating_question(
-	 active, created_at, created_by, updated_at, updated_by, question, type)
-	VALUES ( true, now(), 1,now(), 1, 'give rate for food Quality' , 'Vendor');
+INSERT INTO RATING_QUESTION(
+	 ACTIVE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, QUESTION, TYPE)
+	VALUES ( TRUE, NOW(), 1,NOW(), 1, 'GIVE RATE FOR FOOD QUALITY' , 'VENDOR');
 	
-INSERT INTO rating_question(
-	 active, created_at, created_by, updated_at, updated_by, question, type)
-	VALUES ( true, now(), 1,now(), 1, 'give rate for value of money' , 'Vendor');
+INSERT INTO RATING_QUESTION(
+	 ACTIVE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, QUESTION, TYPE)
+	VALUES ( TRUE, NOW(), 1,NOW(), 1, 'GIVE RATE FOR VALUE OF MONEY' , 'VENDOR');
 	
-INSERT INTO rating_question(
-	 active, created_at, created_by, updated_at, updated_by, question, type)
-	VALUES ( true, now(), 1,now(), 1, 'give rate for Delivery Boy' , 'DeliveryBoy');
+INSERT INTO RATING_QUESTION(
+	 ACTIVE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, QUESTION, TYPE)
+	VALUES ( TRUE, NOW(), 1,NOW(), 1, 'GIVE RATE FOR DELIVERY BOY' , 'DELIVERYBOY');
 	
-INSERT INTO rating_question(
-	 active, created_at, created_by, updated_at, updated_by, question, type)
-	VALUES ( true, now(), 1,now(), 1, 'give rate for Delivery Timing' , 'DeliveryBoy');
+INSERT INTO RATING_QUESTION(
+	 ACTIVE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, QUESTION, TYPE)
+	VALUES ( TRUE, NOW(), 1,NOW(), 1, 'GIVE RATE FOR DELIVERY TIMING' , 'DELIVERYBOY');
 	
 	
 	

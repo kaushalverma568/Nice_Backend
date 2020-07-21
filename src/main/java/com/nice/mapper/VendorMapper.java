@@ -65,6 +65,7 @@ public class VendorMapper {
 	public Vendor toEntity(final VendorDTO vendorDTO) {
 		Vendor vendor = new Vendor();
 		BeanUtils.copyProperties(vendorDTO, vendor);
+		vendor.setEmail(vendorDTO.getEmail().toLowerCase());
 		return vendor;
 	}
 

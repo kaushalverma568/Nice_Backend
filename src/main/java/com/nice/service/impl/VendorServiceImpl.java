@@ -173,7 +173,7 @@ public class VendorServiceImpl implements VendorService {
 		final UserLogin userLogin = new UserLogin();
 		userLogin.setEntityId(vendor.getId());
 		userLogin.setEntityType(UserType.VENDOR.name());
-		userLogin.setEmail(vendor.getEmail());
+		userLogin.setEmail(vendor.getEmail().toLowerCase());
 		userLogin.setRole(Role.VENDOR.name());
 		userLogin.setPassword(vendorDTO.getPassword());
 		userLogin.setActive(false);
@@ -712,10 +712,10 @@ public class VendorServiceImpl implements VendorService {
 				UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 				String userName = userLogin.getEmail();
 				if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
-					vendor.setEmail(emailUpdateDTO.getEmail());
+					vendor.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 					vendor.setIsEmailVerified(true);
 					vendorRepository.save(vendor);
-					userLogin.setEmail(emailUpdateDTO.getEmail());
+					userLogin.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 					userLoginService.updateUserLogin(userLogin);
 					return userName;
 				} else {
