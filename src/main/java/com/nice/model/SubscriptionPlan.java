@@ -39,6 +39,7 @@ public class SubscriptionPlan extends CommonModel {
 	
 	@Column(name = "days", nullable = false)
 	private Integer days;
-		
-
+	
+	@Column(name = "description", nullable = true)
+	private String description;
 }

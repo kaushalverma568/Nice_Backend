@@ -30,5 +30,7 @@ public class SubscriptionPlanDTO implements Serializable {
 
 	@NotNull(message = "{amount.not.null}")
 	private Double amount;
+	
+	private String description;
 
 }
