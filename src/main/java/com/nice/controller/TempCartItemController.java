@@ -163,6 +163,13 @@ public class TempCartItemController {
 				.setMessage(messageByLocaleService.getMessage("cart.item.deleted.successfully", null)).create();
 	}
 
+	/**
+	 *
+	 * @param uuid
+	 * @param vendorId
+	 * @return
+	 * @throws ValidationException
+	 */
 	@GetMapping("/check/{uuid}/{vendorId}")
 	public ResponseEntity<Object> checkIfCartContainsItemsWithDifferentVendor(@PathVariable("uuid") final String uuid, @PathVariable final Long vendorId)
 			throws ValidationException {

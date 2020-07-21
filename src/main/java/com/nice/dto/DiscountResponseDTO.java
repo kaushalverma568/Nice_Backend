@@ -6,16 +6,14 @@ import java.sql.Date;
 import lombok.Data;
 
 /**
- * 
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
- * @description :
+ * @date   : 20-Jul-2020
  */
 @Data
 public class DiscountResponseDTO implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5269976868706071854L;
 

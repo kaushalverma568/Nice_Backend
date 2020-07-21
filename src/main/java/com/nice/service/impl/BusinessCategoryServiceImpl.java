@@ -21,7 +21,6 @@ import com.nice.model.BusinessCategory;
 import com.nice.repository.BusinessCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BusinessCategoryService;
-import com.nice.service.FileStorageService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -32,7 +31,7 @@ import com.nice.service.FileStorageService;
 public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessCategoryServiceImpl.class);
-	
+
 	@Autowired
 	private BusinessCategoryRepository businessCategoryRepository;
 
@@ -41,16 +40,12 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-	
 
 	@Autowired
 	private AssetService assetService;
-	
-	@Autowired
-	private FileStorageService fileStorageService;
 
 	@Override
-	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO,MultipartFile image) throws NotFoundException {
+	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image) throws NotFoundException {
 		BusinessCategory businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
 		businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
 		businessCategory.setOriginalImageName(image.getOriginalFilename());
@@ -58,22 +53,23 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	}
 
 	@Override
-	public BusinessCategoryDTO updateBusinessCategory(final BusinessCategoryDTO businessCategoryDTO,MultipartFile image) throws NotFoundException, ValidationException {
+	public BusinessCategoryDTO updateBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image)
+			throws NotFoundException, ValidationException {
 		if (businessCategoryDTO.getId() == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("business.category.id.not.null",  null));
+			throw new ValidationException(messageByLocaleService.getMessage("business.category.id.not.null", null));
 		}
-		  BusinessCategory businessCategory = getBusinessCategoryDetail(businessCategoryDTO.getId());
-			 String oldImageName =  businessCategory.getImageName();
-			 String oldOriginalName = businessCategory.getOriginalImageName();
-			 businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
-			if (image != null) {
-				fileStorageService.deleteFile(oldImageName, AssetConstant.BUSINESS_CATEGORY_DIR);
-				businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
-				businessCategory.setOriginalImageName(image.getOriginalFilename());
-			} else {
-				businessCategory.setImageName(oldImageName);
-				businessCategory.setOriginalImageName(oldOriginalName);
-			}
+		BusinessCategory businessCategory = getBusinessCategoryDetail(businessCategoryDTO.getId());
+		String oldImageName = businessCategory.getImageName();
+		String oldOriginalName = businessCategory.getOriginalImageName();
+		businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
+		if (image != null) {
+			assetService.deleteFile(oldImageName, AssetConstant.BUSINESS_CATEGORY_DIR);
+			businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
+			businessCategory.setOriginalImageName(image.getOriginalFilename());
+		} else {
+			businessCategory.setImageName(oldImageName);
+			businessCategory.setOriginalImageName(oldOriginalName);
+		}
 		return businessCategoryMapper.toDto(businessCategoryRepository.save(businessCategory));
 	}
 
@@ -89,7 +85,8 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingBusinessCategory.getActive().equals(active)) {
-			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "business.category.active" : "business.category.deactive", null));
+			throw new ValidationException(
+					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "business.category.active" : "business.category.deactive", null));
 		} else {
 			existingBusinessCategory.setActive(active);
 			businessCategoryRepository.save(existingBusinessCategory);
@@ -118,8 +115,8 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Override
 	public BusinessCategory getBusinessCategoryDetail(final Long BusinessCategoryId) throws NotFoundException {
-		return businessCategoryRepository.findById(BusinessCategoryId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("business.category.not.found", new Object[] {  BusinessCategoryId })));
+		return businessCategoryRepository.findById(BusinessCategoryId).orElseThrow(
+				() -> new NotFoundException(messageByLocaleService.getMessage("business.category.not.found", new Object[] { BusinessCategoryId })));
 	}
 
 }

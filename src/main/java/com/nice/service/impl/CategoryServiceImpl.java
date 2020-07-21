@@ -53,8 +53,8 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -87,13 +87,13 @@ public class CategoryServiceImpl implements CategoryService {
 	private ExportCSV exportCSV;
 
 	@Autowired
-	private FileStorageService fileStorageService;
-	
-	@Autowired
 	private DiscountRepository discountRepository;
 
 	@Autowired
 	private DiscountService discountService;
+
+	@Autowired
+	private FileStorageService fileStorageService;
 
 	@Override
 	public void addCategory(final CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException {
@@ -161,9 +161,9 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  pageable
 	 * @return
 	 */
 	private Page<Category> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
@@ -193,8 +193,7 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "category.active" : "category.deactive", null));
 		} else {
 			/**
-			 * deActive All subCategories related to this category at the time of
-			 * deActivating Category
+			 * deActive All subCategories related to this category at the time of deActivating Category
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Category {}", existingCategory);
@@ -202,7 +201,7 @@ public class CategoryServiceImpl implements CategoryService {
 				for (final SubCategory subCategory : subCategories) {
 					subCategoryService.changeStatus(subCategory.getId(), Boolean.FALSE);
 				}
-				
+
 				/**
 				 * deActive All discount related to this category at the time of deActivating Brand
 				 */
@@ -226,8 +225,7 @@ public class CategoryServiceImpl implements CategoryService {
 		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name exist or not except it's own
-			 * id
+			 * At the time of update is category with same name exist or not except it's own id
 			 */
 			return categoryRepository.findByNameIgnoreCaseAndVendorAndIdNot(categoryDTO.getName(), vendor, categoryDTO.getId()).isPresent();
 		} else {
@@ -256,7 +254,7 @@ public class CategoryServiceImpl implements CategoryService {
 	 */
 	private void deleteOldImage(final Category category) {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(category.getImage())) {
-			fileStorageService.deleteFile(category.getImage(), AssetConstant.CATEGORY);
+			assetService.deleteFile(category.getImage(), AssetConstant.CATEGORY);
 		}
 	}
 
@@ -298,8 +296,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param categoryImports
-	 * @param userId
+	 * @param  categoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {

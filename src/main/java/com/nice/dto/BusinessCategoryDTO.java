@@ -6,20 +6,18 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * 
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
-
 @Data
-public class BusinessCategoryDTO implements Serializable {/**
-	 * 
-	 */
+public class BusinessCategoryDTO implements Serializable {
+	/**
+	*
+	*/
 	private static final long serialVersionUID = 8040711294987954136L;
-	
+
 	private Long id;
 
 	@NotBlank(message = "{name.not.null}")
@@ -27,10 +25,10 @@ public class BusinessCategoryDTO implements Serializable {/**
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
-	
+
 	@NotNull(message = "{manage.inventory.not.null}")
 	private Boolean manageInventory;
-	
+
 	private String imageUrl;
 
 }

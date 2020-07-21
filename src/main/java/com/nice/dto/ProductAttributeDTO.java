@@ -5,19 +5,16 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class ProductAttributeDTO implements Serializable {
 	/**
-	* 
+	*
 	*/
 	private static final long serialVersionUID = 8040711294987954136L;
 

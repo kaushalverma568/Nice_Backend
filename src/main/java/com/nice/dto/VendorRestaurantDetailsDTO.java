@@ -13,14 +13,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 26, 2020
+ * @date   : Jun 26, 2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class VendorRestaurantDetailsDTO implements Serializable {
 
 	/**

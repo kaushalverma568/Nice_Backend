@@ -10,8 +10,8 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 02-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Data
 public class ResetPasswordParameterDTO implements Serializable {

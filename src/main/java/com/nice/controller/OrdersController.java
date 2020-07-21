@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.nice.constant.PaymentMode;
 import com.nice.dto.OrderListFilterDto;
@@ -63,8 +62,6 @@ public class OrdersController {
 
 	@Value("${customer.url}")
 	private String customerUrl;
-
-	private static final String REDIRECT = "redirect:";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -134,10 +131,19 @@ public class OrdersController {
 				.create();
 	}
 
+	/**
+	 *
+	 * @param accessToken
+	 * @param orderListFilterDto
+	 * @param httpServletResponse
+	 * @return
+	 * @throws IOException
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportOrderList(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse)
-			throws IOException, ValidationException, NotFoundException {
+			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse) throws IOException, NotFoundException {
 		orderService.exportOrderList(httpServletResponse, orderListFilterDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null)).create();
 	}
@@ -158,12 +164,6 @@ public class OrdersController {
 
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
 				.setData(orderDetails).create();
-	}
-
-	@PutMapping("/app/razorpay/{razorPayOrderId}")
-	public ModelAndView createRazorPayFormForApp(@RequestHeader("Authorization") final String token,
-			@PathVariable("razorPayOrderId") final String razorPayOrderId, @RequestHeader final Long userId) {
-		return new ModelAndView(REDIRECT + customerUrl + "#/app-payment/'" + razorPayOrderId + "'");
 	}
 
 	/**
@@ -241,8 +241,7 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for
-	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
 	 * @param accessToken
 	 * @param userId

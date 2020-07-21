@@ -46,6 +46,10 @@ import com.nice.service.ProductVariantService;
 import com.nice.service.TempCartItemService;
 import com.nice.util.CommonUtility;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartItemService")
 public class CartItemServiceImpl implements CartItemService {
@@ -92,15 +96,14 @@ public class CartItemServiceImpl implements CartItemService {
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor
-		 * delete the old cart and populate the new one
+		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
+		 * one
 		 */
 		if (!cartItemList.isEmpty()) {
 			CartItem cartItem = cartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new
-			 * products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new products are different
 			 */
 			if (!cartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				LOGGER.info("Deleting cart for customer :{} as products for different vendor exists", customerId);
@@ -183,8 +186,8 @@ public class CartItemServiceImpl implements CartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if
-					 * total of existing and new is greater then 15 , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
+					 * , then set quantity as 15
 					 **/
 					LOGGER.info("All Extras, Toppings, ProductAttributeValues, Addons same for cartItem :{} , hence updating the qty of existing product",
 							cartItem.getId());
@@ -221,8 +224,8 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	/**
-	 * @param cartItemEntity
-	 * @param cartItemDTO
+	 * @param  cartItemEntity
+	 * @param  cartItemDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -419,7 +422,6 @@ public class CartItemServiceImpl implements CartItemService {
 
 	/**
 	 * @throws ValidationException
-	 *
 	 */
 	private Long getCustomerIdForLoginUser() throws ValidationException {
 		UserLogin userLogin = checkForUserLogin();

@@ -8,8 +8,13 @@ import org.springframework.validation.Validator;
 import com.nice.dto.RatingQuestionDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.RatingQuestionService;
+
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Component
-public class RatingQuestionValidator  implements Validator {
+public class RatingQuestionValidator implements Validator {
 
 	/**
 	 * Locale message service - to display response messages from messages_en.properties
@@ -34,7 +39,7 @@ public class RatingQuestionValidator  implements Validator {
 
 		final RatingQuestionDTO ratingQuestionDTO = (RatingQuestionDTO) target;
 
-		if ( ratingQuestionService.isExists(ratingQuestionDTO)) {
+		if (ratingQuestionService.isExists(ratingQuestionDTO)) {
 			errors.rejectValue("question", "409", messageByLocaleService.getMessage("rating.question.not.unique", null));
 		}
 	}

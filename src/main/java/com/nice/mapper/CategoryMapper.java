@@ -4,27 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
 import com.nice.dto.CategoryDTO;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.model.Category;
-import com.nice.util.CommonUtility;
+import com.nice.service.AssetService;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Component
 public class CategoryMapper {
+
+	@Autowired
+	private AssetService assetService;
 
 	public CategoryResponseDTO toDto(final Category category) {
 		CategoryResponseDTO categoryResponseDTO = new CategoryResponseDTO();
 		BeanUtils.copyProperties(category, categoryResponseDTO);
 		if (category.getImage() != null) {
-			categoryResponseDTO.setImage(CommonUtility.getGeneratedUrl(category.getImage(), AssetConstant.CATEGORY));
+			categoryResponseDTO.setImage(assetService.getGeneratedUrl(category.getImage(), AssetConstant.CATEGORY));
 		}
 		return categoryResponseDTO;
 	}

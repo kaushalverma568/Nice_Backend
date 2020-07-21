@@ -37,9 +37,8 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("brandService")
@@ -179,8 +178,8 @@ public class BrandServiceImpl implements BrandService {
 	}
 
 	/**
-	 * @param brandImports
-	 * @param userId
+	 * @param  brandImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<BrandImport> insertListOfBrands(final List<BrandImport> brandImports) {

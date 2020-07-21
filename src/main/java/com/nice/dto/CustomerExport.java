@@ -4,14 +4,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date   : 26-Jun-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class CustomerExport implements Serializable {
 
 	/**

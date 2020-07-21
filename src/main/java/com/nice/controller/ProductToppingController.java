@@ -112,6 +112,12 @@ public class ProductToppingController {
 				.setData(productToppingList).create();
 	}
 
+	/**
+	 *
+	 * @param productVariantId
+	 * @param activeRecords
+	 * @return
+	 */
 	@GetMapping("/cust/list/{productVariantId}")
 	public ResponseEntity<Object> getProductList(@PathVariable final Long productVariantId, @RequestParam(required = false) final Boolean activeRecords) {
 		LOGGER.info("Inside get Topping List for Product varinat {}", productVariantId);

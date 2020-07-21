@@ -6,15 +6,12 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 03-Jul-2020
+ * @date   : 03-Jul-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class CartItemDTO implements Serializable {
 
 	/**

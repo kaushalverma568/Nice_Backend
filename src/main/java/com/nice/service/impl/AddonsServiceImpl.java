@@ -200,8 +200,8 @@ public class AddonsServiceImpl implements AddonsService {
 	}
 
 	@Override
-	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
-		final String fileName = fileStorageService.storeFile(multipartFile, "addons_"+System.currentTimeMillis(), AssetConstant.ADDONS);
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "addons_" + System.currentTimeMillis(), AssetConstant.ADDONS);
 		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.ADDONS);
 		final File file = new File(filePath.toString());
 		final CSVProcessor<AddonsImport> csvProcessor = new CSVProcessor<>();
@@ -210,18 +210,16 @@ public class AddonsServiceImpl implements AddonsService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(addonsImports)) {
 				final List<AddonsImport> insertListOfBean = insertListOfUoms(
 						addonsImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
-				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name","Description", "Result" };
-				Object[] addonsDetailsField = new Object[] { "name", "description","uploadMessage" };
+				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name", "Description", "Result" };
+				Object[] addonsDetailsField = new Object[] { "name", "description", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, addonsDetailsField, addonsDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
 		}
-		
+
 	}
-	
-	
-	
+
 	private List<AddonsImport> insertListOfUoms(final List<AddonsImport> addonsImports) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<AddonsImport> allResult = new ArrayList<>();

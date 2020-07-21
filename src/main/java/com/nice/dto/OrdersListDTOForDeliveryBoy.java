@@ -6,19 +6,16 @@ package com.nice.dto;
 import java.io.Serializable;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 04-Apr-2020
+ * @date   : 04-Apr-2020
  */
-
 @Data
-@EqualsAndHashCode
 public class OrdersListDTOForDeliveryBoy implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 9586571908058744L;
 

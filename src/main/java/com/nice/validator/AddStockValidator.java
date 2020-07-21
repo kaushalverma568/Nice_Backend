@@ -22,7 +22,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 31-Dec-2019
+ * @date   : 20-Jul-2020
  */
 @Component
 public class AddStockValidator implements Validator {
@@ -69,13 +69,12 @@ public class AddStockValidator implements Validator {
 					vendor = vendorService.getVendorDetail(addStockRequestDTO.getVendorId());
 				}
 			} catch (NotFoundException e1) {
-				errors.rejectValue("vendorId", "409",
-						messageByLocaleService.getMessage("vendor.not.found", new Object[] { addStockRequestDTO.getVendorId() }));
+				errors.rejectValue("vendorId", "409", messageByLocaleService.getMessage("vendor.not.found", new Object[] { addStockRequestDTO.getVendorId() }));
 			}
 			if (vendor != null) {
 				skuValidation(errors, addStockRequestDTO, vendor);
 			}
-			
+
 		}
 	}
 
@@ -84,19 +83,18 @@ public class AddStockValidator implements Validator {
 	 * @param addStockRequestDTO
 	 * @param vendor
 	 */
-	private void skuValidation(final Errors errors, final AddStockRequestDTO addStockRequestDTO, Vendor vendor) {
+	private void skuValidation(final Errors errors, final AddStockRequestDTO addStockRequestDTO, final Vendor vendor) {
 		ProductVariant productVariant = null;
 		try {
 			if (addStockRequestDTO.getSku() != null) {
-				productVariant = productVariantService.getProductVariantDetailBySku(addStockRequestDTO.getSku(),addStockRequestDTO.getVendorId());
+				productVariant = productVariantService.getProductVariantDetailBySku(addStockRequestDTO.getSku(), addStockRequestDTO.getVendorId());
 				if (!productVariant.getActive().booleanValue()) {
 					errors.rejectValue("sku", "409",
 							messageByLocaleService.getMessage("cannot.add.stock.deactive.product", new Object[] { addStockRequestDTO.getSku() }));
 				}
 			}
 		} catch (NotFoundException e1) {
-			errors.rejectValue("sku", "409",
-					messageByLocaleService.getMessage("unknown.sku", new Object[] { addStockRequestDTO.getSku() }));
+			errors.rejectValue("sku", "409", messageByLocaleService.getMessage("unknown.sku", new Object[] { addStockRequestDTO.getSku() }));
 		}
 		try {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(addStockRequestDTO.getStockRequestDTOs())) {

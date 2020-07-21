@@ -5,8 +5,6 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -14,8 +12,6 @@ import lombok.ToString;
  */
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ToString
 public class ProductAddonsDTO implements Serializable {
 	/**
 	*

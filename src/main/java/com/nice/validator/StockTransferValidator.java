@@ -10,7 +10,7 @@ import com.nice.locale.MessageByLocaleService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 31-Dec-2019
+ * @date   : 20-Jul-2020
  */
 @Component
 public class StockTransferValidator implements Validator {

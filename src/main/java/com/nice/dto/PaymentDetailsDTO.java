@@ -8,15 +8,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 15-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class PaymentDetailsDTO implements Serializable {
 
 	/**

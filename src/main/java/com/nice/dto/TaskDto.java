@@ -8,14 +8,12 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 10-Apr-2020
+ * @date   : 10-Apr-2020
  */
 @Data
-@EqualsAndHashCode
 public class TaskDto implements Serializable {
 
 	/**

@@ -9,12 +9,11 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-/**
- * 
- * @author nisha.parmar
- *
- */
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Entity
 @Table(name = "business_category")
 @Data
@@ -22,7 +21,7 @@ import lombok.EqualsAndHashCode;
 public class BusinessCategory extends CommonModel {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2499566932816782817L;
 
@@ -33,13 +32,13 @@ public class BusinessCategory extends CommonModel {
 
 	@Column(name = "name", nullable = false)
 	private String name;
-	
+
 	@Column(name = "image_name", nullable = false)
 	private String imageName;
-	
+
 	@Column(name = "original_image_name", nullable = false)
 	private String originalImageName;
-		
+
 	@Column(name = "manage_inventory", nullable = false)
 	private Boolean manageInventory;
 }

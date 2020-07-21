@@ -37,6 +37,10 @@ import com.nice.service.TempCartItemService;
 import com.nice.service.TempCartProductAttributeValueService;
 import com.nice.service.TempCartToppingsService;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Transactional(rollbackFor = Throwable.class)
 @Service("tempCartItemService")
 public class TempCartItemServiceImpl implements TempCartItemService {
@@ -74,15 +78,14 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 		List<TempCartItem> tempCartItemList = getCartListBasedOnUuid(tempCartItemDTO.getUuid());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor
-		 * delete the old cart and populate the new one
+		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
+		 * one
 		 */
 		if (!tempCartItemList.isEmpty()) {
 			TempCartItem tempCartItem = tempCartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(tempCartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new
-			 * products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new products are different
 			 */
 			if (!tempCartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				deleteTempCartItemForUuid(tempCartItemDTO.getUuid());
@@ -155,8 +158,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if
-					 * total of existing and new is greater then 15 , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
+					 * , then set quantity as 15
 					 **/
 					updateTempCartItemQty(tempCartItem.getId(), tempCartItem.getQuantity() + tempCartItemEntity.getQuantity() > 15 ? 15
 							: tempCartItem.getQuantity() + tempCartItemEntity.getQuantity());
@@ -178,8 +181,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 	}
 
 	/**
-	 * @param tempCartItemEntity
-	 * @param tempCartItemDTO
+	 * @param  tempCartItemEntity
+	 * @param  tempCartItemDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

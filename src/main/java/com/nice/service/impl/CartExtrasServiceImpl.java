@@ -26,6 +26,10 @@ import com.nice.service.CartItemService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductVariantService;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartExtrasService")
 public class CartExtrasServiceImpl implements CartExtrasService {
@@ -67,7 +71,8 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsCartExtrasForCartItemAndExtras(cartItem, productExtras)) {
-			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productExtras.getProductExtrasMaster().getName() }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productExtras.getProductExtrasMaster().getName() }));
 		}
 		cartExtras.setProductExtras(productExtras);
 		cartExtras.setCartItem(cartItem);
@@ -105,8 +110,7 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 	}
 
 	/**
-	 *
-	 * @param cartExtras
+	 * @param  cartExtras
 	 * @return
 	 */
 	private ProductExtrasDTO convertEntityToDto(final CartExtras cartExtras) {
@@ -147,23 +151,22 @@ public class CartExtrasServiceImpl implements CartExtrasService {
 		return getCartExtrasListForCartItem(cartItem);
 	}
 
-	
 	@Override
 	public void deleteCartExtrasByExtrasId(final Long productExtrasId) throws NotFoundException {
-		ProductExtras  productExtras = productExtrasService.getProductExtrasDetail(productExtrasId);
+		ProductExtras productExtras = productExtrasService.getProductExtrasDetail(productExtrasId);
 		cartExtrasRepository.deleteByProductExtras(productExtras);
 	}
-	
+
 	@Override
 	public List<CartExtras> getCartExtrasListForCartItem(final CartItem cartItem) {
 		LOGGER.info("Inside getCartextrasListForCartItem using Object for cartItem : {}", cartItem.getId());
 		return cartExtrasRepository.findAllByCartItem(cartItem);
 	}
-	
+
 	@Override
 	public List<CartExtras> getCartExtrasListFromProductExtrasId(final Long productExtrasId) throws NotFoundException {
 		ProductExtras productExtras = productExtrasService.getProductExtrasDetail(productExtrasId);
 		return cartExtrasRepository.findAllByProductExtras(productExtras);
 	}
-	
+
 }

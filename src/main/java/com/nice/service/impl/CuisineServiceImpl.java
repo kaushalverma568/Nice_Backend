@@ -25,14 +25,12 @@ import com.nice.model.VendorCuisine;
 import com.nice.repository.CuisineRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CuisineService;
-import com.nice.service.FileStorageService;
 import com.nice.service.VendorCuisineService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Service("cuisineService")
 @Transactional(rollbackFor = Throwable.class)
@@ -48,9 +46,6 @@ public class CuisineServiceImpl implements CuisineService {
 
 	@Autowired
 	private CuisineMapper cuisineMapper;
-
-	@Autowired
-	private FileStorageService fileStorageService;
 
 	@Autowired
 	private AssetService assetService;
@@ -85,7 +80,7 @@ public class CuisineServiceImpl implements CuisineService {
 	 */
 	private void deleteOldImage(final Cuisine cuisine) {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisine.getImageName())) {
-			fileStorageService.deleteFile(cuisine.getImageName(), AssetConstant.CUISINE);
+			assetService.deleteFile(cuisine.getImageName(), AssetConstant.CUISINE);
 		}
 	}
 

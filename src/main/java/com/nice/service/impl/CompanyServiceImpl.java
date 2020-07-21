@@ -20,8 +20,6 @@ import com.nice.model.Company;
 import com.nice.repository.CompanyRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
-import com.nice.service.FileStorageService;
-import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -47,9 +45,6 @@ public class CompanyServiceImpl implements CompanyService {
 	@Autowired
 	private AssetService assetService;
 
-	@Autowired
-	private FileStorageService fileStorageService;
-
 	@Override
 	public void addCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws ValidationException, NotFoundException {
 		if (companyRepository.count() >= 1) {
@@ -73,7 +68,7 @@ public class CompanyServiceImpl implements CompanyService {
 			String oldOriginalName = company.getCompanyImageOriginalName();
 			company = companyMapper.toEntity(companyDTO);
 			if (logo != null) {
-				fileStorageService.deleteFile(oldImageName, AssetConstant.COMPANY_DIR);
+				assetService.deleteFile(oldImageName, AssetConstant.COMPANY_DIR);
 				company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0));
 				company.setCompanyImageOriginalName(logo.getOriginalFilename());
 			} else {
@@ -97,7 +92,7 @@ public class CompanyServiceImpl implements CompanyService {
 		 * flag is added for avoiding exception at the time of Jms email notification
 		 */
 		if (Boolean.TRUE.equals(isImageRequired)) {
-			companyResponseDTO.setCompanyImage(CommonUtility.getGeneratedUrl(company.getCompanyImageName(), AssetConstant.COMPANY_DIR));
+			companyResponseDTO.setCompanyImage(assetService.getGeneratedUrl(company.getCompanyImageName(), AssetConstant.COMPANY_DIR));
 		}
 		return companyResponseDTO;
 	}

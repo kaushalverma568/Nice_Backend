@@ -34,8 +34,8 @@ import com.nice.service.TicketService;
 import com.nice.util.CommonUtility;
 
 /**
- * @author Kody Technolab PVT. LTD.
- * @date 31-Jan-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("ticketService")
@@ -146,8 +146,7 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Inside get ticket list for user {}", userLogin.getId());
 		String email = null;
 		/**
-		 * if login user is delivery boy , vendor or customer then get ticket list of
-		 * that user only
+		 * if login user is delivery boy , vendor or customer then get ticket list of that user only
 		 */
 		if (UserType.CUSTOMER.name().equalsIgnoreCase(userLogin.getEntityType()) || UserType.VENDOR.name().equalsIgnoreCase(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equalsIgnoreCase(userLogin.getEntityType())) {

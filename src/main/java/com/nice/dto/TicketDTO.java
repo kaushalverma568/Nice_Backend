@@ -5,15 +5,12 @@ import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 09-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class TicketDTO implements Serializable {
 
 	/**

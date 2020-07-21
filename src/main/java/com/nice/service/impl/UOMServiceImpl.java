@@ -47,11 +47,9 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
-
 @Transactional(rollbackFor = Throwable.class)
 @Service("uomService")
 public class UOMServiceImpl implements UOMService {
@@ -69,7 +67,7 @@ public class UOMServiceImpl implements UOMService {
 
 	@Autowired
 	private UOMMapper uomMapper;
-	
+
 	@Autowired
 	private ProductService productService;
 
@@ -81,10 +79,10 @@ public class UOMServiceImpl implements UOMService {
 
 	@Autowired
 	private FileStorageService fileStorageService;
-	
+
 	@Override
 	public void addUOM(final UOMDTO uomDTO) throws ValidationException, NotFoundException {
-		validateDto(uomDTO);		
+		validateDto(uomDTO);
 		UOM uom = uomMapper.toEntity(uomDTO);
 		StringBuilder label = new StringBuilder();
 		if (uom.getQuantity() % 1 == 0) {
@@ -97,7 +95,7 @@ public class UOMServiceImpl implements UOMService {
 		uomRepository.save(uom);
 	}
 
-	private void validateDto(UOMDTO uomDTO) throws ValidationException {
+	private void validateDto(final UOMDTO uomDTO) throws ValidationException {
 		/**
 		 * If the login user is not a vendor then throw an exception
 		 */
@@ -108,7 +106,7 @@ public class UOMServiceImpl implements UOMService {
 		if (!uomDTO.getVendorId().equals(userLogin.getEntityId())) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
-		
+
 	}
 
 	@Override
@@ -144,7 +142,7 @@ public class UOMServiceImpl implements UOMService {
 	}
 
 	@Override
-	public Page<UOM> getUOMList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, Long vendorId) throws NotFoundException {
+	public Page<UOM> getUOMList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId) throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (activeRecords != null) {
 			if (vendorId != null) {
@@ -158,7 +156,7 @@ public class UOMServiceImpl implements UOMService {
 			} else {
 				return uomRepository.findAll(pageable);
 			}
-			
+
 		}
 	}
 
@@ -179,12 +177,12 @@ public class UOMServiceImpl implements UOMService {
 			 * deActive UOM only if there is no product which is contain uom
 			 */
 			if (Boolean.FALSE.equals(active)) {
-				 final ProductParamRequestDTO paramRequestDTO = new ProductParamRequestDTO();
-				 paramRequestDTO.setUomId(uomId);
-				 final List<Product> productList = productService.getProductListBasedOnParamsWithoutPagination(paramRequestDTO);
-				 if (!productList.isEmpty()) {
-				 throw new ValidationException(messageByLocaleService.getMessage("uom.can.not.deactive", null));
-				 }
+				final ProductParamRequestDTO paramRequestDTO = new ProductParamRequestDTO();
+				paramRequestDTO.setUomId(uomId);
+				final List<Product> productList = productService.getProductListBasedOnParamsWithoutPagination(paramRequestDTO);
+				if (!productList.isEmpty()) {
+					throw new ValidationException(messageByLocaleService.getMessage("uom.can.not.deactive", null));
+				}
 			} else {
 				LOGGER.info("Activating  UOM");
 			}
@@ -226,7 +224,7 @@ public class UOMServiceImpl implements UOMService {
 	}
 
 	@Override
-	public void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
 		List<UOM> uomList;
 		List<UOMDTO> uomExportList = new ArrayList<>();
 		if (activeRecords != null) {
@@ -237,13 +235,13 @@ public class UOMServiceImpl implements UOMService {
 		for (UOM uom : uomList) {
 			uomExportList.add(uomMapper.toDto(uom));
 		}
-		final Object[] uomHeaderField = new Object[] {"Measurement","Quantity","UOM Label"};
-		final Object[] uomDataField = new Object[] { "measurement","quantity","uomLabel"};
-		exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);		
+		final Object[] uomHeaderField = new Object[] { "Measurement", "Quantity", "UOM Label" };
+		final Object[] uomDataField = new Object[] { "measurement", "quantity", "uomLabel" };
+		exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);
 	}
 
 	@Override
-	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
 		final String fileName = fileStorageService.storeFile(multipartFile, "uom", AssetConstant.UOM);
 		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.UOM);
 		final File file = new File(filePath.toString());
@@ -253,18 +251,16 @@ public class UOMServiceImpl implements UOMService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(uomImports)) {
 				final List<UOMImport> insertListOfBean = insertListOfUoms(
 						uomImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getMeasurement())).collect(Collectors.toList()));
-				Object[] uomDetailsHeadersField = new Object[] { "UOM Measurement","Quantity", "Result" };
-				Object[] uomDetailsField = new Object[] { "measurement", "Quantity","uploadMessage" };
+				Object[] uomDetailsHeadersField = new Object[] { "UOM Measurement", "Quantity", "Result" };
+				Object[] uomDetailsField = new Object[] { "measurement", "Quantity", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, uomDetailsField, uomDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
 		}
-		
+
 	}
-	
-	
-	
+
 	private List<UOMImport> insertListOfUoms(final List<UOMImport> uomImports) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<UOMImport> allResult = new ArrayList<>();
@@ -274,8 +270,8 @@ public class UOMServiceImpl implements UOMService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (uomRepository.findByMeasurementIgnoreCaseAndQuantityAndVendorId(uomImport.getMeasurement(),
-						uomImport.getQuantity(), vendor.getId()).isPresent()) {
+				if (uomRepository.findByMeasurementIgnoreCaseAndQuantityAndVendorId(uomImport.getMeasurement(), uomImport.getQuantity(), vendor.getId())
+						.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("uom.not.unique", null));
 				} else {
 					final UOMDTO uomDTO = new UOMDTO();
@@ -293,5 +289,5 @@ public class UOMServiceImpl implements UOMService {
 		}
 		return allResult;
 	}
-	
+
 }

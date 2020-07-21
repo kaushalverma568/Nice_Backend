@@ -3,22 +3,18 @@ package com.nice.dto;
 import java.io.Serializable;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ToString
 public class ProductExtrasMasterDTO implements Serializable {
 	/**
 	*
@@ -37,8 +33,7 @@ public class ProductExtrasMasterDTO implements Serializable {
 
 	@NotNull(message = "{rate.not.null}")
 	private Double rate;
-	
-	private Long vendorId;
 
+	private Long vendorId;
 
 }

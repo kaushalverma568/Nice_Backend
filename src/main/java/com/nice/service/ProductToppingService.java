@@ -5,8 +5,6 @@ package com.nice.service;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.nice.dto.ProductToppingDto;
 import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -21,12 +19,13 @@ import com.nice.model.Topping;
 public interface ProductToppingService {
 
 	/**
+	 *
 	 * @param productToppingDTOList
-	 * @param productVariantId      TODO
+	 * @param productVariantId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addUpdateProductTopping(@Valid List<ProductToppingDto> productToppingDTOList, Long productVariantId) throws NotFoundException, ValidationException;
+	void addUpdateProductTopping(List<ProductToppingDto> productToppingDTOList, Long productVariantId) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param productVariantId

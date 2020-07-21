@@ -6,15 +6,12 @@ import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 19, 2020
+ * @date   : Jun 19, 2020
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class DeliveryBoyLocationDTO implements Serializable {
 
 	/**

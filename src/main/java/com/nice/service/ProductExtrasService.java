@@ -9,19 +9,56 @@ import com.nice.model.ProductExtras;
 
 public interface ProductExtrasService {
 
+	/**
+	 *
+	 * @param productExtrasDto
+	 * @return
+	 * @throws NotFoundException
+	 */
 	boolean isExists(ProductExtrasDTO productExtrasDto) throws NotFoundException;
 
+	/**
+	 *
+	 * @param productExtrasDto
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	Long addProductExtras(ProductExtrasDTO productExtrasDto) throws NotFoundException, ValidationException;
 
+	/**
+	 *
+	 * @param productExtrasDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	Long updateProductExtras(ProductExtrasDTO productExtrasDTO) throws NotFoundException, ValidationException;
 
+	/**
+	 *
+	 * @param productExtrasId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	ProductExtrasDTO getProductExtras(Long productExtrasId) throws NotFoundException;
 
+	/**
+	 *
+	 * @param productExtrasId
+	 * @param active
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	void changeStatus(Long productExtrasId, Boolean active) throws ValidationException, NotFoundException;
 
+	/**
+	 *
+	 * @param productExtrasId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	ProductExtras getProductExtrasDetail(Long productExtrasId) throws NotFoundException;
-
-	void deleteProductExtras(Long productExtrasId);
 
 	/**
 	 * @param productId
@@ -41,13 +78,12 @@ public interface ProductExtrasService {
 	List<ProductExtrasDTO> getList(Boolean activeRecords, Long productId) throws NotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param activeRecords
 	 * @param productExtrasMasterId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductExtras> getListByProductExtrasMaster(Boolean activeRecords, Long productExtrasMasterId)
-			throws NotFoundException;
+	List<ProductExtras> getListByProductExtrasMaster(Boolean activeRecords, Long productExtrasMasterId) throws NotFoundException;
 
 }

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.Constant;
-import com.nice.model.OnlineRequest;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.OnlineRequest;
 import com.nice.service.OnlineService;
 import com.nice.service.SettingsService;
 import com.razorpay.Order;
@@ -21,9 +21,8 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
 /**
- * 
- * @author : Kody Technolab Pvt. Ltd.
- * @date   : 13-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("onlineService")

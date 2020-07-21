@@ -44,7 +44,6 @@ import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
 import com.nice.service.DiscountService;
-import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
@@ -73,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductMapper productMapper;
-	
+
 	@Autowired
 	private ExportCSV exportCSV;
 
@@ -96,9 +95,6 @@ public class ProductServiceImpl implements ProductService {
 	private AssetService assetService;
 
 	@Autowired
-	private FileStorageService fileStorageService;
-
-	@Autowired
 	private CuisineService cuisineService;
 
 	@Autowired
@@ -112,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private TempCartItemService tempCartItemService;
-	
+
 	@Autowired
 	private DiscountService discountService;
 
@@ -194,6 +190,7 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("After updating image for Product : {}", product.getId());
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<Long, List<? extends Object>> getCartMap(final Long customerId, final String uuid) throws ValidationException, NotFoundException {
 		Map<Long, List<?>> cartMap = new HashMap<>();
 		LOGGER.info("Inside getCart for Customer : {} and uuid :{}", customerId, uuid);
@@ -344,14 +341,17 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Inside convertEntityToResponseDto");
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
 		productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getName());
-		productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
+		if (productResponseDTO.getSubcategoryId() != null) {
+			productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getName());
+		}
+
 		if (productResponseDTO.getBrandId() != null) {
 			productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getName());
 		}
 		if (productResponseDTO.getCuisineId() != null) {
 			productResponseDTO.setCuisineName(cuisineService.getCuisineDetails(productResponseDTO.getCuisineId()).getName());
 		}
-		productResponseDTO.setImage(CommonUtility.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
+		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
 		 * if we are fetching product list For admin then set product variants to empty list
 		 */
@@ -403,9 +403,9 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
 		productResponseDTO.setProductExtrasList(productExtrasService.getList(listForAdmin ? null : true, product.getId()));
 		LOGGER.info("Inside convertEntityToResponseDto");
-		 if (product.getDiscountId() != null) {
-		 productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
-		 }
+		if (product.getDiscountId() != null) {
+			productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
+		}
 		return productResponseDTO;
 	}
 
@@ -528,7 +528,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	private void deleteOldImage(final Product product) {
 		LOGGER.info("Inside deleteOldImage for product :{}", product.getId());
-		fileStorageService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
+		assetService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
 		LOGGER.info("After deleteOldImage for product :{}", product.getId());
 	}
 
@@ -582,8 +582,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void exportProductList(HttpServletResponse httpServletResponse,
-			ProductParamRequestDTO productParamRequestDTO) throws IOException, NotFoundException, ValidationException {
+	public void exportProductList(final HttpServletResponse httpServletResponse, final ProductParamRequestDTO productParamRequestDTO)
+			throws IOException, NotFoundException, ValidationException {
 		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
 		LOGGER.info("Inside export product list Based On Params {}", productParamRequestDTO);
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
@@ -594,6 +594,6 @@ public class ProductServiceImpl implements ProductService {
 		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
 		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
 		exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
-		
+
 	}
 }

@@ -6,8 +6,8 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Data
 public class VendorFilterDTO implements Serializable {

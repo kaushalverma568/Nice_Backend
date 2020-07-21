@@ -8,8 +8,13 @@ import org.springframework.validation.Validator;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.BusinessCategoryService;
+
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
+ */
 @Component
-public class BusinessCategoryValidator  implements Validator {
+public class BusinessCategoryValidator implements Validator {
 
 	/**
 	 * Locale message service - to display response messages from messages_en.properties
@@ -34,7 +39,7 @@ public class BusinessCategoryValidator  implements Validator {
 
 		final BusinessCategoryDTO businessCategoryDTO = (BusinessCategoryDTO) target;
 
-		if ( businessCategoryService.isExists(businessCategoryDTO)) {
+		if (businessCategoryService.isExists(businessCategoryDTO)) {
 			errors.rejectValue("name", "409", messageByLocaleService.getMessage("business.category.name.not.unique", null));
 		}
 	}

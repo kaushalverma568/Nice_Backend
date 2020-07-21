@@ -8,15 +8,12 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 07-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Data
-@EqualsAndHashCode
 public class OrdersResponseDTO implements Serializable {
 	/**
 	*
@@ -54,8 +51,7 @@ public class OrdersResponseDTO implements Serializable {
 	 */
 	private String city;
 	/**
-	 * pincode field is added for set pincode in email and push notification
-	 * templates
+	 * pincode field is added for set pincode in email and push notification templates
 	 */
 	private String pincode;
 

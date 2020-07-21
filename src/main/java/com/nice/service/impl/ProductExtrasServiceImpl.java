@@ -56,13 +56,13 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 
 	@Autowired
 	private ProductService productService;
-	
+
 	@Autowired
 	private CartExtrasService cartExtrasService;
-	
+
 	@Autowired
 	private TempCartExtrasService tempCartExtrasService;
-	
+
 	@Autowired
 	private ProductExtrasMasterService productExtrasMasterService;
 
@@ -136,9 +136,9 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 			}
 		} else {
 			if (Boolean.FALSE.equals(active)) {
-				//delete from cart and temp cart 
-                 tempCartExtrasService.deleteTempCartExtrasByExtrasId(productExtrasId);
-                 cartExtrasService.deleteCartExtrasByExtrasId(productExtrasId);
+				// delete from cart and temp cart
+				tempCartExtrasService.deleteTempCartExtrasByExtrasId(productExtrasId);
+				cartExtrasService.deleteCartExtrasByExtrasId(productExtrasId);
 			} else {
 				if (Boolean.FALSE.equals(existingProductExtras.getProductExtrasMaster().getActive())) {
 					throw new ValidationException(messageByLocaleService.getMessage("product.extras.master.activate.first", null));
@@ -185,8 +185,7 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		LOGGER.info("After getList method, with productId : {} and active :{}", productId, activeRecords);
 		return productExtrasMapper.toDtos(productExtraList);
 	}
-	
-	
+
 	@Override
 	public List<ProductExtras> getListByProductExtrasMaster(final Boolean activeRecords, final Long productExtrasMasterId) throws NotFoundException {
 		LOGGER.info("Inside getList method, with productId : {} and active :{}", productExtrasMasterId, activeRecords);
@@ -219,13 +218,6 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		LOGGER.info("Inside getProductExtrasDetail method, with productExtrasId : {} ", productExtrasId);
 		return productExtrasRepository.findById(productExtrasId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { productExtrasId })));
-	}
-
-	@Override
-	public void deleteProductExtras(final Long productExtrasId) {
-		LOGGER.info("Inside deleteProductExtras method, with productExtrasId : {} ", productExtrasId);
-		productExtrasRepository.deleteById(productExtrasId);
-		LOGGER.info("After deleteProductExtras method, with productExtrasId : {} ", productExtrasId);
 	}
 
 	private UserLogin getUserLoginFromToken() {

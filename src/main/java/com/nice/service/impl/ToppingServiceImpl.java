@@ -46,8 +46,8 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("toppingService")
@@ -78,7 +78,7 @@ public class ToppingServiceImpl implements ToppingService {
 
 	@Autowired
 	private FileStorageService fileStorageService;
-	
+
 	@Override
 	public void addTopping(final ToppingDTO toppingDTO) throws ValidationException, NotFoundException {
 		final Topping topping = toppingMapper.toEntity(toppingDTO);
@@ -149,8 +149,7 @@ public class ToppingServiceImpl implements ToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "topping.active" : "topping.deactive", null));
 		} else {
 			/**
-			 * deActive All product toppings related to this topping at the time of
-			 * deActivating
+			 * deActive All product toppings related to this topping at the time of deActivating
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Topping {}", existingTopping);
@@ -170,8 +169,7 @@ public class ToppingServiceImpl implements ToppingService {
 	public Boolean isToppingExists(final ToppingDTO toppingDTO) {
 		if (toppingDTO.getId() != null) {
 			/**
-			 * At the time of update is topping with same name and vendor id exist or not
-			 * except it's own id
+			 * At the time of update is topping with same name and vendor id exist or not except it's own id
 			 */
 			return toppingRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getName(), toppingDTO.getVendorId(), toppingDTO.getId()).isPresent();
 		} else {
@@ -183,8 +181,8 @@ public class ToppingServiceImpl implements ToppingService {
 	}
 
 	@Override
-	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
-		final String fileName = fileStorageService.storeFile(multipartFile, "topping_"+System.currentTimeMillis(), AssetConstant.TOPPING);
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "topping_" + System.currentTimeMillis(), AssetConstant.TOPPING);
 		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.TOPPING);
 		final File file = new File(filePath.toString());
 		final CSVProcessor<ToppingImport> csvProcessor = new CSVProcessor<>();
@@ -193,18 +191,16 @@ public class ToppingServiceImpl implements ToppingService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(toppingImports)) {
 				final List<ToppingImport> insertListOfBean = insertListOfUoms(
 						toppingImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
-				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name","Description", "Product Food type", "Result" };
-				Object[] toppingDetailsField = new Object[] { "name", "description","productFoodType","uploadMessage" };
+				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name", "Description", "Product Food type", "Result" };
+				Object[] toppingDetailsField = new Object[] { "name", "description", "productFoodType", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, toppingDetailsField, toppingDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
 		}
-		
+
 	}
-	
-	
-	
+
 	private List<ToppingImport> insertListOfUoms(final List<ToppingImport> toppingImports) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<ToppingImport> allResult = new ArrayList<>();

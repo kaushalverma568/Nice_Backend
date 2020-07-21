@@ -5,15 +5,12 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Dec-2019
+ * @date   : 25-Dec-2019
  */
-
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class RoleDTO implements Serializable {
 
 	/**

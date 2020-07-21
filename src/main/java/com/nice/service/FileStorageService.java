@@ -77,7 +77,7 @@ public class FileStorageService {
 			if (fileName.contains("..")) {
 				throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
 			}
-			StringBuilder finalPath = new StringBuilder(this.fileStorageLocation.toString()).append(subDir);
+			StringBuilder finalPath = new StringBuilder(this.fileStorageLocation.toString()).append("/").append(subDir);
 			/**
 			 * Sub directory is created if it is not exists
 			 */

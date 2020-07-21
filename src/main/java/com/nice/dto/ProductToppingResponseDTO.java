@@ -6,14 +6,12 @@ package com.nice.dto;
 import java.io.Serializable;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 01-Jul-2020
+ * @date   : 01-Jul-2020
  */
 @Data
-@ToString
 public class ProductToppingResponseDTO implements Serializable {
 
 	/**

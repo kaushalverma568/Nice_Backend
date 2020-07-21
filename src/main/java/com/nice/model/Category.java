@@ -15,14 +15,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "category")
-@Entity()
+@Entity
 public class Category extends CommonModel {
 
 	/**
