@@ -105,4 +105,23 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	 */
 	List<DeliveryBoy> findAllByActive(Boolean activeRecords);
 
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @return
+	 */
+	List<DeliveryBoy> findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+			Boolean activeRecords, String searchKeyword, String searchKeyword2);
+
+	/**
+	 * 
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @return
+	 */
+	List<DeliveryBoy> findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String searchKeyword,
+			String searchKeyword2);
+
 }

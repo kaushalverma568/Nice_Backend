@@ -196,8 +196,9 @@ public class DeliveryBoyController {
 
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
-		deliveryBoyService.exportList(activeRecords, httpServletResponse);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws IOException {
+		deliveryBoyService.exportList(activeRecords, searchKeyword, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.create();
 	}

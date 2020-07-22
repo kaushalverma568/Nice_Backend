@@ -252,13 +252,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
+	public void exportList(final Boolean activeRecords,  String searchKeyword, final HttpServletResponse httpServletResponse) throws IOException {
 		List<DeliveryBoy> deliveryBoyList;
 		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
-		if (activeRecords != null) {
-			deliveryBoyList = deliveryBoyRepository.findAllByActive(activeRecords);
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
+			if (activeRecords != null) {
+				deliveryBoyList= deliveryBoyRepository.
+						findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(activeRecords, searchKeyword,searchKeyword);
+			} else {
+				deliveryBoyList= deliveryBoyRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchKeyword, searchKeyword);
+			}
 		} else {
-			deliveryBoyList = deliveryBoyRepository.findAll();
+			if (activeRecords != null) {
+				deliveryBoyList= deliveryBoyRepository.findAllByActive(activeRecords);
+			} else {
+				deliveryBoyList= deliveryBoyRepository.findAll();
+			}
 		}
 		for (DeliveryBoy deliveryBoy : deliveryBoyList) {
 			deliveryBoyDtoList.add(deliveryBoyMapper.toDto(deliveryBoy));
