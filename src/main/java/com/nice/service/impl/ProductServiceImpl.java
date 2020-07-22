@@ -74,7 +74,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -201,7 +201,9 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		product.setRating(0.0);
 		product.setNoOfRating(0L);
-		uploadImage(image, product);
+		if (image != null) {
+			uploadImage(image, product);
+		}
 		productRepository.save(product);
 		LOGGER.info("addProduct executed successfully");
 	}
@@ -324,7 +326,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param productRequestDTO
+	 * @param  productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -367,13 +369,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true
-	 * means get product list for admin convert entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
-	 * @param product
-	 * @param listForAdmin
-	 * @param productParamRequestDTO
-	 * @param pincodeId
+	 * @param  product
+	 * @param  listForAdmin
+	 * @param  productParamRequestDTO
+	 * @param  pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -399,8 +401,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		/**
-		 * if we are fetching product list For admin then set product variants to empty
-		 * list
+		 * if we are fetching product list For admin then set product variants to empty list
 		 */
 		List<ProductVariantResponseDTO> productVariantList = new ArrayList<>();
 
@@ -414,14 +415,12 @@ public class ProductServiceImpl implements ProductService {
 		}
 		LOGGER.info("Before setting available qty");
 		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out
-		 * of stock
+		 * if product variant is null/empty or availableQty=0 then product will go out of stock
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced
-		 * here, as we dont need the available qty and productOutOfStock for any other
-		 * category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
+		 * and productOutOfStock for any other category type except grocery.
 		 */
 		Integer availableQty = 0;
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
@@ -464,8 +463,7 @@ public class ProductServiceImpl implements ProductService {
 		Product product = getProductDetail(productId);
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Only the vendor who created the produce and the admin can deactivate the
-		 * product
+		 * Only the vendor who created the produce and the admin can deactivate the product
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
@@ -485,9 +483,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param active
-	 * @param existingProduct
-	 * @param productId
+	 * @param  active
+	 * @param  existingProduct
+	 * @param  productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -517,7 +515,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param existingProduct
+	 * @param  existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -547,9 +545,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no
-		 * user login and hence if the userLogin is null or the userLogin->entityType is
-		 * customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -578,9 +575,11 @@ public class ProductServiceImpl implements ProductService {
 	 * @param product
 	 */
 	private void deleteOldImage(final Product product) {
-		LOGGER.info("Inside deleteOldImage for product :{}", product.getId());
-		assetService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
-		LOGGER.info("After deleteOldImage for product :{}", product.getId());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(product.getImage())) {
+			LOGGER.info("Inside deleteOldImage for product :{}", product.getId());
+			assetService.deleteFile(product.getImage(), AssetConstant.PRODUCT_DIR);
+			LOGGER.info("After deleteOldImage for product :{}", product.getId());
+		}
 	}
 
 	@Override
@@ -621,8 +620,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * This method will update the rating of the product. Just provide the rating
-	 * provided by the client and productId.
+	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
 	 */
 	@Override
 	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {
@@ -668,8 +666,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTOs
-	 * @param userId
+	 * @param  productImportDTOs
+	 * @param  userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -734,10 +732,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTO
-	 * @param brandId
-	 * @param vendor
-	 * @param productRequestDTO
+	 * @param  productImportDTO
+	 * @param  brandId
+	 * @param  vendor
+	 * @param  productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, Long brandId, final Vendor vendor,

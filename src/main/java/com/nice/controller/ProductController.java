@@ -46,9 +46,8 @@ import com.nice.util.PaginationUtil;
 import com.nice.validator.ProductValidator;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
 @RestController(value = "productController")
@@ -89,11 +88,11 @@ public class ProductController {
 	public static final String IMAGE_NOT_NULL = "image.required";
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -110,9 +109,6 @@ public class ProductController {
 			LOGGER.error("Product validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (image == null) {
-			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
-		}
 		productService.addProduct(productRequestDTO, image);
 		LOGGER.info("Outside add Product");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
@@ -120,11 +116,11 @@ public class ProductController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -149,7 +145,7 @@ public class ProductController {
 	}
 
 	/**
-	 * @param productId
+	 * @param  productId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -167,7 +163,7 @@ public class ProductController {
 	/**
 	 * Get Cuisine with count
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -181,9 +177,8 @@ public class ProductController {
 	}
 
 	/**
-	 *
-	 * @param vendorId
-	 * @param cuisineId
+	 * @param  vendorId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -199,13 +194,13 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by all:
-	 * Customer, Vendor and Admin and respective products will be shown to them.
+	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
+	 * products will be shown to them.
 	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  productParamRequestDTO
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -228,10 +223,10 @@ public class ProductController {
 	/**
 	 * Change status of product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -250,10 +245,10 @@ public class ProductController {
 	/**
 	 * export made product list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 * @throws NotFoundException
@@ -271,10 +266,10 @@ public class ProductController {
 	/**
 	 * Upload product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */

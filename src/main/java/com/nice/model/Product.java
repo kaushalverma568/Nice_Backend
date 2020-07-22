@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @SqlResultSetMapping(name = "ProductMapping", entities = { @EntityResult(entityClass = Product.class, fields = { @FieldResult(name = "id", column = "id"),
 		@FieldResult(name = "active", column = "active"), @FieldResult(name = "createdAt", column = "created_at"),
@@ -71,10 +71,10 @@ public class Product extends CommonModel {
 	@Column(name = "vendor_id", nullable = false)
 	private Long vendorId;
 
-	@Column(name = "image", nullable = false)
+	@Column(name = "image")
 	private String image;
 
-	@Column(name = "image_original_name", nullable = false)
+	@Column(name = "image_original_name")
 	private String imageOriginalName;
 
 	@Column(name = "product_available", nullable = true)
