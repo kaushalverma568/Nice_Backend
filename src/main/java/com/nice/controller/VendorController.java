@@ -33,10 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.Constant;
 import com.nice.constant.VendorStatus;
-import com.nice.dto.EmailUpdateDTO;
-import com.nice.dto.LoginResponse;
 import com.nice.dto.PaginationUtilDto;
-import com.nice.dto.UserLoginDto;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
@@ -44,7 +41,6 @@ import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.NotFoundException;
-import com.nice.exception.UnAuthorizationException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.VendorMapper;
@@ -58,11 +54,15 @@ import com.nice.validator.VendorValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 25, 2020
+ * @date : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
 public class VendorController {
+	/**
+	 *
+	 */
+	private static final String VENDOR_LIST_MESSAGE = "vendor.list.message";
 	/**
 	 *
 	 */
@@ -76,7 +76,8 @@ public class VendorController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -112,9 +113,9 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param  vendorDTO
-	 * @param  result
-	 * @param  userId
+	 * @param vendorDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -137,9 +138,9 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
-	 * @param  userId
+	 * @param vendorDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -163,9 +164,9 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
-	 * @param  userId
+	 * @param vendorDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -188,9 +189,9 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
-	 * @param  userId
+	 * @param vendorDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -214,10 +215,10 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -236,10 +237,10 @@ public class VendorController {
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -258,8 +259,8 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param  vendorId
-	 * @param  userId
+	 * @param vendorId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -275,8 +276,8 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param  vendorId
-	 * @param  userId
+	 * @param vendorId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -292,11 +293,11 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  countryId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param countryId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -306,7 +307,7 @@ public class VendorController {
 		Long totalCount = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		List<Vendor> vendorList = vendorService.getVendorListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, vendorFilterDTO);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null))
 				.setData(vendorMapper.toDtos(vendorList)).setHasNextPage(paginationUtilDto.getHasNextPage())
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
@@ -316,8 +317,8 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param  vendorId
-	 * @param  active
+	 * @param vendorId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -352,7 +353,7 @@ public class VendorController {
 	/**
 	 * Get vendor list for customer app
 	 *
-	 * @param  vendorListFilterDTO
+	 * @param vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -366,7 +367,7 @@ public class VendorController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		List<VendorResponseDTO> vendorList = vendorService.getVendorListForApp(vendorListFilterDTO);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null))
 				.setData(vendorList).create();
 
 	}
@@ -388,78 +389,7 @@ public class VendorController {
 			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
 			throws IOException {
 		vendorService.exportVendorList(activeRecords, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.list.message", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();
 	}
 
-	@PutMapping("/change/email/{vendorId}")
-	public ResponseEntity<Object> changeVendorEmail(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
-			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result)
-			throws NotFoundException, ValidationException, UnAuthorizationException {
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error(VENDOR_VALIDATION_FAILED);
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		LOGGER.info("Inside change email of Vendor of id {} and email {} and otp {}", vendorId, emailUpdateDTO.getEmail(), emailUpdateDTO.getOtp());
-		String userName = vendorService.changeVendorEmail(vendorId, emailUpdateDTO);
-		LOGGER.info("Outside change email of vendor");
-		revokeToken(userName);
-		UserLoginDto userLoginDto = new UserLoginDto();
-		userLoginDto.setUserName(emailUpdateDTO.getEmail());
-		userLoginDto.setPassword(emailUpdateDTO.getPassword());
-		LoginResponse loginResponse = userLoginService.adminLogin(userLoginDto);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
-				.setData(loginResponse).create();
-	}
-
-	@PutMapping("/email/generate/{vendorId}")
-	public ResponseEntity<Object> generateOTPForChangeEmail(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("vendorId") final Long vendorId, @RequestParam(name = "email", required = true) final String email)
-			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside generate otp for change email of Vendor of id {} and email {} ", vendorId, email);
-		String otp = vendorService.generateOTPForChangeEmail(email, vendorId);
-		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
-	}
-
-	@PutMapping("/change/contact/{vendorId}")
-	public ResponseEntity<Object> changeVendorContact(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
-			@RequestParam(name = "contactNo", required = true) final String contactNo, @RequestParam(name = "otp", required = true) final String otp)
-			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside change Contact of Vendor of id {} and contact {} and otp {}", vendorId, contactNo, otp);
-		vendorService.changeVendorContact(vendorId, contactNo, otp);
-		LOGGER.info("Outside change contact of vendor");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	@PutMapping("/contact/generate/{vendorId}")
-	public ResponseEntity<Object> generateOTPForChangeContact(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("vendorId") final Long vendorId, @RequestParam(name = "contactNo", required = true) final String contactNo)
-			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside generate otp for change contact of Vendor of id {} and contact no {} ", vendorId, contactNo);
-		String otp = vendorService.generateOTPForChangeContact(contactNo, vendorId);
-		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
-	}
-
-	@PutMapping("/contact/verify/generate/{vendorId}")
-	public ResponseEntity<Object> generateOTPForVerifyContact(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("vendorId") final Long vendorId) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside generate otp for change contact of Vendor of id {} ", vendorId);
-		String otp = vendorService.generateOTPForVerifyContact(vendorId);
-		return new GenericResponseHandlers.Builder().setData(otp).setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).create();
-	}
-
-	@PutMapping("/verify/contact/{vendorId}")
-	public ResponseEntity<Object> verifyVendorContact(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
-			@RequestParam(name = "otp", required = true) final String otp) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside verify Contact of Vendor of id {} and otp {}", vendorId, otp);
-		vendorService.verifyVendorContact(vendorId, otp);
-		LOGGER.info("Outside verify contact of vendor");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
-				.create();
-	}
 }

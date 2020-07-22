@@ -377,64 +377,6 @@ public class DeliveryBoyController {
 	}
 
 	/**
-	 * change phone number
-	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param phoneNumber
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping("/phone")
-	public ResponseEntity<Object> changePhoneNumber(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside change PhoneNumber for delivery boy {} and otp: {}", phoneNumber, otp);
-		deliveryBoyService.changePhoneNumber(phoneNumber, otp);
-		LOGGER.info("Outside change PhoneNumber");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
-	 * Change email
-	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param phoneNumber
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping("/email")
-	public ResponseEntity<Object> changeEmail(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "email", required = true) final String email)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside add change email for delivery boy, email: {} and otp: {}", email, otp);
-
-		String userName = deliveryBoyService.changeEmail(email, otp);
-		if (userName != null) {
-			/**
-			 * if token exist then revoke token and give new token with new email and
-			 * password
-			 */
-			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID, userName);
-			if (!tokens.isEmpty()) {
-				for (OAuth2AccessToken token : tokens) {
-					tokenStore.removeAccessToken(token);
-				}
-				/**
-				 * generate token here
-				 */
-			}
-		}
-		LOGGER.info("Outside change email");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * Get order detail in accept notification
 	 *
 	 * @param accessToken

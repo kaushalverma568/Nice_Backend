@@ -36,7 +36,6 @@ import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
-import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.dto.VendorBankDetailsDTO;
@@ -716,59 +715,6 @@ public class VendorServiceImpl implements VendorService {
 
 	}
 
-	@Override
-	public String changeVendorEmail(final Long vendorId, final EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException {
-		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), vendorId).isPresent();
-		boolean isUserLoginExist = userLoginService.getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail().toLowerCase(), Constant.USER).isPresent();
-		if (!isVendorExist && !isUserLoginExist) {
-			String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
-			Vendor vendor = getVendorDetail(vendorId);
-			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
-				UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-				String userName = userLogin.getEmail();
-				if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
-					vendor.setEmail(emailUpdateDTO.getEmail().toLowerCase());
-					vendor.setIsEmailVerified(true);
-					vendorRepository.save(vendor);
-					userLogin.setEmail(emailUpdateDTO.getEmail().toLowerCase());
-					userLoginService.updateUserLogin(userLogin);
-					return userName;
-				} else {
-					throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
-				}
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
-			}
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.email.not.unique", null));
-		}
-	}
-
-	@Override
-	public String generateOTPForChangeEmail(final String email, final Long vendorId) throws NotFoundException, ValidationException {
-		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(email.toLowerCase(), vendorId).isPresent();
-		boolean isUserLoginExists = userLoginService.getUserLoginBasedOnUserNameAndUserType(email.toLowerCase(), Constant.USER).isPresent();
-		if (!isVendorExist && !isUserLoginExists) {
-			Vendor vendor = getVendorDetail(vendorId);
-			if (vendor.getEmail().equalsIgnoreCase(email)) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.change.same.email", null));
-			}
-			String otp = generateOTP(UserOtpTypeEnum.EMAIL.name(), email.toLowerCase());
-			sendOTPEmail(otp, email.toLowerCase());
-			return otp;
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.email.not.unique", null));
-		}
-	}
-
-	private void sendOTPEmail(final String otp, final String email) {
-		Notification notification = new Notification();
-		notification.setOtp(otp);
-		notification.setEmail(email);
-		notification.setType(NotificationQueueConstants.SEND_OTP);
-		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
-	}
-
 	private String generateOTP(final String type, final String email) throws NotFoundException, ValidationException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		UserOtpDto userOtpDto = new UserOtpDto();
@@ -778,51 +724,12 @@ public class VendorServiceImpl implements VendorService {
 		return otpService.generateOtp(userOtpDto).getOtp();
 	}
 
-	@Override
-	public String generateOTPForChangeContact(final String contactNo, final Long vendorId) throws NotFoundException, ValidationException {
-		boolean isVendorContactExists = vendorRepository.findByContactNoAndIdNot(contactNo, vendorId).isPresent();
-		if (!isVendorContactExists) {
-			Vendor vendor = getVendorDetail(vendorId);
-			if (vendor.getContactNo().equals(contactNo)) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.change.same.contact", null));
-			}
-			String otp = generateOTP(UserOtpTypeEnum.SMS.name(), contactNo);
-			sendOTPSms(contactNo, otp);
-			return otp;
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
-		}
-	}
-
 	private void sendOTPSms(final String contactNo, final String otp) throws ValidationException {
 		String otpMessage = "OTP for your Nice application is : ";
 		if (contactNo == null || contactNo.isEmpty()) {
 			throw new ValidationException(messageByLocaleService.getMessage("user.mobile.required", null));
 		}
 		smsUtil.sendSMS(contactNo, otpMessage + otp);
-	}
-
-	@Override
-	public void changeVendorContact(final Long vendorId, final String contactNo, final String otp) throws NotFoundException, ValidationException {
-		boolean isVendorContactExists = vendorRepository.findByContactNoAndIdNot(contactNo, vendorId).isPresent();
-		if (!isVendorContactExists) {
-			Vendor vendor = getVendorDetail(vendorId);
-			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
-				String placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
-				UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-				if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
-					vendor.setContactNo(contactNo);
-					vendor.setIsContactVerified(true);
-					vendorRepository.save(vendor);
-				} else {
-					throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
-				}
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
-			}
-		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
-		}
 	}
 
 	@Override

@@ -458,7 +458,43 @@ public class UserLoginController {
 			}
 		}
 		LOGGER.info("Outside  add update email");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("emai.update.suceess", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("emai.update.success", null))
+				.create();
+	}
+
+	/**
+	 * Add/Update phone number
+	 *
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/phone")
+	public ResponseEntity<Object> addUpdatePhoneNumber(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber,
+			@RequestParam(name = "userType", required = true) final String userType) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add update PhoneNumber {} and otp: {} and userType: {}", phoneNumber, otp, userType);
+
+		String userName = userLoginService.addUpdatePhoneNumber(phoneNumber, otp, userType);
+		if (userName != null) {
+			/**
+			 * if token exist then revoke token and give new token with new number
+			 */
+			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID, userName);
+			if (!tokens.isEmpty()) {
+				for (OAuth2AccessToken token : tokens) {
+					tokenStore.removeAccessToken(token);
+				}
+				/**
+				 * generate token here
+				 */
+			}
+		}
+		LOGGER.info("Outside add update PhoneNumber");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("phone.update.success", null))
 				.create();
 	}
 

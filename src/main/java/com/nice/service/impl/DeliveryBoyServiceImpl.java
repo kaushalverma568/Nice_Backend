@@ -613,57 +613,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public String changeEmail(final String email, final String otp) throws NotFoundException, ValidationException {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(userLogin.getEntityId());
-		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
-		String userName;
-		/**
-		 * if delivery boy is out for delivery then he can not update his email
-		 */
-		if (deliveryBoyCurrentStatus.getIsBusy().booleanValue()) {
-			throw new ValidationException(messageByLocaleService.getMessage("assigned.order.exist", null));
-		} /**
-			 * if any other delivery boy has same email then throw exception
-			 */
-		else if (deliveryBoyRepository.findByEmailAndIdNot(email.toLowerCase(), userLogin.getEntityId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
-		} else {
-			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), otp)) {
-				userName = userLogin.getEmail();
-				deliveryBoy.setIsEmailVerified(true);
-				deliveryBoy.setEmail(email.toLowerCase());
-				userLogin.setEmail(email.toLowerCase());
-				userLoginService.updateUserLogin(userLogin);
-				deliveryBoyRepository.save(deliveryBoy);
-				return userName;
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
-			}
-		}
-	}
-
-	@Override
-	public void changePhoneNumber(final String phoneNumber, final String otp) throws NotFoundException, ValidationException {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(userLogin.getEntityId());
-		/**
-		 * if any other delivery boy has same phone then throw exception
-		 */
-		if (deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
-		} else {
-			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
-				deliveryBoy.setIsPhoneNumberVerified(true);
-				deliveryBoy.setPhoneNumber(phoneNumber.toLowerCase());
-				deliveryBoyRepository.save(deliveryBoy);
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
-			}
-		}
-	}
-
-	@Override
 	public OrderNotificationDTO getOrderDetailInDeliveryBoyAcceptNotification(final Long orderId, final Long deliveryBoyId) throws NotFoundException {
 		Double distance = null;
 		String pickUpAddress = null;

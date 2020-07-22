@@ -212,58 +212,6 @@ public class CustomerController {
 	}
 
 	/**
-	 * This API is used for verify Phone as well as change Phone.
-	 *
-	 * @param userId
-	 * @param otp
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PostMapping("/verify/phone/{customerId}")
-	public ResponseEntity<Object> verifyPhoneNumber(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId,
-			@RequestParam(name = "mobile") final String mobile, @RequestParam(name = "otp") final String otp) throws NotFoundException, ValidationException {
-		customerService.verifyPhoneNumber(customerId, mobile, otp);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("verify.user", null)).create();
-	}
-
-	/**
-	 * Add/Update phone number
-	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param phoneNumber
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping("/phone")
-	public ResponseEntity<Object> addUpdatePhoneNumber(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside add update PhoneNumber {} and otp: {}", phoneNumber, otp);
-
-		String userName = customerService.addUpdatePhoneNumber(phoneNumber, otp);
-		if (userName != null) {
-			/**
-			 * if token exist then revoke token and give new token with new number
-			 */
-			Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(KODY_CLIENT, userName);
-			if (!tokens.isEmpty()) {
-				for (OAuth2AccessToken token : tokens) {
-					tokenStore.removeAccessToken(token);
-				}
-				/**
-				 * generate token here
-				 */
-			}
-		}
-		LOGGER.info("Outside add update PhoneNumber");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
-				.create();
-	}
-
-	/**
 	 * export customer list
 	 *
 	 * @param accessToken

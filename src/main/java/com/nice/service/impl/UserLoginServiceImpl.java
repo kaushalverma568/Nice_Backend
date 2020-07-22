@@ -38,6 +38,7 @@ import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.ForgotPasswordParameterDTO;
@@ -56,6 +57,7 @@ import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
+import com.nice.model.DeliveryBoyCurrentStatus;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.model.Users;
@@ -80,6 +82,11 @@ import com.nice.util.CommonUtility;
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
 public class UserLoginServiceImpl implements UserLoginService, UserDetailsService {
+
+	/**
+	 * 
+	 */
+	private static final String VENDOR_ACTIVE_FIRST = "vendor.active.first";
 
 	/**
 	 *
@@ -713,30 +720,36 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		String userName = null;
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 
-		/**
-		 * if any other user has same email then throw exception
-		 */
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-				&& customerRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("customer.email.exists", null));
-		} else if (UserType.VENDOR.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-				|| UserType.USER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
-			Optional<UserLogin> optUserLogin = getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail().toLowerCase(), emailUpdateDTO.getUserType());
-			if (optUserLogin.isPresent() && !optUserLogin.get().getId().equals(userLogin.getId())) {
-				throw new ValidationException(messageByLocaleService.getMessage("user.email.exists", new Object[] { emailUpdateDTO.getEmail() }));
-			}
-		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-				&& deliveryBoyRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
-		}
-		/**
-		 * when customer add's an email for first time then password is required
-		 */
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType()) && !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPassword())) {
-			throw new ValidationException(messageByLocaleService.getMessage("password.not.null", null));
-		}
-
 		if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
+
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType())
+					&& !userLogin.getEntityType().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
+			}
+			/**
+			 * if any other user has same email then throw exception
+			 */
+			if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+					&& customerRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("customer.email.exists", null));
+			} else if (UserType.VENDOR.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+					|| UserType.USER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+				Optional<UserLogin> optUserLogin = getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail().toLowerCase(),
+						emailUpdateDTO.getUserType());
+				if (optUserLogin.isPresent() && !optUserLogin.get().getId().equals(userLogin.getId())) {
+					throw new ValidationException(messageByLocaleService.getMessage("user.email.exists", new Object[] { emailUpdateDTO.getEmail() }));
+				}
+			} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+					&& deliveryBoyRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
+			}
+			/**
+			 * when customer add's an email for first time then password is required
+			 */
+			if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+					&& !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPassword())) {
+				throw new ValidationException(messageByLocaleService.getMessage("password.not.null", null));
+			}
 
 			userName = updateUserDetail(emailUpdateDTO, userName, userLogin);
 			return userName;
@@ -751,8 +764,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, String userName, final UserLogin userLogin) throws NotFoundException {
+	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, String userName, final UserLogin userLogin)
+			throws NotFoundException, ValidationException {
 		/**
 		 * if email is not null it means there is possibility that user is logged in
 		 * with old email right now
@@ -779,11 +794,21 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			customerRepository.save(customer);
 		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
+			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(deliveryBoy);
+			/**
+			 * if delivery boy is out for delivery then he can not update his email
+			 */
+			if (deliveryBoyCurrentStatus.getIsBusy().booleanValue()) {
+				throw new ValidationException(messageByLocaleService.getMessage("assigned.order.exist", null));
+			}
 			deliveryBoy.setIsEmailVerified(true);
 			deliveryBoy.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			deliveryBoyRepository.save(deliveryBoy);
 		} else if (UserType.VENDOR.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
+				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
+			}
 			vendor.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			vendor.setIsEmailVerified(true);
 			vendorRepository.save(vendor);
@@ -794,4 +819,87 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		}
 		return userName;
 	}
+
+	@Override
+	public String addUpdatePhoneNumber(final String phoneNumber, final String otp, final String userType) throws NotFoundException, ValidationException {
+		String userName = null;
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
+		if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
+
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equalsIgnoreCase(userType)) {
+				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
+			}
+			/**
+			 * if any other user has same phone number then throw exception
+			 */
+			if (UserType.CUSTOMER.name().equalsIgnoreCase(userType)
+					&& customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("customer.phone.exists", null));
+			} else if (UserType.VENDOR.name().equalsIgnoreCase(userType)
+					&& vendorRepository.findByContactNoAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
+			} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(userType)
+					&& deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
+			}
+
+			return updateUserDetail(phoneNumber, otp, userType, userName, userLogin);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
+		}
+	}
+
+	/**
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @param userName
+	 * @param userLogin
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	private String updateUserDetail(final String phoneNumber, final String otp, final String userType, String userName, final UserLogin userLogin)
+			throws NotFoundException, ValidationException {
+		/**
+		 * if phone number is not null it means there is possibility that customer is
+		 * logged in with old phone number right now
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPhoneNumber())) {
+			/**
+			 * revoke token of this user name if exist
+			 */
+			userName = userLogin.getPhoneNumber();
+		}
+
+		if (UserType.CUSTOMER.name().equalsIgnoreCase(userType)) {
+			/**
+			 * set phone number and otp in user login of this customer
+			 */
+			userLogin.setPhoneNumber(phoneNumber);
+			userLogin.setOtp(CommonUtility.generateBcrypt(otp));
+			updateUserLogin(userLogin);
+
+			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
+			customer.setMobileVerified(true);
+			customer.setPhoneNumber(phoneNumber);
+			customerRepository.save(customer);
+		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(userType)) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
+			deliveryBoy.setIsPhoneNumberVerified(true);
+			deliveryBoy.setPhoneNumber(phoneNumber);
+			deliveryBoyRepository.save(deliveryBoy);
+		} else if (UserType.VENDOR.name().equalsIgnoreCase(userType)) {
+			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
+				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
+			}
+			vendor.setIsContactVerified(true);
+			vendor.setContactNo(phoneNumber);
+			vendorRepository.save(vendor);
+		}
+		return userName;
+	}
+
 }

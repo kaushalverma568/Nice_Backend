@@ -217,12 +217,24 @@ public interface UserLoginService {
 
 	/**
 	 * add/update an email
-	 * 
+	 *
 	 * @param emailUpdateDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	String addUpdateEmail(EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException;
+
+	/**
+	 * add/update an phone number
+	 * 
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	String addUpdatePhoneNumber(String phoneNumber, String otp, String userType) throws NotFoundException, ValidationException;
 
 }

@@ -189,23 +189,6 @@ public interface DeliveryBoyService {
 	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 	/**
-	 * @param email
-	 * @param otp
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	String changeEmail(String email, String otp) throws NotFoundException, ValidationException;
-
-	/**
-	 * @param phoneNumber
-	 * @param otp
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	void changePhoneNumber(String phoneNumber, String otp) throws NotFoundException, ValidationException;
-
-	/**
 	 * get delivery boy current status details
 	 *
 	 * @param deliveryBoy

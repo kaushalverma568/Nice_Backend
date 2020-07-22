@@ -29,7 +29,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Service(value = "cityService")
 @Transactional(rollbackFor = Throwable.class)
@@ -51,10 +51,10 @@ public class CityServiceImpl implements CityService {
 
 	@Autowired
 	private PincodeService pincodeService;
-	
+
 	@Autowired
 	private ExportCSV exportCSV;
-	
+
 	@Override
 	public void addCity(final CityDTO cityDTO) throws ValidationException, NotFoundException {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
@@ -94,7 +94,8 @@ public class CityServiceImpl implements CityService {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		if (cityDTO.getId() != null) {
 			/**
-			 * At the time of update is city with same name for same state exist or not except it's own ID
+			 * At the time of update is city with same name for same state exist or not
+			 * except it's own ID
 			 */
 			return cityRepository.findByNameIgnoreCaseAndStateAndIdNot(cityDTO.getName(), state, cityDTO.getId()).isPresent();
 		} else {
@@ -123,16 +124,17 @@ public class CityServiceImpl implements CityService {
 	}
 
 	/**
-	 * Deactivate customer address and validation while activate city & validate state while city is activate
+	 * Deactivate customer address and validation while activate city & validate
+	 * state while city is activate
 	 *
-	 * @param  cityId
-	 * @param  active
+	 * @param cityId
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	private void changeStatusOfDependantEntity(final City existingCity, final Boolean active) throws ValidationException, NotFoundException {
 		if (Boolean.FALSE.equals(active)) {
-			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, null, existingCity.getId(), null);
+			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, existingCity.getId(), null);
 			for (Pincode pincode : pincodeList) {
 				LOGGER.info("Deactive pincode for id : {} , because of city deactive", pincode.getId());
 				pincodeService.changeStatus(pincode.getId(), active);
@@ -156,7 +158,7 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException {
+	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
 		List<City> cityList;
 		List<CityResponseDTO> cityExportList = new ArrayList<>();
 		if (activeRecords != null) {
@@ -167,9 +169,9 @@ public class CityServiceImpl implements CityService {
 		for (City city : cityList) {
 			cityExportList.add(cityMapper.toDto(city));
 		}
-		final Object[] cityHeaderField = new Object[] {"Name","State Name"};
-		final Object[] cityDataField = new Object[] { "name","stateName"};
-		exportCSV.writeCSVFile(cityExportList, cityDataField, cityHeaderField, httpServletResponse);		
+		final Object[] cityHeaderField = new Object[] { "Name", "State Name" };
+		final Object[] cityDataField = new Object[] { "name", "stateName" };
+		exportCSV.writeCSVFile(cityExportList, cityDataField, cityHeaderField, httpServletResponse);
 	}
 
 }

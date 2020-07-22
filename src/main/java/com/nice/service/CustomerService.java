@@ -99,16 +99,6 @@ public interface CustomerService {
 
 	/**
 	 * @param customerId
-	 * @param userId
-	 * @param otp
-	 * @param mobile
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	void verifyPhoneNumber(Long customerId, String mobile, String otp) throws NotFoundException, ValidationException;
-
-	/**
-	 * @param customerId
 	 * @throws NotFoundException
 	 */
 	void verifyEmail(Long customerId) throws NotFoundException;
@@ -133,16 +123,4 @@ public interface CustomerService {
 	 * @return
 	 */
 	boolean isPhoneExists(CustomerDTO customerDTO);
-
-	/**
-	 * add/update phone number
-	 *
-	 * @param phoneNumber
-	 * @param customerId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	String addUpdatePhoneNumber(String phoneNumber, String otp) throws NotFoundException, ValidationException;
-
 }
