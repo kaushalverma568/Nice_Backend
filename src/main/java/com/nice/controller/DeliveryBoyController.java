@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
@@ -52,9 +53,8 @@ import com.nice.util.CommonUtility;
 import com.nice.validator.DeliveryBoyValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @RequestMapping(path = "/deliveryboy")
 @RestController
@@ -67,8 +67,7 @@ public class DeliveryBoyController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryBoyController.class);
 	private static final String DELIVERYBOY_DETAIL_MESSAGE = "deliveryboy.detail.message";
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -104,9 +103,9 @@ public class DeliveryBoyController {
 	/**
 	 * Add DeliveryBoy
 	 *
-	 * @param deliveryBoyDTO
-	 * @param result
-	 * @param userId
+	 * @param  deliveryBoyDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -132,9 +131,9 @@ public class DeliveryBoyController {
 	/**
 	 * Update account details
 	 *
-	 * @param deliveryBoyDTO
-	 * @param result
-	 * @param userId
+	 * @param  deliveryBoyDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -158,8 +157,8 @@ public class DeliveryBoyController {
 	/**
 	 * Get DeliveryBoy
 	 *
-	 * @param deliveryBoyId
-	 * @param userId
+	 * @param  deliveryBoyId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -175,10 +174,10 @@ public class DeliveryBoyController {
 	/**
 	 * Get DeliveryBoy List
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -206,8 +205,8 @@ public class DeliveryBoyController {
 	/**
 	 * Change Status of DeliveryBoy (Active/DeActive)
 	 *
-	 * @param deliveryBoyId
-	 * @param active
+	 * @param  deliveryBoyId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -219,7 +218,7 @@ public class DeliveryBoyController {
 		LOGGER.info("Inside change status of delivery boy of id {} and status {}", deliveryBoyId, active);
 		String userName = deliveryBoyService.changeStatus(deliveryBoyId, active);
 		if (userName != null) {
-			revokeToken(userName);
+			revokeToken(userName.concat("!!").concat(UserType.DELIVERY_BOY.name()));
 		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
 				.create();
@@ -228,8 +227,8 @@ public class DeliveryBoyController {
 	/**
 	 * update profile picture of delivery boy
 	 *
-	 * @param deliveryBoyId
-	 * @param userId
+	 * @param  deliveryBoyId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -250,9 +249,9 @@ public class DeliveryBoyController {
 	/**
 	 * Accept order
 	 *
-	 * @param accessToken
-	 * @param deliveryBoyId
-	 * @param orderId
+	 * @param  accessToken
+	 * @param  deliveryBoyId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -284,8 +283,8 @@ public class DeliveryBoyController {
 	/**
 	 * log out delivery boy
 	 *
-	 * @param accessToken
-	 * @param userId
+	 * @param  accessToken
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -302,9 +301,9 @@ public class DeliveryBoyController {
 	/**
 	 * Update personal details
 	 *
-	 * @param deliveryBoyDTO
-	 * @param result
-	 * @param userId
+	 * @param  deliveryBoyDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -328,7 +327,7 @@ public class DeliveryBoyController {
 	/**
 	 * Get delivered orders count
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -345,7 +344,7 @@ public class DeliveryBoyController {
 	/**
 	 * Get assigned orders count
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -362,8 +361,8 @@ public class DeliveryBoyController {
 	/**
 	 * update is available status for delivering orders
 	 *
-	 * @param deliveryBoyId
-	 * @param active
+	 * @param  deliveryBoyId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -380,9 +379,9 @@ public class DeliveryBoyController {
 	/**
 	 * Get order detail in accept notification
 	 *
-	 * @param accessToken
-	 * @param deliveryBoyId
-	 * @param orderId
+	 * @param  accessToken
+	 * @param  deliveryBoyId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 */

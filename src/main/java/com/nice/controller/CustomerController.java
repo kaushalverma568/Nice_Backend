@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -205,7 +206,7 @@ public class CustomerController {
 		LOGGER.info("Inside change status of customer for id {} and status {}", customerId, active);
 		String userName = customerService.changeStatus(customerId, active);
 		if (userName != null) {
-			revokeToken(userName);
+			revokeToken(userName.concat("!!").concat(UserType.CUSTOMER.name()));
 		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
 				.create();

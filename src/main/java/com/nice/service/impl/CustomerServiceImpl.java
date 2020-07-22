@@ -40,7 +40,6 @@ import com.nice.model.Customer;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
 import com.nice.repository.CustomerRepository;
-import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
@@ -51,7 +50,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -85,9 +84,6 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
-
-	@Autowired
-	private DeliveryBoyRepository deliveryBoyRepository;
 
 	@Override
 	public Long addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
@@ -222,8 +218,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -343,9 +339,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be
-				 * sending the verification link for him again, if the email is verified then we
-				 * will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
+				 * if the email is verified then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

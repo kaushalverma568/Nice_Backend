@@ -33,6 +33,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
 import com.nice.constant.CustomerStatus;
+import com.nice.constant.DeliveryBoyStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
@@ -77,7 +78,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -87,6 +88,16 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	 * 
 	 */
 	private static final String VENDOR_ACTIVE_FIRST = "vendor.active.first";
+
+	/**
+	 *
+	 */
+	private static final String USER_EMAIL_NOT_ACTIVATE = "user.email.not.activate";
+
+	/**
+	 *
+	 */
+	private static final String USER_ACCOUNT_UNAUTHORIZED_ADMIN = "user.account.unauthorized.admin";
 
 	/**
 	 *
@@ -176,8 +187,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a
-		 * superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -206,22 +216,56 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				 * If user status is deactivate: then send related message
 				 */
 				if ((customer != null) && customer.getStatus().equals(CustomerStatus.DE_ACTIVE.getStatusValue())) {
-					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.account.unauthorized.admin", null));
+					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage(USER_ACCOUNT_UNAUTHORIZED_ADMIN, null));
 				} else {
 					/**
 					 * If customer is not activated yet then send related message
 					 */
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
-							messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
+							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
+				}
+			} else if (optUserLogin.get().getEntityType().equals(Role.DELIVERY_BOY.getStatusValue())) {
+				DeliveryBoy deliveryBoy = null;
+				try {
+					deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(optUserLogin.get().getEntityId());
+				} catch (final NotFoundException e) {
+					LOGGER.error("Delivery boy not found for delivery boy Id: {} ", optUserLogin.get().getEntityId());
+				}
+				/**
+				 * If user status is deactivate: then send related message
+				 */
+				if ((deliveryBoy != null) && deliveryBoy.getStatus().equals(DeliveryBoyStatus.DE_ACTIVE.getStatusValue())) {
+					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage(USER_ACCOUNT_UNAUTHORIZED_ADMIN, null));
+				} else {
+					/**
+					 * If customer is not activated yet then send related message
+					 */
+					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
+							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
+				}
+			} else if (optUserLogin.get().getEntityType().equals(Role.VENDOR.getStatusValue())) {
+				Vendor vendor = null;
+				try {
+					vendor = vendorService.getVendorDetail(optUserLogin.get().getEntityId());
+				} catch (final NotFoundException e) {
+					LOGGER.error("Vendor not found for vendor Id: {} ", optUserLogin.get().getEntityId());
+				}
+				/**
+				 * If user status is deactivate: then send related message
+				 */
+				if ((vendor != null) && vendor.getStatus().equals(VendorStatus.VERIFICATION_PENDING.getStatusValue())) {
+					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
+							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
+				} else {
+					LOGGER.info("As per requirement we will allowed vendor to login when vednor deactive");
 				}
 			} else {
-				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.account.unauthorized.admin", null));
+				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage(USER_ACCOUNT_UNAUTHORIZED_ADMIN, null));
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email +
-			 * mobile. In this case userLogin can be active but customer can not login with
-			 * email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
+			 * active but customer can not login with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -233,7 +277,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				}
 				if (customer != null && (customer.getEmailVerified() == null || !customer.getEmailVerified())) {
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
-							messageByLocaleService.getMessage("user.email.not.activate", new Object[] { actualUser }));
+							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
 				}
 			}
 		}
@@ -241,16 +285,16 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		final String role = optUserLogin.get().getRole();
 		final SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 		if (RegisterVia.GOOGLE.getStatusValue().equals(requestVia)) {
-			return new UserAwareUserDetails(actualUser, optUserLogin.get().getGoogleKey(), Arrays.asList(authority), optUserLogin.get());
+			return new UserAwareUserDetails(actualUserWithType, optUserLogin.get().getGoogleKey(), Arrays.asList(authority), optUserLogin.get());
 		} else if (RegisterVia.FACEBOOK.getStatusValue().equals(requestVia)) {
-			return new UserAwareUserDetails(actualUser, optUserLogin.get().getFacebookKey(), Arrays.asList(authority), optUserLogin.get());
+			return new UserAwareUserDetails(actualUserWithType, optUserLogin.get().getFacebookKey(), Arrays.asList(authority), optUserLogin.get());
 		} else if (RegisterVia.OTP.getStatusValue().equals(requestVia)) {
-			return new UserAwareUserDetails(actualUser, optUserLogin.get().getOtp(), Arrays.asList(authority), optUserLogin.get());
+			return new UserAwareUserDetails(actualUserWithType, optUserLogin.get().getOtp(), Arrays.asList(authority), optUserLogin.get());
 		} else {
 			if (optUserLogin.get().getPassword() == null) {
 				throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED, messageByLocaleService.getMessage("user.unauthorized.social", null));
 			}
-			return new UserAwareUserDetails(actualUser, optUserLogin.get().getPassword(), Arrays.asList(authority), optUserLogin.get());
+			return new UserAwareUserDetails(actualUserWithType, optUserLogin.get().getPassword(), Arrays.asList(authority), optUserLogin.get());
 		}
 	}
 
@@ -429,8 +473,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void updateEmailForAdmin(final String email) throws ValidationException {
 		/**
-		 * if admin panel's users(other then super_admin) contains this email then throw
-		 * validation
+		 * if admin panel's users(other then super_admin) contains this email then throw validation
 		 */
 		if (userLoginRepository.findByEmailAndEntityTypeIn(email.toLowerCase(), UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("email.not.unique", null));
@@ -506,8 +549,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms
-		 * then phone number is required
+		 * verify type and if type is email then email is required and if type is sms then phone number is required
 		 */
 		if (!(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -554,8 +596,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin
-		 * or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
 		 */
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -594,8 +635,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber
-		 * and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -616,8 +656,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in
-			 * userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -669,8 +708,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
-			 * OTP Verified. Check userLogin is active or not . if not then activate
-			 * customer and activate userLogin
+			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
 			 */
 			if (!optUserLogin.get().getActive().booleanValue()) {
 				UserLogin userLogin = optUserLogin.get();
@@ -759,9 +797,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param emailUpdateDTO
-	 * @param userName
-	 * @param userLogin
+	 * @param  emailUpdateDTO
+	 * @param  userName
+	 * @param  userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -769,8 +807,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, String userName, final UserLogin userLogin)
 			throws NotFoundException, ValidationException {
 		/**
-		 * if email is not null it means there is possibility that user is logged in
-		 * with old email right now
+		 * if email is not null it means there is possibility that user is logged in with old email right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail())) {
 			/**
