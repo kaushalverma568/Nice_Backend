@@ -89,4 +89,10 @@ public interface CuisineService {
 	 * @throws NotFoundException
 	 */
 	Cuisine getCuisineDetails(Long cuisineId) throws NotFoundException;
+
+	/**
+	 * @param cuisineId
+	 * @throws NotFoundException
+	 */
+	void deleteImage(Long cuisineId) throws NotFoundException;
 }

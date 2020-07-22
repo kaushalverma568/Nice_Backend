@@ -30,7 +30,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Service("cuisineService")
 @Transactional(rollbackFor = Throwable.class)
@@ -166,6 +166,19 @@ public class CuisineServiceImpl implements CuisineService {
 			 * At the time of create is cuisine with same name exist or not
 			 */
 			return cuisineRepository.findByNameIgnoreCase(cuisineDTO.getName()).isPresent();
+		}
+	}
+
+	@Override
+	public void deleteImage(final Long cuisineId) throws NotFoundException {
+		Cuisine cuisine = getCuisineDetails(cuisineId);
+		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisine.getImageName())) {
+			throw new NotFoundException(messageByLocaleService.getMessage("image.not.found", null));
+		} else {
+			deleteOldImage(cuisine);
+			cuisine.setImageName(null);
+			cuisine.setImageOriginalName(null);
+			cuisineRepository.save(cuisine);
 		}
 	}
 
