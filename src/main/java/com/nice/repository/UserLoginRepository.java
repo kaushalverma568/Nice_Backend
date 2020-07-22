@@ -11,14 +11,14 @@ import com.nice.model.UserLogin;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Repository
 public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 
 	/**
-	 * @param  phoneNumber
-	 * @param  entityType
+	 * @param phoneNumber
+	 * @param entityType
 	 * @return
 	 */
 	Optional<UserLogin> findByPhoneNumberIgnoreCaseAndEntityType(String phoneNumber, String entityType);
@@ -30,61 +30,54 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 	Optional<UserLogin> findByEntityIdAndEntityType(Long entityId, String entityType);
 
 	/**
-	 * @param  email
-	 * @param  upperCase
+	 * @param email
+	 * @param upperCase
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailIgnoreCaseAndEntityType(String email, String entityType);
+	Optional<UserLogin> findByEmailAndEntityType(String email, String entityType);
 
 	/**
-	 * @param  actualUser
-	 * @param  name
+	 * @param actualUser
+	 * @param name
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailIgnoreCaseAndRole(String actualUser, String name);
+	Optional<UserLogin> findByEmailAndRole(String actualUser, String name);
 
 	/**
-	 * @param  email
-	 * @param  name
+	 * @param email
+	 * @param name
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeIsNull(String email);
+	Optional<UserLogin> findByEmailAndEntityTypeIsNull(String email);
 
 	/**
-	 * @param  userName
-	 * @param  entityType
-	 * @param  userName1
-	 * @param  entityType1
+	 * @param userName
+	 * @param entityType
+	 * @param userName1
+	 * @param entityType1
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(String userName, String entityType, String userName1,
-			String entityType1);
+	Optional<UserLogin> findByEmailAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(String userName, String entityType, String userName1, String entityType1);
 
 	/**
-	 * get admin panel user's login detail based entity type(null or admin panel user's user Type) and user name(email or
-	 * phone number)
+	 * get admin panel user's login detail based entity type(null or admin panel
+	 * user's user Type) and user name(email or phone number)
 	 *
-	 * @param  userName
-	 * @param  adminPanelUserList
-	 * @param  userName2
+	 * @param userName
+	 * @param adminPanelUserList
+	 * @param userName2
 	 * @return
 	 */
 	@Query("select u from UserLogin u where ( u.entityType IS NULL or u.entityType in :adminPanelUserList ) and ( u.email=:userName or u.phoneNumber=:userName ) ")
 	Optional<UserLogin> getAdminPanelUserBasedOnUserNameAndEntityType(String userName, List<String> adminPanelUserList);
 
 	/**
-	 * get user login details based on email and entity type : this method is used at the time of update super admin's email
+	 * get user login details based on email and entity type : this method is used
+	 * at the time of update super admin's email
 	 *
-	 * @param  email
-	 * @param  adminPanelUserList
+	 * @param email
+	 * @param adminPanelUserList
 	 * @return
 	 */
-	Optional<UserLogin> findByEmailIgnoreCaseAndEntityTypeIn(String email, List<String> adminPanelUserList);
-
-	/**
-	 * @param  email
-	 * @param  role
-	 * @return
-	 */
-	Optional<UserLogin> findByEmailAndRole(String email, String role);
+	Optional<UserLogin> findByEmailAndEntityTypeIn(String email, List<String> adminPanelUserList);
 }

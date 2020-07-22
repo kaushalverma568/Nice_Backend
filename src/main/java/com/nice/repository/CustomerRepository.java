@@ -12,7 +12,7 @@ import com.nice.model.Customer;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
@@ -20,39 +20,30 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	/**
 	 * Get Customers by Customers email if exist
 	 *
-	 * @param  email
+	 * @param email
 	 * @return
 	 */
 	Optional<Customer> findByEmail(String email);
 
 	/**
-	 * Get Customer by email and PhoneNumber
-	 *
-	 * @param  email
-	 * @param  phoneNumber
-	 * @return
-	 */
-	Optional<Customer> findByEmailAndPhoneNumber(String email, String phoneNumber);
-
-	/**
 	 * Get Customers by Customers email and Customers Id not equal if exist
 	 *
-	 * @param  email
-	 * @param  id
+	 * @param email
+	 * @param id
 	 * @return
 	 */
 
 	Optional<Customer> findByEmailAndIdNot(String email, Long id);
 
 	/**
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<Customer> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * @param  active
+	 * @param active
 	 * @return
 	 */
 	long countByActive(boolean active);
@@ -60,41 +51,41 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	/**
 	 * get list of customers by active
 	 *
-	 * @param  activeRecords
+	 * @param activeRecords
 	 * @return
 	 */
 	List<Customer> findAllByActive(Boolean activeRecords);
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param pageable
 	 * @return
 	 */
 	Page<Customer> findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrPhoneNumberContainingIgnoreCase(Boolean activeRecords,
 			String searchKeyword, String searchKeyword2, String searchKeyword3, Pageable pageable);
 
 	/**
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  pageable
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param pageable
 	 * @return
 	 */
 	Page<Customer> findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrPhoneNumberContainingIgnoreCase(String searchKeyword,
 			String searchKeyword2, String searchKeyword3, Pageable pageable);
 
 	/**
-	 * @param  phoneNumber
-	 * @param  customerId
+	 * @param phoneNumber
+	 * @param customerId
 	 * @return
 	 */
 	Optional<Customer> findByPhoneNumberIgnoreCaseAndIdNot(String phoneNumber, Long customerId);
 
 	/**
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 */
 	Optional<Customer> findByPhoneNumberIgnoreCase(String phoneNumber);

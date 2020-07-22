@@ -82,11 +82,21 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
 public class VendorServiceImpl implements VendorService {
+
+	/**
+	 *
+	 */
+	private static final String OTP_INCORRECT = "otp.incorrect";
+
+	/**
+	 *
+	 */
+	private static final String VENDOR_ACTIVE_FIRST = "vendor.active.first";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorServiceImpl.class);
 
@@ -173,7 +183,7 @@ public class VendorServiceImpl implements VendorService {
 		final UserLogin userLogin = new UserLogin();
 		userLogin.setEntityId(vendor.getId());
 		userLogin.setEntityType(UserType.VENDOR.name());
-		userLogin.setEmail(vendor.getEmail().toLowerCase());
+		userLogin.setEmail(vendor.getEmail());
 		userLogin.setRole(Role.VENDOR.name());
 		userLogin.setPassword(vendorDTO.getPassword());
 		userLogin.setActive(false);
@@ -200,7 +210,7 @@ public class VendorServiceImpl implements VendorService {
 			vendorBankDetails.setActive(true);
 			vendorBankDetailsRepository.save(vendorBankDetails);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
 	}
 
@@ -313,14 +323,15 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
-			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail(), vendorDTO.getId()).isPresent();
+			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is vendor with same email exist or not
 			 */
-			return vendorRepository.findByEmail(vendorDTO.getEmail()).isPresent();
+			return vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase()).isPresent();
 		}
 	}
 
@@ -339,7 +350,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isUserLoginExists(final VendorDTO vendorDTO) {
 		Optional<UserLogin> optUserLogin;
 		try {
-			optUserLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(vendorDTO.getEmail(), Constant.USER);
+			optUserLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(vendorDTO.getEmail().toLowerCase(), Constant.USER);
 		} catch (ValidationException e) {
 			return true;
 		}
@@ -354,7 +365,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -365,8 +377,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -446,7 +458,7 @@ public class VendorServiceImpl implements VendorService {
 			}
 			vendorRepository.save(vendor);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
 
 	}
@@ -484,7 +496,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription plan or not
+			 * if order service is enable by vendor then check he has active subscription
+			 * plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -525,7 +538,7 @@ public class VendorServiceImpl implements VendorService {
 				}
 			}
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
 	}
 
@@ -606,7 +619,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByContactNoAndIdNot(vendorDTO.getContactNo(), vendorDTO.getId()).isPresent();
 		} else {
@@ -664,7 +678,8 @@ public class VendorServiceImpl implements VendorService {
 			// send email for you account has been rejected by admin kindly contact admin
 		}
 		if (VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)) {
-			// send email to vendor that your account is being suspended by admin kindly contact admin.
+			// send email to vendor that your account is being suspended by admin kindly
+			// contact admin.
 			// revoke token
 		}
 		if (VendorStatus.EXPIRED.getStatusValue().equals(newStatus)
@@ -703,12 +718,12 @@ public class VendorServiceImpl implements VendorService {
 
 	@Override
 	public String changeVendorEmail(final Long vendorId, final EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException {
-		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail(), vendorId).isPresent();
-		boolean isUserLoginExist = userLoginService.getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail(), Constant.USER).isPresent();
+		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), vendorId).isPresent();
+		boolean isUserLoginExist = userLoginService.getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail().toLowerCase(), Constant.USER).isPresent();
 		if (!isVendorExist && !isUserLoginExist) {
 			String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
 			Vendor vendor = getVendorDetail(vendorId);
-			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive()) {
+			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
 				UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 				String userName = userLogin.getEmail();
 				if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
@@ -719,10 +734,10 @@ public class VendorServiceImpl implements VendorService {
 					userLoginService.updateUserLogin(userLogin);
 					return userName;
 				} else {
-					throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
+					throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
 				}
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 			}
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.email.not.unique", null));
@@ -731,15 +746,15 @@ public class VendorServiceImpl implements VendorService {
 
 	@Override
 	public String generateOTPForChangeEmail(final String email, final Long vendorId) throws NotFoundException, ValidationException {
-		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(email, vendorId).isPresent();
-		boolean isUserLoginExists = userLoginService.getUserLoginBasedOnUserNameAndUserType(email, Constant.USER).isPresent();
+		boolean isVendorExist = vendorRepository.findByEmailAndIdNot(email.toLowerCase(), vendorId).isPresent();
+		boolean isUserLoginExists = userLoginService.getUserLoginBasedOnUserNameAndUserType(email.toLowerCase(), Constant.USER).isPresent();
 		if (!isVendorExist && !isUserLoginExists) {
 			Vendor vendor = getVendorDetail(vendorId);
-			if (vendor.getEmail().equals(email)) {
+			if (vendor.getEmail().equalsIgnoreCase(email)) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.change.same.email", null));
 			}
-			String otp = generateOTP(UserOtpTypeEnum.EMAIL.name(), email);
-			sendOTPEmail(otp, email);
+			String otp = generateOTP(UserOtpTypeEnum.EMAIL.name(), email.toLowerCase());
+			sendOTPEmail(otp, email.toLowerCase());
 			return otp;
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.email.not.unique", null));
@@ -800,10 +815,10 @@ public class VendorServiceImpl implements VendorService {
 					vendor.setIsContactVerified(true);
 					vendorRepository.save(vendor);
 				} else {
-					throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
+					throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
 				}
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 			}
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
@@ -820,10 +835,10 @@ public class VendorServiceImpl implements VendorService {
 				vendor.setIsContactVerified(true);
 				vendorRepository.save(vendor);
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
+				throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
 			}
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.active.first", null));
+			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
 
 	}

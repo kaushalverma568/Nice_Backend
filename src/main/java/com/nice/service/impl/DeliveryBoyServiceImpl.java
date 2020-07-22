@@ -140,7 +140,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 * Check if delivery boy already exists, if so then lets only send him email
 		 * again.
 		 */
-		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail().toLowerCase());
+		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getIsEmailVerified().booleanValue()) {
 			deliveryBoy = optDeliveryBoy.get();
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoyDTO.getEmail().toLowerCase(),
@@ -325,12 +325,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			 * At the time of update is deliveryBoy with same email exist or not except it's
 			 * own id
 			 */
-			return deliveryBoyRepository.findByEmailIgnoreCaseAndIdNot(deliveryBoyDTO.getEmail(), deliveryBoyDTO.getId()).isPresent();
+			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail().toLowerCase(), deliveryBoyDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is deliveryBoy with same email exist or not
 			 */
-			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmailIgnoreCase(deliveryBoyDTO.getEmail());
+			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
 				 * If the delivery boy is present and his email not verified, then we will be
@@ -626,7 +626,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		} /**
 			 * if any other delivery boy has same email then throw exception
 			 */
-		else if (deliveryBoyRepository.findByEmailIgnoreCaseAndIdNot(email, userLogin.getEntityId()).isPresent()) {
+		else if (deliveryBoyRepository.findByEmailAndIdNot(email.toLowerCase(), userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
 		} else {
 			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), otp)) {

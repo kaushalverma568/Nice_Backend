@@ -157,7 +157,7 @@ public class UsersServiceImpl implements UsersService {
 		/**
 		 * if super admin contains same email then return true
 		 */
-		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIsNull(usersDTO.getEmail()).isPresent()) {
+		if (userLoginRepository.findByEmailAndEntityTypeIsNull(usersDTO.getEmail().toLowerCase()).isPresent()) {
 			return true;
 		} else {
 			if (usersDTO.getId() != null) {

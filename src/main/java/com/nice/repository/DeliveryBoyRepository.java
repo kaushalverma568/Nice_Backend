@@ -21,7 +21,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	 * @param id
 	 * @return
 	 */
-	Optional<DeliveryBoy> findByEmailIgnoreCaseAndIdNot(String email, Long id);
+	Optional<DeliveryBoy> findByEmailAndIdNot(String email, Long id);
 
 	/**
 	 * Get delivery boy by delivery boy email ignore case if exist
@@ -29,7 +29,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	 * @param email
 	 * @return
 	 */
-	Optional<DeliveryBoy> findByEmailIgnoreCase(String email);
+	Optional<DeliveryBoy> findByEmail(String email);
 
 	/**
 	 * Get delivery boy page by active

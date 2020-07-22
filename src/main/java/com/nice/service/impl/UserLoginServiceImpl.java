@@ -166,14 +166,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * Fetch user based on email(userName)
 		 */
 		else {
-			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(actualUser, userType);
+			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
 		 * If the userType is USERS and optUserLogin is empty, the user might be a
 		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
-			optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndRole(actualUser, Role.SUPER_ADMIN.name());
+			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
 		}
 
 		/**
@@ -273,7 +273,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public Optional<UserLogin> getUserLoginBasedOnEmailAndEntityType(final String email, final String entityType) {
-		return userLoginRepository.findByEmailIgnoreCaseAndEntityType(email, entityType);
+		return userLoginRepository.findByEmailAndEntityType(email, entityType);
 	}
 
 	@Override
@@ -299,7 +299,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		userLoginDto.setPassword(socialLoginDto.getUniqueId());
 		userLoginDto.setRegisteredVia(socialLoginDto.getRegisteredVia());
 		userLoginDto.setUserType(Role.CUSTOMER.getStatusValue());
-		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(socialLoginDto.getEmail().toLowerCase(),
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(socialLoginDto.getEmail().toLowerCase(),
 				Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(socialLoginDto.getEmail().toLowerCase());
@@ -425,7 +425,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * if admin panel's users(other then super_admin) contains this email then throw
 		 * validation
 		 */
-		if (userLoginRepository.findByEmailIgnoreCaseAndEntityTypeIn(email, UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
+		if (userLoginRepository.findByEmailAndEntityTypeIn(email.toLowerCase(), UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("email.not.unique", null));
 		} else {
 			UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
@@ -553,7 +553,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (Constant.USER.equalsIgnoreCase(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
 		} else if (Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType)) {
-			return userLoginRepository.findByEmailIgnoreCaseAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(userName,
+			return userLoginRepository.findByEmailAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(userName,
 					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name(), userName,
 					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
 		} else {
@@ -632,7 +632,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
 			userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName().toLowerCase(), userLoginDto.getUserType());
 		} else {
-			userLogin = userLoginRepository.findByEmailIgnoreCaseAndEntityType(userLoginDto.getUserName(), userLoginDto.getUserType());
+			userLogin = userLoginRepository.findByEmailAndEntityType(userLoginDto.getUserName().toLowerCase(), userLoginDto.getUserType());
 		}
 		if (userLogin.isPresent()) {
 			BeanUtils.copyProperties(userLogin.get(), loginResponse);
@@ -642,7 +642,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
 			}
 		} else {
-			userLogin = userLoginRepository.findByEmailIgnoreCaseAndRole(userLoginDto.getUserName(), Role.SUPER_ADMIN.getStatusValue());
+			userLogin = userLoginRepository.findByEmailAndRole(userLoginDto.getUserName().toLowerCase(), Role.SUPER_ADMIN.getStatusValue());
 			if (userLogin.isPresent()) {
 				BeanUtils.copyProperties(userLogin.get(), loginResponse);
 				loginResponse.setUserId(userLogin.get().getId());
@@ -683,12 +683,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public Optional<UserLogin> getUserLoginBasedOnEmailAndRole(final String email, final String role) {
-		return userLoginRepository.findByEmailAndRole(email, role);
+		return userLoginRepository.findByEmailAndRole(email.toLowerCase(), role);
 	}
 
 	@Override
 	public LoginResponse adminLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
-		Optional<UserLogin> optUserLogin = userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userLoginDto.getUserName(),
+		Optional<UserLogin> optUserLogin = userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userLoginDto.getUserName().toLowerCase(),
 				UserType.ADMIN_PANEL_USER_LIST);
 		if (optUserLogin.isPresent()) {
 			String entityType = optUserLogin.get().getEntityType() == null ? UserType.USER.name() : optUserLogin.get().getEntityType();
@@ -726,7 +726,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage("user.email.exists", new Object[] { emailUpdateDTO.getEmail() }));
 			}
 		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-				&& deliveryBoyRepository.findByEmailIgnoreCaseAndIdNot(emailUpdateDTO.getEmail(), userLogin.getEntityId()).isPresent()) {
+				&& deliveryBoyRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
 		}
 		/**
