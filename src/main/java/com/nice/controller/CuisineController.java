@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -50,6 +51,10 @@ import com.nice.validator.CuisineValidator;
 @RestController
 public class CuisineController {
 
+	/**
+	 * 
+	 */
+	private static final String CUISINE_UPDATE_MESSAGE = "cuisine.update.message";
 	private static final Logger LOGGER = LoggerFactory.getLogger(CuisineController.class);
 	/**
 	 * Locale message service - to display response messages from Property file
@@ -135,7 +140,7 @@ public class CuisineController {
 		}
 		cuisineService.updateCuisine(cuisineDTO, image);
 		LOGGER.info("Outside update cuisine method {}", cuisineDTO);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cuisine.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUISINE_UPDATE_MESSAGE, null))
 				.create();
 	}
 
@@ -191,7 +196,23 @@ public class CuisineController {
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of cuisine of id {} and status {}", cuisineId, active);
 		cuisineService.changeStatus(cuisineId, active);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cuisine.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUISINE_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * Delete Image
+	 *
+	 * @param cuisineId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@DeleteMapping("/image/{cuisineId}")
+	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken, @PathVariable("cuisineId") final Long cuisineId)
+			throws NotFoundException {
+		LOGGER.info("Inside delete image of cuisine of id {}", cuisineId);
+		cuisineService.deleteImage(cuisineId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUISINE_UPDATE_MESSAGE, null))
 				.create();
 	}
 }
