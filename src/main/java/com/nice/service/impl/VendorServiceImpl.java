@@ -696,14 +696,10 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void exportVendorList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
+	public void exportVendorList(final VendorFilterDTO vendorFilterDTO, final HttpServletResponse httpServletResponse) throws IOException {
 		List<Vendor> vendorList;
 		List<VendorExport> vendorExportList = new ArrayList<>();
-		if (activeRecords != null) {
-			vendorList = vendorRepository.findAllByActive(activeRecords);
-		} else {
-			vendorList = vendorRepository.findAll();
-		}
+		  vendorList = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
 		for (Vendor vendor : vendorList) {
 			final VendorExport vendorExport = new VendorExport();
 			BeanUtils.copyProperties(vendor, vendorExport);

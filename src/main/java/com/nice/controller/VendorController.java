@@ -384,11 +384,20 @@ public class VendorController {
 				.create();
 	}
 
+	/**
+	 * 
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param vendorFilterDTO
+	 * @return
+	 * @throws IOException
+	 */
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
-			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
+			final HttpServletResponse httpServletResponse, @RequestBody VendorFilterDTO vendorFilterDTO)
 			throws IOException {
-		vendorService.exportVendorList(activeRecords, httpServletResponse);
+		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();
 	}
 

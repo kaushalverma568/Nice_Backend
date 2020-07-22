@@ -23,12 +23,14 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderRatingMapper;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.OrderRating;
+import com.nice.model.Orders;
 import com.nice.model.Vendor;
 import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.OrderRatingRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrderRatingService;
+import com.nice.service.OrdersService;
 import com.nice.service.VendorService;
 
 /**
@@ -51,6 +53,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	private VendorService vendorService;
 	
 	@Autowired
+	private OrdersService orderService;
+	
+	@Autowired
 	private VendorRepository vendorRepository;
 		
 	@Autowired
@@ -66,9 +71,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	@Override
 	public OrderRatingResponseDTO addOrderRating(final OrderRatingDTO orderRatingDTO) throws NotFoundException {
 		OrderRating orderRating= orderRatingMapper.toEntity(orderRatingDTO);
-		// set from order vendorId & BoyId
-		orderRating.setVendorId(1L);
-		orderRating.setDeliveryBoyId(1L);
+		Orders order = orderService.getOrderById(orderRating.getOrderId());
+		orderRating.setVendorId(order.getVendor().getId());
+		orderRating.setDeliveryBoyId(order.getDeliveryBoy().getId());
 	
 		/**
 		 *  first 3 rating for vendor 

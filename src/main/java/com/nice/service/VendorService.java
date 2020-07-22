@@ -253,7 +253,7 @@ public interface VendorService {
 	 * @param httpServletResponse
 	 * @throws IOException
 	 */
-	void exportVendorList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
+	void exportVendorList(VendorFilterDTO vendorFilterDTO, HttpServletResponse httpServletResponse) throws IOException;
 
 	/**
 	 * verify vendor contact
