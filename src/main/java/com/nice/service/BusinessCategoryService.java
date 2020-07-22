@@ -69,5 +69,14 @@ public interface BusinessCategoryService {
 	 * @throws NotFoundException
 	 */
 	BusinessCategory getBusinessCategoryDetail(Long businessCategoryId) throws NotFoundException;
+
+	/**
+	 * 
+	 * @param businessCategoryId
+	 * @param manageInventory
+	 * @throws NotFoundException 
+	 * @throws ValidationException 
+	 */
+	public void updateManageInventory(Long businessCategoryId, Boolean manageInventory) throws NotFoundException, ValidationException;
 	
 }

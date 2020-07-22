@@ -92,6 +92,18 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			businessCategoryRepository.save(existingBusinessCategory);
 		}
 	}
+	
+	@Override
+	public void updateManageInventory(Long businessCategoryId, Boolean manageInventory) throws NotFoundException, ValidationException {
+		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
+		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
+		if (manageInventory != null) {
+			existingBusinessCategory.setActive(manageInventory);
+			businessCategoryRepository.save(existingBusinessCategory);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("manage.inventory.not.null", null));
+		}
+	}
 
 	@Override
 	public Page<BusinessCategory> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) {
@@ -118,5 +130,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		return businessCategoryRepository.findById(BusinessCategoryId).orElseThrow(
 				() -> new NotFoundException(messageByLocaleService.getMessage("business.category.not.found", new Object[] { BusinessCategoryId })));
 	}
+
+
 
 }

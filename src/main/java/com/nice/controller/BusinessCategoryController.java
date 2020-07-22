@@ -79,6 +79,16 @@ public class BusinessCategoryController {
 	}
 
 
+	/**
+	 * 
+	 * @param accessToken
+	 * @param image
+	 * @param businessCategoryDTO
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping
 	public ResponseEntity<Object> addBusinessCategory(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image,
@@ -98,6 +108,17 @@ public class BusinessCategoryController {
 				.setMessage(messageByLocaleService.getMessage("business.category.create.message", null)).setData(resultBusinessCategory).create();
 	}
 
+	
+	/**
+	 * 
+	 * @param accessToken
+	 * @param image
+	 * @param businessCategoryDTO
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping
 	public ResponseEntity<Object> updateBusinessCategory(@RequestHeader("Authorization") final String accessToken,	
 			@RequestParam(name = "image", required = false) final MultipartFile image,
@@ -114,6 +135,13 @@ public class BusinessCategoryController {
 				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null)).setData(resultBusinessCategory).create();
 	}
 
+	/**
+	 * 
+	 * @param accessToken
+	 * @param businessCategoryId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@GetMapping(value = "/{businessCategoryId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("businessCategoryId") final Long businessCategoryId)
 			throws NotFoundException {
@@ -122,6 +150,14 @@ public class BusinessCategoryController {
 				.setMessage(messageByLocaleService.getMessage("business.category.detail.message", null)).setData(resultBusinessCategory).create();
 	}
 
+	
+	/**
+	 * 
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @return
+	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
@@ -132,11 +168,38 @@ public class BusinessCategoryController {
 				.setPageNumber(resultBusinessCategory.getNumber() + 1).setTotalCount(resultBusinessCategory.getTotalElements()).create();
 	}
 
+	/**
+	 * 
+	 * @param accessToken
+	 * @param businessCategoryId
+	 * @param active
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{businessCategoryId}")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of BusinessCategory of id {} and status {}", businessCategoryId, active);
 		businessCategoryService.changeStatus(businessCategoryId, active);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null )).create();
+	}
+	
+	/**
+	 * 
+	 * @param accessToken
+	 * @param businessCategoryId
+	 * @param manageInventory
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/inventory/manage/{businessCategoryId}")
+	public ResponseEntity<Object> updateManageInventory(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean manageInventory) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside change status of BusinessCategory of id {} and status {}", businessCategoryId, manageInventory);
+		businessCategoryService.updateManageInventory(businessCategoryId, manageInventory);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null )).create();
 	}
