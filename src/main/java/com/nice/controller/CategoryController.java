@@ -40,12 +40,11 @@ import com.nice.mapper.CategoryMapper;
 import com.nice.model.Category;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.CategoryService;
-import com.nice.util.CommonUtility;
 import com.nice.validator.CategoryValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/category")
 @RestController
@@ -59,8 +58,7 @@ public class CategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -90,9 +88,9 @@ public class CategoryController {
 	/**
 	 * Add Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -108,9 +106,6 @@ public class CategoryController {
 			LOGGER.error("Category validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(image.getOriginalFilename())) {
-			throw new ValidationException(messageByLocaleService.getMessage("category.image.required", null));
-		}
 		categoryService.addCategory(categoryDTO, image);
 		LOGGER.info("Outside add Category ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.create.message", null))
@@ -120,9 +115,9 @@ public class CategoryController {
 	/**
 	 * update Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -138,9 +133,6 @@ public class CategoryController {
 			LOGGER.error("Category validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(image.getOriginalFilename())) {
-			throw new ValidationException(messageByLocaleService.getMessage("category.image.required", null));
-		}
 		categoryService.updateCategory(categoryDTO, image);
 		LOGGER.info("Outside update Category ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.update.message", null))
@@ -150,8 +142,8 @@ public class CategoryController {
 	/**
 	 * Get Category Details based on id
 	 *
-	 * @param categoryId
-	 * @param userId
+	 * @param  categoryId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -168,10 +160,10 @@ public class CategoryController {
 	/**
 	 * Get Category list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -192,8 +184,8 @@ public class CategoryController {
 	/**
 	 * Change status of Category (active/deActive)
 	 *
-	 * @param categoryId
-	 * @param active
+	 * @param  categoryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -211,10 +203,10 @@ public class CategoryController {
 	/**
 	 * export category list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException
@@ -232,10 +224,10 @@ public class CategoryController {
 	/**
 	 * Upload category
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
