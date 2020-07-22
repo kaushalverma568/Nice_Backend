@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Data
 public class CuisineResponseDTO implements Serializable {
@@ -24,4 +24,7 @@ public class CuisineResponseDTO implements Serializable {
 	private String name;
 
 	private String imageUrl;
+
+	private Boolean active;
+
 }
