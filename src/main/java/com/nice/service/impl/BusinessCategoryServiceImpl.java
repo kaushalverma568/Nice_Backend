@@ -98,7 +98,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
 		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
 		if (manageInventory != null) {
-			existingBusinessCategory.setActive(manageInventory);
+			existingBusinessCategory.setManageInventory(manageInventory);
 			businessCategoryRepository.save(existingBusinessCategory);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("manage.inventory.not.null", null));
