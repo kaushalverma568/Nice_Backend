@@ -52,8 +52,8 @@ public class Customer extends CommonModel {
 	@Column(name = "email_verified", nullable = false)
 	private Boolean emailVerified;
 
-	@Column(name = "mobile_verified")
-	private Boolean mobileVerified;
+	@Column(name = "phone_verified")
+	private Boolean phoneVerified;
 
 	@Column(name = "status")
 	private String status;

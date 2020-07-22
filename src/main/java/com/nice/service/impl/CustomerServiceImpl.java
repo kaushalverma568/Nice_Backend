@@ -143,7 +143,7 @@ public class CustomerServiceImpl implements CustomerService {
 				} else {
 					LOGGER.info("Registration via OTP, and email is not registered Hence merging information about customer and send verification of mail.");
 					customer.setEmailVerified(optCustomer.get().getEmailVerified());
-					customer.setMobileVerified(optCustomer.get().getMobileVerified());
+					customer.setPhoneVerified(optCustomer.get().getPhoneVerified());
 					customer.setStatus(optCustomer.get().getStatus());
 					customer.setId(optCustomer.get().getId());
 					customerRepository.save(customer);
@@ -172,13 +172,13 @@ public class CustomerServiceImpl implements CustomerService {
 			if (RegisterVia.GOOGLE.getStatusValue().equals(customerDTO.getRegisteredVia())
 					|| RegisterVia.FACEBOOK.getStatusValue().equals(customerDTO.getRegisteredVia())) {
 				customer.setEmailVerified(true);
-				customer.setMobileVerified(false);
+				customer.setPhoneVerified(false);
 				customer.setStatus(CustomerStatus.ACTIVE.getStatusValue());
 				userLogin.setActive(true);
 			}
 		} else {
 			customer.setEmailVerified(false);
-			customer.setMobileVerified(false);
+			customer.setPhoneVerified(false);
 			customer.setStatus(CustomerStatus.PENDING.getStatusValue());
 			userLogin.setActive(false);
 		}
@@ -254,7 +254,7 @@ public class CustomerServiceImpl implements CustomerService {
 		Customer existingCustomer = getCustomerDetails(customerDTO.getId());
 		Customer customer = customerMapper.toEntity(customerDTO, null);
 		customer.setEmailVerified(existingCustomer.getEmailVerified());
-		customer.setMobileVerified(existingCustomer.getMobileVerified());
+		customer.setPhoneVerified(existingCustomer.getPhoneVerified());
 		customer.setStatus(existingCustomer.getStatus());
 
 		return customerRepository.save(customer);

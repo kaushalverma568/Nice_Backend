@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jul-2020
+ * @date   : 17-Jul-2020
  */
 @Data
 public class TaskResponseDto implements Serializable {
@@ -30,7 +30,7 @@ public class TaskResponseDto implements Serializable {
 	 * Details related to vendor
 	 */
 	private String vendorName;
-	private String vendorContactNumber;
+	private String vendorPhoneNumber;
 	private String vendorAddress;
 	private BigDecimal pickupLatitude;
 	private BigDecimal pickupLongitude;
@@ -40,7 +40,7 @@ public class TaskResponseDto implements Serializable {
 	 */
 	private String customerName;
 	private String customerAddress;
-	private String customerContactNumber;
+	private String customerPhoneNumber;
 	private Long deliveryLatitude;
 	private Long deliveryLongitude;
 

@@ -11,9 +11,8 @@ import com.nice.dto.TaskResponseDto;
 import com.nice.model.Task;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Component
 public class TaskMapper {
@@ -33,7 +32,7 @@ public class TaskMapper {
 		taskResponseDto.setOrderId(task.getOrder().getId());
 		taskResponseDto.setCustomerAddress(task.getOrder().getAddress());
 		taskResponseDto.setCustomerName(task.getOrder().getFirstName().concat(" ").concat(task.getOrder().getLastName()));
-		taskResponseDto.setCustomerContactNumber(task.getOrder().getPhoneNumber());
+		taskResponseDto.setCustomerPhoneNumber(task.getOrder().getPhoneNumber());
 		return taskResponseDto;
 	}
 }

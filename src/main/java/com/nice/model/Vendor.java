@@ -22,7 +22,7 @@ import lombok.ToString;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 @Entity
 @Data
@@ -47,8 +47,8 @@ public class Vendor extends CommonModel {
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 
-	@Column(name = "is_email_verified", nullable = false)
-	private Boolean isEmailVerified;
+	@Column(name = "email_verified", nullable = false)
+	private Boolean emailVerified;
 
 	@Column(name = "is_order_service_enable", nullable = false)
 	private Boolean isOrderServiceEnable;
@@ -62,8 +62,8 @@ public class Vendor extends CommonModel {
 	@Column(name = "store_name", nullable = false)
 	private String storeName;
 
-	@Column(name = "contact_no", nullable = false)
-	private String contactNo;
+	@Column(name = "phone_number", nullable = false)
+	private String phoneNumber;
 
 	@JoinColumn(name = "subscription_plan_id")
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
@@ -79,10 +79,6 @@ public class Vendor extends CommonModel {
 
 	@Column(name = "status", nullable = false)
 	private String status;
-
-	// this will be in minutes
-	@Column(name = "approx_delivery_time")
-	private Integer approxDeliveryTime;
 
 	/**
 	 * maximum time for which vendor can accept return/replace (in days)
@@ -159,10 +155,10 @@ public class Vendor extends CommonModel {
 	@Column(name = "profile_picture_original_name")
 	private String profilePictureOriginalName;
 
-	@Column(name = "is_contact_verified", nullable = false)
-	private Boolean isContactVerified;
+	@Column(name = "phone_verified", nullable = false)
+	private Boolean phoneVerified;
 
-	@Column(name = "vendor_contact_no")
-	private String vendorContactNo;
+	@Column(name = "store_phone_number")
+	private String storePhoneNumber;
 
 }

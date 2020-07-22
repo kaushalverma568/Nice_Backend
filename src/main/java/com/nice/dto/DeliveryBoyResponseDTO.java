@@ -48,7 +48,7 @@ public class DeliveryBoyResponseDTO implements Serializable {
 
 	private Boolean active;
 
-	private Boolean isEmailVerified;
+	private Boolean emailVerified;
 
 	private Boolean isBusy;
 

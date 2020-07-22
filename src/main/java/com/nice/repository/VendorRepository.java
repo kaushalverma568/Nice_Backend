@@ -16,7 +16,7 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	/**
 	 * Get vendor by vendor email and id not equal if exist
 	 *
-	 * @param  contactNo
+	 * @param  email
 	 * @param  id
 	 * @return
 	 */
@@ -43,29 +43,29 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	 * Get vendor page by active and isEmailVerified
 	 *
 	 * @param  activeRecords
-	 * @param  isEmailVerified
+	 * @param  emailVerified
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Vendor> findAllByActiveAndIsEmailVerified(Boolean activeRecords, Boolean isEmailVerified, Pageable pageable);
+	Page<Vendor> findAllByActiveAndEmailVerified(Boolean activeRecords, Boolean emailVerified, Pageable pageable);
 
 	/**
 	 * Get vendor page by isEmailVerified
 	 *
-	 * @param  isEmailVerified
+	 * @param  emailVerified
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Vendor> findAllByIsEmailVerified(Boolean isEmailVerified, Pageable pageable);
+	Page<Vendor> findAllByEmailVerified(Boolean emailVerified, Pageable pageable);
 
 	/**
-	 * Get vendor by vendor email and id not equal if exist
+	 * Get vendor by vendor phonenumber and id not equal if exist
 	 *
-	 * @param  contactNo
+	 * @param  phoneNumber
 	 * @param  id
 	 * @return
 	 */
-	Optional<Vendor> findByContactNoAndIdNot(String contactNo, Long id);
+	Optional<Vendor> findByPhoneNumberAndIdNot(String phoneNumber, Long id);
 
 	/**
 	 * Get vendor by vendor email if exist
@@ -73,11 +73,10 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	 * @param  email
 	 * @return
 	 */
-	Optional<Vendor> findByContactNo(String contactNo);
+	Optional<Vendor> findByPhoneNumber(String phoneNumber);
 
 	/**
-	 * 
-	 * @param activeRecords
+	 * @param  activeRecords
 	 * @return
 	 */
 	List<Vendor> findAllByActive(Boolean activeRecords);

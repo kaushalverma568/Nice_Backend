@@ -11,9 +11,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Entity
 @Table(name = "delivery_boy")
@@ -67,11 +66,11 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "branch_city")
 	private String branchCity;
 
-	@Column(name = "is_email_verified", nullable = false)
-	private Boolean isEmailVerified;
+	@Column(name = "email_verified", nullable = false)
+	private Boolean emailVerified;
 
-	@Column(name = "is_phone_number_verified", nullable = false)
-	private Boolean isPhoneNumberVerified;
+	@Column(name = "phone_verified", nullable = false)
+	private Boolean phoneVerified;
 
 	@Column(name = "rating", nullable = false)
 	private Double rating;

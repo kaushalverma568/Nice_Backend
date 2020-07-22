@@ -25,7 +25,7 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	private String customerName;
 
-	private String customerContact;
+	private String customerPhoneNumber;
 
 	private String paymentMode;
 

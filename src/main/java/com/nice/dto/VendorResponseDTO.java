@@ -33,7 +33,7 @@ public class VendorResponseDTO implements Serializable {
 
 	private String email;
 
-	private Boolean isEmailVerified;
+	private Boolean emailVerified;
 
 	private Boolean isOrderServiceEnable;
 
@@ -43,7 +43,7 @@ public class VendorResponseDTO implements Serializable {
 
 	private String storeName;
 
-	private String contactNo;
+	private String phoneNumber;
 
 	private Long subscriptionPlanId;
 
@@ -54,8 +54,6 @@ public class VendorResponseDTO implements Serializable {
 	private Date subscriptionPlanEndDate;
 
 	private String status;
-
-	private Integer approxDeliveryTime;
 
 	private Double minimumOrderAmt;
 
@@ -109,9 +107,9 @@ public class VendorResponseDTO implements Serializable {
 
 	private Double distance;
 
-	private Boolean isContactVerified;
+	private Boolean phoneVerified;
 
-	private String vendorContactNo;
+	private String storePhoneNumber;
 
 	/**
 	 * Consolidated Vendor address.

@@ -43,9 +43,6 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	@NotNull(message = "{openingHours.to.not.null}")
 	private Time openingHoursTo;
 
-	@NotNull(message = "{approxDeliveryTime.not.null}")
-	private Integer approxDeliveryTime;
-
 	@NotNull(message = "{minimumOrderAmt.not.null}")
 	private Double minimumOrderAmt;
 
@@ -66,8 +63,8 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	@NotNull(message = "{isOrderServiceEnable.not.null}")
 	private Boolean isOrderServiceEnable;
 
-	@NotBlank(message = "{vendor.contact.not.null}")
-	private String vendorContactNo;
+	@NotBlank(message = "{store.contact.not.null}")
+	private String storePhoneNumber;
 
 	/**
 	 * maximum time for which vendor can accept return/replace (in days)

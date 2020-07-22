@@ -36,8 +36,8 @@ public class CompanyDTO implements Serializable {
 	@NotBlank(message = "{companyAddress.not.null}")
 	private String companyAddress;
 
-	@NotBlank(message = "{contactNo.not.null}")
-	private String contactNo;
+	@NotBlank(message = "{phone.number.not.null}")
+	private String phoneNumber;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;

@@ -26,7 +26,7 @@ public class CustomerResponseDTO implements Serializable {
 	private String registeredVia;
 	private Boolean active;
 	private Boolean emailVerified;
-	private Boolean mobileVerified;
+	private Boolean phoneVerified;
 	private Date createdAt;
 	private String status;
 	private Date birthDate;

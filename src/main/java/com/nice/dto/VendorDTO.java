@@ -35,8 +35,8 @@ public class VendorDTO implements Serializable {
 	@NotBlank(message = "{storeName.not.null}")
 	private String storeName;
 
-	@NotBlank(message = "{contactNo.not.null}")
-	private String contactNo;
+	@NotBlank(message = "{phone.number.not.null}")
+	private String phoneNumber;
 
 	@NotBlank(message = "{building.not.null}")
 	private String building;

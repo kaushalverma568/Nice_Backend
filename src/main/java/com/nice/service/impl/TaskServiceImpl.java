@@ -40,7 +40,6 @@ import com.nice.model.Task;
 import com.nice.repository.DeliveryBoyCurrentStatusRepository;
 import com.nice.repository.DeliveryBoyLocationRepository;
 import com.nice.repository.OrdersRepository;
-import com.nice.repository.TaskHistoryRepository;
 import com.nice.repository.TaskRepository;
 import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyLocationService;
@@ -52,9 +51,8 @@ import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -80,9 +78,6 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-
-	@Autowired
-	private TaskHistoryRepository taskHistoryRepostory;
 
 	@Autowired
 	private CashcollectionService cashCollectionService;
@@ -116,7 +111,6 @@ public class TaskServiceImpl implements TaskService {
 		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
 		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
 		 * different.
-		 *
 		 */
 
 		// TODO : Change the admin commission rate and get it from settings.
@@ -329,7 +323,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -340,7 +334,7 @@ public class TaskServiceImpl implements TaskService {
 		taskResponseDto.setPickupLatitude(vendorResponseDto.getLatitude());
 		taskResponseDto.setPickupLongitude(vendorResponseDto.getLongitude());
 		taskResponseDto.setVendorAddress(vendorResponseDto.getVendorAddress());
-		taskResponseDto.setVendorContactNumber(vendorResponseDto.getContactNo());
+		taskResponseDto.setVendorPhoneNumber(vendorResponseDto.getPhoneNumber());
 		taskResponseDto.setOrderDate(order.getCreatedAt());
 		/**
 		 * Get Details related to Payment, if payment is done

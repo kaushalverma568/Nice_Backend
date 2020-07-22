@@ -31,7 +31,7 @@ public class CompanyResponseDTO implements Serializable {
 
 	private String companyAddress;
 
-	private String contactNo;
+	private String phoneNumber;
 
 	private String companyImage;
 

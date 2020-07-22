@@ -45,8 +45,8 @@ public class Company extends CommonModel {
 	@Column(name = "company_address", nullable = false)
 	private String companyAddress;
 
-	@Column(name = "contact_no", nullable = false)
-	private String contactNo;
+	@Column(name = "phone_number", nullable = false)
+	private String phoneNumber;
 
 	@Column(name = "company_image_name")
 	private String companyImageName;
