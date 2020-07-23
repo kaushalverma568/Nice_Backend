@@ -27,6 +27,7 @@ public class ProductResponseDTO implements Serializable {
 	private Long brandId;
 	private String brandName;
 	private String image;
+	private String detailImage;
 	private Boolean active;
 	private Date createdAt;
 	private Long discountId;

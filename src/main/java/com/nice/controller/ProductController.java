@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -101,7 +102,9 @@ public class ProductController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
+			@RequestParam(name = "image", required = false) final MultipartFile image,
+			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -109,7 +112,7 @@ public class ProductController {
 			LOGGER.error("Product validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		productService.addProduct(productRequestDTO, image);
+		productService.addProduct(productRequestDTO, image, detailImage);
 		LOGGER.info("Outside add Product");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
 				.create();
@@ -130,7 +133,9 @@ public class ProductController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
 	public ResponseEntity<Object> updateProduct(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
+			@RequestParam(name = "image", required = false) final MultipartFile image,
+			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -138,7 +143,7 @@ public class ProductController {
 			LOGGER.error("Product validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		productService.updateProduct(productRequestDTO, image);
+		productService.updateProduct(productRequestDTO, image, detailImage);
 		LOGGER.info("Outside update Product");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.update.message", null))
 				.create();
@@ -283,4 +288,30 @@ public class ProductController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
 				.create();
 	}
+	
+	
+	/**
+	 * to delete image by type
+	 * @param accessToken
+	 * @param imageType
+	 * @param productId
+	 * @return
+	 * @throws ValidationException 
+	 * @throws NotFoundException 
+	 */
+	@DeleteMapping("/{productId}")
+	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "imageType", required = false) final String imageType,
+			@PathVariable("productId") final Long productId) throws ValidationException, NotFoundException  {
+		if (imageType == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("product.image.type.required", null));
+		}
+		productService.deleteImage(imageType, productId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
+				.create();
+	}
+	
+	
+	
+	
 }

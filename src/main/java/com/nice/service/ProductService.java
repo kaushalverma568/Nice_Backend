@@ -38,11 +38,12 @@ public interface ProductService {
 	 * @param productRequestDTO
 	 * @param userId
 	 * @param image
+	 * @param detailImage 
 	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addProduct(ProductRequestDTO productRequestDTO, MultipartFile image) throws NotFoundException, ValidationException;
+	void addProduct(ProductRequestDTO productRequestDTO, MultipartFile image, MultipartFile detailImage) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product responseDTO by id
@@ -69,11 +70,12 @@ public interface ProductService {
 	 *
 	 * @param productRequestDTO
 	 * @param image
+	 * @param detailImage 
 	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateProduct(ProductRequestDTO productRequestDTO, MultipartFile image) throws NotFoundException, ValidationException;
+	void updateProduct(ProductRequestDTO productRequestDTO, MultipartFile image, MultipartFile detailImage) throws NotFoundException, ValidationException;
 
 	/**
 	 * get product detail list
@@ -168,6 +170,15 @@ public interface ProductService {
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 *  to delete image
+	 * @param imageType
+	 * @param productId
+	 * @throws NotFoundException 
+	 * @throws ValidationException 
+	 */
+	void deleteImage(String imageType, Long productId) throws NotFoundException, ValidationException;
 
 	/**
 	 * get response of global search

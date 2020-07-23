@@ -30,7 +30,8 @@ import lombok.EqualsAndHashCode;
 		@FieldResult(name = "image", column = "image"), @FieldResult(name = "productAvailable", column = "product_available"),
 		@FieldResult(name = "vendorId", column = "vendor_id"), @FieldResult(name = "cuisineId", column = "cuisine_id"),
 		@FieldResult(name = "combo", column = "combo"), @FieldResult(name = "rating", column = "rating"),
-		@FieldResult(name = "noOfRating", column = "no_of_rating"), @FieldResult(name = "productFoodType", column = "product_food_type") }) })
+		@FieldResult(name = "noOfRating", column = "no_of_rating"),@FieldResult(name = "detailImage", column = "detail_image"),
+		@FieldResult(name = "detailImageOriginalName", column = "detail_image_original_name"),	@FieldResult(name = "productFoodType", column = "product_food_type") }) })
 
 @Data
 @Entity(name = "product")
@@ -76,6 +77,12 @@ public class Product extends CommonModel {
 
 	@Column(name = "image_original_name")
 	private String imageOriginalName;
+	
+	@Column(name = "detail_image")
+	private String detailImage;
+
+	@Column(name = "detail_image_original_name")
+	private String detailImageOriginalName;
 
 	@Column(name = "product_available", nullable = true)
 	private Boolean productAvailable;
