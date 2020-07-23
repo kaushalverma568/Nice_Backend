@@ -104,8 +104,7 @@ public class ProductController {
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -135,8 +134,7 @@ public class ProductController {
 	public ResponseEntity<Object> updateProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -288,30 +286,24 @@ public class ProductController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
 				.create();
 	}
-	
-	
+
 	/**
 	 * to delete image by type
-	 * @param accessToken
-	 * @param imageType
-	 * @param productId
+	 * 
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
 	 * @return
-	 * @throws ValidationException 
-	 * @throws NotFoundException 
+	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/{productId}")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "imageType", required = false) final String imageType,
-			@PathVariable("productId") final Long productId) throws ValidationException, NotFoundException  {
-		if (imageType == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.image.type.required", null));
-		}
+			@RequestParam(name = "imageType") final String imageType, @PathVariable("productId") final Long productId)
+			throws ValidationException, NotFoundException {
 		productService.deleteImage(imageType, productId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
 				.create();
 	}
-	
-	
-	
-	
+
 }

@@ -191,7 +191,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void addProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image, final MultipartFile detailImage) throws NotFoundException, ValidationException {
+	public void addProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image, final MultipartFile detailImage)
+			throws NotFoundException, ValidationException {
 
 		LOGGER.info("Inside addProduct method, with productReqDto : {}", productRequestDTO);
 		validationForProduct(productRequestDTO);
@@ -204,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
 		if (image != null) {
 			uploadImage(image, product);
 		}
-		if(detailImage != null) {
+		if (detailImage != null) {
 			uploadDetailImage(detailImage, product);
 		}
 		productRepository.save(product);
@@ -212,7 +213,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void updateProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image, final MultipartFile detailImage) throws NotFoundException, ValidationException {
+	public void updateProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image, final MultipartFile detailImage)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside updateProduct method, with productReqDto : {}", productRequestDTO);
 		if (productRequestDTO.getId() == null) {
 			LOGGER.error("Error in updating product , id is null");
@@ -241,8 +243,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 		LOGGER.info("After updating image for Product : {}", product.getId());
 	}
-	
-	
+
 	private void updateDetailImage(final MultipartFile detailImage, final Product existingProduct, final Product product) {
 		LOGGER.info("Inside image for Product : {}", product.getId());
 		if (detailImage != null) {
@@ -254,7 +255,6 @@ public class ProductServiceImpl implements ProductService {
 		}
 		LOGGER.info("After updating image for Product : {}", product.getId());
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	private Map<Long, List<? extends Object>> getCartMap(final Long customerId, final String uuid) throws ValidationException, NotFoundException {
@@ -587,7 +587,7 @@ public class ProductServiceImpl implements ProductService {
 		product.setImageOriginalName(image.getOriginalFilename());
 		LOGGER.info("After uploadImage for product :{}", product.getId());
 	}
-	
+
 	private void uploadDetailImage(final MultipartFile detailImage, final Product product) {
 		LOGGER.info("Inside uploadImage for product :{}", product.getId());
 		product.setDetailImage(assetService.saveAsset(detailImage, AssetConstant.PRODUCT_DIR, 0));
@@ -804,14 +804,19 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void deleteImage(String imageType, Long productId) throws NotFoundException, ValidationException {
-		  Product product = getProductDetail(productId);
-		 if (imageType.equals("DETAIL")) {
-			 deleteOldImage(product.getDetailImage());
-		 } else if (imageType.equals("LIST")) {
-			 deleteOldImage(product.getImage());
-		 } else {
-			 throw new ValidationException(messageByLocaleService.getMessage("image.type.not.valid",null));
-		 }
+	public void deleteImage(final String imageType, final Long productId) throws NotFoundException, ValidationException {
+		Product product = getProductDetail(productId);
+		if (imageType.equals("DETAIL")) {
+			deleteOldImage(product.getDetailImage());
+			product.setDetailImage(null);
+			product.setDetailImageOriginalName(null);
+		} else if (imageType.equals("LIST")) {
+			deleteOldImage(product.getImage());
+			product.setImage(null);
+			product.setImageOriginalName(null);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("image.type.not.valid", null));
+		}
+		productRepository.save(product);
 	}
 }
