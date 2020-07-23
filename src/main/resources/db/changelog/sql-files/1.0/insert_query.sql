@@ -103,3 +103,9 @@ INSERT INTO rating_question(
 INSERT INTO rating_question(
 	 active, created_at, created_by, updated_at, updated_by, question, type)
 	VALUES ( true, now(), 1,now(), 1, 'give rate for Delivery Timing' , 'DeliveryBoy');
+	
+INSERT into business_category(active, created_at, created_by, updated_at, updated_by,name,image_name,original_image_name,manage_inventory)
+	values(true, now(), 1,now(), 1,'Food Delivery','300x400.png','300x400.png',false);
+
+INSERT into business_category(active, created_at, created_by, updated_at, updated_by,name,image_name,original_image_name,manage_inventory)
+	values(true, now(), 1,now(), 1,'Grocery','300x400.png','300x400.png',true);

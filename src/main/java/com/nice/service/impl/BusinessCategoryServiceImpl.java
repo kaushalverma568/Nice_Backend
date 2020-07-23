@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -59,6 +60,9 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage("business.category.id.not.null", null));
 		}
 		BusinessCategory businessCategory = getBusinessCategoryDetail(businessCategoryDTO.getId());
+		if (businessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.update", null));
+		}
 		String oldImageName = businessCategory.getImageName();
 		String oldOriginalName = businessCategory.getOriginalImageName();
 		businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
@@ -81,6 +85,9 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	@Override
 	public void changeStatus(final Long businessCategoryId, final Boolean active) throws ValidationException, NotFoundException {
 		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
+		if (existingBusinessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.deactivate", null));
+		}
 		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
@@ -92,10 +99,13 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			businessCategoryRepository.save(existingBusinessCategory);
 		}
 	}
-	
+
 	@Override
-	public void updateManageInventory(Long businessCategoryId, Boolean manageInventory) throws NotFoundException, ValidationException {
+	public void updateManageInventory(final Long businessCategoryId, final Boolean manageInventory) throws NotFoundException, ValidationException {
 		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
+		if (existingBusinessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.update", null));
+		}
 		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
 		if (manageInventory != null) {
 			existingBusinessCategory.setManageInventory(manageInventory);
@@ -130,7 +140,5 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		return businessCategoryRepository.findById(BusinessCategoryId).orElseThrow(
 				() -> new NotFoundException(messageByLocaleService.getMessage("business.category.not.found", new Object[] { BusinessCategoryId })));
 	}
-
-
 
 }
