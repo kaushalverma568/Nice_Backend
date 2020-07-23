@@ -171,7 +171,7 @@ public class StockDetailsController {
 	 * @throws IOException
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
-	public ResponseEntity<Object> exportStockSummary(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> exportStockSummary(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final StockDetailFilterDTO stockDetailFilterDTO, final Long uomId, final HttpServletResponse httpServletResponse)
 			throws NotFoundException, IOException {
 		stockDetailsService.exportStockDetailsList(httpServletResponse, stockDetailFilterDTO);

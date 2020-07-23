@@ -96,7 +96,7 @@ public class ProductAttributeValueController {
 	}
 
 	@PutMapping("/status/{productAttributeValueId}")
-	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAttributeValueId") final Long productAttributeValueId, @RequestParam final Boolean active)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductAttributeValue of id {} and status {}", productAttributeValueId, active);

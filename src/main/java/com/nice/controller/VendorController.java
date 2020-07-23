@@ -395,7 +395,7 @@ public class VendorController {
 	 * @throws IOException
 	 */
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken,
 			final HttpServletResponse httpServletResponse, @RequestBody final VendorFilterDTO vendorFilterDTO) throws IOException {
 		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();

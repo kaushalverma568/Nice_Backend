@@ -75,7 +75,7 @@ public class StockTransferController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> transferStock(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> transferStock(@RequestHeader("Authorization") final String accessToken, 
 			@RequestBody @Valid final StockTransferDto stockTransferDto, final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside manual stock transfer{}", stockTransferDto);
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();

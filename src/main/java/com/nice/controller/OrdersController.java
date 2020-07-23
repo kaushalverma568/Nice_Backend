@@ -201,7 +201,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/replace")
-	public ResponseEntity<Object> replaceOrder(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> replaceOrder(@RequestHeader("Authorization") final String token, 
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -226,7 +226,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/return")
-	public ResponseEntity<Object> returnOrder(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> returnOrder(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();

@@ -174,7 +174,7 @@ public class ProductExtrasController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{productExtrasId}")
-	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productExtrasId") final Long productExtrasId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductExtras of id {} and status {}", productExtrasId, active);
 		productExtrasService.changeStatus(productExtrasId, active);

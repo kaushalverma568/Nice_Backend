@@ -175,7 +175,7 @@ public class ProductVariantController {
 	 */
 
 	@PutMapping("/variant/status/{productVariantId}")
-	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productVariantId") final Long productVariantId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of productVariant for id {} and new status {}", productVariantId, active);

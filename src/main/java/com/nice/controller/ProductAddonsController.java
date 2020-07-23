@@ -136,7 +136,7 @@ public class ProductAddonsController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{productAddonsId}")
-	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAddonsId") final Long productAddonsId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductAddons of id {} and status {}", productAddonsId, active);
 		productAddonsService.changeStatus(productAddonsId, active);

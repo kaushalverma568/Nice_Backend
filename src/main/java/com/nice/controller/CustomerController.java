@@ -223,7 +223,7 @@ public class CustomerController {
 	 * @throws IOException
 	 */
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken,
 			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
 			throws IOException {
 		customerService.exportCustomerList(activeRecords, httpServletResponse);
