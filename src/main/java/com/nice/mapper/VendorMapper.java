@@ -49,8 +49,14 @@ public class VendorMapper {
 		vendorResponseDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
 		vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
 		vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getProfilePictureName())) {
-			vendorResponseDTO.setProfilePictureUrl(assetService.getGeneratedUrl(vendor.getProfilePictureName(), AssetConstant.VENDOR));
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
+			vendorResponseDTO.setStoreImageUrl(assetService.getGeneratedUrl(vendor.getStoreImageName(), AssetConstant.VENDOR));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {
+			vendorResponseDTO.setStoreDetailImageUrl(assetService.getGeneratedUrl(vendor.getStoreDetailImageName(), AssetConstant.VENDOR));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getFeaturedImageName())) {
+			vendorResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
 		}
 		return vendorResponseDTO;
 	}

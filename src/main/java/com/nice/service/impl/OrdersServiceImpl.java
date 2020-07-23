@@ -102,7 +102,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -406,9 +406,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -702,8 +702,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
+	 * @param  cartItemList
+	 * @param  orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -783,7 +783,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orderAmt
+	 * @param  orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -868,13 +868,13 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCount(totalOrderQty);
 		}
 		VendorResponseDTO vendorDto = vendorService.getVendor(orders.getVendor().getId());
-		orderResponseDto.setVendorImageUrl(vendorDto.getProfilePictureUrl());
+		orderResponseDto.setVendorImageUrl(vendorDto.getStoreImageUrl());
 		return orderResponseDto;
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */

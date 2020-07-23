@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -240,6 +241,23 @@ public class CategoryController {
 		}
 		categoryService.uploadFile(file, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.create.message", null))
+				.create();
+	}
+
+	/**
+	 * to delete image by type
+	 *
+	 * @param  accessToken
+	 * @param  categoryId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@DeleteMapping("/image/{categoryId}")
+	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
+			throws NotFoundException {
+		categoryService.deleteImage(categoryId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.update.message", null))
 				.create();
 	}
 }

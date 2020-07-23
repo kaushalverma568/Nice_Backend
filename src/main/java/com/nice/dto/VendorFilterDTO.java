@@ -30,4 +30,6 @@ public class VendorFilterDTO implements Serializable {
 	private Boolean activeRecords;
 
 	private Date subscriptionEndDate;
+
+	private Boolean isFeatured;
 }

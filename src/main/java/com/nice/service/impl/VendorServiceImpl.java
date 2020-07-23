@@ -129,9 +129,6 @@ public class VendorServiceImpl implements VendorService {
 	private SubscriptionPlanService subscriptionPlanService;
 
 	@Autowired
-	private AssetService assetService;
-
-	@Autowired
 	private OtpService otpService;
 
 	@Autowired
@@ -146,8 +143,11 @@ public class VendorServiceImpl implements VendorService {
 	@Autowired
 	private ExportCSV exportCSV;
 
+	@Autowired
+	private AssetService assetService;
+
 	@Override
-	public void addVendor(final VendorDTO vendorDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
+	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
@@ -156,9 +156,6 @@ public class VendorServiceImpl implements VendorService {
 		Country country = countryService.getCountryDetails(vendorDTO.getCountryId());
 		City city = cityService.getCityDetails(vendorDTO.getCityId());
 		Pincode pincode = pincodeService.getPincodeDetails(vendorDTO.getPincodeId());
-		if (profilePicture != null) {
-			uploadImage(profilePicture, vendor);
-		}
 		/**
 		 * at the time of creation status will be verification pending
 		 */
@@ -171,6 +168,7 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setCity(city);
 		vendor.setCountry(country);
 		vendor.setPincode(pincode);
+		vendor.setIsFeatured(false);
 		vendor = vendorRepository.save(vendor);
 		/**
 		 * set login details of vendor
@@ -294,27 +292,6 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void uploadProfilePicture(final MultipartFile profilePicture, final Long vendorId) throws NotFoundException, ValidationException {
-		Vendor vendor = getVendorDetail(vendorId);
-		deleteOldImage(vendor);
-		uploadImage(profilePicture, vendor);
-		vendorRepository.save(vendor);
-	}
-
-	@Override
-	public void deleteProfilePicture(final Long vendorId) throws NotFoundException {
-		Vendor vendor = getVendorDetail(vendorId);
-		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getProfilePictureName())) {
-			throw new NotFoundException(messageByLocaleService.getMessage("profile.image.not.found", null));
-		} else {
-			deleteOldImage(vendor);
-			vendor.setProfilePictureName(null);
-			vendor.setProfilePictureOriginalName(null);
-			vendorRepository.save(vendor);
-		}
-	}
-
-	@Override
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
@@ -327,17 +304,6 @@ public class VendorServiceImpl implements VendorService {
 			 */
 			return vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase()).isPresent();
 		}
-	}
-
-	/**
-	 * upload profile picture of vendor
-	 *
-	 * @param profilePicture
-	 * @param vendor
-	 */
-	private void uploadImage(final MultipartFile profilePicture, final Vendor vendor) {
-		vendor.setProfilePictureName(assetService.saveAsset(profilePicture, AssetConstant.VENDOR, 0));
-		vendor.setProfilePictureOriginalName(profilePicture.getOriginalFilename());
 	}
 
 	@Override
@@ -394,31 +360,28 @@ public class VendorServiceImpl implements VendorService {
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
-	/**
-	 * delete old profile picture
-	 *
-	 * @param vendor
-	 */
-	private void deleteOldImage(final Vendor vendor) {
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getProfilePictureName())) {
-			assetService.deleteFile(vendor.getProfilePictureName(), AssetConstant.VENDOR);
-		}
-	}
-
 	@Override
-	public void updatePersonalDetails(final VendorDTO vendorDTO, final MultipartFile profilePicture) throws NotFoundException, ValidationException {
+	public void updatePersonalDetails(final VendorDTO vendorDTO) throws NotFoundException, ValidationException {
 		if (vendorDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.null", null));
 		}
 		Vendor existingVendor = getVendorDetail(vendorDTO.getId());
 		if (existingVendor.getActive().booleanValue() && VendorStatus.ACTIVE.getStatusValue().equals(existingVendor.getStatus())) {
 			Vendor vendor = vendorMapper.toEntity(vendorDTO);
+			if (!existingVendor.getBusinessCategory().getId().equals(vendorDTO.getBusinessCategoryId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.business.category.mismatch", null));
+			}
 			if (!existingVendor.getEmail().equals(vendorDTO.getEmail())) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.email.mismatch", null));
 			} else {
 				vendor.setEmailVerified(existingVendor.getEmailVerified());
 				vendor.setIsOrderServiceEnable(existingVendor.getIsOrderServiceEnable());
 				vendor.setActive(existingVendor.getActive());
+			}
+			if (!existingVendor.getPhoneNumber().equals(vendorDTO.getPhoneNumber())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.mismatch", null));
+			} else {
+				vendor.setPhoneVerified(existingVendor.getPhoneVerified());
 			}
 			if (!existingVendor.getPhoneNumber().equals(vendorDTO.getPhoneNumber())) {
 				/**
@@ -442,13 +405,6 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setSubscriptionPlanStartDate(existingVendor.getSubscriptionPlanStartDate());
 			vendor.setSubscriptionPlanEndDate(existingVendor.getSubscriptionPlanEndDate());
 			vendor.setStatus(existingVendor.getStatus());
-			if (profilePicture != null) {
-				deleteOldImage(existingVendor);
-				uploadImage(profilePicture, vendor);
-			} else {
-				vendor.setProfilePictureName(existingVendor.getProfilePictureName());
-				vendor.setProfilePictureOriginalName(existingVendor.getProfilePictureOriginalName());
-			}
 			vendorRepository.save(vendor);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
@@ -477,7 +433,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void updateRestaurantDetails(final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO) throws NotFoundException, ValidationException {
+	public void updateRestaurantDetails(final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final MultipartFile storeImage,
+			final MultipartFile storeDetailImage, final MultipartFile featuredImage) throws NotFoundException, ValidationException {
 		Vendor vendor = getVendorDetail(vendorRestaurantDetailsDTO.getVendorId());
 		if (vendor.getActive().booleanValue() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 			BeanUtils.copyProperties(vendorRestaurantDetailsDTO, vendor);
@@ -496,6 +453,28 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("purchase.subscriptionPlan", null));
 			} else if (vendor.getIsOrderServiceEnable().booleanValue() && (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus()))) {
 				throw new ValidationException(messageByLocaleService.getMessage("suspended.vendor", null));
+			}
+
+			if (storeImage != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(storeImage.getOriginalFilename())) {
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(vendor.getStoreImageName())) {
+					assetService.deleteFile(vendor.getStoreImageName(), AssetConstant.VENDOR);
+				}
+				vendor.setStoreImageName(assetService.saveAsset(storeImage, AssetConstant.VENDOR, 0));
+				vendor.setStoreImageOriginalName(storeImage.getOriginalFilename());
+			}
+			if (storeDetailImage != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(storeDetailImage.getOriginalFilename())) {
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(vendor.getStoreDetailImageName())) {
+					assetService.deleteFile(vendor.getStoreDetailImageName(), AssetConstant.VENDOR);
+				}
+				vendor.setStoreDetailImageName(assetService.saveAsset(storeDetailImage, AssetConstant.VENDOR, 1));
+				vendor.setStoreDetailImageOriginalName(storeDetailImage.getOriginalFilename());
+			}
+			if (featuredImage != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(featuredImage.getOriginalFilename())) {
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(vendor.getFeaturedImageName())) {
+					assetService.deleteFile(vendor.getFeaturedImageName(), AssetConstant.VENDOR);
+				}
+				vendor.setFeaturedImageName(assetService.saveAsset(featuredImage, AssetConstant.VENDOR, 2));
+				vendor.setFeaturedImageOriginalName(featuredImage.getOriginalFilename());
 			}
 			vendorRepository.save(vendor);
 			/**
@@ -719,5 +698,50 @@ public class VendorServiceImpl implements VendorService {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
 
+	}
+
+	@Override
+	public void deleteVendorImageByType(final Long vendorId, final String type) throws NotFoundException, ValidationException {
+		Vendor vendor = getVendorDetail(vendorId);
+		String imageName = null;
+		if (type.equals(Constant.VENDOR_FEATURED_IMAGE)) {
+			imageName = vendor.getFeaturedImageName();
+			vendor.setFeaturedImageName(null);
+			vendor.setFeaturedImageOriginalName(null);
+		} else if (type.equals(Constant.VENDOR_STORE_DETAIL_IMAGE)) {
+			imageName = vendor.getStoreDetailImageName();
+			vendor.setStoreDetailImageName(null);
+			vendor.setStoreDetailImageOriginalName(null);
+		} else if (type.equals(Constant.VENDOR_STORE_IMAGE)) {
+			imageName = vendor.getStoreImageName();
+			vendor.setStoreImageName(null);
+			vendor.setStoreImageOriginalName(null);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.image.type", null));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(imageName)) {
+			assetService.deleteFile(imageName, AssetConstant.VENDOR);
+		}
+		vendorRepository.save(vendor);
+	}
+
+	@Override
+	public void changeStatusOfIsFeaturedVendor(final Long vendorId, final Boolean active) throws NotFoundException, ValidationException {
+		Vendor vendor = getVendorDetail(vendorId);
+		if (active == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
+		} else if (vendor.getIsFeatured().equals(active)) {
+			throw new ValidationException(
+					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "vendor.already.featured" : "vendor.already.not.featured", null));
+		} else {
+			vendor.setIsFeatured(active);
+			vendorRepository.save(vendor);
+		}
+	}
+
+	@Override
+	public List<VendorResponseDTO> getFeaturedVendorList(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
+		vendorListFilterDTO.setIsFeatured(true);
+		return getVendorListForApp(vendorListFilterDTO);
 	}
 }

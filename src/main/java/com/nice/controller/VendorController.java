@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -117,14 +118,14 @@ public class VendorController {
 	 * @throws MessagingException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> addVendor(@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
-			@ModelAttribute @Valid final VendorDTO vendorDTO, final BindingResult result) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> addVendor(@RequestBody @Valid final VendorDTO vendorDTO, final BindingResult result)
+			throws ValidationException, NotFoundException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Vendor validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		vendorService.addVendor(vendorDTO, profilePicture);
+		vendorService.addVendor(vendorDTO);
 		LOGGER.info("Outside add Vendor ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.create.message", null))
 				.create();
@@ -141,16 +142,15 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken,
-			@ModelAttribute @Valid final VendorDTO vendorDTO, final BindingResult result,
-			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final VendorDTO vendorDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update vendor {}", vendorDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		vendorService.updatePersonalDetails(vendorDTO, profilePicture);
+		vendorService.updatePersonalDetails(vendorDTO);
 		LOGGER.info("Outside update vendor");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
@@ -193,7 +193,10 @@ public class VendorController {
 	 */
 	@PutMapping("/restaurant/details")
 	public ResponseEntity<Object> updateRestaurantDetails(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final BindingResult result)
+			@RequestParam(name = "storeImage", required = false) final MultipartFile storeImage,
+			@RequestParam(name = "storeDetailImage", required = false) final MultipartFile storeDetailImage,
+			@RequestParam(name = "featuredImage", required = false) final MultipartFile featuredImage,
+			@ModelAttribute @Valid final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final BindingResult result)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update restaurant details {}", vendorRestaurantDetailsDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -201,7 +204,7 @@ public class VendorController {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		vendorService.updateRestaurantDetails(vendorRestaurantDetailsDTO);
+		vendorService.updateRestaurantDetails(vendorRestaurantDetailsDTO, storeImage, storeDetailImage, featuredImage);
 		LOGGER.info("Outside restaurant account details ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
@@ -395,10 +398,50 @@ public class VendorController {
 	 * @throws IOException
 	 */
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken,
-			final HttpServletResponse httpServletResponse, @RequestBody final VendorFilterDTO vendorFilterDTO) throws IOException {
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestBody final VendorFilterDTO vendorFilterDTO) throws IOException {
 		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();
+	}
+
+	/**
+	 * update vendor is featured
+	 *
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productId
+	 * @param  active
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/featured/{vendorId}")
+	public ResponseEntity<Object> changeStatusOfIsFeaturedProduct(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId, @RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside change status of is featured vendor for id {} and new status {}", vendorId, active);
+		vendorService.changeStatusOfIsFeaturedVendor(vendorId, active);
+		LOGGER.info("Outside change status of is featured vendor ");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
+	}
+
+	/**
+	 * to delete image by type
+	 *
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@DeleteMapping("/image/{vendorId}")
+	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "imageType", required = true) final String imageType, @PathVariable("vendorId") final Long vendorId)
+			throws ValidationException, NotFoundException {
+		vendorService.deleteVendorImageByType(vendorId, imageType);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
 	}
 
 }

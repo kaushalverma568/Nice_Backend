@@ -109,9 +109,12 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 				throw new ValidationException(messageByLocaleService.getMessage("category.id.not.unique", null));
 			} else {
 				final SubCategory subCategory = subCategoryMapper.toEntity(resultSubCategoryDTO);
-				if (image != null) {
+				if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 					deleteOldImage(existingSubCategory);
 					uploadImage(image, subCategory);
+				} else {
+					subCategory.setImage(existingSubCategory.getImage());
+					subCategory.setImageOriginalName(existingSubCategory.getImageOriginalName());
 				}
 				subCategory.setCategory(existingSubCategory.getCategory());
 				subCategoryRepository.save(subCategory);
@@ -325,5 +328,14 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 				return subCategoryRepository.findAll();
 			}
 		}
+	}
+
+	@Override
+	public void deleteImage(final Long subCategoryId) throws NotFoundException {
+		SubCategory subCategory = getSubCategoryDetail(subCategoryId);
+		deleteOldImage(subCategory);
+		subCategory.setImage(null);
+		subCategory.setImageOriginalName(null);
+		subCategoryRepository.save(subCategory);
 	}
 }

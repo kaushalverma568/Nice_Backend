@@ -41,4 +41,6 @@ public class VendorListFilterDTO implements Serializable {
 
 	@Temporal(TemporalType.TIME)
 	private Date openingHours;
+
+	private Boolean isFeatured;
 }

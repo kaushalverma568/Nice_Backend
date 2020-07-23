@@ -99,7 +99,11 @@ public class VendorResponseDTO implements Serializable {
 
 	private String accepts;
 
-	private String profilePictureUrl;
+	private String storeImageUrl;
+
+	private String storeDetailImageUrl;
+
+	private String featuredImageUrl;
 
 	private List<VendorCuisineDTO> vendorCuisines;
 
@@ -115,4 +119,6 @@ public class VendorResponseDTO implements Serializable {
 	 * Consolidated Vendor address.
 	 */
 	private String vendorAddress;
+
+	private Boolean isFeatured;
 }

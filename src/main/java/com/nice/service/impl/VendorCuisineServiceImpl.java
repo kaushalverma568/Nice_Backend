@@ -91,16 +91,16 @@ public class VendorCuisineServiceImpl implements VendorCuisineService {
 
 	@Override
 	public void changeStatus(final Long id, final Boolean active) throws ValidationException, NotFoundException {
-		VendorCuisine vendorCuisineMap = getVendorCuisineById(id);
+		VendorCuisine vendorCuisine = getVendorCuisineById(id);
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (active.equals(vendorCuisineMap.getActive())) {
+		} else if (active.equals(vendorCuisine.getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.cuisine.active.deactive",
 					new Object[] { (Boolean.TRUE.equals(active) ? "active" : "deActive") }));
 		} else {
-			changeStatusForDependentEntity(active, vendorCuisineMap);
-			vendorCuisineMap.setActive(active);
-			vendorCuisineRepository.save(vendorCuisineMap);
+			changeStatusForDependentEntity(active, vendorCuisine);
+			vendorCuisine.setActive(active);
+			vendorCuisineRepository.save(vendorCuisine);
 		}
 	}
 

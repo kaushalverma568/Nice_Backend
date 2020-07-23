@@ -129,7 +129,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (vendorFilterDTO.getSubscriptionEndDate() != null) {
 			predicates.add(criteriaBuilder.equal(vendor.get("subscriptionPlanEndDate").as(Date.class), vendorFilterDTO.getSubscriptionEndDate()));
 		}
-
+		if (vendorFilterDTO.getIsFeatured() != null) {
+			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorFilterDTO.getIsFeatured()));
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {
 			Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstName")), " ");
 			Expression<String> fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastName")));
@@ -232,6 +234,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			Predicate predicate = criteriaBuilder.or(criteriaBuilder.equal(vendor.get("deliveryType"), vendorListFilterDTO.getDeliveryType()),
 					criteriaBuilder.equal(vendor.get("deliveryType"), DeliveryType.BOTH.getStatusValue()));
 			predicates.add(predicate);
+		}
+		if (vendorListFilterDTO.getIsFeatured() != null) {
+			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorListFilterDTO.getIsFeatured()));
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorListFilterDTO.getSearchKeyword())) {
 			Expression<String> storeName = criteriaBuilder.lower(vendor.get("storeName"));

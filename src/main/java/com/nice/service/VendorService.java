@@ -30,13 +30,12 @@ public interface VendorService {
 	 * persist vendor object
 	 *
 	 * @param  vendorDTO
-	 * @param  profilePicture
 	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void addVendor(VendorDTO vendorDTO, MultipartFile profilePicture) throws ValidationException, NotFoundException;
+	void addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get DTO object of vendor
@@ -97,16 +96,6 @@ public interface VendorService {
 	Boolean isUserLoginExists(VendorDTO vendorDTO);
 
 	/**
-	 * upload profile picture
-	 *
-	 * @param  profilePicture
-	 * @param  vendorId
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	void uploadProfilePicture(MultipartFile profilePicture, Long vendorId) throws NotFoundException, ValidationException;
-
-	/**
 	 * Update bank details
 	 *
 	 * @param  vendorBankDetailsDTO
@@ -136,23 +125,14 @@ public interface VendorService {
 	void verifyEmail(Long vendorId) throws NotFoundException;
 
 	/**
-	 * remove profile picture
-	 *
-	 * @param  vendorId
-	 * @throws NotFoundException
-	 */
-	void deleteProfilePicture(Long vendorId) throws NotFoundException;
-
-	/**
 	 * update vendor's personal details
 	 *
 	 * @param  vendorDTO
-	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updatePersonalDetails(VendorDTO vendorDTO, MultipartFile profilePicture) throws NotFoundException, ValidationException;
+	void updatePersonalDetails(VendorDTO vendorDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * add update subscription plan
@@ -173,7 +153,8 @@ public interface VendorService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateRestaurantDetails(VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO) throws NotFoundException, ValidationException;
+	void updateRestaurantDetails(VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, MultipartFile storeImage, MultipartFile storeDetailImage,
+			MultipartFile featuredImage) throws NotFoundException, ValidationException;
 
 	/**
 	 * update order service is unable or not for the vendor
@@ -263,4 +244,34 @@ public interface VendorService {
 	 * @throws ValidationException
 	 */
 	void verifyVendorContact(Long vendorId, String otp) throws NotFoundException, ValidationException;
+
+	/**
+	 * delete vendor image by type
+	 *
+	 * @param  vendorId
+	 * @param  type
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void deleteVendorImageByType(Long vendorId, String type) throws NotFoundException, ValidationException;
+
+	/**
+	 * set vendor is featured
+	 *
+	 * @param  vendorId
+	 * @param  active
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void changeStatusOfIsFeaturedVendor(Long vendorId, Boolean active) throws NotFoundException, ValidationException;
+
+	/**
+	 * get list of featured list for customer app
+	 *
+	 * @param  vendorListFilterDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	List<VendorResponseDTO> getFeaturedVendorList(VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
 }

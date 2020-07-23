@@ -149,11 +149,23 @@ public class Vendor extends CommonModel {
 	@Column(name = "accepts")
 	private String accepts;
 
-	@Column(name = "profile_picture_name")
-	private String profilePictureName;
+	@Column(name = "store_image_name")
+	private String storeImageName;
 
-	@Column(name = "profile_picture_original_name")
-	private String profilePictureOriginalName;
+	@Column(name = "store_image_original_name")
+	private String storeImageOriginalName;
+
+	@Column(name = "featured_image_name")
+	private String featuredImageName;
+
+	@Column(name = "featured_image_original_name")
+	private String featuredImageOriginalName;
+
+	@Column(name = "store_detail_image_name")
+	private String storeDetailImageName;
+
+	@Column(name = "store_detail_image_original_name")
+	private String storeDetailImageOriginalName;
 
 	@Column(name = "phone_verified", nullable = false)
 	private Boolean phoneVerified;
@@ -161,4 +173,6 @@ public class Vendor extends CommonModel {
 	@Column(name = "store_phone_number")
 	private String storePhoneNumber;
 
+	@Column(name = "is_featured", nullable = false)
+	private Boolean isFeatured;
 }

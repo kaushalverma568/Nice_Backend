@@ -30,7 +30,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Service("cuisineService")
 @Transactional(rollbackFor = Throwable.class)
@@ -97,6 +97,9 @@ public class CuisineServiceImpl implements CuisineService {
 		if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 			deleteOldImage(existingCuisine);
 			uploadImage(image, cuisine);
+		} else {
+			cuisine.setImageName(existingCuisine.getImageName());
+			cuisine.setImageOriginalName(existingCuisine.getImageOriginalName());
 		}
 		cuisineRepository.save(cuisine);
 	}

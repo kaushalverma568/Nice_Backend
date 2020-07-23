@@ -115,9 +115,12 @@ public class CategoryServiceImpl implements CategoryService {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.unique", null));
 			}
 			final Category category = categoryMapper.toEntity(resultCategoryDTO);
-			if (image != null) {
+			if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 				deleteOldImage(existingCategory);
 				uploadImage(image, category);
+			} else {
+				category.setImage(existingCategory.getImage());
+				category.setImageOriginalName(existingCategory.getImageOriginalName());
 			}
 			category.setVendor(existingCategory.getVendor());
 			categoryRepository.save(category);
@@ -325,5 +328,14 @@ public class CategoryServiceImpl implements CategoryService {
 			allResult.add(categoryImport);
 		}
 		return allResult;
+	}
+
+	@Override
+	public void deleteImage(final Long categoryId) throws NotFoundException {
+		Category category = getCategoryDetail(categoryId);
+		deleteOldImage(category);
+		category.setImage(null);
+		category.setImageOriginalName(null);
+		categoryRepository.save(category);
 	}
 }
