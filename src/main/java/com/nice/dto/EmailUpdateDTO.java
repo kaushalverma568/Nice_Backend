@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Jun-2020
+ * @date   : 30-Jun-2020
  */
 @Data
 public class EmailUpdateDTO implements Serializable {
@@ -24,7 +24,7 @@ public class EmailUpdateDTO implements Serializable {
 
 	@NotBlank(message = "{email.not.null}")
 	private String email;
-
+	@NotNull(message = "{password.not.null}")
 	private String password;
 	@NotNull(message = "{otp.not.null}")
 	private String otp;

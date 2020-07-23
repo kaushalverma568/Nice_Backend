@@ -227,26 +227,6 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Update Email For Admin
-	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@PutMapping(path = "/admin/{email}")
-	public ResponseEntity<Object> updateEmailForAdmin(@RequestHeader("Authorization") final String accessToken, @PathVariable("email") final String email)
-			throws ValidationException {
-		LOGGER.info("Inside update email of admin method new email {}", email);
-		userLoginService.updateEmailForAdmin(email);
-		LOGGER.info("Outside update email of admin method");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("admin.emai.update.suceess", null))
-				.create();
-	}
-
-	/**
 	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
 	 * then will sent generated token.
 	 *
@@ -428,10 +408,12 @@ public class UserLoginController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
 	 */
 	@PutMapping("/email")
 	public ResponseEntity<Object> addUpdateEmail(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@RequestBody @Valid final EmailUpdateDTO emailUpdateDTO, final BindingResult result)
+			throws ValidationException, NotFoundException, UnAuthorizationException {
 		LOGGER.info("Inside add update email {} and otp: {}", emailUpdateDTO.getEmail(), emailUpdateDTO.getOtp());
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -439,12 +421,21 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		String userName = userLoginService.addUpdateEmail(emailUpdateDTO);
+		LoginResponse loginResponse = null;
 		if (userName != null) {
 			revokeToken(userName.concat("!!").concat(emailUpdateDTO.getUserType()));
+			UserLoginDto userLoginDto = new UserLoginDto();
+			userLoginDto.setUserName(emailUpdateDTO.getEmail());
+			userLoginDto.setUserType(emailUpdateDTO.getUserType());
+			userLoginDto.setPassword(emailUpdateDTO.getPassword());
+			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
+			loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		} else {
+			LOGGER.error("username not found");
 		}
 		LOGGER.info("Outside  add update email");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("emai.update.success", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage("emai.update.success", null)).create();
 	}
 
 	/**
@@ -456,20 +447,31 @@ public class UserLoginController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
 	 */
 	@PutMapping("/phone")
 	public ResponseEntity<Object> addUpdatePhoneNumber(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber,
-			@RequestParam(name = "userType", required = true) final String userType) throws ValidationException, NotFoundException {
+			@RequestParam(name = "userType", required = true) final String userType) throws ValidationException, NotFoundException, UnAuthorizationException {
 		LOGGER.info("Inside add update PhoneNumber {} and otp: {} and userType: {}", phoneNumber, otp, userType);
 
 		String userName = userLoginService.addUpdatePhoneNumber(phoneNumber, otp, userType);
+		LoginResponse loginResponse = null;
 		if (userName != null) {
 			revokeToken(userName.concat("!!").concat(userType));
+			String loginOtp = userLoginService.generateOtpForLogin(phoneNumber);
+			UserLoginDto userLoginDto = new UserLoginDto();
+			userLoginDto.setUserName(userName);
+			userLoginDto.setUserType(userType);
+			userLoginDto.setPassword(loginOtp);
+			userLoginDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
+			loginResponse = userLoginService.checkUserLogin(userLoginDto);
+		} else {
+			LOGGER.error("username not found");
 		}
 		LOGGER.info("Outside add update PhoneNumber");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("phone.update.success", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
+				.setMessage(messageByLocaleService.getMessage("phone.update.success", null)).create();
 	}
 
 }

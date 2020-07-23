@@ -28,7 +28,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Jun-2020
+ * @date   : 30-Jun-2020
  */
 
 @Component
@@ -52,11 +52,11 @@ public class AcceptingOrderNotificationScheduler {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
-	@Scheduled(fixedRate = 7000)
+	@Scheduled(fixedRate = 70000)
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
 		/**
-		 * get order list which is appproved and notification not sended more then three
-		 * times and next time we have to send is less then current time
+		 * get order list which is appproved and notification not sended more then three times and next time we have to send is
+		 * less then current time
 		 */
 		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(OrderStatusEnum.CONFIRMED.getStatusValue(),
 				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date(System.currentTimeMillis()));
@@ -64,8 +64,7 @@ public class AcceptingOrderNotificationScheduler {
 
 			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 			/**
-			 * if not a single delivery boy is logged in for accepting order then throw
-			 * exception
+			 * if not a single delivery boy is logged in for accepting order then throw exception
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));

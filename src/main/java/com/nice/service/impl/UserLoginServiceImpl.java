@@ -471,24 +471,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void updateEmailForAdmin(final String email) throws ValidationException {
-		/**
-		 * if admin panel's users(other then super_admin) contains this email then throw validation
-		 */
-		if (userLoginRepository.findByEmailAndEntityTypeIn(email.toLowerCase(), UserType.ADMIN_PANEL_USER_LIST).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("email.not.unique", null));
-		} else {
-			UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-			if ("SUPER_ADMIN".equals(userLogin.getRole())) {
-				userLogin.setEmail(email.toLowerCase());
-				userLoginRepository.save(userLogin);
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("email.can.not.update", null));
-			}
-		}
-	}
-
-	@Override
 	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
 		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
 		LoginResponse loginResponse = generateAuthToken(url, userLoginDto);
@@ -755,7 +737,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public String addUpdateEmail(final EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException {
-		String userName = null;
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 
 		if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp())) {
@@ -789,8 +770,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage("password.not.null", null));
 			}
 
-			userName = updateUserDetail(emailUpdateDTO, userName, userLogin);
-			return userName;
+			return updateUserDetail(emailUpdateDTO, userLogin);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
 		}
@@ -798,14 +778,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	/**
 	 * @param  emailUpdateDTO
-	 * @param  userName
 	 * @param  userLogin
-	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, String userName, final UserLogin userLogin)
-			throws NotFoundException, ValidationException {
+	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
+		String userName = null;
 		/**
 		 * if email is not null it means there is possibility that user is logged in with old email right now
 		 */
@@ -815,6 +793,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			 */
 			userName = userLogin.getEmail();
 		}
+
 		/**
 		 * set email and password in user login
 		 */
@@ -859,7 +838,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public String addUpdatePhoneNumber(final String phoneNumber, final String otp, final String userType) throws NotFoundException, ValidationException {
-		String userName = null;
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 
 		if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
@@ -881,7 +859,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
 			}
 
-			return updateUserDetail(phoneNumber, otp, userType, userName, userLogin);
+			return updateUserDetail(phoneNumber, otp, userType, userLogin);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
 		}
@@ -897,8 +875,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private String updateUserDetail(final String phoneNumber, final String otp, final String userType, String userName, final UserLogin userLogin)
+	private String updateUserDetail(final String phoneNumber, final String otp, final String userType, final UserLogin userLogin)
 			throws NotFoundException, ValidationException {
+
+		String userName = null;
 		/**
 		 * if phone number is not null it means there is possibility that customer is logged in with old phone number right now
 		 */
@@ -906,7 +886,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			/**
 			 * revoke token of this user name if exist
 			 */
-			userName = userLogin.getPhoneNumber();
+			userName = phoneNumber;
 		}
 
 		if (UserType.CUSTOMER.name().equalsIgnoreCase(userType)) {
