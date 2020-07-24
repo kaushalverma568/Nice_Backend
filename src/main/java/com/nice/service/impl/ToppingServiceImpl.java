@@ -47,7 +47,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("toppingService")
@@ -117,21 +117,19 @@ public class ToppingServiceImpl implements ToppingService {
 	}
 
 	@Override
-	public Page<Topping> getToppingList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword) {
+	public Page<Topping> getToppingList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		Long vendorId = userLogin.getEntityId();
 		if (activeRecords != null) {
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
-				return toppingRepository.findAllByActiveAndNameContainingIgnoreCaseAndVendorId(activeRecords, searchKeyword, vendorId, pageable);
-			} else {
+			if (vendorId != null) {
 				return toppingRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);
+			} else {
+				return toppingRepository.findAllByActive(activeRecords, pageable);
 			}
 		} else {
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
-				return toppingRepository.findAllByNameContainingIgnoreCaseAndVendorId(searchKeyword, vendorId, pageable);
-			} else {
+			if (vendorId != null) {
 				return toppingRepository.findAllByVendorId(vendorId, pageable);
+			} else {
+				return toppingRepository.findAll(pageable);
 			}
 		}
 	}
@@ -149,7 +147,8 @@ public class ToppingServiceImpl implements ToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "topping.active" : "topping.deactive", null));
 		} else {
 			/**
-			 * deActive All product toppings related to this topping at the time of deActivating
+			 * deActive All product toppings related to this topping at the time of
+			 * deActivating
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Topping {}", existingTopping);
@@ -169,7 +168,8 @@ public class ToppingServiceImpl implements ToppingService {
 	public Boolean isToppingExists(final ToppingDTO toppingDTO) {
 		if (toppingDTO.getId() != null) {
 			/**
-			 * At the time of update is topping with same name and vendor id exist or not except it's own id
+			 * At the time of update is topping with same name and vendor id exist or not
+			 * except it's own id
 			 */
 			return toppingRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getName(), toppingDTO.getVendorId(), toppingDTO.getId()).isPresent();
 		} else {

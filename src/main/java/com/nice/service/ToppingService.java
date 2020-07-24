@@ -89,13 +89,13 @@ public interface ToppingService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Page<Topping> getToppingList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword);
+	Page<Topping> getToppingList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId);
 
 	/**
-	 * 
+	 *
 	 * @param file
 	 * @param httpServletResponse
-	 * @throws FileOperationException 
+	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 }

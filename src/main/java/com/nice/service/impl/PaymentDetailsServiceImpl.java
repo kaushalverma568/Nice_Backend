@@ -25,7 +25,7 @@ import com.nice.service.TaskService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("paymentDetailsService")
@@ -61,7 +61,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.not.unique", null));
 		}
 		/**
-		 * get task list calculate amount and validate it and then set task payment payment details id
+		 * get task list calculate amount and validate it and then set task payment
+		 * payment details id
 		 */
 		Double sum = 0d;
 		for (Task task : taskList) {
@@ -72,6 +73,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		}
 
 		PaymentDetails paymentDetails = paymentDetailsMapper.toEntity(paymentDetailsDTO);
+		paymentDetails.setDeliveryBoy(deliveryBoys.get(0));
+		paymentDetails.setNoOfOrders(taskList.size());
 		paymentDetails = paymentDetailsRepository.save(paymentDetails);
 
 		for (Task task : taskList) {
@@ -96,7 +99,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	public Boolean isPaymentDetailsExists(final PaymentDetailsDTO paymentDetailsDTO) {
 		if (paymentDetailsDTO.getId() != null) {
 			/**
-			 * At the time of update is paymentDetails with same transaction no exist or not except it's own id
+			 * At the time of update is paymentDetails with same transaction no exist or not
+			 * except it's own id
 			 */
 			return paymentDetailsRepository.findByTransactionNoIgnoreCaseAndIdNot(paymentDetailsDTO.getTransactionNo(), paymentDetailsDTO.getId()).isPresent();
 		} else {

@@ -3,8 +3,8 @@ package com.nice.jms.queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nice.constant.Constant;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.SettingsConstant;
 import com.nice.dto.Notification;
 import com.nice.dto.PushNotification;
 
@@ -22,7 +22,7 @@ public class JMSQueuerService {
 		/**
 		 * if sendEmail in settings is true then only send the email
 		 */
-		if (((emailNotification != null) && "true".equals(Constant.getSettingsValue("SEND_EMAIL")))
+		if (((emailNotification != null) && "true".equals(SettingsConstant.getSettingsValue("SEND_EMAIL")))
 				|| NotificationQueueConstants.NON_NOTIFICATION_QUEUE.equals(queueName)) {
 			jmsQueuer.sendEmail(queueName, emailNotification);
 		}

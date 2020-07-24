@@ -162,9 +162,9 @@ public class ToppingController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getToppingList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) {
 		LOGGER.info("Inside get Topping List ");
-		final Page<Topping> resultToppings = toppingService.getToppingList(pageNumber, pageSize, activeRecords, searchKeyword);
+		final Page<Topping> resultToppings = toppingService.getToppingList(pageNumber, pageSize, activeRecords, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(LIST_MESSAGE, null))
 				.setData(toppingMapper.toDtos(resultToppings.getContent())).setHasNextPage(resultToppings.hasNext())
 				.setHasPreviousPage(resultToppings.hasPrevious()).setTotalPages(resultToppings.getTotalPages()).setPageNumber(resultToppings.getNumber() + 1)
@@ -188,9 +188,9 @@ public class ToppingController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.update.message", null))
 				.create();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param file
 	 * @param httpServletResponse

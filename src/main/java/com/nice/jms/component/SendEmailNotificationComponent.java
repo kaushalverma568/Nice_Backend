@@ -38,7 +38,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -57,9 +57,9 @@ public class SendEmailNotificationComponent {
 
 	private static final String CUSTOMER_CARE_EMAIL = "customerCareEmail";
 
-	private static final String BIG_LOGO = "grocerusBigLogo";
+	private static final String BIG_LOGO = "applicationBigLogo";
 
-	private static final String LOGO = "grocerusLogo";
+	private static final String LOGO = "applicationLogo";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendEmailNotificationComponent.class);
 	private static final String CUSTOMER_NAME = "customerName";
@@ -92,7 +92,7 @@ public class SendEmailNotificationComponent {
 	private AssetService assetService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -157,7 +157,8 @@ public class SendEmailNotificationComponent {
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -189,7 +190,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
