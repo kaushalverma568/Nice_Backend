@@ -7,9 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- *
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 15-07-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
  */
 @Getter
 @AllArgsConstructor

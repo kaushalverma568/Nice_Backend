@@ -7,28 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
 import com.nice.model.Permission;
-import com.nice.service.ModulesService;
-import com.nice.service.RoleService;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Component
 public class PermissionMapper {
-
-	@Autowired
-	RoleService roleService;
-
-	@Autowired
-	ModulesService moduleService;
 
 	public PermissionDTO toDTO(final Permission permission) {
 		PermissionDTO permissionDTO = new PermissionDTO();

@@ -4,8 +4,8 @@
 package com.nice.constant;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
  */
 public interface BasicStatus<T extends Enum<?>> {
 

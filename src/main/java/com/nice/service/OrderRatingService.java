@@ -10,84 +10,78 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.OrderRating;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 public interface OrderRatingService {
 
 	/**
-	 * 
-	 * @param orderRatingDto
+	 * @param  orderRatingDto
 	 * @return
 	 */
-	public boolean isExists(OrderRatingDTO orderRatingDto) ;
+	boolean isExists(OrderRatingDTO orderRatingDto);
 
 	/**
-	 * 
-	 * @param orderRatingDto
+	 * @param  orderRatingDto
 	 * @return
 	 * @throws NotFoundException
 	 */
-	public OrderRatingResponseDTO addOrderRating( OrderRatingDTO orderRatingDto) throws NotFoundException ;
+	OrderRatingResponseDTO addOrderRating(OrderRatingDTO orderRatingDto) throws NotFoundException;
 
 	/**
-	 * 
-	 * @param orderRatingId
+	 * @param  orderRatingId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	public OrderRatingResponseDTO getOrderRating(Long orderRatingId) throws NotFoundException;
+	OrderRatingResponseDTO getOrderRating(Long orderRatingId) throws NotFoundException;
 
 	/**
-	 * 
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param searchKeyWord
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyWord
 	 * @return
 	 */
-	public Page<OrderRating> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyWord);
+	Page<OrderRating> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyWord);
 
 	/**
-	 * 
-	 * @param orderRatingId
-	 * @param active
+	 * @param  orderRatingId
+	 * @param  active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	public void changeStatus(Long orderRatingId, Boolean active) throws ValidationException, NotFoundException;
- 
+	void changeStatus(Long orderRatingId, Boolean active) throws ValidationException, NotFoundException;
+
 	/**
-	 * 
-	 * @param orderRatingId
+	 * @param  orderRatingId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	OrderRating getOrderRatingDetail(Long orderRatingId) throws NotFoundException;
 
 	/**
-	 * 
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 */
 	List<OrderRating> getOrderRatingByDeliveryBoyId(Long deliveryBoyId);
 
 	/**
-	 * 
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 */
 	List<OrderRating> getOrderRatingByVendorId(Long vendorId);
 
 	/**
-	 * @throws NotFoundException 
-	 * 
+	 * @throws NotFoundException
 	 */
 	void calculateRating() throws NotFoundException;
 
 	/**
-	 * 
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	public OrderRatingResponseDTO getOrderRatingbyOrderId(Long orderId) throws NotFoundException;
-	
+	OrderRatingResponseDTO getOrderRatingbyOrderId(Long orderId) throws NotFoundException;
+
 }

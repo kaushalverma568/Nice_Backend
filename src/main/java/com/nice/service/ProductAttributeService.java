@@ -13,6 +13,10 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.ProductAttribute;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 public interface ProductAttributeService {
 
 	boolean isExists(ProductAttributeDTO productAttributeDto) throws ValidationException;
@@ -30,9 +34,9 @@ public interface ProductAttributeService {
 	void deleteProductAttribute(Long productAttributeId);
 
 	/**
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -45,10 +49,9 @@ public interface ProductAttributeService {
 	List<ProductAttribute> getAllActiveList() throws ValidationException;
 
 	/**
-	 * 
-	 * @param file
-	 * @param httpServletResponse
-	 * @throws FileOperationException 
+	 * @param  file
+	 * @param  httpServletResponse
+	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 

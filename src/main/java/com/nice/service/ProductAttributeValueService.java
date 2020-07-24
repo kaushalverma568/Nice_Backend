@@ -9,6 +9,10 @@ import com.nice.model.ProductAttribute;
 import com.nice.model.ProductAttributeValue;
 import com.nice.model.ProductVariant;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 public interface ProductAttributeValueService {
 
 	ProductAttributeValueDTO getProductAttributeValue(Long productAttributeValueId) throws NotFoundException;
@@ -22,8 +26,8 @@ public interface ProductAttributeValueService {
 	void deleteProductAttributeValue(Long productAttributeValueId);
 
 	/**
-	 * @param productAttributeValueDTO
-	 * @param productVariantId
+	 * @param  productAttributeValueDTO
+	 * @param  productVariantId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -31,9 +35,9 @@ public interface ProductAttributeValueService {
 			throws NotFoundException, ValidationException;
 
 	/**
-	 * @param productAttributeValueDTO
-	 * @param productVariant
-	 * @param productAttribute
+	 * @param  productAttributeValueDTO
+	 * @param  productVariant
+	 * @param  productAttribute
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -43,16 +47,16 @@ public interface ProductAttributeValueService {
 	/**
 	 * get attribute value list based on product attribute and active
 	 *
-	 * @param productAttributeId
-	 * @param activeRecords
+	 * @param  productAttributeId
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<ProductAttributeValue> getListByProductAttributeOrActive(Long productAttributeId, Boolean activeRecords) throws NotFoundException;
 
 	/**
-	 * @param activeRecords
-	 * @param productVariantId
+	 * @param  activeRecords
+	 * @param  productVariantId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

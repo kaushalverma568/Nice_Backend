@@ -9,12 +9,11 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-/**
- * 
- * @author nisha.parmar
- *
- */
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Entity
 @Table(name = "subscription_plan")
 @Data
@@ -22,7 +21,7 @@ import lombok.EqualsAndHashCode;
 public class SubscriptionPlan extends CommonModel {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2499566932816782817L;
 
@@ -33,13 +32,13 @@ public class SubscriptionPlan extends CommonModel {
 
 	@Column(name = "name", nullable = false)
 	private String name;
-	
+
 	@Column(name = "amount", nullable = false)
 	private Double amount;
-	
+
 	@Column(name = "days", nullable = false)
 	private Integer days;
-	
+
 	@Column(name = "description", nullable = true)
 	private String description;
 }

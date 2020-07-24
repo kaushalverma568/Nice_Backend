@@ -9,13 +9,17 @@ import org.springframework.stereotype.Repository;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoySendNotificationHistory;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface DeliveryBoySendNotificationHistoryRepository extends JpaRepository<DeliveryBoySendNotificationHistory, Long> {
 
 	/**
 	 * get delivery boy send notification history for delivery boy
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 */
 	Optional<DeliveryBoySendNotificationHistory> findByDeliveryBoy(DeliveryBoy deliveryBoy);
@@ -30,7 +34,7 @@ public interface DeliveryBoySendNotificationHistoryRepository extends JpaReposit
 	/**
 	 * get delivery boy send notification history by delivery boy and order id
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 */
 	Optional<DeliveryBoySendNotificationHistory> findByDeliveryBoyAndOrderId(DeliveryBoy deliveryBoy, Long orderId);

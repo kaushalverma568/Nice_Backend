@@ -9,12 +9,11 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-/**
- * 
- * @author nisha.parmar
- *
- */
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Entity
 @Table(name = "rating_question")
 @Data
@@ -22,7 +21,7 @@ import lombok.EqualsAndHashCode;
 public class RatingQuestion extends CommonModel {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2499566932816782817L;
 
@@ -33,9 +32,8 @@ public class RatingQuestion extends CommonModel {
 
 	@Column(name = "type", nullable = false)
 	private String type;
-	
+
 	@Column(name = "question", nullable = false)
 	private String question;
-	
-	
+
 }

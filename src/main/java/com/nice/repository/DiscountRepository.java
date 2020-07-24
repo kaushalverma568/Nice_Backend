@@ -9,41 +9,46 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.Discount;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
 	/**
 	 * get all discount by status and category id
-	 * 
-	 * @param status
-	 * @param categoryId
-	 * @param pageable
+	 *
+	 * @param  status
+	 * @param  categoryId
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Discount> findAllByStatusAndCategoryId(String status, Long categoryId, Pageable pageable);
 
 	/**
 	 * get all discount by status
-	 * 
-	 * @param status
-	 * @param pageable
+	 *
+	 * @param  status
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Discount> findAllByStatus(String status, Pageable pageable);
 
 	/**
 	 * get all discount by category Id
-	 * 
-	 * @param brandId
-	 * @param pageable
+	 *
+	 * @param  brandId
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Discount> findAllByCategoryId(Long categoryId, Pageable pageable);
 
 	/**
 	 * get all discount by category id and status list
-	 * @param categoryId
-	 * @param asList
+	 * 
+	 * @param  categoryId
+	 * @param  asList
 	 * @return
 	 */
 	List<Discount> findAllByCategoryIdAndStatusIn(Long categoryId, List<String> asList);

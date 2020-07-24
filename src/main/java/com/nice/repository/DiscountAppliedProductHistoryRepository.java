@@ -10,6 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.DiscountAppliedProductHistory;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface DiscountAppliedProductHistoryRepository extends JpaRepository<DiscountAppliedProductHistory, Long> {
 
@@ -23,12 +27,12 @@ public interface DiscountAppliedProductHistoryRepository extends JpaRepository<D
 	 * get history of product have a upcoming/active discount and its start date is between new start date & end date or end
 	 * date is between new start date & end date
 	 *
-	 * @param productId
-	 * @param disountId
-	 * @param startDate1
-	 * @param endDate1
-	 * @param startDate
-	 * @param endDate
+	 * @param  productId
+	 * @param  disountId
+	 * @param  startDate1
+	 * @param  endDate1
+	 * @param  startDate
+	 * @param  endDate
 	 * @return
 	 */
 	@Query(value = "select * from discount_applied_product_history where product_id=?1 and discount_id !=?2 and (((start_date,end_date) overlaps (?3,?4)) OR end_date = ?3 OR start_date =?4) and status in('Active','Upcoming')", nativeQuery = true)

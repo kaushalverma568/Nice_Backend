@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.DeliveryBoy;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> {
 

@@ -10,6 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.Vendor;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCustomRepository {
 

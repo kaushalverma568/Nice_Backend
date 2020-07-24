@@ -11,13 +11,17 @@ import org.springframework.stereotype.Repository;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyLocation;
 
+/**
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : 24-Jul-2020
+ */
 @Repository
 public interface DeliveryBoyLocationRepository extends JpaRepository<DeliveryBoyLocation, Long> {
 
 	/**
 	 * get last updated delivery boy's location
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 */
 	Optional<DeliveryBoyLocation> findFirstByDeliveryBoyOrderByUpdatedAtDesc(DeliveryBoy deliveryBoy);
@@ -25,20 +29,20 @@ public interface DeliveryBoyLocationRepository extends JpaRepository<DeliveryBoy
 	/**
 	 * get delivery boy's location list for delivery boy
 	 *
-	 * @param deliveryBoy
-	 * @param pageable
+	 * @param  deliveryBoy
+	 * @param  pageable
 	 * @return
 	 */
 	Page<DeliveryBoyLocation> findAllByDeliveryBoy(DeliveryBoy deliveryBoy, Pageable pageable);
 
 	/**
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 */
 	List<DeliveryBoyLocation> findAllByDeliveryBoy(DeliveryBoy deliveryBoy);
 
 	/**
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 */
 	List<DeliveryBoyLocation> findAllByDeliveryBoyOrderByUpdatedAtDesc(DeliveryBoy deliveryBoy);
