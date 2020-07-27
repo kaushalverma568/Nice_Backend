@@ -7,7 +7,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class VendorFilterDTO implements Serializable {
@@ -32,4 +32,7 @@ public class VendorFilterDTO implements Serializable {
 	private Date subscriptionEndDate;
 
 	private Boolean isFeatured;
+
+	private String status;
+
 }
