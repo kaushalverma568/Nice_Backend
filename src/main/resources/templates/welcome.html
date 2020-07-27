@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Welcome</title>
+    <style>
+        body {
+         font-family: "Segoe UI", sans-serif;
+     }
+
+     table{
+        position: relative;
+    }
+
+    table {
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+
+    table tr{
+        line-height: 1;
+        padding: 0;
+        margin:0;
+    }
+</style>
+</head>
+
+<body>
+    <table width="100%" border="0" bgcolor="#ffffff" cellspacing="0" cellpadding="0" style="max-width: 600px;margin: 0 auto; box-shadow: 0px 9px 17px 4px rgba(0,0,0,0.05); text-align: center;">
+        <tbody>
+            <tr>
+                <td style="text-align: center; padding: 10px; ">
+                    <img src="{{applicationLogo}}" alt="{{applicationName}}"> 
+                </td>                
+            </tr>
+
+            <tr>
+                <td>
+                    <img src="{{applicationBigLogo}}" alt="Banner image">
+                </td>
+            </tr>   
+            
+            <tr>
+                <td style="padding: 30px 20px 0px 20px;">
+                    <span style="font-weight: 700; font-size: 17px;"> Welcome {{customerName}},</span>
+
+                    <p style="line-height: 22px;">{{applicationName}} made shopping easy with a wide range of options in every category exclusively handpicked for you and 
+                    also fastest food delivery with safe hands.</p>
+
+                    <p style="line-height: 22px;">Join our online supermarket and enjoy your shopping with us!</p>
+
+                    <p style="line-height: 22px;">For more info do visit: 
+                        <a style="color: #000000" href="{{customerUrl}}">{{customerUrl}}</a>
+                    </p>
+
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:20px; line-height: 22px;">Thanks & regards,<br/>Team {{applicationName}}</td>
+            </tr>
+
+            <tr>
+                <td style="color: #666666;font-size:14px; padding: 10px 20px;">
+                    <span style="padding-bottom: 5px; display: inline-block;">Customer care no.: {{customerCareContact}}</span><br>
+                    <span style="padding-bottom: 5px; display: inline-block;">Email address: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

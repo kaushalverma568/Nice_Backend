@@ -78,11 +78,16 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
 public class UserLoginServiceImpl implements UserLoginService, UserDetailsService {
+
+	/**
+	 *
+	 */
+	private static final String USER_OTP_NOT_VERIFIED = "user.otp.not.verified";
 
 	/**
 	 *
@@ -264,8 +269,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
-			 * active but customer can not login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
+			 * login with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -429,7 +434,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 			}
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
+			throw new ValidationException(messageByLocaleService.getMessage(USER_OTP_NOT_VERIFIED, null));
 		}
 
 	}
@@ -514,7 +519,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		map = new LinkedMultiValueMap<>();
 		map.add("grant_type", Constant.GRANT_TYPE);
-		map.add("username", userLoginDto.getUserName().concat("!!").concat(userLoginDto.getUserType()).concat("#").concat(userLoginDto.getRegisteredVia()));
+		map.add("username",
+				userLoginDto.getUserName().toLowerCase().concat("!!").concat(userLoginDto.getUserType()).concat("#").concat(userLoginDto.getRegisteredVia()));
 		map.add("password", userLoginDto.getPassword());
 
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
@@ -772,13 +778,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 			return updateUserDetail(emailUpdateDTO, userLogin);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
+			throw new ValidationException(messageByLocaleService.getMessage(USER_OTP_NOT_VERIFIED, null));
 		}
 	}
 
 	/**
-	 * @param  emailUpdateDTO
-	 * @param  userLogin
+	 * @param emailUpdateDTO
+	 * @param userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -861,16 +867,16 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 			return updateUserDetail(phoneNumber, otp, userType, userLogin);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("user.otp.not.verified", null));
+			throw new ValidationException(messageByLocaleService.getMessage(USER_OTP_NOT_VERIFIED, null));
 		}
 	}
 
 	/**
-	 * @param  phoneNumber
-	 * @param  otp
-	 * @param  userType
-	 * @param  userName
-	 * @param  userLogin
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @param userName
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
