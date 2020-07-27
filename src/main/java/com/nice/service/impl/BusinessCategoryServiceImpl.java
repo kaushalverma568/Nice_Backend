@@ -13,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.BusinessCategoryDTO;
+import com.nice.dto.VendorFilterDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -22,10 +24,11 @@ import com.nice.model.BusinessCategory;
 import com.nice.repository.BusinessCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BusinessCategoryService;
+import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -44,6 +47,9 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Autowired
 	private AssetService assetService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@Override
 	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image) throws NotFoundException {
@@ -94,6 +100,16 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			throw new ValidationException(
 					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "business.category.active" : "business.category.deactive", null));
 		} else {
+			if (Boolean.FALSE.equals(active)) {
+				VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
+				vendorFilterDTO.setActiveRecords(true);
+				vendorFilterDTO.setBusinessCategoryId(businessCategoryId);
+				vendorFilterDTO.setStatus(VendorStatus.ACTIVE.getStatusValue());
+				Long vendorCount = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
+				if (vendorCount > 0) {
+					throw new ValidationException(messageByLocaleService.getMessage("business.category.not.update.vendor", null));
+				}
+			}
 			existingBusinessCategory.setActive(active);
 			businessCategoryRepository.save(existingBusinessCategory);
 		}

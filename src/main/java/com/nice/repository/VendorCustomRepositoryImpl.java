@@ -35,7 +35,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -81,8 +81,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -139,6 +138,10 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 					"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
 			predicates.add(
 					criteriaBuilder.or(criteriaBuilder.like(fullName, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"), predicateForStoreName));
+		}
+
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getStatus())) {
+			predicates.add(criteriaBuilder.equal(vendor.get("status"), vendorFilterDTO.getStatus()));
 		}
 	}
 
@@ -207,8 +210,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
