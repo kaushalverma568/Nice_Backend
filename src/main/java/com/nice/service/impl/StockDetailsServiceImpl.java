@@ -33,6 +33,7 @@ import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.StockDetailFilterDTO;
 import com.nice.dto.StockDetailsDTO;
 import com.nice.dto.StockTransferDto;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -336,7 +337,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 
 	@Override
 	public void exportStockDetailsList(final HttpServletResponse httpServletResponse, final StockDetailFilterDTO stockDetailFilterDTO)
-			throws NotFoundException, IOException {
+			throws NotFoundException, FileNotFoundException {
 		List<StockDetailsDTO> stockDetailsDtoList;
 		if (stockDetailFilterDTO != null) {
 			stockDetailFilterDTO.setActive(true);
@@ -347,7 +348,11 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		final Object[] stockHeaderField = new Object[] { "Name", "uom", "Current Stock", "SKU", "Reserved", "delivered", "replaced", "expiryDate", "lotDate" };
 		final Object[] stockDataField = new Object[] { "productName", "uomLabel", "available", "sku", "reserved", "delivered", "replaced", "expiryDate",
 				"lotDate" };
-		exportCSV.writeCSVFile(stockDetailsDtoList, stockDataField, stockHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(stockDetailsDtoList, stockDataField, stockHeaderField, httpServletResponse);
+		}  catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 
 	}
 

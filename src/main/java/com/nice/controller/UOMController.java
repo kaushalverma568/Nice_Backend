@@ -1,6 +1,5 @@
 package com.nice.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.UOMDTO;
-import com.nice.exception.BaseException;
+import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -182,7 +182,7 @@ public class UOMController {
 
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws FileNotFoundException  {
 		uomService.exportList(activeRecords, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null)).create();
 	}
@@ -192,11 +192,12 @@ public class UOMController {
 	 * @param  file
 	 * @param  httpServletResponse
 	 * @return
-	 * @throws BaseException
+	 * @throws ValidationException 
+	 * @throws FileOperationException 
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

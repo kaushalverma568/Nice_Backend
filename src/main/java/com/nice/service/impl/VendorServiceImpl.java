@@ -46,6 +46,8 @@ import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
+import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileStorageException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -667,7 +669,7 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void exportVendorList(final VendorFilterDTO vendorFilterDTO, final HttpServletResponse httpServletResponse) throws IOException {
+	public void exportVendorList(final VendorFilterDTO vendorFilterDTO, final HttpServletResponse httpServletResponse) throws FileNotFoundException {
 		List<Vendor> vendorList;
 		List<VendorExport> vendorExportList = new ArrayList<>();
 		vendorList = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
@@ -678,7 +680,11 @@ public class VendorServiceImpl implements VendorService {
 		}
 		final Object[] vendorHeaderField = new Object[] { "First Name", "Last Name", "Email", "Store Name", "Phone Number" };
 		final Object[] vendorDataField = new Object[] { "firstName", "lastName", "email", "storeName", "phoneNumber" };
-		exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 
 	}
 

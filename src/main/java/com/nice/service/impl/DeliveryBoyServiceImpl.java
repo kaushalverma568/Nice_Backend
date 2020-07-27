@@ -47,6 +47,7 @@ import com.nice.dto.OrderNotificationDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.UserOtpDto;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -250,7 +251,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void exportList(final Boolean activeRecords, final String searchKeyword, final HttpServletResponse httpServletResponse) throws IOException {
+	public void exportList(final Boolean activeRecords, final String searchKeyword, final HttpServletResponse httpServletResponse) throws FileNotFoundException {
 		List<DeliveryBoy> deliveryBoyList;
 		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
@@ -274,7 +275,11 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				"Acount Name", "Bank Account Number", "Kib No", "Branch City" };
 		final Object[] deliveryBoyDataField = new Object[] { "name", "email", "gender", "phoneNumber", "bankName", "branchName", "accountName",
 				"bankAccountNumber", "kibNo", "branchCity" };
-		exportCSV.writeCSVFile(deliveryBoyDtoList, deliveryBoyDataField, deliveryBoyHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(deliveryBoyDtoList, deliveryBoyDataField, deliveryBoyHeaderField, httpServletResponse);
+		}  catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 
 	@Override

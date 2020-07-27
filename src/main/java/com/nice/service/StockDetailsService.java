@@ -14,6 +14,7 @@ import com.nice.dto.LotwiseStockRequestDTO;
 import com.nice.dto.StockDetailFilterDTO;
 import com.nice.dto.StockDetailsDTO;
 import com.nice.dto.StockTransferDto;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.ProductVariant;
@@ -82,9 +83,10 @@ public interface StockDetailsService {
 	 * @param  httpServletResponse
 	 * @param  stockDetailFilterDTO
 	 * @throws NotFoundException
+	 * @throws FileNotFoundException 
 	 * @throws IOException
 	 */
-	void exportStockDetailsList(HttpServletResponse httpServletResponse, StockDetailFilterDTO stockDetailFilterDTO) throws NotFoundException, IOException;
+	void exportStockDetailsList(HttpServletResponse httpServletResponse, StockDetailFilterDTO stockDetailFilterDTO) throws NotFoundException, FileNotFoundException;
 
 
 	/**

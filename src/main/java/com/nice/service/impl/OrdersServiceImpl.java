@@ -35,6 +35,7 @@ import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.AuthorizationException;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -1065,14 +1066,18 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Override
 	public void exportOrderList(final HttpServletResponse httpServletResponse, final OrderListFilterDto orderListFilterDto)
-			throws IOException, NotFoundException {
+			throws  NotFoundException, FileNotFoundException {
 		List<Orders> orderList = ordersRepository.getOrderListBasedOnParams(null, null, orderListFilterDto);
 		List<OrdersResponseDTO> orderDtoList = toDtos(orderList, true);
 		final Object[] orderHeaderField = new Object[] { "Customer Name", "Phone Number", "Total Order Amount", "Order Status", "Payment Mode", "Vendor Name",
 				"Delivery Boy Name", "Order Date" };
 		final Object[] orderDataField = new Object[] { "customerName", "phoneNumber", "totalOrderAmount", "orderStatus", "paymentMode", "vendorName",
 				"deliveryBoyName", "orderDate" };
-		exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
+		}  catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 
 	@Override

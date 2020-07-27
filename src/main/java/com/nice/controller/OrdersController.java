@@ -34,6 +34,7 @@ import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.ReplaceCancelOrderDto;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -140,10 +141,11 @@ public class OrdersController {
 	 * @throws IOException
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileNotFoundException 
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportOrderList(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse) throws IOException, NotFoundException {
+			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse) throws  NotFoundException, FileNotFoundException {
 		orderService.exportOrderList(httpServletResponse, orderListFilterDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null)).create();
 	}

@@ -28,6 +28,7 @@ import com.nice.constant.UserType;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.UOMDTO;
 import com.nice.dto.UOMImport;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -224,7 +225,7 @@ public class UOMServiceImpl implements UOMService {
 	}
 
 	@Override
-	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
+	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws FileNotFoundException  {
 		List<UOM> uomList;
 		List<UOMDTO> uomExportList = new ArrayList<>();
 		if (activeRecords != null) {
@@ -237,7 +238,11 @@ public class UOMServiceImpl implements UOMService {
 		}
 		final Object[] uomHeaderField = new Object[] { "Measurement", "Quantity", "UOM Label" };
 		final Object[] uomDataField = new Object[] { "measurement", "quantity", "uomLabel" };
-		exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 
 	@Override

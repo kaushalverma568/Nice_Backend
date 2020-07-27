@@ -1,6 +1,5 @@
 package com.nice.controller;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +41,7 @@ import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.OrderNotificationDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -196,7 +196,7 @@ public class DeliveryBoyController {
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws IOException {
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws  FileNotFoundException {
 		deliveryBoyService.exportList(activeRecords, searchKeyword, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.create();

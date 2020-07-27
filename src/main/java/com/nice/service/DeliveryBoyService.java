@@ -16,6 +16,7 @@ import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.OrderNotificationDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoy;
@@ -185,9 +186,10 @@ public interface DeliveryBoyService {
 	 * @param activeRecords
 	 * @param searchKeyword 
 	 * @param httpServletResponse
+	 * @throws FileNotFoundException 
 	 * @throws IOException
 	 */
-	void exportList(Boolean activeRecords, String searchKeyword, HttpServletResponse httpServletResponse) throws IOException;
+	void exportList(Boolean activeRecords, String searchKeyword, HttpServletResponse httpServletResponse) throws FileNotFoundException;
 
 	/**
 	 * get delivery boy current status details

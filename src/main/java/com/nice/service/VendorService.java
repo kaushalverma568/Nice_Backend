@@ -15,6 +15,7 @@ import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Vendor;
@@ -232,8 +233,9 @@ public interface VendorService {
 	 * @param  activeRecords
 	 * @param  httpServletResponse
 	 * @throws IOException
+	 * @throws FileNotFoundException 
 	 */
-	void exportVendorList(VendorFilterDTO vendorFilterDTO, HttpServletResponse httpServletResponse) throws IOException;
+	void exportVendorList(VendorFilterDTO vendorFilterDTO, HttpServletResponse httpServletResponse) throws FileNotFoundException;
 
 	/**
 	 * verify vendor contact

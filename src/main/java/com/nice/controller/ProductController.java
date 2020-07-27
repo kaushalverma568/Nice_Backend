@@ -38,6 +38,7 @@ import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.exception.BaseException;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -256,11 +257,12 @@ public class ProductController {
 	 * @throws IOException
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileNotFoundException 
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final ProductParamRequestDTO productParamRequestDTO, final HttpServletResponse httpServletResponse)
-			throws IOException, ValidationException, NotFoundException {
+			throws  ValidationException, NotFoundException, FileNotFoundException {
 		productService.exportProductList(httpServletResponse, productParamRequestDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
 				.create();
@@ -278,7 +280,7 @@ public class ProductController {
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

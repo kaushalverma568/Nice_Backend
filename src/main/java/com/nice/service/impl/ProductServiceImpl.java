@@ -34,6 +34,7 @@ import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -659,7 +660,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public void exportProductList(final HttpServletResponse httpServletResponse, final ProductParamRequestDTO productParamRequestDTO)
-			throws IOException, NotFoundException, ValidationException {
+			throws  NotFoundException, ValidationException, FileNotFoundException {
 		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
 		LOGGER.info("Inside export product list Based On Params {}", productParamRequestDTO);
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
@@ -669,7 +670,11 @@ public class ProductServiceImpl implements ProductService {
 		}
 		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
 		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
-		exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
+		try {
+			exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
+		}  catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 
 	@Override

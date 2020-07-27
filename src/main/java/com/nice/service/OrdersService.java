@@ -3,7 +3,6 @@
  */
 package com.nice.service;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +14,7 @@ import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.exception.AuthorizationException;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.CartItem;
@@ -149,10 +149,10 @@ public interface OrdersService {
 	 *
 	 * @param httpServletResponse
 	 * @param orderListFilterDto
-	 * @throws IOException
 	 * @throws NotFoundException
+	 * @throws FileNotFoundException 
 	 */
-	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws IOException, NotFoundException;
+	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws NotFoundException, FileNotFoundException;
 
 	/**
 	 * get all qualified orders for sending accept order notification

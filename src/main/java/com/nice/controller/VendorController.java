@@ -41,6 +41,7 @@ import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -396,10 +397,11 @@ public class VendorController {
 	 * @param  vendorFilterDTO
 	 * @return
 	 * @throws IOException
+	 * @throws FileNotFoundException 
 	 */
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestBody final VendorFilterDTO vendorFilterDTO) throws IOException {
+			@RequestBody final VendorFilterDTO vendorFilterDTO) throws  FileNotFoundException {
 		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();
 	}

@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.dto.AddStockRequestDTO;
 import com.nice.dto.StockDetailFilterDTO;
 import com.nice.dto.StockDetailsDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -169,11 +170,12 @@ public class StockDetailsController {
 	 * @return
 	 * @throws NotFoundException
 	 * @throws IOException
+	 * @throws FileNotFoundException 
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportStockSummary(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final StockDetailFilterDTO stockDetailFilterDTO, final Long uomId, final HttpServletResponse httpServletResponse)
-			throws NotFoundException, IOException {
+			throws NotFoundException,  FileNotFoundException {
 		stockDetailsService.exportStockDetailsList(httpServletResponse, stockDetailFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message", null)).create();

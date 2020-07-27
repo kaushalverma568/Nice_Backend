@@ -11,6 +11,7 @@ import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -160,9 +161,10 @@ public interface ProductService {
 	 * @throws IOException
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileNotFoundException 
 	 */
 	void exportProductList(HttpServletResponse httpServletResponse, ProductParamRequestDTO productParamRequestDTO)
-			throws IOException, NotFoundException, ValidationException;
+			throws  NotFoundException, ValidationException, FileNotFoundException;
 
 	/**
 	 * @param multipartFile

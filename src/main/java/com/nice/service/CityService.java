@@ -94,12 +94,5 @@ public interface CityService {
 	 */
 	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword);
 
-	/**
-	 * 
-	 * @param activeRecords
-	 * @param httpServletResponse
-	 * @throws IOException 
-	 */
-	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws IOException;
 
 }
