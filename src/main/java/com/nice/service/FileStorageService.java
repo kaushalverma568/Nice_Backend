@@ -126,7 +126,7 @@ public class FileStorageService {
 	 * @param subDir
 	 */
 	public void deleteFile(final String fileName, final String subDir) {
-		StringBuilder finalPath = new StringBuilder(this.fileStorageLocation.toString()).append(subDir);
+		StringBuilder finalPath = new StringBuilder(this.fileStorageLocation.toString()).append("/").append(subDir);
 		Path targetLocation = Paths.get(finalPath.toString()).resolve(fileName);
 		LOGGER.info("location: {}", targetLocation);
 		try {

@@ -60,12 +60,11 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage("business.category.id.not.null", null));
 		}
 		BusinessCategory businessCategory = getBusinessCategoryDetail(businessCategoryDTO.getId());
-		if (businessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
-			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.update", null));
-		}
 		String oldImageName = businessCategory.getImageName();
 		String oldOriginalName = businessCategory.getOriginalImageName();
-		businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
+		if (!businessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+			businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
+		}
 		if (image != null) {
 			assetService.deleteFile(oldImageName, AssetConstant.BUSINESS_CATEGORY_DIR);
 			businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
