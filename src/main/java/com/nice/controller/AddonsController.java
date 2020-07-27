@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.AddonsDTO;
-import com.nice.exception.BaseException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -202,11 +202,13 @@ public class AddonsController {
 	 * @param file
 	 * @param httpServletResponse
 	 * @return
-	 * @throws BaseException
+	 * @throws FileOperationException 
+	 * @throws ValidationException 
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws FileOperationException, ValidationException
+			 {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

@@ -94,12 +94,13 @@ public interface UOMService {
 
 	/**
 	 * 
+	 * @param vendorId 
 	 * @param activeRecords
 	 * @param httpServletResponse
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	void exportList(Boolean activeRecords, HttpServletResponse httpServletResponse) throws  FileNotFoundException;
+	void exportList(Long vendorId, Boolean activeRecords, HttpServletResponse httpServletResponse) throws  FileNotFoundException;
 
 	/**
 	 * 

@@ -78,4 +78,19 @@ public interface UOMRepository extends JpaRepository<UOM, Long> {
 	 * @return
 	 */
 	Optional<UOM> findByMeasurementIgnoreCaseAndQuantityAndVendorId(String measurement, Double quantity, Long id);
+
+	/**
+	 * 
+	 * @param activeRecords
+	 * @param vendorId
+	 * @return
+	 */
+	List<UOM> findAllByActiveAndVendorId(Boolean activeRecords, Long vendorId);
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @return
+	 */
+	List<UOM> findAllByVendorId(Long vendorId);
 }

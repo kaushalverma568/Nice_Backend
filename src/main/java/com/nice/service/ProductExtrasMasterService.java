@@ -1,9 +1,8 @@
 package com.nice.service;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.ProductExtrasMasterDTO;
@@ -68,12 +67,14 @@ public interface ProductExtrasMasterService {
 	void deleteProductExtrasMaster(Long productExtrasMasterId);
 
 	/**
+	 * @param pageSize 
+	 * @param pageNumber 
 	 * @param  activeRecords
 	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<ProductExtrasMasterDTO> getList(Boolean activeRecords, Long vendorId) throws NotFoundException;
+	Page<ProductExtrasMaster> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException;
 
 	/**
 	 * @param  file

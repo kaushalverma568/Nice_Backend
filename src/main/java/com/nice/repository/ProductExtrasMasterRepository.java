@@ -62,27 +62,19 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	/**
 	 * 
 	 * @param activeRecords
+	 * @param vendorId
+	 * @param pageable
 	 * @return
 	 */
-	List<ProductExtrasMaster> findAllByActive(Boolean activeRecords);
+	Page<ProductExtrasMaster> findAllByActiveAndVendorId(Boolean activeRecords, Long vendorId, Pageable pageable);
 
 
 	/**
 	 * 
 	 * @param activeRecords
-	 * @param vendorId
+	 * @param pageable
 	 * @return
 	 */
-	List<ProductExtrasMaster> findAllByActiveAndVendorId(Boolean activeRecords, Long vendorId);
-
-
-	/**
-	 * 
-	 * @param vendorId
-	 * @return
-	 */
-	List<ProductExtrasMaster> findAllByVendorId(Long vendorId);
-
-
+	Page<ProductExtrasMaster> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 }

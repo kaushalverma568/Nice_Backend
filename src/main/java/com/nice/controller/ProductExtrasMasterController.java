@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -27,10 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.ProductExtrasMasterDTO;
-import com.nice.exception.BaseException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.mapper.ProductExtrasMasterMapper;
+import com.nice.model.ProductExtrasMaster;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.ProductExtrasMasterService;
 import com.nice.validator.ProductExtrasMasterValidator;
@@ -54,6 +57,9 @@ public class ProductExtrasMasterController {
 
 	@Autowired
 	private ProductExtrasMasterService productExtrasMasterService;
+	
+	@Autowired
+	private ProductExtrasMasterMapper productExtrasMasterMapper;
 
 	/**
 	 * validator - to apply/check any type of validation regarding sections
@@ -111,11 +117,17 @@ public class ProductExtrasMasterController {
 				.setMessage(messageByLocaleService.getMessage("product.extras.master.detail.message", null)).setData(resultProductExtrasMaster).create();
 	}
 
-	@GetMapping("/list/{vendorId}")
-	public ResponseEntity<Object> getListForCustomer(@PathVariable final Long vendorId) throws NotFoundException {
-		final List<ProductExtrasMasterDTO> resultProductExtrasMaster = productExtrasMasterService.getList(true, vendorId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.master.list.message", null))
-				.setData(resultProductExtrasMaster).create();
+
+	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getToppingList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
+		LOGGER.info("Inside get Topping List ");
+		final Page<ProductExtrasMaster> resultExtrasMasterList = productExtrasMasterService.getList(pageNumber, pageSize, activeRecords, vendorId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.master.update.message", null))
+				.setData(productExtrasMasterMapper.toDtos(resultExtrasMasterList.getContent())).setHasNextPage(resultExtrasMasterList.hasNext())
+				.setHasPreviousPage(resultExtrasMasterList.hasPrevious()).setTotalPages(resultExtrasMasterList.getTotalPages()).setPageNumber(resultExtrasMasterList.getNumber() + 1)
+				.setTotalCount(resultExtrasMasterList.getTotalElements()).create();
 	}
 
 	@PutMapping("/status/{productExtrasMasterId}")
@@ -133,11 +145,12 @@ public class ProductExtrasMasterController {
 	 * @param file
 	 * @param httpServletResponse
 	 * @return
-	 * @throws BaseException
+	 * @throws ValidationException 
+	 * @throws FileOperationException 
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

@@ -182,8 +182,9 @@ public class UOMController {
 
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws FileNotFoundException  {
-		uomService.exportList(activeRecords, httpServletResponse);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws FileNotFoundException  {
+		uomService.exportList(vendorId, activeRecords, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null)).create();
 	}
 
@@ -197,7 +198,7 @@ public class UOMController {
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

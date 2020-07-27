@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +32,6 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductExtrasMasterMapper;
-import com.nice.model.Product;
 import com.nice.model.ProductExtras;
 import com.nice.model.ProductExtrasMaster;
 import com.nice.model.UserLogin;
@@ -69,9 +72,6 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-
-	@Autowired
-	private ProductService productService;
 	
 	@Autowired
 	private ProductExtrasService productExtrasService;
@@ -167,21 +167,6 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	}
 
 
-	public List<ProductExtrasMasterDTO> getListWithUserCheck(final Long productId, Boolean activeRecords) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside changeStatus method, with productId : {} and active :{}", productId, activeRecords);
-		Product product = productService.getProductDetail(productId);
-		UserLogin userLogin = getUserLoginFromToken();
-		/**
-		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
-		 */
-		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !product.getVendorId().equals(userLogin.getEntityId()))) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
-			activeRecords = true;
-		}
-		return getList(activeRecords, productId);
-	}
-
 	/**
 	 * @param activeRecords
 	 * @param product
@@ -189,16 +174,22 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	 * @throws NotFoundException
 	 */
 	@Override
-	public List<ProductExtrasMasterDTO> getList(final Boolean activeRecords, final Long vendorId) throws NotFoundException {
+	public Page<ProductExtrasMaster> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException{
 		LOGGER.info("Inside getList method, with productId : {} and active :{}", vendorId, activeRecords);
-		List<ProductExtrasMaster> productExtraList;
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
 		if (activeRecords != null) {
-			productExtraList = productExtrasMasterRepository.findAllByActiveAndVendorId(activeRecords, vendorId);
+			if (vendorId != null) {
+				return productExtrasMasterRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);
+			} else {
+				return productExtrasMasterRepository.findAllByActive(activeRecords, pageable);
+			}
 		} else {
-			productExtraList = productExtrasMasterRepository.findAllByVendorId(vendorId);
+			if (vendorId != null) {
+				return productExtrasMasterRepository.findAllByVendorId(vendorId, pageable);
+			} else {
+				return productExtrasMasterRepository.findAll(pageable);
+			}
 		}
-		LOGGER.info("After getList method, with productId : {} and active :{}", vendorId, activeRecords);
-		return productExtrasMasterMapper.toDtos(productExtraList);
 	}
 
 	@Override
