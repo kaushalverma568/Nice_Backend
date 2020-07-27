@@ -157,21 +157,5 @@ public class CityServiceImpl implements CityService {
 		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword);
 	}
 
-	@Override
-	public void exportList(final Boolean activeRecords, final HttpServletResponse httpServletResponse) throws IOException {
-		List<City> cityList;
-		List<CityResponseDTO> cityExportList = new ArrayList<>();
-		if (activeRecords != null) {
-			cityList = cityRepository.findAllByActive(activeRecords);
-		} else {
-			cityList = cityRepository.findAll();
-		}
-		for (City city : cityList) {
-			cityExportList.add(cityMapper.toDto(city));
-		}
-		final Object[] cityHeaderField = new Object[] { "Name", "State Name" };
-		final Object[] cityDataField = new Object[] { "name", "stateName" };
-		exportCSV.writeCSVFile(cityExportList, cityDataField, cityHeaderField, httpServletResponse);
-	}
 
 }
