@@ -33,6 +33,7 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CartItemMapper;
 import com.nice.model.CartItem;
 import com.nice.model.Customer;
+import com.nice.model.ProductAttributeValue;
 import com.nice.model.ProductVariant;
 import com.nice.model.UserLogin;
 import com.nice.repository.CartItemRepository;
@@ -42,13 +43,14 @@ import com.nice.service.CartItemService;
 import com.nice.service.CartProductAttributeValueService;
 import com.nice.service.CartToppingsService;
 import com.nice.service.CustomerService;
+import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.TempCartItemService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartItemService")
@@ -84,6 +86,9 @@ public class CartItemServiceImpl implements CartItemService {
 
 	@Autowired
 	private TempCartItemService tempCartItemService;
+
+	@Autowired
+	private ProductAttributeValueService productAttributeValueService;
 
 	@Override
 	public Long addCartItem(final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
@@ -224,14 +229,18 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	/**
-	 * @param  cartItemEntity
-	 * @param  cartItemDTO
+	 * @param cartItemEntity
+	 * @param cartItemDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	private void saveItemsToCart(CartItem cartItemEntity, final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
 		LOGGER.info("Saving data to cart item");
 		cartItemEntity = cartItemRepository.save(cartItemEntity);
+
+		/**
+		 * Add all toppings
+		 */
 		if (cartItemDTO.getProductToppingsIds() != null && !cartItemDTO.getProductToppingsIds().isEmpty()) {
 			for (Long id : cartItemDTO.getProductToppingsIds()) {
 				CartToppingsDto cartToppingsDto = new CartToppingsDto(id, cartItemEntity.getId(), cartItemEntity.getQuantity(), true);
@@ -239,6 +248,9 @@ public class CartItemServiceImpl implements CartItemService {
 			}
 		}
 
+		/**
+		 * Add all addons
+		 */
 		if (cartItemDTO.getProductAddonsId() != null && !cartItemDTO.getProductAddonsId().isEmpty()) {
 			for (Long id : cartItemDTO.getProductAddonsId()) {
 				CartAddonsDTO cartAddonsDto = new CartAddonsDTO(id, cartItemEntity.getId(), cartItemEntity.getQuantity(), true);
@@ -246,14 +258,42 @@ public class CartItemServiceImpl implements CartItemService {
 			}
 		}
 
+		/**
+		 * Here distinct productAttributeIds associated with a product are taken.
+		 *
+		 * This is done so as to check if the productAttributeValues associated with product are given values or not, if the
+		 * values corresponding to all of them is not defined then we need to throw an exception.
+		 *
+		 * E.g. : If for Pizza there are two different attributes defined i.e. Base & Bread, then one value each for both Base &
+		 * Bread should be defined
+		 */
+		List<Long> addedProductAttributes = new ArrayList<>();
+		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(cartItemDTO.getProductVariantId(), true);
+		List<Long> distinctProductAttributes = productAttributeValueDtoList.stream().map(ProductAttributeValueDTO::getProductAttributeId)
+				.collect(Collectors.toList());
+
+		/**
+		 * Add attribute values
+		 */
 		if (cartItemDTO.getAttributeValueIds() != null && !cartItemDTO.getAttributeValueIds().isEmpty()) {
 			for (Long id : cartItemDTO.getAttributeValueIds()) {
+				ProductAttributeValue productAttributeValue = productAttributeValueService.getProductAttributeValueDetail(id);
+				addedProductAttributes.add(productAttributeValue.getProductAttribute().getId());
 				CartProductAttributeValueDTO cartProductAttributeValuesDto = new CartProductAttributeValueDTO(id, cartItemEntity.getId(),
 						cartItemEntity.getQuantity(), true);
 				cartProductAttributeValueService.addCartProductAttributeValue(cartProductAttributeValuesDto, cartItemEntity);
 			}
 		}
+		/**
+		 * If values for all the attributes mapped to product are not specified then throw exception
+		 */
+		if (!addedProductAttributes.containsAll(distinctProductAttributes)) {
+			throw new ValidationException(messageByLocaleService.getMessage("specify.product.attribute.values", null));
+		}
 
+		/**
+		 * Add extras
+		 */
 		if (cartItemDTO.getProductExtrasId() != null && !cartItemDTO.getProductExtrasId().isEmpty()) {
 			for (Long id : cartItemDTO.getProductExtrasId()) {
 				CartExtrasDto cartExtrasDto = new CartExtrasDto(id, cartItemEntity.getId(), cartItemEntity.getQuantity(), true);

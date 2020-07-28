@@ -119,8 +119,9 @@ public class ProductAttributeController {
 
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws ValidationException {
-		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords);
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "vendorId", required = true) final Long vendorId) throws ValidationException {
+		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords, null);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.list.message", null))
 				.setData(productAttributeMapper.toDtos(resultProductAttribute.getContent())).setHasNextPage(resultProductAttribute.hasNext())
@@ -145,9 +146,9 @@ public class ProductAttributeController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.update.message", null)).create();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param file
 	 * @param httpServletResponse
@@ -162,7 +163,7 @@ public class ProductAttributeController {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}
 		productAttributeService.uploadFile(file, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.attribute.create.message", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("product.attribute.create.message", null)).create();
 	}
 }

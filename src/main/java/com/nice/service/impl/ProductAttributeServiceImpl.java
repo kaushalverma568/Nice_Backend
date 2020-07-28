@@ -74,7 +74,7 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-	
+
 	@Autowired
 	private VendorService vendorService;
 
@@ -83,7 +83,6 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 
 	@Autowired
 	private FileStorageService fileStorageService;
-	
 
 	@Override
 	public ProductAttributeDTO addProductAttribute(final ProductAttributeDTO productAttributeDTO) throws NotFoundException, ValidationException {
@@ -167,10 +166,9 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	}
 
 	@Override
-	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) throws ValidationException {
-		UserLogin userLogin = checkForUserLogin();
+	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId)
+			throws ValidationException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
-		Long vendorId = userLogin.getEntityId();
 
 		if (activeRecords != null) {
 			return vendorId == null ? productAttributeRepository.findAllByActive(activeRecords, pageable)
@@ -242,8 +240,8 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	}
 
 	@Override
-	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
-		final String fileName = fileStorageService.storeFile(multipartFile, "productAttribute_"+System.currentTimeMillis(), AssetConstant.ATTRIBUTE);
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "productAttribute_" + System.currentTimeMillis(), AssetConstant.ATTRIBUTE);
 		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.ATTRIBUTE);
 		final File file = new File(filePath.toString());
 		final CSVProcessor<ProductAttributeImport> csvProcessor = new CSVProcessor<>();
@@ -252,18 +250,16 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(attributeImports)) {
 				final List<ProductAttributeImport> insertListOfBean = insertListOfUoms(
 						attributeImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
-				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name","Description", "Result" };
-				Object[] attributeDetailsField = new Object[] { "name", "description","uploadMessage" };
+				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name", "Description", "Result" };
+				Object[] attributeDetailsField = new Object[] { "name", "description", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, attributeDetailsField, attributeDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
 		}
-		
+
 	}
-	
-	
-	
+
 	private List<ProductAttributeImport> insertListOfUoms(final List<ProductAttributeImport> productAttributeImports) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<ProductAttributeImport> allResult = new ArrayList<>();
@@ -291,6 +287,5 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 		}
 		return allResult;
 	}
-	
 
 }

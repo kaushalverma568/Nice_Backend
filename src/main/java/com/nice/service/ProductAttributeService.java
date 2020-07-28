@@ -37,10 +37,11 @@ public interface ProductAttributeService {
 	 * @param  pageNumber
 	 * @param  pageSize
 	 * @param  activeRecords
+	 * @param vendorId TODO
 	 * @return
 	 * @throws ValidationException
 	 */
-	Page<ProductAttribute> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords) throws ValidationException;
+	Page<ProductAttribute> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws ValidationException;
 
 	/**
 	 * @return

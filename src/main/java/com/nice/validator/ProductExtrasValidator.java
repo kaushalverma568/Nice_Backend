@@ -41,7 +41,7 @@ public class ProductExtrasValidator implements Validator {
 				errors.rejectValue("name", "409", messageByLocaleService.getMessage("product.extras.name.not.unique", null));
 			}
 		} catch (NotFoundException e) {
-			errors.rejectValue("productId", "400", messageByLocaleService.getMessage("product.not.found", null));
+			errors.rejectValue("productId", "400", e.getMessage());
 		}
 	}
 }

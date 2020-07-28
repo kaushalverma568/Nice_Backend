@@ -45,6 +45,7 @@ public class TaskController {
 	 *
 	 */
 	private static final String TASK_UPDATE_MESSAGE = "task.update.message";
+	private static final String TASK_CREATE_MESSAGE = "task.create.message";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -76,7 +77,8 @@ public class TaskController {
 		LOGGER.info("Inside accept task method for order Id: {}", taskDto.getOrderId());
 		Task task = taskService.createTask(taskDto);
 		LOGGER.info("Successfully accepted task method for order Id : {} and generated task Id :{}", taskDto.getOrderId(), task.getId());
-		return new GenericResponseHandlers.Builder().setData(null).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_CREATE_MESSAGE, null)).setData(task)
+				.setStatus(HttpStatus.OK).create();
 	}
 
 	/**

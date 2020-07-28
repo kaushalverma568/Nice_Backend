@@ -52,7 +52,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -158,7 +158,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setVendorPayableAmt(vendorPayableAmt);
 			task.setAdminCommission(adminCommissionAmt);
 			task.setTotalOrderAmount(orderTotal);
-			task.setDeliveryCharge(deliveryCharge);
+			task.setDeliveryCharge(deliveryCharge == null ? 0d : deliveryCharge);
 			taskRepository.save(task);
 
 			/**
@@ -323,7 +323,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
