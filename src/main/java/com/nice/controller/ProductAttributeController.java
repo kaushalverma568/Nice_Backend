@@ -121,7 +121,7 @@ public class ProductAttributeController {
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "vendorId", required = true) final Long vendorId) throws ValidationException {
-		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords, null);
+		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.attribute.list.message", null))
 				.setData(productAttributeMapper.toDtos(resultProductAttribute.getContent())).setHasNextPage(resultProductAttribute.hasNext())
@@ -153,12 +153,13 @@ public class ProductAttributeController {
 	 * @param file
 	 * @param httpServletResponse
 	 * @return
-	 * @throws ValidationException 
-	 * @throws FileOperationException 
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@PostMapping(path = "/upload")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
+			throws ValidationException, FileOperationException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}
