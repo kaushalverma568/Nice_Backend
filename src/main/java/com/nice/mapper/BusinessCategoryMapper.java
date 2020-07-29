@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.model.BusinessCategory;
 import com.nice.service.AssetService;
@@ -25,6 +26,7 @@ public class BusinessCategoryMapper {
 	public BusinessCategoryDTO toDto(final BusinessCategory businessCategory) {
 		BusinessCategoryDTO businessCategoryResponseDTO = new BusinessCategoryDTO();
 		BeanUtils.copyProperties(businessCategory, businessCategoryResponseDTO);
+		businessCategoryResponseDTO.setIsDefault(Constant.BUSINESS_CATEGORY_FOOD.equals(businessCategoryResponseDTO.getName()));
 		businessCategoryResponseDTO.setImageUrl(assetService.getGeneratedUrl(businessCategory.getImageName(), AssetConstant.BUSINESS_CATEGORY_DIR));
 		return businessCategoryResponseDTO;
 	}

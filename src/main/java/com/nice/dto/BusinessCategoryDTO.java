@@ -31,4 +31,6 @@ public class BusinessCategoryDTO implements Serializable {
 
 	private String imageUrl;
 
+	private Boolean isDefault;
+
 }
