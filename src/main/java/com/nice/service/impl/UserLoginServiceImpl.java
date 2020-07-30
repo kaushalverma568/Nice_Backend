@@ -752,6 +752,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 			}
 			/**
+			 * if password not valid then throw exception
+			 */
+			else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPassword())
+					&& !BCrypt.checkpw(emailUpdateDTO.getPassword(), userLogin.getPassword())) {
+				throw new ValidationException(messageByLocaleService.getMessage("password.match.failed", null));
+			}
+			/**
 			 * if any other user has same email then throw exception
 			 */
 			if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
@@ -767,13 +774,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
 					&& deliveryBoyRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
-			}
-			/**
-			 * when customer add's an email for first time then password is required
-			 */
-			if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-					&& !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPassword())) {
-				throw new ValidationException(messageByLocaleService.getMessage("password.not.null", null));
 			}
 
 			return updateUserDetail(emailUpdateDTO, userLogin);
@@ -804,9 +804,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * set email and password in user login
 		 */
 		userLogin.setEmail(emailUpdateDTO.getEmail().toLowerCase());
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailUpdateDTO.getPassword())) {
-			userLogin.setPassword(CommonUtility.generateBcrypt(emailUpdateDTO.getPassword()));
-		}
+		userLogin.setPassword(CommonUtility.generateBcrypt(emailUpdateDTO.getPassword()));
 		updateUserLogin(userLogin);
 
 		if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {

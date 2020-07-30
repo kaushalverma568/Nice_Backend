@@ -35,4 +35,6 @@ public class VendorFilterDTO implements Serializable {
 
 	private String status;
 
+	private Long subscriptionPlanId;
+
 }

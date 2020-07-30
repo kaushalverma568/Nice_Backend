@@ -100,6 +100,9 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 			throw new ValidationException(
 					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "business.category.active" : "business.category.deactive", null));
 		} else {
+			/**
+			 * if active vendor contains this business category then can't de-active
+			 */
 			if (Boolean.FALSE.equals(active)) {
 				VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
 				vendorFilterDTO.setActiveRecords(true);

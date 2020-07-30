@@ -47,7 +47,6 @@ import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
-import com.nice.exception.FileStorageException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -82,7 +81,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -338,8 +337,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -743,11 +742,5 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setIsFeatured(active);
 			vendorRepository.save(vendor);
 		}
-	}
-
-	@Override
-	public List<VendorResponseDTO> getFeaturedVendorList(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
-		vendorListFilterDTO.setIsFeatured(true);
-		return getVendorListForApp(vendorListFilterDTO);
 	}
 }

@@ -109,7 +109,6 @@ public class PincodeController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{pincodeId}")
-	@PreAuthorize("hasPermission('Pincode','CAN_VIEW')")
 	public ResponseEntity<Object> getPincode(@PathVariable("pincodeId") final Long pincodeId) throws NotFoundException {
 		final PincodeResponseDTO pincodeResponseDTO = pincodeService.getPincode(pincodeId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("pincode.detail.message", null))
@@ -128,7 +127,6 @@ public class PincodeController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Pincode','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getPincodeListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "cityId", required = false) final Long cityId,

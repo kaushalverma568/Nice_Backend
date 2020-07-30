@@ -29,6 +29,7 @@ import com.nice.model.BusinessCategory;
 import com.nice.model.City;
 import com.nice.model.Country;
 import com.nice.model.Pincode;
+import com.nice.model.SubscriptionPlan;
 import com.nice.model.Vendor;
 import com.nice.model.VendorCuisine;
 import com.nice.util.CommonUtility;
@@ -143,6 +144,11 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getStatus())) {
 			predicates.add(criteriaBuilder.equal(vendor.get("status"), vendorFilterDTO.getStatus()));
 		}
+
+		if (vendorFilterDTO.getSubscriptionPlanId() != null) {
+			Join<Vendor, SubscriptionPlan> subscriptionPlan = vendor.join("subscriptionPlan", JoinType.INNER);
+			predicates.add(criteriaBuilder.equal(subscriptionPlan.get("id"), vendorFilterDTO.getSubscriptionPlanId()));
+		}
 	}
 
 	@Override
@@ -250,6 +256,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getVendorIds())) {
 			predicates.add(vendor.get("id").in(vendorListFilterDTO.getVendorIds()));
+		}
+		if (vendorListFilterDTO.getRatingFrom() != null && vendorListFilterDTO.getRatingTo() != null) {
+			predicates.add(criteriaBuilder.between(vendor.get("rating"), vendorListFilterDTO.getRatingFrom(), vendorListFilterDTO.getRatingTo()));
 		}
 	}
 

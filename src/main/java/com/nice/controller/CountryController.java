@@ -132,7 +132,6 @@ public class CountryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{countryId}")
-	@PreAuthorize("hasPermission('Country','CAN_VIEW')")
 	public ResponseEntity<Object> getCountry(@PathVariable("countryId") final Long countryId) throws NotFoundException {
 		final CountryDTO resultCountry = countryService.getCountry(countryId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("country.detail.message", null))
@@ -149,7 +148,6 @@ public class CountryController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Country','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCountryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) throws NotFoundException, ValidationException {

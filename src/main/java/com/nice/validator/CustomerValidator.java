@@ -8,7 +8,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.CustomerDTO;
-import com.nice.dto.EmailUpdateDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CustomerService;
 
@@ -20,8 +19,7 @@ import com.nice.service.CustomerService;
 public class CustomerValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en.properties
+	 * Locale message service - to display response messages from messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -35,7 +33,7 @@ public class CustomerValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return CustomerDTO.class.equals(clazz) || EmailUpdateDTO.class.equals(clazz);
+		return CustomerDTO.class.equals(clazz);
 	}
 
 	@Override

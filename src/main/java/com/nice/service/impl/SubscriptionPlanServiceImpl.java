@@ -10,7 +10,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.VendorStatus;
 import com.nice.dto.SubscriptionPlanDTO;
+import com.nice.dto.VendorFilterDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -18,17 +20,18 @@ import com.nice.mapper.SubscriptionPlanMapper;
 import com.nice.model.SubscriptionPlan;
 import com.nice.repository.SubscriptionPlanRepository;
 import com.nice.service.SubscriptionPlanService;
+import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
 public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionPlanServiceImpl.class);
-	
+
 	@Autowired
 	private SubscriptionPlanRepository subscriptionPlanRepository;
 
@@ -37,7 +40,10 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-	
+
+	@Autowired
+	private VendorService vendorService;
+
 	@Override
 	public SubscriptionPlanDTO addSubscriptionPlan(final SubscriptionPlanDTO subscriptionPlanDTO) throws NotFoundException {
 		return subscriptionPlanMapper.toDto(subscriptionPlanRepository.save(subscriptionPlanMapper.toEntity(subscriptionPlanDTO)));
@@ -53,7 +59,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
 	@Override
 	public SubscriptionPlanDTO getSubscriptionPlan(final Long subscriptionPlanId) throws NotFoundException {
-	  	return subscriptionPlanMapper.toDto(getSubscriptionPlanDetail(subscriptionPlanId));
+		return subscriptionPlanMapper.toDto(getSubscriptionPlanDetail(subscriptionPlanId));
 	}
 
 	@Override
@@ -63,8 +69,22 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingSubscriptionPlan.getActive().equals(active)) {
-			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "subscription.plan.active" : "subscription.plan.deactive", null));
+			throw new ValidationException(
+					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "subscription.plan.active" : "subscription.plan.deactive", null));
 		} else {
+			/**
+			 * if active vendor contains this plan then can't de-active
+			 */
+			if (Boolean.FALSE.equals(active)) {
+				VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
+				vendorFilterDTO.setActiveRecords(true);
+				vendorFilterDTO.setSubscriptionPlanId(subscriptionPlanId);
+				vendorFilterDTO.setStatus(VendorStatus.ACTIVE.getStatusValue());
+				Long vendorCount = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
+				if (vendorCount > 0) {
+					throw new ValidationException(messageByLocaleService.getMessage("subscription.plan.not.update.vendor", null));
+				}
+			}
 			existingSubscriptionPlan.setActive(active);
 			subscriptionPlanRepository.save(existingSubscriptionPlan);
 		}
@@ -100,8 +120,8 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
 	@Override
 	public SubscriptionPlan getSubscriptionPlanDetail(final Long SubscriptionPlanId) throws NotFoundException {
-		return subscriptionPlanRepository.findById(SubscriptionPlanId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("subscription.plan.not.found", new Object[] {  SubscriptionPlanId })));
+		return subscriptionPlanRepository.findById(SubscriptionPlanId).orElseThrow(
+				() -> new NotFoundException(messageByLocaleService.getMessage("subscription.plan.not.found", new Object[] { SubscriptionPlanId })));
 	}
 
 }

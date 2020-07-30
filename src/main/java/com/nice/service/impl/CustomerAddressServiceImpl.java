@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.AddressOf;
 import com.nice.dto.CustomerAddressDTO;
 import com.nice.dto.CustomerAddressResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -37,7 +38,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "customerAddressService")
 @Transactional(rollbackFor = Throwable.class)
@@ -73,6 +74,9 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 	public Long addAddress(final Long customerId, final CustomerAddressDTO customersAddressDTO) throws ValidationException, NotFoundException {
 		Customer customer = customerService.getCustomerDetails(customerId);
 		Country country = countryService.getCountryDetails(customersAddressDTO.getCountryId());
+		if (AddressOf.getByValue(customersAddressDTO.getAddressOf()) == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("addressOf.invalid", null));
+		}
 		CustomerAddress customerAddress = customersAddressMapper.toEntity(customersAddressDTO);
 		if (getCustomerAddressListBasedOnParams(true, customerId, null, null, null, null, null, null).isEmpty()) {
 			customerAddress.setDefaultAddress(true);

@@ -13,7 +13,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Data
 public class CustomerAddressDTO implements Serializable {
@@ -65,4 +65,10 @@ public class CustomerAddressDTO implements Serializable {
 
 	@NotNull(message = "{longitude.not.null}")
 	private BigDecimal longitude;
+
+	/**
+	 * it could be either Home or Work
+	 */
+	@NotBlank(message = "{addressOf.not.null}")
+	private String addressOf;
 }

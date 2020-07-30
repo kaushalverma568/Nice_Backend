@@ -4,12 +4,13 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Data
 public class CustomerAddressResponseDTO implements Serializable {
@@ -36,5 +37,7 @@ public class CustomerAddressResponseDTO implements Serializable {
 	private String cityName;
 	private Boolean active;
 	private boolean defaultAddress;
-
+	private BigDecimal latitude;
+	private BigDecimal longitude;
+	private String addressOf;
 }

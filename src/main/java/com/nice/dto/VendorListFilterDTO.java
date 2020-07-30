@@ -13,7 +13,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class VendorListFilterDTO implements Serializable {
@@ -43,4 +43,8 @@ public class VendorListFilterDTO implements Serializable {
 	private Date openingHours;
 
 	private Boolean isFeatured;
+
+	private Double ratingTo;
+
+	private Double ratingFrom;
 }

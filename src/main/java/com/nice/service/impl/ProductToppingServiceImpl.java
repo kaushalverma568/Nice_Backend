@@ -113,6 +113,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		ProductToppingResponseDTO productToppingResponseDTO = new ProductToppingResponseDTO();
 		BeanUtils.copyProperties(productTopping, productToppingResponseDTO);
 		productToppingResponseDTO.setProductVariantId(productTopping.getProductVariant().getId());
+		productToppingResponseDTO.setToppingId(productTopping.getTopping().getId());
 		productToppingResponseDTO.setName(productTopping.getTopping().getName());
 		productToppingResponseDTO.setDescription(productTopping.getTopping().getDescription());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(productTopping.getTopping().getProductFoodType())) {
@@ -128,8 +129,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * If the userLogin is null or userType is customer show only activeRecords
-		 * irrespective of what is sent from front end.
+		 * If the userLogin is null or userType is customer show only activeRecords irrespective of what is sent from front end.
 		 */
 		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !productVariant.getVendorId().equals(userLogin.getEntityId()))) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));

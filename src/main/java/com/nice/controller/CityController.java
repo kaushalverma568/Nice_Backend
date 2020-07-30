@@ -150,7 +150,6 @@ public class CityController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{cityId}")
-	@PreAuthorize("hasPermission('City','CAN_VIEW')")
 	public ResponseEntity<Object> getCity(@PathVariable("cityId") final Long cityId) throws NotFoundException {
 		final CityResponseDTO cityResponseDTO = cityService.getCity(cityId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.detail.message", null))
@@ -169,7 +168,6 @@ public class CityController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('City','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCityListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "stateId", required = false) final Long stateId,
@@ -207,6 +205,4 @@ public class CityController {
 
 	}
 
-	
-	
 }
