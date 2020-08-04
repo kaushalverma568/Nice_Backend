@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class ResetPasswordParameterDTO implements Serializable {
@@ -35,9 +35,7 @@ public class ResetPasswordParameterDTO implements Serializable {
 	/**
 	 * it could be either SMS or EMAIL
 	 */
-	@NotBlank(message = "{type.not.null}")
 	private String type;
 
-	@NotBlank(message = "{password.not.null}")
 	private String password;
 }

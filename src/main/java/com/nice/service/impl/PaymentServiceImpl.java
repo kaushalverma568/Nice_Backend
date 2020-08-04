@@ -27,7 +27,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 18-Feb-2020
+ * @date : 18-Feb-2020
  */
 @Service(value = "paymentService")
 @Transactional(rollbackFor = Throwable.class)
@@ -87,6 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setCustomerId(onlineCart.getCustomer().getId());
 			orderRequestDTO.setDeliveryType(onlineCart.getDeliveryType());
 			orderRequestDTO.setPaymentMode(PaymentMode.ONLINE.name());
+			orderRequestDTO.setDescription(onlineCart.getDescription());
 			calculatedOrderAmt = onlineCart.getPaymentAmount();
 		}
 		orderRequestDTO.setOnlineOrderId(onlineOrderId);

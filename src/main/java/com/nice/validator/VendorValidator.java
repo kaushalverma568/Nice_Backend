@@ -64,9 +64,10 @@ public class VendorValidator implements Validator {
 		if (target instanceof VendorDTO) {
 			final VendorDTO vendorDTO = (VendorDTO) target;
 			// to check vendor duplication
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getEmail())
-					&& (vendorService.isVendorExists(vendorDTO).booleanValue() || vendorService.isUserLoginExists(vendorDTO).booleanValue())) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getEmail()) && vendorService.isVendorExists(vendorDTO).booleanValue()) {
 				errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage(VENDOR_EMAIL_NOT_UNIQUE, null));
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getEmail()) && vendorService.isUserLoginExists(vendorDTO).booleanValue()) {
+				errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage("user.email.not.unique", null));
 			}
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPhoneNumber()) && (vendorService.isVendorContactExists(vendorDTO).booleanValue())) {
 				errors.rejectValue("phoneNumber", "409", messageByLocaleService.getMessage("vendor.contact.not.unique", null));

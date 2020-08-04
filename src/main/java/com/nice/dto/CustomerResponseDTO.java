@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Data
 public class CustomerResponseDTO implements Serializable {
@@ -20,6 +20,7 @@ public class CustomerResponseDTO implements Serializable {
 	private Long id;
 	private String firstName;
 	private String lastName;
+	private String name;
 	private String email;
 	private String phoneNumber;
 	private String gender;
@@ -31,5 +32,5 @@ public class CustomerResponseDTO implements Serializable {
 	private String status;
 	private Date birthDate;
 	private List<CustomerAddressResponseDTO> addressList;
-
+	private Long userId;
 }

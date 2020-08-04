@@ -94,4 +94,7 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "delivery_type", nullable = false)
 	private String deliveryType;
 
+	@Column(name = "description", nullable = true)
+	private String description;
+
 }

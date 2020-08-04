@@ -18,15 +18,15 @@ import com.nice.model.UserLogin;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public interface UserLoginService {
 
 	/**
 	 * Add user login
 	 *
-	 * @param  userLogin
-	 * @param  userId
+	 * @param userLogin
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -35,14 +35,14 @@ public interface UserLoginService {
 	/**
 	 * Update user login
 	 *
-	 * @param  userLogin
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 */
 	UserLogin updateUserLogin(UserLogin userLogin) throws NotFoundException;
 
 	/**
-	 * @param  userLoginId
+	 * @param userLoginId
 	 * @return
 	 */
 	Optional<UserLogin> getUserLogin(Long userLoginId);
@@ -50,7 +50,7 @@ public interface UserLoginService {
 	/**
 	 * get user login by id
 	 *
-	 * @param  userId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -59,7 +59,7 @@ public interface UserLoginService {
 	/**
 	 * Social login using Facebook and Google
 	 *
-	 * @param  socialLoginDto
+	 * @param socialLoginDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -69,28 +69,30 @@ public interface UserLoginService {
 	/**
 	 * Get user login based on entityId and entityType
 	 *
-	 * @param  entityId
-	 * @param  entityType
+	 * @param entityId
+	 * @param entityType
 	 * @return
 	 * @throws ValidationException
 	 */
 	UserLogin getUserLoginBasedOnEntityIdAndEntityType(Long entityId, String entityType) throws ValidationException;
 
 	/**
-	 * Verify user using email
+	 * Verify email using user loginId or email and userType
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
+	 * @param resetPasswordParameterDTO
+	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void verifyUser(Long userId, String otp) throws ValidationException, NotFoundException;
+	Long verifyEmail(Long userId, String otp, ResetPasswordParameterDTO resetPasswordParameterDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * Update password based on login user and old password
 	 *
-	 * @param  passwordDTO
-	 * @param  userId
+	 * @param passwordDTO
+	 * @param userId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -99,13 +101,13 @@ public interface UserLoginService {
 	/**
 	 * Send welcome email
 	 *
-	 * @param  userId
+	 * @param userId
 	 * @throws NotFoundException
 	 */
 	void sendWelComeEmail(Long userId) throws NotFoundException;
 
 	/**
-	 * @param  userLoginDto
+	 * @param userLoginDto
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws UnAuthorizationException
@@ -115,8 +117,8 @@ public interface UserLoginService {
 	/**
 	 * get user login based on email and entityType
 	 *
-	 * @param  email
-	 * @param  entityType
+	 * @param email
+	 * @param entityType
 	 * @return
 	 */
 	Optional<UserLogin> getUserLoginBasedOnEmailAndEntityType(String email, String entityType);
@@ -124,7 +126,7 @@ public interface UserLoginService {
 	/**
 	 * generate Link or OTP for user on forgot password
 	 *
-	 * @param  forgotPasswordParameterDTO
+	 * @param forgotPasswordParameterDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws MessagingException
@@ -134,7 +136,7 @@ public interface UserLoginService {
 	/**
 	 * reset password from forgot password
 	 *
-	 * @param  resetPasswordParameterDTO
+	 * @param resetPasswordParameterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -144,15 +146,15 @@ public interface UserLoginService {
 	/**
 	 * get user login based on userName and userType
 	 *
-	 * @param  userName
-	 * @param  userType
+	 * @param userName
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 */
 	Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(String userName, String userType) throws ValidationException;
 
 	/**
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -162,15 +164,15 @@ public interface UserLoginService {
 	/**
 	 * Check OTP. if OTP is correct then activate customer.
 	 *
-	 * @param  userLoginDto
+	 * @param userLoginDto
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	void checkOtpForLogin(UserLoginDto userLoginDto) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  email
-	 * @param  name
+	 * @param email
+	 * @param name
 	 * @return
 	 */
 	Optional<UserLogin> getUserLoginBasedOnPhoneNumberAndEntityType(String email, String name);
@@ -178,8 +180,8 @@ public interface UserLoginService {
 	/**
 	 * get user login based on email and role
 	 *
-	 * @param  email
-	 * @param  name
+	 * @param email
+	 * @param name
 	 * @return
 	 */
 	Optional<UserLogin> getUserLoginBasedOnEmailAndRole(String email, String role);
@@ -187,7 +189,7 @@ public interface UserLoginService {
 	/**
 	 * admin login
 	 *
-	 * @param  userLoginDto
+	 * @param userLoginDto
 	 * @return
 	 * @throws UnAuthorizationException
 	 * @throws NotFoundException
@@ -198,8 +200,8 @@ public interface UserLoginService {
 	/**
 	 * check password for user based on entity id and entity type
 	 *
-	 * @param  entityId
-	 * @param  entityType
+	 * @param entityId
+	 * @param entityType
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -208,7 +210,7 @@ public interface UserLoginService {
 	/**
 	 * add/update an email
 	 *
-	 * @param  emailUpdateDTO
+	 * @param emailUpdateDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -218,13 +220,12 @@ public interface UserLoginService {
 	/**
 	 * add/update an phone number
 	 *
-	 * @param  phoneNumber
-	 * @param  otp
-	 * @param  userType
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	String addUpdatePhoneNumber(String phoneNumber, String otp, String userType) throws NotFoundException, ValidationException;
-
 }

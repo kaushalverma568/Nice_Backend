@@ -32,6 +32,7 @@ import com.nice.constant.DeliveryType;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.PaymentMethod;
 import com.nice.constant.Role;
+import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
@@ -86,11 +87,6 @@ import com.nice.util.ExportCSV;
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
 public class VendorServiceImpl implements VendorService {
-
-	/**
-	 *
-	 */
-	private static final String OTP_INCORRECT = "otp.incorrect";
 
 	/**
 	 *
@@ -152,6 +148,19 @@ public class VendorServiceImpl implements VendorService {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
+
+		/**
+		 * Check if vendor already exists, if so then lets only send him email again.
+		 */
+		Optional<Vendor> optVendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
+		if (optVendor.isPresent() && !optVendor.get().getEmailVerified().booleanValue()) {
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(optVendor.get().getEmail(), UserType.VENDOR.name());
+			if (optUserLogin.isPresent()) {
+				sendOtpForEmailVerification(optUserLogin.get(), optVendor.get());
+				return;
+			}
+		}
+
 		Vendor vendor = vendorMapper.toEntity(vendorDTO);
 		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(vendorDTO.getBusinessCategoryId());
 		Country country = countryService.getCountryDetails(vendorDTO.getCountryId());
@@ -303,12 +312,29 @@ public class VendorServiceImpl implements VendorService {
 			/**
 			 * At the time of create is vendor with same email exist or not
 			 */
-			return vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase()).isPresent();
+			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
+			if (vendor.isPresent()) {
+				/**
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
+				 */
+				return vendor.get().getEmailVerified();
+			} else {
+				return false;
+			}
 		}
 	}
 
 	@Override
 	public Boolean isUserLoginExists(final VendorDTO vendorDTO) {
+		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
+		if (vendorDTO.getId() == null && vendor.isPresent()) {
+			/**
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
+			 * we will be returning true.
+			 */
+			return vendor.get().getEmailVerified();
+		}
 		Optional<UserLogin> optUserLogin;
 		try {
 			optUserLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(vendorDTO.getEmail().toLowerCase(), Constant.USER);
@@ -316,7 +342,8 @@ public class VendorServiceImpl implements VendorService {
 			return true;
 		}
 		if (optUserLogin.isPresent()) {
-			return !(vendorDTO.getId() != null && vendorDTO.getId().equals(optUserLogin.get().getEntityId()));
+			return !(vendorDTO.getId() != null && UserType.VENDOR.name().equals(optUserLogin.get().getEntityType())
+					&& vendorDTO.getId().equals(optUserLogin.get().getEntityId()));
 		} else {
 			return false;
 		}
@@ -357,6 +384,10 @@ public class VendorServiceImpl implements VendorService {
 		notification.setOtp(otp);
 		notification.setUserId(userId);
 		notification.setEmail(email);
+		/**
+		 * we will send verification link only
+		 */
+		notification.setSendingType(SendingType.LINK.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
@@ -691,18 +722,13 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyVendorContact(final Long vendorId, final String otp) throws NotFoundException, ValidationException {
 		Vendor vendor = getVendorDetail(vendorId);
 		if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
-			String placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
 			UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-			if (otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp)) {
-				vendor.setPhoneVerified(true);
-				vendorRepository.save(vendor);
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage(OTP_INCORRECT, new Object[] { placeHolder, placeHolder }));
-			}
+			otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp, false);
+			vendor.setPhoneVerified(true);
+			vendorRepository.save(vendor);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
-
 	}
 
 	@Override

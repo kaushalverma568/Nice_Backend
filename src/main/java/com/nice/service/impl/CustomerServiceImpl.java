@@ -24,6 +24,7 @@ import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
+import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
@@ -50,7 +51,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -86,8 +87,8 @@ public class CustomerServiceImpl implements CustomerService {
 	private JMSQueuerService jmsQueuerService;
 
 	@Override
-	public Long addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
-
+	public CustomerResponseDTO addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
+		CustomerResponseDTO customerResponseDTO;
 		if (customerDTO.getPassword() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
@@ -116,7 +117,9 @@ public class CustomerServiceImpl implements CustomerService {
 				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
 				if (optUserLogin.isPresent()) {
 					sendOtpForEmailVerification(optUserLogin.get(), customer);
-					return optUserLogin.get().getId();
+					customerResponseDTO = customerMapper.toDto(customer);
+					customerResponseDTO.setUserId(optUserLogin.get().getId());
+					return customerResponseDTO;
 				}
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
@@ -132,7 +135,9 @@ public class CustomerServiceImpl implements CustomerService {
 									UserType.CUSTOMER.name());
 							if (optUserLogin.isPresent()) {
 								sendOtpForEmailVerification(optUserLogin.get(), customer);
-								return optUserLogin.get().getId();
+								customerResponseDTO = customerMapper.toDto(customer);
+								customerResponseDTO.setUserId(optUserLogin.get().getId());
+								return customerResponseDTO;
 							}
 						} else {
 							throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
@@ -155,7 +160,9 @@ public class CustomerServiceImpl implements CustomerService {
 						userLogin.setPassword(CommonUtility.generateBcrypt(customerDTO.getPassword()));
 						userLoginRepository.save(userLogin);
 						sendOtpForEmailVerification(userLogin, customer);
-						return userLogin.getId();
+						customerResponseDTO = customerMapper.toDto(customer);
+						customerResponseDTO.setUserId(userLogin.getId());
+						return customerResponseDTO;
 					} else {
 						LOGGER.info(
 								"UserLogin is not present. Hence creating new customer ,but actually not possible becuase if registerVia OTP then userLogin should present");
@@ -213,13 +220,14 @@ public class CustomerServiceImpl implements CustomerService {
 		/**
 		 * Code to generate Otp and send email ends.
 		 */
-		return userLogin.getId();
-
+		customerResponseDTO = customerMapper.toDto(customer);
+		customerResponseDTO.setUserId(userLogin.getId());
+		return customerResponseDTO;
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -239,6 +247,7 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setOtp(otp);
 		notification.setUserId(userId);
 		notification.setEmail(email);
+		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
@@ -339,8 +348,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

@@ -100,8 +100,7 @@ public class CustomerController {
 	public CustomerMapper customerMapper;
 
 	/**
-	 * Add customer Whenever Login with OTP functionality exist then phone Number
-	 * should be mandatory in customer sign-up Other wise validation will not work.
+	 * Add customer Whenever Login with OTP functionality exist then phone Number should be mandatory in customer sign-up Other wise validation will not work.
 	 *
 	 * @param userId
 	 * @param customerDTO
@@ -122,9 +121,9 @@ public class CustomerController {
 			LOGGER.error("customers validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Long id = customerService.addCustomer(customerDTO, false);
+		CustomerResponseDTO responseCustomerDTO = customerService.addCustomer(customerDTO, false);
 		LOGGER.info("Outside add customer ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(id)
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(responseCustomerDTO)
 				.setMessage(messageByLocaleService.getMessage("customer.create.message", null)).create();
 	}
 
@@ -223,9 +222,8 @@ public class CustomerController {
 	 * @throws IOException
 	 */
 	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken,
-			final HttpServletResponse httpServletResponse, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords)
-			throws IOException {
+	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
 		customerService.exportCustomerList(activeRecords, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.list.message", null))
 				.create();

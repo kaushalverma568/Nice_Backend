@@ -152,7 +152,6 @@ public class StateController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{stateId}")
-	@PreAuthorize("hasPermission('State','CAN_VIEW')")
 	public ResponseEntity<Object> getState(@PathVariable("stateId") final Long stateId) throws NotFoundException {
 		final StateResponseDTO stateResponseDTO = stateService.getState(stateId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("state.detail.message", null))
@@ -171,7 +170,6 @@ public class StateController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('State','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getStateListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "countryId", required = false) final Long countryId,

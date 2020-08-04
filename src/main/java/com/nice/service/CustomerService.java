@@ -22,9 +22,8 @@ public interface CustomerService {
 
 	/**
 	 * Add customer <br/>
-	 * If isAuthorized is true then email will not trigger and customer and user
-	 * login is activated. (For Facebook & Google) If isAuthorized is false then
-	 * email will trigger and customer verified using email Only.(For normal users)
+	 * If isAuthorized is true then email will not trigger and customer and user login is activated. (For Facebook & Google) If isAuthorized is false then email
+	 * will trigger and customer verified using email Only.(For normal users)
 	 *
 	 * @param customerDto
 	 * @param isAuthorized
@@ -35,7 +34,7 @@ public interface CustomerService {
 	 * @throws IOException
 	 * @throws GeneralSecurityException
 	 */
-	Long addCustomer(CustomerDTO customerDto, boolean isAuthorized) throws ValidationException, NotFoundException;
+	CustomerResponseDTO addCustomer(CustomerDTO customerDto, boolean isAuthorized) throws ValidationException, NotFoundException;
 
 	/**
 	 * Update customer

@@ -60,16 +60,15 @@ public class UserOtpController {
 	public ResponseEntity<Object> verifyOtp(@RequestParam(required = false) final Long userLoginId, @RequestParam(required = true) final String type,
 			@RequestParam(required = true) final String otp, @RequestParam(required = false) final String userName,
 			@RequestParam(required = false) final String userType) throws ValidationException, NotFoundException {
-		Boolean response = null;
 		LOGGER.info("Inside verify OTP method");
 		if (userLoginId != null) {
-			response = otpService.verifyOtp(userLoginId, type, otp);
+			otpService.verifyOtp(userLoginId, type, otp, false);
 			/**
 			 * at the time of verify otp with email userType is mandatory
 			 */
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userName)) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
-				response = otpService.verifyOtp(userName, type, otp, userType);
+				otpService.verifyOtp(userName, type, otp, userType, false);
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
 			}
@@ -77,9 +76,8 @@ public class UserOtpController {
 			LOGGER.error("Validation Exception as improper parameters specified");
 			throw new ValidationException(messageByLocaleService.getMessage("user.login.or.email.mandatory", new Object[] {}));
 		}
-		LOGGER.info("OTP verification response : {}", response);
-		return new GenericResponseHandlers.Builder().setData(response).setMessage(messageByLocaleService.getMessage("otp.verification", null))
-				.setStatus(HttpStatus.OK).create();
+		LOGGER.info("OTP verification");
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.verification", null)).setStatus(HttpStatus.OK).create();
 
 	}
 
@@ -108,4 +106,42 @@ public class UserOtpController {
 				.setData(otp.getOtp()).create();
 	}
 
+	/**
+	 * This method is used when we want to verify same otp again(In mobile app first time we verify otp and second time we again verify otp and update password
+	 * )
+	 *
+	 * @param userLoginId
+	 * @param type
+	 * @param otp
+	 * @param userName
+	 * @param userType
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/verify/app")
+	public ResponseEntity<Object> verifyOtpForAppDoNotInActive(@RequestParam(required = false) final Long userLoginId,
+			@RequestParam(required = true) final String type, @RequestParam(required = true) final String otp,
+			@RequestParam(required = false) final String userName, @RequestParam(required = false) final String userType)
+			throws ValidationException, NotFoundException {
+
+		LOGGER.info("Inside verify OTP method");
+		if (userLoginId != null) {
+			otpService.verifyOtp(userLoginId, type, otp, true);
+			/**
+			 * at the time of verify otp with email userType is mandatory
+			 */
+		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userName)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
+				otpService.verifyOtp(userName, type, otp, userType, true);
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
+			}
+		} else {
+			LOGGER.error("Validation Exception as improper parameters specified");
+			throw new ValidationException(messageByLocaleService.getMessage("user.login.or.email.mandatory", new Object[] {}));
+		}
+		LOGGER.info("OTP verification");
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.verification", null)).setStatus(HttpStatus.OK).create();
+	}
 }

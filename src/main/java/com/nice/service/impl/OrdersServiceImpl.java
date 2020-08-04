@@ -103,7 +103,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -309,6 +309,7 @@ public class OrdersServiceImpl implements OrdersService {
 					onlineCart.setLastName(customerAddress.getLastName());
 					onlineCart.setPhoneNumber(customerAddress.getPhoneNumber());
 					onlineCart.setDeliveryType(orderRequestDto.getDeliveryType());
+					onlineCart.setDescription(orderRequestDto.getDescription());
 					onlineCart.setStatus(CartItemStatus.PAYMENT_WAITING.getStatusValue());
 					onlineCart.setPaymentAmount(calculatedOrderAmt);
 					cartItem.setOnlineOrderId(onlineOrderId);
@@ -407,9 +408,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -428,6 +429,7 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setDeliveryType(orderRequestDto.getDeliveryType());
 		order.setAssignmentTryCount(0);
 		order.setNotificationTimer(new Date(System.currentTimeMillis()));
+		order.setDescription(orderRequestDto.getDescription());
 		Long vendorId = cartItemList.get(0).getProductVariant().getVendorId();
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 
@@ -703,8 +705,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
+	 * @param cartItemList
+	 * @param orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -784,7 +786,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orderAmt
+	 * @param orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -874,8 +876,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -920,8 +922,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
+		 * will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -947,8 +949,7 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -1066,7 +1067,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Override
 	public void exportOrderList(final HttpServletResponse httpServletResponse, final OrderListFilterDto orderListFilterDto)
-			throws  NotFoundException, FileNotFoundException {
+			throws NotFoundException, FileNotFoundException {
 		List<Orders> orderList = ordersRepository.getOrderListBasedOnParams(null, null, orderListFilterDto);
 		List<OrdersResponseDTO> orderDtoList = toDtos(orderList, true);
 		final Object[] orderHeaderField = new Object[] { "Customer Name", "Phone Number", "Total Order Amount", "Order Status", "Payment Mode", "Vendor Name",
@@ -1075,7 +1076,7 @@ public class OrdersServiceImpl implements OrdersService {
 				"deliveryBoyName", "orderDate" };
 		try {
 			exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
-		}  catch (IOException e) {
+		} catch (IOException e) {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 	}

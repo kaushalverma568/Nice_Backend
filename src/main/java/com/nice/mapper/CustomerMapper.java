@@ -12,7 +12,7 @@ import com.nice.model.Customer;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Component
 public class CustomerMapper {
@@ -20,6 +20,7 @@ public class CustomerMapper {
 	public CustomerResponseDTO toDto(final Customer customer) {
 		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO();
 		BeanUtils.copyProperties(customer, customerResponseDTO);
+		customerResponseDTO.setName(customer.getFirstName() + " " + customer.getLastName());
 		return customerResponseDTO;
 	}
 

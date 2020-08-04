@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
@@ -38,7 +38,7 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 	}
 
 	@Override
-	public BasicStatus<VendorStatus>[] nextStatus() {
+	public VendorStatus[] nextStatus() {
 		VendorStatus[] nextStatus = null;
 		switch (this) {
 		case VERIFICATION_PENDING:

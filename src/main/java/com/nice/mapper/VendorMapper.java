@@ -4,13 +4,17 @@
 package com.nice.mapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorResponseDTO;
@@ -22,7 +26,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -57,6 +61,15 @@ public class VendorMapper {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getFeaturedImageName())) {
 			vendorResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStatus())) {
+			final VendorStatus vendorOldStatus = VendorStatus.valueOf(VendorStatus.getByValue(vendorResponseDTO.getStatus()).name());
+			if (vendorOldStatus.nextStatus() == null) {
+				vendorResponseDTO.setNextStatus(Collections.emptyList());
+			} else {
+				final List<VendorStatus> vendorStatusList = Arrays.asList(vendorOldStatus.nextStatus());
+				vendorResponseDTO.setNextStatus(vendorStatusList.stream().map(VendorStatus::getStatusValue).collect(Collectors.toList()));
+			}
 		}
 		return vendorResponseDTO;
 	}

@@ -88,8 +88,7 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserLoginId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if
-		 * yes update the existing row, if not make a new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -129,17 +128,19 @@ public class OtpServiceImpl implements OtpService {
 	}
 
 	@Override
-	public boolean verifyOtp(final String userName, final String type, final String otp, final String userType) throws ValidationException, NotFoundException {
+	public void verifyOtp(final String userName, final String type, final String otp, final String userType, final Boolean active)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside fetching OTP for userName {} with {} and userType {} for otp {}", userName, type, userType, otp);
 		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(userName, userType);
 		if (userLogin.isPresent()) {
-			return verifyOtp(userLogin.get().getId(), type, otp);
+			verifyOtp(userLogin.get().getId(), type, otp, active);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("user.not.found.username", new Object[] { userName }));
 		}
-		return false;
 	}
 
 	@Override
-	public boolean verifyOtp(final Long userLoginId, final String type, final String otp) throws ValidationException, NotFoundException {
+	public void verifyOtp(final Long userLoginId, final String type, final String otp, final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside fetching OTP for userLogin {} with {} for otp {}", userLoginId, type, otp);
 		String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
 		if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(type)) {
@@ -158,14 +159,15 @@ public class OtpServiceImpl implements OtpService {
 				if (optionalUserOtp.get().getActive().booleanValue()) {
 					Date updatedAt = optionalUserOtp.get().getUpdatedAt();
 					/**
-					 * Check if the otp is generated only before a specified interval, if not return
-					 * false
+					 * Check if the otp is generated only before a specified interval, if not return false
 					 */
 					if ((System.currentTimeMillis() - updatedAt.getTime()) / 60000 < Constant.OTP_VALIDITY_TIME_IN_MIN) {
 						UserOtp userOtp = optionalUserOtp.get();
-						userOtp.setActive(false);
+						/**
+						 * active needs to be FALSE every time except you want same otp to be used for verification more then one time
+						 */
+						userOtp.setActive(active);
 						userOtpRepository.save(userOtp);
-						return true;
 					} else {
 						LOGGER.error("{} expired, was generated at {} ", placeHolder, updatedAt);
 						throw new ValidationException(messageByLocaleService.getMessage("otp.expired.generate.new", new Object[] { placeHolder, placeHolder }));

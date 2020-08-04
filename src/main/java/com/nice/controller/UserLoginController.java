@@ -1,7 +1,5 @@
 package com.nice.controller;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,7 +54,7 @@ import com.nice.service.UserLoginService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -89,14 +87,14 @@ public class UserLoginController {
 	/**
 	 * Generic Forgot password API
 	 *
-	 * @param  forgotPasswordParameterDTO
-	 * @param  result
+	 * @param forgotPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 */
-	@GetMapping("/forgotPassword")
+	@PostMapping("/forgotPassword")
 	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid final ForgotPasswordParameterDTO forgotPasswordParameterDTO, final BindingResult result)
 			throws ValidationException, NotFoundException, MessagingException {
 		LOGGER.info("inside forgot password with UpdatePasswordParameterDTO : {}", forgotPasswordParameterDTO);
@@ -113,11 +111,11 @@ public class UserLoginController {
 	/**
 	 * Reset password after forgot password based on OTP, USER TYPE and TYPE
 	 *
-	 * @param  email
-	 * @param  otp
-	 * @param  password
-	 * @param  type
-	 * @param  userType
+	 * @param email
+	 * @param otp
+	 * @param password
+	 * @param type
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -134,22 +132,19 @@ public class UserLoginController {
 	}
 
 	/**
-	 * This method is use to verify WEB user We verify user through email only
+	 * Verify email by userLogin Id
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws MessagingException
-	 * @throws IOException
-	 * @throws GeneralSecurityException
 	 */
 	@GetMapping("/verify/email/{userId}")
 	public ModelAndView verifyEmail(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp)
 			throws ValidationException, NotFoundException {
 		try {
-			userLoginService.verifyUser(userId, otp);
+			userLoginService.verifyEmail(userId, otp, null);
 			/**
 			 * send email code starts from here
 			 */
@@ -165,21 +160,22 @@ public class UserLoginController {
 	}
 
 	/**
-	 * This method is use to verify MOBILE user We verify user through email only
+	 * verify email by userName(email) and userType
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param resetPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws MessagingException
-	 * @throws IOException
-	 * @throws GeneralSecurityException
 	 */
-	@GetMapping("/mobile/verify/email/{userId}")
-	public ResponseEntity<Object> verifyEmailForMobile(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp)
-			throws ValidationException, NotFoundException {
-		userLoginService.verifyUser(userId, otp);
+	@PostMapping("/verify/email/otp")
+	public ResponseEntity<Object> verifyEmailByUserNameAndUserType(@RequestBody @Valid final ResetPasswordParameterDTO resetPasswordParameterDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		Long userId = userLoginService.verifyEmail(null, null, resetPasswordParameterDTO);
 		/**
 		 * send email code starts from here
 		 */
@@ -194,9 +190,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -218,7 +214,7 @@ public class UserLoginController {
 	/**
 	 * Logout API : Also revoke access of token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@GetMapping(path = "/logout")
@@ -229,11 +225,10 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
-	 * then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists then will sent generated token.
 	 *
-	 * @param  socialLoginDto
-	 * @param  result
+	 * @param socialLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -270,8 +265,8 @@ public class UserLoginController {
 	/**
 	 * ADMIN & USER Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -292,8 +287,8 @@ public class UserLoginController {
 	/**
 	 * Customer Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -319,8 +314,8 @@ public class UserLoginController {
 	/**
 	 * Delivery boy Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -347,8 +342,8 @@ public class UserLoginController {
 	/**
 	 * Login with OTP for customer
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -376,7 +371,7 @@ public class UserLoginController {
 	 * API is useful for generate OTP for login. </br>
 	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
 	 *
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -392,9 +387,9 @@ public class UserLoginController {
 	/**
 	 * check password for user
 	 *
-	 * @param  entityId
-	 * @param  entityType
-	 * @param  password
+	 * @param entityId
+	 * @param entityType
+	 * @param password
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -410,9 +405,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update email
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -449,9 +444,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update phone number
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
