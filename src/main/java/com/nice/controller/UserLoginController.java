@@ -38,6 +38,8 @@ import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.EmailUpdateDTO;
 import com.nice.dto.ForgotPasswordParameterDTO;
+import com.nice.dto.LoginEmailDTO;
+import com.nice.dto.LoginOtpDTO;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.ResetPasswordParameterDTO;
@@ -128,7 +130,7 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		String response = userLoginService.resetPassword(resetPasswordParameterDTO);
-		return new GenericResponseHandlers.Builder().setMessage(response).setData(response).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(response).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -298,12 +300,15 @@ public class UserLoginController {
 	 * @throws UnAuthorizationException
 	 */
 	@PostMapping("/customer/login")
-	public ResponseEntity<Object> customerLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+	public ResponseEntity<Object> customerLogin(@RequestBody @Valid final LoginEmailDTO loginEmailDTO, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		UserLoginDto userLoginDto = new UserLoginDto();
+		userLoginDto.setUserName(loginEmailDTO.getEmail());
+		userLoginDto.setPassword(loginEmailDTO.getPassword());
 		userLoginDto.setUserType(UserType.CUSTOMER.name());
 		userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
@@ -350,12 +355,15 @@ public class UserLoginController {
 	 * @throws UnAuthorizationException
 	 */
 	@PostMapping("/customer/login/otp")
-	public ResponseEntity<Object> customerLoginOtp(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+	public ResponseEntity<Object> customerLoginOtp(@RequestBody @Valid final LoginOtpDTO loginOtpDTO, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		UserLoginDto userLoginDto = new UserLoginDto();
+		userLoginDto.setUserName(loginOtpDTO.getPhoneNumber());
+		userLoginDto.setPassword(loginOtpDTO.getOtp());
 		userLoginDto.setUserType(UserType.CUSTOMER.name());
 		userLoginDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
 		userLoginService.checkOtpForLogin(userLoginDto);
