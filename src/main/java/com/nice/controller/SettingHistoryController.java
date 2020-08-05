@@ -26,7 +26,7 @@ import com.nice.util.PaginationUtil;
  * @date : 29-Jun-2020
  */
 
-@RequestMapping(path = "/setting/history")
+@RequestMapping(path = "/settings/history")
 @RestController
 public class SettingHistoryController {
 

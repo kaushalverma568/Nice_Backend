@@ -225,12 +225,12 @@ public class SettingsServiceImpl implements SettingsService {
 	}
 
 	@Override
-	public Map<String, String> getSettingsMap() {
+	public Map<String, SettingsDto> getSettingsMap() {
 		LOGGER.info("Inside get Settings List method");
 		List<Settings> settingsList = settingsRepository.findAll();
-		Map<String, String> settingMap = new HashMap<>();
+		Map<String, SettingsDto> settingMap = new HashMap<>();
 		for (Settings settings : settingsList) {
-			settingMap.put(settings.getFieldName(), settings.getFieldValue());
+			settingMap.put(settings.getFieldName(), settingsMapper.toDto(settings));
 		}
 		return settingMap;
 	}

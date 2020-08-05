@@ -218,6 +218,7 @@ public class ToppingServiceImpl implements ToppingService {
 					toppingDTO.setDescription(toppingImport.getDescription());
 					toppingDTO.setProductFoodType(toppingImport.getProductFoodType());
 					toppingDTO.setActive(true);
+					toppingDTO.setVendorId(vendor.getId());
 					addTopping(toppingDTO);
 					toppingImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
 				}

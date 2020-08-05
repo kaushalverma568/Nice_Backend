@@ -145,7 +145,7 @@ public class SettingsController {
 	@GetMapping("/map")
 	public ResponseEntity<Object> getSettingsMap(@RequestHeader(value = "Authorization") final String accessToken) {
 		LOGGER.info("Inside getAll Settings list");
-		Map<String, String> settingsMap = settingsService.getSettingsMap();
+		Map<String, SettingsDto> settingsMap = settingsService.getSettingsMap();
 		LOGGER.info("List fetched successfully, total objects returned : {}", settingsMap);
 		return new GenericResponseHandlers.Builder().setData(settingsMap).setMessage(messageByLocaleService.getMessage("settings.list.message", null))
 				.setStatus(HttpStatus.OK).create();

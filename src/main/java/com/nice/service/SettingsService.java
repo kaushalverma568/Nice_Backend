@@ -58,5 +58,5 @@ public interface SettingsService {
 	 * 
 	 * @return
 	 */
-	Map<String, String> getSettingsMap();
+	Map<String, SettingsDto> getSettingsMap();
 }
