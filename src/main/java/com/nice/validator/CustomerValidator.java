@@ -8,12 +8,13 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.CustomerPersonalDetailsDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CustomerService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Component
 public class CustomerValidator implements Validator {
@@ -33,7 +34,7 @@ public class CustomerValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return CustomerDTO.class.equals(clazz);
+		return CustomerDTO.class.equals(clazz) || CustomerPersonalDetailsDTO.class.equals(clazz);
 	}
 
 	@Override

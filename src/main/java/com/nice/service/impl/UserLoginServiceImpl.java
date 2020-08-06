@@ -265,8 +265,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
-			 * active but customer can not login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
+			 * login with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -592,12 +592,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		/**
 		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
 		 */
-		if (Constant.USER.equalsIgnoreCase(userType)) {
+		if (UserType.USER.name().equals(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
-		} else if (Constant.CUSTOMER.equalsIgnoreCase(userType) || Constant.DELIVERY_BOY.equalsIgnoreCase(userType)) {
+		} else if (UserType.CUSTOMER.name().equals(userType) || UserType.DELIVERY_BOY.name().equals(userType)) {
 			return userLoginRepository.findByEmailAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(userName,
-					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name(), userName,
-					Constant.CUSTOMER.equalsIgnoreCase(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
+					UserType.CUSTOMER.name().equals(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name(), userName,
+					UserType.CUSTOMER.name().equals(userType) ? UserType.CUSTOMER.name() : UserType.DELIVERY_BOY.name());
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
@@ -605,9 +605,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public String resetPassword(final ResetPasswordParameterDTO resetPasswordParameterDTO) throws ValidationException, NotFoundException {
-		if (!(Constant.CUSTOMER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
-				|| Constant.USER.equalsIgnoreCase(resetPasswordParameterDTO.getUserType())
-				|| Constant.DELIVERY_BOY.equalsIgnoreCase(resetPasswordParameterDTO.getUserType()))) {
+		if (!(UserType.CUSTOMER.name().equals(resetPasswordParameterDTO.getUserType()) || UserType.USER.name().equals(resetPasswordParameterDTO.getUserType())
+				|| UserType.DELIVERY_BOY.name().equals(resetPasswordParameterDTO.getUserType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(resetPasswordParameterDTO.getType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("type.not.null", null));
@@ -758,8 +757,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp(), false);
 
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType())
-				&& !userLogin.getEntityType().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equals(emailUpdateDTO.getUserType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		/**
@@ -772,16 +770,15 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		/**
 		 * if any other user has same email then throw exception
 		 */
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+		if (UserType.CUSTOMER.name().equals(emailUpdateDTO.getUserType())
 				&& customerRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("customer.email.exists", null));
-		} else if (UserType.VENDOR.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
-				|| UserType.USER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+		} else if (UserType.VENDOR.name().equals(emailUpdateDTO.getUserType()) || UserType.USER.name().equals(emailUpdateDTO.getUserType())) {
 			Optional<UserLogin> optUserLogin = getUserLoginBasedOnUserNameAndUserType(emailUpdateDTO.getEmail().toLowerCase(), emailUpdateDTO.getUserType());
 			if (optUserLogin.isPresent() && !optUserLogin.get().getId().equals(userLogin.getId())) {
 				throw new ValidationException(messageByLocaleService.getMessage("user.email.exists", new Object[] { emailUpdateDTO.getEmail() }));
 			}
-		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())
+		} else if (UserType.DELIVERY_BOY.name().equals(emailUpdateDTO.getUserType())
 				&& deliveryBoyRepository.findByEmailAndIdNot(emailUpdateDTO.getEmail().toLowerCase(), userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryBoy.email.not.unique", null));
 		}
@@ -813,12 +810,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		userLogin.setPassword(CommonUtility.generateBcrypt(emailUpdateDTO.getPassword()));
 		updateUserLogin(userLogin);
 
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+		if (UserType.CUSTOMER.name().equals(emailUpdateDTO.getUserType())) {
 			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
 			customer.setEmailVerified(true);
 			customer.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			customerRepository.save(customer);
-		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+		} else if (UserType.DELIVERY_BOY.name().equals(emailUpdateDTO.getUserType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(deliveryBoy);
 			/**
@@ -830,7 +827,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			deliveryBoy.setEmailVerified(true);
 			deliveryBoy.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			deliveryBoyRepository.save(deliveryBoy);
-		} else if (UserType.VENDOR.name().equalsIgnoreCase(emailUpdateDTO.getUserType())) {
+		} else if (UserType.VENDOR.name().equals(emailUpdateDTO.getUserType())) {
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
@@ -838,7 +835,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			vendor.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			vendor.setEmailVerified(true);
 			vendorRepository.save(vendor);
-		} else if (UserType.USER.name().equalsIgnoreCase(emailUpdateDTO.getUserType()) && userLogin.getEntityId() != null) {
+		} else if (UserType.USER.name().equals(emailUpdateDTO.getUserType()) && userLogin.getEntityId() != null) {
 			Users users = usersService.getUsersDetails(userLogin.getEntityId());
 			users.setEmail(emailUpdateDTO.getEmail().toLowerCase());
 			usersRepository.save(users);
@@ -852,19 +849,18 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp, false);
 
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equalsIgnoreCase(userType)) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equals(userType)) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		/**
 		 * if any other user has same phone number then throw exception
 		 */
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(userType)
+		if (UserType.CUSTOMER.name().equals(userType)
 				&& customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("customer.phone.exists", null));
-		} else if (UserType.VENDOR.name().equalsIgnoreCase(userType)
-				&& vendorRepository.findByPhoneNumberAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
+		} else if (UserType.VENDOR.name().equals(userType) && vendorRepository.findByPhoneNumberAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
-		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(userType)
+		} else if (UserType.DELIVERY_BOY.name().equals(userType)
 				&& deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
 		}
@@ -895,7 +891,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			userName = phoneNumber;
 		}
 
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(userType)) {
+		if (UserType.CUSTOMER.name().equals(userType)) {
 			/**
 			 * set phone number and otp in user login of this customer
 			 */
@@ -907,12 +903,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			customer.setPhoneVerified(true);
 			customer.setPhoneNumber(phoneNumber);
 			customerRepository.save(customer);
-		} else if (UserType.DELIVERY_BOY.name().equalsIgnoreCase(userType)) {
+		} else if (UserType.DELIVERY_BOY.name().equals(userType)) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
 			deliveryBoy.setPhoneVerified(true);
 			deliveryBoy.setPhoneNumber(phoneNumber);
 			deliveryBoyRepository.save(deliveryBoy);
-		} else if (UserType.VENDOR.name().equalsIgnoreCase(userType)) {
+		} else if (UserType.VENDOR.name().equals(userType)) {
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
@@ -920,8 +916,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			vendor.setPhoneVerified(true);
 			vendor.setPhoneNumber(phoneNumber);
 			vendorRepository.save(vendor);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		return userName;
 	}
-
 }

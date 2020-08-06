@@ -106,6 +106,9 @@ public class Orders extends CommonModel {
 	@Column(name = "return_replace_reason", nullable = true)
 	private String returnReplaceReason;
 
+	@Column(name = "cancel_return_replace_description", nullable = true)
+	private String cancelReturnReplaceDescription;
+
 	@Column(name = "description", nullable = true)
 	private String description;
 

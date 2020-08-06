@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -27,15 +27,12 @@ public final class Constant {
 	public static final String PINCODE = "Pincode";
 	public static final String CATEGORY = "Category";
 	public static final String SUB_CATEGORY = "Sub Category";
-	public static final String CUSTOMER = "Customer";
 	public static final String CUSTOMER_ADDRESS = "Customer address";
 	public static final String USER_LOGIN = "User Login";
 	public static final long OTP_VALIDITY_TIME_IN_MIN = 30;
 	public static final String SORT_TYPE_ASC = "ASC";
 	public static final String SORT_TYPE_DESC = "DESC";
 	public static final String ADMIN = "Admin";
-	public static final String DELIVERY_BOY = "Delivery Boy";
-	public static final String USER = "USER";
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;
 

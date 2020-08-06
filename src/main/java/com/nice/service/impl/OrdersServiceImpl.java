@@ -103,7 +103,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -408,9 +408,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -705,8 +705,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
+	 * @param  cartItemList
+	 * @param  orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -786,7 +786,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orderAmt
+	 * @param  orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -876,8 +876,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -1088,7 +1088,7 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel", null));
 		}
 		orders.setCancelReason(replaceCancelOrderDto.getReason());
-		orders.setDescription(replaceCancelOrderDto.getDescription());
+		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 		/**
 		 * Add this method to cancel order.
 		 */
@@ -1121,7 +1121,7 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 
 			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
-			orders.setDescription(replaceCancelOrderDto.getDescription());
+			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.REPLACE_REQUESTED, orders);
 		}
 	}
@@ -1158,7 +1158,7 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 
 			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
-			orders.setDescription(replaceCancelOrderDto.getDescription());
+			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.RETURN_REQUESTED, orders);
 		}
 	}

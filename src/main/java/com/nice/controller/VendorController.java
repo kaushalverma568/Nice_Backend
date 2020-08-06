@@ -151,6 +151,7 @@ public class VendorController {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		vendorDTO.setCountryId(1L);
 		vendorService.updatePersonalDetails(vendorDTO);
 		LOGGER.info("Outside update vendor");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))

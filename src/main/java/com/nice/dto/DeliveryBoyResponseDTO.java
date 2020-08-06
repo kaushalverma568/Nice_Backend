@@ -56,4 +56,5 @@ public class DeliveryBoyResponseDTO implements Serializable {
 
 	private Long noOfRating;
 
+	private String status;
 }

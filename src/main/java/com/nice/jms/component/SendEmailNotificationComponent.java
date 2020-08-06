@@ -22,6 +22,7 @@ import com.nice.constant.EmailConstants;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
+import com.nice.constant.UserType;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.Notification;
 import com.nice.exception.NotFoundException;
@@ -38,19 +39,15 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
 
-	/**
-	 *
-	 */
+	private static final String USER_TYPE = "userType";
+
 	private static final String COMPANY_EMAIL = "companyEmail";
 
-	/**
-	 *
-	 */
 	private static final String APPLICATION_NAME = "applicationName";
 
 	private static final String CUSTOMER_CARE_CONTACT = "customerCareContact";
@@ -92,7 +89,7 @@ public class SendEmailNotificationComponent {
 	private AssetService assetService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -149,16 +146,19 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 			emailParameterMap.put("OTP", emailNotification.getOtp());
-			if (Constant.CUSTOMER.equalsIgnoreCase(emailNotification.getUserType())) {
+			if (UserType.CUSTOMER.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "Customer");
 				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?otp=" + emailNotification.getOtp() + "&userType="
-						+ Constant.CUSTOMER + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
-			} else if (Constant.USER.equalsIgnoreCase(emailNotification.getUserType())) {
+						+ UserType.CUSTOMER.name() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
+			} else if (UserType.USER.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "User");
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
+			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -189,9 +189,18 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put("OTP", emailNotification.getOtp());
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 
+			if (UserType.CUSTOMER.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "Customer");
+			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "Delivery Boy");
+			} else if (UserType.VENDOR.name().equals(emailNotification.getUserType())) {
+				emailParameterMap.put(USER_TYPE, "Vendor");
+			} else {
+				emailParameterMap.put(USER_TYPE, "User");
+			}
+
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {

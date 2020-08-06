@@ -31,7 +31,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -108,14 +108,14 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public void sendOtp(final UserOtpDto userOtpDto, final UserLogin userlogin, final String otp) throws ValidationException, MessagingException {
 
-		if (UserOtpTypeEnum.EMAIL.name().equalsIgnoreCase(userOtpDto.getType())) {
+		if (UserOtpTypeEnum.EMAIL.name().equals(userOtpDto.getType())) {
 
 			Notification notification = new Notification();
 			notification.setOtp(otp);
-			notification.setEmail(userlogin.getEmail());
+			notification.setEmail(CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail() : userlogin.getEmail());
 			notification.setType(NotificationQueueConstants.SEND_OTP);
 			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
-		} else if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(userOtpDto.getType())) {
+		} else if (UserOtpTypeEnum.SMS.name().equals(userOtpDto.getType())) {
 			String otpMessage = "OTP for your Nice application is : ";
 			if (userOtpDto.getPhoneNumber() == null || userOtpDto.getPhoneNumber().isEmpty()) {
 				throw new ValidationException(messageByLocaleService.getMessage("user.mobile.required", null));
@@ -142,10 +142,7 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public void verifyOtp(final Long userLoginId, final String type, final String otp, final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside fetching OTP for userLogin {} with {} for otp {}", userLoginId, type, otp);
-		String placeHolder = messageByLocaleService.getMessage("otp.type.link", null);
-		if (UserOtpTypeEnum.SMS.name().equalsIgnoreCase(type)) {
-			placeHolder = messageByLocaleService.getMessage("otp.type.otp", null);
-		}
+
 		Optional<UserLogin> userlogin = userLoginService.getUserLogin(userLoginId);
 		if (!userlogin.isPresent()) {
 			LOGGER.error("No user present for userLogin {} ", userLoginId);
@@ -169,19 +166,19 @@ public class OtpServiceImpl implements OtpService {
 						userOtp.setActive(active);
 						userOtpRepository.save(userOtp);
 					} else {
-						LOGGER.error("{} expired, was generated at {} ", placeHolder, updatedAt);
-						throw new ValidationException(messageByLocaleService.getMessage("otp.expired.generate.new", new Object[] { placeHolder, placeHolder }));
+						LOGGER.error("otp expired, was generated at {} ", updatedAt);
+						throw new ValidationException(messageByLocaleService.getMessage("otp.expired.generate.new", null));
 					}
 				} else {
-					LOGGER.error("{} is already used before otp:{}", placeHolder, otp);
-					throw new ValidationException(messageByLocaleService.getMessage("otp.already.used", new Object[] { placeHolder }));
+					LOGGER.error("otp is already used before otp:{}", otp);
+					throw new ValidationException(messageByLocaleService.getMessage("otp.already.used", null));
 				}
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", new Object[] { placeHolder, placeHolder }));
+				throw new ValidationException(messageByLocaleService.getMessage("otp.incorrect", null));
 			}
 		} else {
 			LOGGER.error("No record obtained for userLogin {}", userLoginId);
-			throw new ValidationException(messageByLocaleService.getMessage("otp.not.generate", new Object[] { placeHolder }));
+			throw new ValidationException(messageByLocaleService.getMessage("otp.not.generate", null));
 		}
 	}
 }

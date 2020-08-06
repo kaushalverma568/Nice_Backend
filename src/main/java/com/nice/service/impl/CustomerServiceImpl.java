@@ -29,6 +29,7 @@ import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
 import com.nice.dto.CustomerExport;
+import com.nice.dto.CustomerPersonalDetailsDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
@@ -51,7 +52,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -226,8 +227,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -250,23 +251,6 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
-	}
-
-	@Override
-	public Customer updateCustomer(final CustomerDTO customerDTO) throws NotFoundException, ValidationException {
-		if (customerDTO.getId() == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("customer.id.not.null", null));
-		}
-		/**
-		 * For validation whether customer exists or not
-		 */
-		Customer existingCustomer = getCustomerDetails(customerDTO.getId());
-		Customer customer = customerMapper.toEntity(customerDTO, null);
-		customer.setEmailVerified(existingCustomer.getEmailVerified());
-		customer.setPhoneVerified(existingCustomer.getPhoneVerified());
-		customer.setStatus(existingCustomer.getStatus());
-
-		return customerRepository.save(customer);
 	}
 
 	@Override
@@ -416,5 +400,14 @@ public class CustomerServiceImpl implements CustomerService {
 				return false;
 			}
 		}
+	}
+
+	@Override
+	public Customer updateProfileDetails(final CustomerPersonalDetailsDTO customerPersonalDetailsDTO) throws NotFoundException {
+		Customer customer = getCustomerDetails(customerPersonalDetailsDTO.getId());
+		customer.setFirstName(customerPersonalDetailsDTO.getFirstName());
+		customer.setLastName(customerPersonalDetailsDTO.getLastName());
+		customer.setBirthDate(customerPersonalDetailsDTO.getBirthDate());
+		return customerRepository.save(customer);
 	}
 }

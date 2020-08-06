@@ -323,8 +323,8 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -338,14 +338,14 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
+			 * we will be returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
 		Optional<UserLogin> optUserLogin;
 		try {
-			optUserLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(vendorDTO.getEmail().toLowerCase(), Constant.USER);
+			optUserLogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(vendorDTO.getEmail().toLowerCase(), UserType.USER.name());
 		} catch (ValidationException e) {
 			return true;
 		}
@@ -637,7 +637,12 @@ public class VendorServiceImpl implements VendorService {
 			/**
 			 * At the time of create is vendor with same contact exist or not
 			 */
-			return vendorRepository.findByPhoneNumber(vendorDTO.getPhoneNumber()).isPresent();
+			Optional<Vendor> optVendor = vendorRepository.findByPhoneNumber(vendorDTO.getPhoneNumber());
+			if (optVendor.isPresent()) {
+				return !vendorDTO.getEmail().equalsIgnoreCase(optVendor.get().getEmail());
+			} else {
+				return false;
+			}
 		}
 	}
 

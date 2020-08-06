@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.UserType;
 import com.nice.dto.CustomerDTO;
+import com.nice.dto.CustomerPersonalDetailsDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -48,7 +49,7 @@ import com.nice.validator.CustomerValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @RequestMapping(path = "/customer")
 @RestController
@@ -102,9 +103,9 @@ public class CustomerController {
 	/**
 	 * Add customer Whenever Login with OTP functionality exist then phone Number should be mandatory in customer sign-up Other wise validation will not work.
 	 *
-	 * @param userId
-	 * @param customerDTO
-	 * @param result
+	 * @param  userId
+	 * @param  customerDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -128,35 +129,35 @@ public class CustomerController {
 	}
 
 	/**
-	 * Update customer
+	 * Update profile details of customer
 	 *
-	 * @param userId
-	 * @param customerDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  customerPersonalDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	public ResponseEntity<Object> updateCustomer(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CustomerDTO customersDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside update customer {}", customersDTO);
-
+	public ResponseEntity<Object> updateProfileDetails(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody @Valid final CustomerPersonalDetailsDTO customerPersonalDetailsDTO, final BindingResult result)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update personal details for customer {}", customerPersonalDetailsDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
-			LOGGER.error("Customers validation failed");
+			LOGGER.error("customer validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		final Customer resultCustomers = customerService.updateCustomer(customersDTO);
-		LOGGER.info("Outside update customer {}", customersDTO);
+		final Customer resultCustomers = customerService.updateProfileDetails(customerPersonalDetailsDTO);
+		LOGGER.info("Outside update personal details for customer");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
-				.setData(resultCustomers).create();
+				.setData(customerMapper.toDto(resultCustomers)).create();
 	}
 
 	/**
 	 * Get customer details based on id
 	 *
-	 * @param customerId
+	 * @param  customerId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -171,9 +172,9 @@ public class CustomerController {
 	/**
 	 * Get list of customer based on parameter
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -192,9 +193,9 @@ public class CustomerController {
 	/**
 	 * Change status of customer(active/deActive)
 	 *
-	 * @param userId
-	 * @param customerId
-	 * @param active
+	 * @param  userId
+	 * @param  customerId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -214,10 +215,10 @@ public class CustomerController {
 	/**
 	 * export customer list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 */
