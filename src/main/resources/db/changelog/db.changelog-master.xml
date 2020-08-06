@@ -110,6 +110,13 @@
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/roles_permission_insert.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
+	</changeSet> 
+	
+	<changeSet id="16" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/vendor_changes.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
 	</changeSet> 	
 	 
 </databaseChangeLog>

@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
-	VERIFICATION_PENDING("Verification_Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired"),
+	VERIFICATION_PENDING("Verification Pending"), NEW("New"), APPROVED("Approved"), REJECTED("Rejected"), ACTIVE("Active"), EXPIRED("Expired"),
 	SUSPENDED("Suspended");
 
 	String statusValue;

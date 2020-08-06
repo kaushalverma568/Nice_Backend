@@ -50,7 +50,6 @@ public class VendorDTO implements Serializable {
 	@NotBlank(message = "{area.not.null}")
 	private String area;
 
-	@NotNull(message = "{country.id.not.null}")
 	private Long countryId;
 
 	@NotNull(message = "{city.id.not.null}")

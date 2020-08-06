@@ -9,53 +9,59 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.model.SubscriptionPlan;
 
-
-
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Repository
 public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPlan, Long> {
 
 	/**
-	 * @param activeRecords
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  pageable
 	 * @return
 	 */
 	Page<SubscriptionPlan> findAllByActive(Boolean activeRecords, Pageable pageable);
-    
+
 	/**
-	 * 
-	 * @param searchKeyWord
-	 * @param pageable
+	 * @param  searchKeyWord
+	 * @param  pageable
 	 * @return
 	 */
 	Page<SubscriptionPlan> findAllByNameContainingIgnoreCase(String searchKeyWord, Pageable pageable);
 
 	/**
-	 * 
-	 * @param activeRecords
-	 * @param searchKeyWord
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyWord
+	 * @param  pageable
 	 * @return
 	 */
-	Page<SubscriptionPlan> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyWord,
-			Pageable pageable);
+	Page<SubscriptionPlan> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyWord, Pageable pageable);
 
 	/**
-	 * 
-	 * @param name
-	 * @param id
+	 * @param  name
+	 * @param  id
 	 * @return
 	 */
 	Optional<SubscriptionPlan> findByNameIgnoreCaseAndIdNot(String name, Long id);
 
 	/**
-	 * 
-	 * @param name
+	 * @param  name
 	 * @return
 	 */
-	Optional<SubscriptionPlan>findByNameIgnoreCase(String name);
+	Optional<SubscriptionPlan> findByNameIgnoreCase(String name);
+
+	/**
+	 * @param  days
+	 * @param  id
+	 * @return
+	 */
+	Optional<SubscriptionPlan> findByDaysAndIdNot(Integer days, Long id);
+
+	/**
+	 * @param  days
+	 * @return
+	 */
+	Optional<SubscriptionPlan> findByDays(Integer days);
 
 }

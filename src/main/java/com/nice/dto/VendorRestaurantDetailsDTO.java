@@ -46,9 +46,6 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	@NotNull(message = "{minimumOrderAmt.not.null}")
 	private Double minimumOrderAmt;
 
-	@NotNull(message = "{deliveryFee.not.null}")
-	private Double deliveryFee;
-
 	@NotBlank(message = "{paymentMethod.not.null}")
 	private String paymentMethod;
 

@@ -89,9 +89,6 @@ public class Vendor extends CommonModel {
 	@Column(name = "minimum_order_amt")
 	private Double minimumOrderAmt;
 
-	@Column(name = "delivery_fee")
-	private Double deliveryFee;
-
 	// this will be online,offline or both
 	@Column(name = "payment_method")
 	private String paymentMethod;
@@ -175,4 +172,7 @@ public class Vendor extends CommonModel {
 
 	@Column(name = "is_featured", nullable = false)
 	private Boolean isFeatured;
+
+	@Column(name = "profile_completed")
+	private Boolean profileCompleted;
 }

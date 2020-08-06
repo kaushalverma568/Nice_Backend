@@ -24,7 +24,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -122,6 +122,16 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 	public SubscriptionPlan getSubscriptionPlanDetail(final Long SubscriptionPlanId) throws NotFoundException {
 		return subscriptionPlanRepository.findById(SubscriptionPlanId).orElseThrow(
 				() -> new NotFoundException(messageByLocaleService.getMessage("subscription.plan.not.found", new Object[] { SubscriptionPlanId })));
+	}
+
+	@Override
+	public boolean isDaysExist(final SubscriptionPlanDTO subscriptionPlanDTO) {
+		if (subscriptionPlanDTO.getId() != null) {
+			return !(subscriptionPlanRepository.findByDaysAndIdNot(subscriptionPlanDTO.getDays(), subscriptionPlanDTO.getId()).isEmpty());
+
+		} else {
+			return !(subscriptionPlanRepository.findByDays(subscriptionPlanDTO.getDays()).isEmpty());
+		}
 	}
 
 }

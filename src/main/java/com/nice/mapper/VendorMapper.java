@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.VendorBankDetailsDTO;
+import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.model.Vendor;
@@ -26,7 +27,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -94,5 +95,14 @@ public class VendorMapper {
 			results.add(toDto(vendor));
 		}
 		return results;
+	}
+
+	public VendorBasicDetailDTO toBasicDto(final Vendor vendor) {
+		VendorBasicDetailDTO vendorBasicDetailDTO = new VendorBasicDetailDTO();
+		BeanUtils.copyProperties(vendor, vendorBasicDetailDTO);
+		vendorBasicDetailDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
+		vendorBasicDetailDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
+		vendorBasicDetailDTO.setManageInventory(vendor.getBusinessCategory().getManageInventory());
+		return vendorBasicDetailDTO;
 	}
 }

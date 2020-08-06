@@ -49,6 +49,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
 import com.nice.dto.ResetPasswordParameterDTO;
 import com.nice.dto.SocialLoginDto;
+import com.nice.dto.UserCheckPasswordDTO;
 import com.nice.dto.UserLoginDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.BaseRuntimeException;
@@ -79,7 +80,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -264,8 +265,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
-			 * login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
+			 * active but customer can not login with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -744,9 +745,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void checkPasswordForUser(final Long entityId, final String entityType, final String password) throws ValidationException {
-		UserLogin userLogin = getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
-		if (!BCrypt.checkpw(password, userLogin.getPassword())) {
+	public void checkPasswordForUser(final UserCheckPasswordDTO userCheckPasswordDTO) throws ValidationException {
+		UserLogin userLogin = getUserLoginBasedOnEntityIdAndEntityType(userCheckPasswordDTO.getEntityId(), userCheckPasswordDTO.getEntityType());
+		if (!BCrypt.checkpw(userCheckPasswordDTO.getPassword(), userLogin.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.match.failed", null));
 		}
 	}
@@ -788,8 +789,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param emailUpdateDTO
-	 * @param userLogin
+	 * @param  emailUpdateDTO
+	 * @param  userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -871,11 +872,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param phoneNumber
-	 * @param otp
-	 * @param userType
-	 * @param userName
-	 * @param userLogin
+	 * @param  phoneNumber
+	 * @param  otp
+	 * @param  userType
+	 * @param  userName
+	 * @param  userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

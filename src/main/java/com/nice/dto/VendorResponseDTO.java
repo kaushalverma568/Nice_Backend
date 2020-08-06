@@ -57,8 +57,6 @@ public class VendorResponseDTO implements Serializable {
 
 	private Double minimumOrderAmt;
 
-	private Double deliveryFee;
-
 	private String paymentMethod;
 
 	private String building;
@@ -121,6 +119,10 @@ public class VendorResponseDTO implements Serializable {
 	private String vendorAddress;
 
 	private Boolean isFeatured;
+
+	private Date createdAt;
+
+	private Boolean profileCompleted;
 
 	private List<String> nextStatus;
 

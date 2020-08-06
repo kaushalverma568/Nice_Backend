@@ -42,5 +42,9 @@ public class SubscriptionPlanValidator implements Validator {
 		if (subscriptionPlanService.isExists(subscriptionPlanDTO)) {
 			errors.rejectValue("name", "409", messageByLocaleService.getMessage("subscription.plan.name.not.unique", null));
 		}
+
+		if (subscriptionPlanService.isDaysExist(subscriptionPlanDTO)) {
+			errors.rejectValue("days", "409", messageByLocaleService.getMessage("subscription.plan.days.not.unique", null));
+		}
 	}
 }

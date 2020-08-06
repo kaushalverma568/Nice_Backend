@@ -65,4 +65,12 @@ public interface SubscriptionPlanService {
 	 */
 	SubscriptionPlan getSubscriptionPlanDetail(Long subscriptionPlanId) throws NotFoundException;
 
+	/**
+	 * check for same days subscription plan exist or not
+	 * 
+	 * @param  subscriptionPlanDto
+	 * @return
+	 */
+	boolean isDaysExist(SubscriptionPlanDTO subscriptionPlanDto);
+
 }

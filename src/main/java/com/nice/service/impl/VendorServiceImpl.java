@@ -40,6 +40,7 @@ import com.nice.constant.VendorStatus;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
 import com.nice.dto.VendorBankDetailsDTO;
+import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorCuisineDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorExport;
@@ -82,7 +83,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
+ * @date   : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -179,6 +180,7 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setCountry(country);
 		vendor.setPincode(pincode);
 		vendor.setIsFeatured(false);
+		vendor.setProfileCompleted(false);
 		vendor = vendorRepository.save(vendor);
 		/**
 		 * set login details of vendor
@@ -202,18 +204,24 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public void updateBankDetails(final VendorBankDetailsDTO vendorBankDetailsDTO) throws NotFoundException, ValidationException {
 		Vendor vendor = getVendorDetail(vendorBankDetailsDTO.getVendorId());
-		if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
-			Optional<VendorBankDetails> existingVendorBankDetails = vendorBankDetailsRepository.findByVendor(vendor);
-			VendorBankDetails vendorBankDetails = new VendorBankDetails();
-			BeanUtils.copyProperties(vendorBankDetailsDTO, vendorBankDetails);
-			if (existingVendorBankDetails.isPresent()) {
-				vendorBankDetails.setId(existingVendorBankDetails.get().getId());
+		if (vendor.getAccepts() != null && vendor.getMinimumOrderAmt() != null) {
+			if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getActive().booleanValue()) {
+				Optional<VendorBankDetails> existingVendorBankDetails = vendorBankDetailsRepository.findByVendor(vendor);
+				VendorBankDetails vendorBankDetails = new VendorBankDetails();
+				BeanUtils.copyProperties(vendorBankDetailsDTO, vendorBankDetails);
+				if (existingVendorBankDetails.isPresent()) {
+					vendorBankDetails.setId(existingVendorBankDetails.get().getId());
+				}
+				vendorBankDetails.setVendor(vendor);
+				vendorBankDetails.setActive(true);
+				vendorBankDetailsRepository.save(vendorBankDetails);
+				vendor.setProfileCompleted(true);
+				vendorRepository.save(vendor);
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 			}
-			vendorBankDetails.setVendor(vendor);
-			vendorBankDetails.setActive(true);
-			vendorBankDetailsRepository.save(vendorBankDetails);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.update.restaurant.detail.first", null));
 		}
 	}
 
@@ -315,8 +323,8 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
-				 * then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
+				 * the email is verified then we will be returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -330,8 +338,8 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
-			 * we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
+			 * the email is verified then we will be returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -364,8 +372,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param vendor
+	 * @param  userLogin
+	 * @param  vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -768,5 +776,10 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setIsFeatured(active);
 			vendorRepository.save(vendor);
 		}
+	}
+
+	@Override
+	public VendorBasicDetailDTO getVendorBasicDetailById(final Long vendorId) throws NotFoundException {
+		return vendorMapper.toBasicDto(getVendorDetail(vendorId));
 	}
 }
