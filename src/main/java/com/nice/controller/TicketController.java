@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -32,10 +32,11 @@ import com.nice.mapper.TicketMapper;
 import com.nice.model.Ticket;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.TicketService;
+import com.nice.util.PaginationUtil;
 
 /**
  * @author Kody Technolab PVT. LTD.
- * @date 31-Jan-2020
+ * @date   31-Jan-2020
  */
 @RequestMapping(path = "/ticket")
 @RestController
@@ -54,8 +55,8 @@ public class TicketController {
 	/**
 	 * Create Ticket
 	 *
-	 * @param TicketReason
-	 * @param result
+	 * @param  TicketReason
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -78,7 +79,7 @@ public class TicketController {
 	/**
 	 * Update Ticket
 	 *
-	 * @param ticketDTO
+	 * @param  ticketDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -97,7 +98,7 @@ public class TicketController {
 	/**
 	 * Get ticket detail based on ticketId
 	 *
-	 * @param ticketId
+	 * @param  ticketId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -111,31 +112,39 @@ public class TicketController {
 	}
 
 	/**
-	 * Get list of enquires based on parameters
+	 * Get ticket list based on parameters for user
 	 *
-	 * @param activeRecords
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  userType
+	 * @param  name
+	 * @param  entityId
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
-	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getTicketList(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "userType", required = false) final String userType, @PathVariable("pageNumber") final Integer pageNumber,
-			@PathVariable("pageSize") final Integer pageSize) {
-		final Page<Ticket> resultTicket = ticketService.getTicketList(userType, pageNumber, pageSize);
+	@GetMapping("/list/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getTicketListBasedOnParams(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "userType", required = false) final String userType, @RequestParam(name = "name", required = false) final String name,
+			@RequestParam(name = "entityId", required = false) final Long entityId, @PathVariable("pageNumber") final Integer pageNumber,
+			@PathVariable("pageSize") final Integer pageSize) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside get ticket List");
+		Long totalCount = ticketService.getTicketCountBasedOnParams(entityId, userType, name);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+
+		final List<Ticket> ticketList = ticketService.getTicketListBasedOnParams(entityId, userType, name, paginationUtilDto.getStartIndex(), pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.list.message", null))
-				.setData(ticketMapper.toDtos(resultTicket.getContent())).setHasNextPage(resultTicket.hasNext()).setHasPreviousPage(resultTicket.hasPrevious())
-				.setTotalPages(resultTicket.getTotalPages()).setPageNumber(resultTicket.getNumber() + 1).setTotalCount(resultTicket.getTotalElements())
-				.create();
+				.setData(ticketMapper.toDtos(ticketList)).setHasNextPage(paginationUtilDto.getHasNextPage())
+				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
+				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
 	}
 
 	/**
 	 * Get ticket reason list
 	 *
-	 * @param accessToken
-	 * @param type
+	 * @param  accessToken
+	 * @param  type
 	 * @return
 	 * @throws ValidationException
 	 */

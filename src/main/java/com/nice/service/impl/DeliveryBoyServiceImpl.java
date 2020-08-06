@@ -32,6 +32,7 @@ import com.nice.constant.DeliveryBoyStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.Role;
+import com.nice.constant.SendingType;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserOtpTypeEnum;
@@ -251,7 +252,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void exportList(final Boolean activeRecords, final String searchKeyword, final HttpServletResponse httpServletResponse) throws FileNotFoundException {
+	public void exportList(final Boolean activeRecords, final String searchKeyword, final HttpServletResponse httpServletResponse)
+			throws FileNotFoundException {
 		List<DeliveryBoy> deliveryBoyList;
 		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
@@ -277,7 +279,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				"bankAccountNumber", "kibNo", "branchCity" };
 		try {
 			exportCSV.writeCSVFile(deliveryBoyDtoList, deliveryBoyDataField, deliveryBoyHeaderField, httpServletResponse);
-		}  catch (IOException e) {
+		} catch (IOException e) {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 	}
@@ -344,8 +346,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
-				 * again, if the email is verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
+				 * verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -423,6 +425,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		notification.setOtp(otp);
 		notification.setUserId(userId);
 		notification.setEmail(email);
+		notification.setUserType(UserType.DELIVERY_BOY.name());
+		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
@@ -447,8 +451,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for
-		 * replacement or return) and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -608,9 +612,14 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is delivery boy with same contact exist or not
+			 * At the time of create is delivery boy with same phone number exist or not
 			 */
-			return deliveryBoyRepository.findByPhoneNumberIgnoreCase(deliveryBoyDTO.getPhoneNumber()).isPresent();
+			Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByPhoneNumberIgnoreCase(deliveryBoyDTO.getPhoneNumber());
+			if (optDeliveryBoy.isPresent()) {
+				return !deliveryBoyDTO.getEmail().equalsIgnoreCase(optDeliveryBoy.get().getEmail());
+			} else {
+				return false;
+			}
 		}
 	}
 

@@ -11,37 +11,38 @@ import org.springframework.stereotype.Repository;
 import com.nice.model.Ticket;
 
 /**
- * @author : Kody Technolab Pvt. Ltd.
- * @date : 31-Jan-2020
+ *
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : Aug 7, 2020
  */
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
 	/**
-	 * get page of ticket by userType and email
+	 * get page of ticket by userType and entityId
 	 *
-	 * @param email
-	 * @param userType
-	 * @param pageable
+	 * @param  entityId
+	 * @param  userType
+	 * @param  pageable
 	 * @return
 	 */
-	Page<Ticket> findAllByEmailAndUserType(String email, String userType, Pageable pageable);
+	Page<Ticket> findAllByEntityIdAndUserType(Long entityId, String userType, Pageable pageable);
 
 	/**
 	 * get page of ticket by userType
-	 * 
-	 * @param userType
-	 * @param pageable
+	 *
+	 * @param  userType
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Ticket> findAllByUserType(String userType, Pageable pageable);
 
 	/**
-	 * get page of ticket by email
-	 * 
-	 * @param email
-	 * @param pageable
+	 * get page of ticket by entityId
+	 *
+	 * @param  entityId
+	 * @param  pageable
 	 * @return
 	 */
-	Page<Ticket> findAllByEmail(String email, Pageable pageable);
+	Page<Ticket> findAllByEntityId(Long entityId, Pageable pageable);
 }

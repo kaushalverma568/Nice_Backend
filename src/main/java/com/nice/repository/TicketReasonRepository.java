@@ -11,10 +11,10 @@ import com.nice.model.TicketReason;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 09-07-2020
+ * @date   : 09-07-2020
  */
 @Repository
-public interface TicketReasonRepository extends JpaRepository<TicketReason, Long> {
+public interface TicketReasonRepository extends JpaRepository<TicketReason, Long>, TicketCustomRepository {
 
 	/**
 	 * find all by type
@@ -26,8 +26,8 @@ public interface TicketReasonRepository extends JpaRepository<TicketReason, Long
 	/**
 	 * find by reason
 	 *
-	 * @param reason
+	 * @param  reason
 	 * @return
 	 */
-	Optional<TicketReason> findByReason(String reason);
+	Optional<List<TicketReason>> findAllByReason(String reason);
 }

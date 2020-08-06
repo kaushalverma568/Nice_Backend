@@ -68,17 +68,17 @@ public class TicketServiceImpl implements TicketService {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(ticketDTO.getTicketStatus())
 				&& !ticketDTO.getTicketStatus().equals(TicketStatusEnum.PENDING.getStatusValue())) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_TICKET_STATUS, null));
-		} else if (!(UserType.CUSTOMER.name().equalsIgnoreCase(userLogin.getEntityType()) || UserType.VENDOR.name().equalsIgnoreCase(userLogin.getEntityType())
-				|| UserType.DELIVERY_BOY.name().equalsIgnoreCase(userLogin.getEntityType()))) {
+		} else if (!(UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
+				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type.ticket", null));
-		} else if (!ticketReasonRepository.findByReason(ticket.getTicketReason()).isPresent()) {
+		} else if (!ticketReasonRepository.findAllByReason(ticket.getTicketReason()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.ticket.reason", null));
 		} else {
 
 			/**
 			 * set ticket status as pending for new ticket
 			 */
-			ticket.setEmail(userLogin.getEmail());
+			ticket.setEntityId(userLogin.getEntityId());
 			ticket.setUserType(userLogin.getEntityType());
 			ticket.setTicketStatus(TicketStatusEnum.PENDING.getStatusValue());
 			ticket.setActive(true);
@@ -141,25 +141,36 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
+	public Long getTicketCountBasedOnParams(final Long entityId, final String userType, final String name) {
+		return ticketReasonRepository.getTicketCountBasedOnParams(entityId, userType, name);
+	}
+
+	@Override
+	public List<Ticket> getTicketListBasedOnParams(final Long entityId, final String userType, final String name, final Integer startIndex,
+			final Integer pageSize) {
+		return ticketReasonRepository.getTicketListBasedOnParams(entityId, userType, name, startIndex, pageSize);
+	}
+
+	@Override
 	public Page<Ticket> getTicketList(String userType, final Integer pageNumber, final Integer pageSize) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		LOGGER.info("Inside get ticket list for user {}", userLogin.getId());
-		String email = null;
+		Long entityId = null;
 		/**
 		 * if login user is delivery boy , vendor or customer then get ticket list of that user only
 		 */
-		if (UserType.CUSTOMER.name().equalsIgnoreCase(userLogin.getEntityType()) || UserType.VENDOR.name().equalsIgnoreCase(userLogin.getEntityType())
-				|| UserType.DELIVERY_BOY.name().equalsIgnoreCase(userLogin.getEntityType())) {
+		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
+				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			userType = userLogin.getEntityType();
-			email = userLogin.getEmail();
+			entityId = userLogin.getEntityId();
 		}
 
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(email)) {
+		if (entityId != null) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
-				return ticketRepository.findAllByEmailAndUserType(email, userType, pageable);
+				return ticketRepository.findAllByEntityIdAndUserType(entityId, userType, pageable);
 			} else {
-				return ticketRepository.findAllByEmail(email, pageable);
+				return ticketRepository.findAllByEntityId(entityId, pageable);
 			}
 		} else {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {

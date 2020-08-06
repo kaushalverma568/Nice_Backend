@@ -7,22 +7,40 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.TicketStatusEnum;
+import com.nice.constant.UserType;
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
+import com.nice.exception.NotFoundException;
+import com.nice.model.Customer;
+import com.nice.model.DeliveryBoy;
 import com.nice.model.Ticket;
+import com.nice.model.Vendor;
+import com.nice.service.CustomerService;
+import com.nice.service.DeliveryBoyService;
+import com.nice.service.VendorService;
 
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 09-07-2020
+ * @date   : 09-07-2020
  */
 @Component
 public class TicketMapper {
 
-	public TicketResponseDTO toDto(final Ticket ticket) {
+	@Autowired
+	private CustomerService customerService;
+
+	@Autowired
+	private DeliveryBoyService deliveryBoyService;
+
+	@Autowired
+	private VendorService vendorService;
+
+	public TicketResponseDTO toDto(final Ticket ticket) throws NotFoundException {
 		TicketResponseDTO ticketResponseDTO = new TicketResponseDTO();
 		BeanUtils.copyProperties(ticket, ticketResponseDTO);
 
@@ -35,6 +53,24 @@ public class TicketMapper {
 				ticketResponseDTO.setNextStatus(ticketStatusList.stream().map(TicketStatusEnum::getStatusValue).collect(Collectors.toList()));
 			}
 		}
+		if (UserType.CUSTOMER.name().equals(ticket.getUserType())) {
+			Customer customer = customerService.getCustomerDetails(ticket.getEntityId());
+			ticketResponseDTO.setEmail(customer.getEmail());
+			ticketResponseDTO.setName(customer.getFirstName() + " " + customer.getLastName());
+			ticketResponseDTO.setPhoneNumber(customer.getPhoneNumber());
+
+		} else if (UserType.VENDOR.name().equals(ticket.getUserType())) {
+			Vendor vendor = vendorService.getVendorDetail(ticket.getEntityId());
+			ticketResponseDTO.setEmail(vendor.getEmail());
+			ticketResponseDTO.setName(vendor.getFirstName() + " " + vendor.getLastName());
+			ticketResponseDTO.setPhoneNumber(vendor.getPhoneNumber());
+
+		} else if (UserType.DELIVERY_BOY.name().equals(ticket.getUserType())) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(ticket.getEntityId());
+			ticketResponseDTO.setEmail(deliveryBoy.getEmail());
+			ticketResponseDTO.setName(deliveryBoy.getFirstName() + " " + deliveryBoy.getLastName());
+			ticketResponseDTO.setPhoneNumber(deliveryBoy.getPhoneNumber());
+		}
 		return ticketResponseDTO;
 	}
 
@@ -44,7 +80,7 @@ public class TicketMapper {
 		return ticket;
 	}
 
-	public List<TicketResponseDTO> toDtos(final List<Ticket> ticketList) {
+	public List<TicketResponseDTO> toDtos(final List<Ticket> ticketList) throws NotFoundException {
 		List<TicketResponseDTO> results = new ArrayList<>();
 		for (Ticket ticket : ticketList) {
 			results.add(toDto(ticket));

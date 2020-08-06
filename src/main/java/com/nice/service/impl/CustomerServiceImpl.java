@@ -248,6 +248,7 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setOtp(otp);
 		notification.setUserId(userId);
 		notification.setEmail(email);
+		notification.setUserType(UserType.CUSTOMER.name());
 		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
@@ -391,7 +392,7 @@ public class CustomerServiceImpl implements CustomerService {
 		} else {
 			Optional<Customer> optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
 			if (optCustomer.isPresent() && optCustomer.get().getEmail() != null) {
-				if (customerDTO.getEmail() != null && customerDTO.getEmail().equals(optCustomer.get().getEmail())) {
+				if (customerDTO.getEmail() != null && customerDTO.getEmail().equalsIgnoreCase(optCustomer.get().getEmail())) {
 					return false;
 				} else {
 					return true;

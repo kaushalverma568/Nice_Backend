@@ -396,6 +396,7 @@ public class VendorServiceImpl implements VendorService {
 		 * we will send verification link only
 		 */
 		notification.setSendingType(SendingType.LINK.name());
+		notification.setUserType(UserType.VENDOR.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
