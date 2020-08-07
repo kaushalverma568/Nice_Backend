@@ -3,6 +3,7 @@ package com.nice.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -139,6 +141,15 @@ public class TicketController {
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
 	}
+	
+	@GetMapping("/export/list")
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			 @RequestParam(name = "name", required = false) final String name,
+			@RequestParam(name = "userType", required = false) final String userType) throws FileNotFoundException, NotFoundException  {
+		ticketService.exportList(userType, name, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.list.message", null)).create();
+	}
+	
 
 	/**
 	 * Get ticket reason list

@@ -2,10 +2,13 @@ package com.nice.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Ticket;
@@ -96,5 +99,16 @@ public interface TicketService {
 	 * @return
 	 */
 	List<Ticket> getTicketListBasedOnParams(Long entityId, String userType, String name, Integer startIndex, Integer pageSize);
+
+	/**
+	 * 
+	 * @param userType
+	 * @param name 
+	 * @param activeRecords
+	 * @param httpServletResponse
+	 * @throws NotFoundException 
+	 * @throws FileNotFoundException 
+	 */
+	void exportList(String userType, String name, HttpServletResponse httpServletResponse) throws NotFoundException, FileNotFoundException;
 
 }
