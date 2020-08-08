@@ -65,10 +65,10 @@ public class VendorMapper {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStatus())) {
 			final VendorStatus vendorOldStatus = VendorStatus.valueOf(VendorStatus.getByValue(vendorResponseDTO.getStatus()).name());
-			if (vendorOldStatus.nextStatus() == null) {
+			if (vendorOldStatus.nextAdminStatus() == null) {
 				vendorResponseDTO.setNextStatus(Collections.emptyList());
 			} else {
-				final List<VendorStatus> vendorStatusList = Arrays.asList(vendorOldStatus.nextStatus());
+				final List<VendorStatus> vendorStatusList = Arrays.asList(vendorOldStatus.nextAdminStatus());
 				vendorResponseDTO.setNextStatus(vendorStatusList.stream().map(VendorStatus::getStatusValue).collect(Collectors.toList()));
 			}
 		}

@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 public enum VendorStatus implements BasicStatus<VendorStatus> {
 
@@ -58,6 +58,37 @@ public enum VendorStatus implements BasicStatus<VendorStatus> {
 			break;
 		case SUSPENDED:
 			nextStatus = new VendorStatus[] { ACTIVE, EXPIRED };
+			break;
+		case REJECTED:
+			nextStatus = new VendorStatus[] { APPROVED };
+			break;
+		default:
+			break;
+		}
+
+		return nextStatus;
+	}
+
+	public VendorStatus[] nextAdminStatus() {
+		VendorStatus[] nextStatus = null;
+		switch (this) {
+		case VERIFICATION_PENDING:
+			nextStatus = new VendorStatus[] {};
+			break;
+		case NEW:
+			nextStatus = new VendorStatus[] { APPROVED, REJECTED };
+			break;
+		case APPROVED:
+			nextStatus = new VendorStatus[] {};
+			break;
+		case ACTIVE:
+			nextStatus = new VendorStatus[] { SUSPENDED };
+			break;
+		case EXPIRED:
+			nextStatus = new VendorStatus[] {};
+			break;
+		case SUSPENDED:
+			nextStatus = new VendorStatus[] { ACTIVE };
 			break;
 		case REJECTED:
 			nextStatus = new VendorStatus[] { APPROVED };
