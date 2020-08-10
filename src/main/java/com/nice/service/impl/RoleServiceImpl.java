@@ -1,9 +1,12 @@
 package com.nice.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,16 +15,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.dto.ModuleAndPermissionDTO;
+import com.nice.dto.PermissionDTO;
+import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleDTO;
+import com.nice.dto.RoleResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.mapper.PermissionMapper;
 import com.nice.mapper.RoleMapper;
+import com.nice.model.Modules;
 import com.nice.model.Permission;
 import com.nice.model.Role;
+import com.nice.repository.PermissionRepository;
 import com.nice.repository.RoleRepository;
+import com.nice.service.ModulesService;
 import com.nice.service.PermissionService;
 import com.nice.service.RoleService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -45,6 +57,15 @@ public class RoleServiceImpl implements RoleService {
 	@Autowired
 	private PermissionService permissionService;
 
+	@Autowired
+	private PermissionMapper permissionMapper;
+
+	@Autowired
+	private PermissionRepository permissionRepository;
+
+	@Autowired
+	private ModulesService modulesService;
+
 	@Override
 	public void addRole(final RoleDTO roleDTO) {
 		roleRepository.save(roleMapper.toEntity(roleDTO));
@@ -60,7 +81,7 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public RoleDTO getRole(final Long roleId) throws NotFoundException {
+	public RoleResponseDTO getRole(final Long roleId) throws NotFoundException {
 		return roleMapper.toDto(getRoleDetail(roleId));
 	}
 
@@ -106,6 +127,57 @@ public class RoleServiceImpl implements RoleService {
 			return roleRepository.findByNameIgnoreCaseAndIdNot(roleDto.getName(), roleDto.getId()).isPresent();
 		} else {
 			return roleRepository.findByNameIgnoreCase(roleDto.getName()).isPresent();
+		}
+	}
+
+	@Override
+	public void addUpdateRoleWithPermissions(final RoleAndPermissionsDTO roleAndPermissionsDTO) throws ValidationException, NotFoundException {
+		RoleDTO roleDTO = new RoleDTO();
+		BeanUtils.copyProperties(roleAndPermissionsDTO, roleDTO);
+		Role role = roleRepository.save(roleMapper.toEntity(roleDTO));
+		List<Long> modulesIds = new ArrayList<>();
+
+		for (ModuleAndPermissionDTO moduleAndPermissionDTO : roleAndPermissionsDTO.getModuleAndPermissionDTOs()) {
+			if (moduleAndPermissionDTO.getModulesId() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("modules.id.not.null", null));
+			}
+			if (modulesIds.contains(moduleAndPermissionDTO.getModulesId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("modules.not.unique", null));
+			}
+			modulesIds.add(moduleAndPermissionDTO.getModulesId());
+			Modules modules = modulesService.getModuleDetail(moduleAndPermissionDTO.getModulesId());
+			/**
+			 * add/update permission for this role and module
+			 */
+			PermissionDTO permissionDTO = new PermissionDTO();
+			BeanUtils.copyProperties(moduleAndPermissionDTO, permissionDTO);
+			Permission permission = permissionMapper.toEntity(permissionDTO);
+			permission.setId(null);
+			permission.setModules(modules);
+			permission.setRole(role);
+			permission.setActive(roleAndPermissionsDTO.getActive());
+			Optional<Permission> optPermission = permissionRepository.findByRoleAndModules(role, modules);
+			if (optPermission.isPresent()) {
+				permission.setId(optPermission.get().getId());
+			}
+			permissionRepository.save(permission);
+		}
+	}
+
+	@Override
+	public void deleteRole(final Long roleId) throws NotFoundException, ValidationException {
+		Role role = getRoleDetail(roleId);
+		/**
+		 * if any user contains this role then it can not be deleteable
+		 */
+		if (com.nice.constant.Role.getByValue(role.getName()) != null) {
+			throw new ValidationException(messageByLocaleService.getMessage("role.not.deleteable", null));
+		} else {
+			List<Permission> permissions = permissionRepository.findAllByRole(role);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(permissions)) {
+				LOGGER.info("delete permissions for role, permissions:{}", permissions);
+				permissionRepository.deleteAll(permissions);
+			}
 		}
 	}
 }

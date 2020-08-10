@@ -22,11 +22,11 @@ public class PermissionResponseDTO implements Serializable {
 
 	private String roleName;
 
+	private String roleDescription;
+
 	private Long moduleId;
 
 	private String moduleName;
-
-	private Long userId;
 
 	private Boolean canView;
 
@@ -42,4 +42,5 @@ public class PermissionResponseDTO implements Serializable {
 
 	private Boolean active;
 
+	private Boolean roleActive;
 }

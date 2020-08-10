@@ -31,12 +31,11 @@ import com.nice.model.Country;
 import com.nice.model.Pincode;
 import com.nice.model.SubscriptionPlan;
 import com.nice.model.Vendor;
-import com.nice.model.VendorCuisine;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -250,10 +249,10 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			Expression<String> storeName = criteriaBuilder.lower(vendor.get("storeName"));
 			predicates.add(criteriaBuilder.like(storeName, "%" + vendorListFilterDTO.getSearchKeyword().toLowerCase() + "%"));
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
-			Join<Vendor, VendorCuisine> vendorCuisine = vendor.join("vendorCuisine", JoinType.INNER);
-			predicates.add(vendorCuisine.get("cuisine").in(vendorListFilterDTO.getCuisineIds()));
-		}
+//		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
+//			Join<Vendor, VendorCuisine> vendorCuisine = vendor.join("vendorCuisine", JoinType.INNER);
+//			predicates.add(vendorCuisine.get("cuisine").in(vendorListFilterDTO.getCuisineIds()));
+//		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getVendorIds())) {
 			predicates.add(vendor.get("id").in(vendorListFilterDTO.getVendorIds()));
 		}

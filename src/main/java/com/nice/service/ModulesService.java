@@ -10,20 +10,21 @@ import com.nice.model.Modules;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 public interface ModulesService {
 	/**
 	 * add module
 	 *
-	 * @param moduleDto
+	 * @param  moduleDto
+	 * @throws ValidationException
 	 */
-	void addModule(ModulesDTO moduleDto);
+	void addModule(ModulesDTO moduleDto) throws ValidationException;
 
 	/**
 	 * update module
 	 *
-	 * @param moduleDto
+	 * @param  moduleDto
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -32,17 +33,18 @@ public interface ModulesService {
 	/**
 	 * get module
 	 *
-	 * @param moduleId
+	 * @param  moduleId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	ModulesDTO getModule(Long moduleId) throws NotFoundException;
+	ModulesDTO getModule(Long moduleId) throws NotFoundException, ValidationException;
 
 	/**
 	 * change status of module
 	 *
-	 * @param permissionId
-	 * @param isActive
+	 * @param  permissionId
+	 * @param  isActive
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -51,23 +53,23 @@ public interface ModulesService {
 	/**
 	 * is module exist or not
 	 *
-	 * @param modulesDto
+	 * @param  modulesDto
 	 * @return
 	 */
 	boolean isExists(ModulesDTO modulesDto);
 
 	/**
 	 * get module list
-	 * 
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 */
 	Page<Modules> getModuleList(Integer pageNumber, Integer pageSize, Boolean activeRecords);
 
 	/**
-	 * @param moduleId
+	 * @param  moduleId
 	 * @return
 	 * @throws NotFoundException
 	 */

@@ -39,7 +39,7 @@ import com.nice.validator.ModulesValidator;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/module")
 @RestController
@@ -71,9 +71,9 @@ public class ModulesController {
 	/**
 	 * add module
 	 *
-	 * @param accessToken
-	 * @param moduleDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  moduleDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -96,9 +96,9 @@ public class ModulesController {
 	/**
 	 * update module
 	 *
-	 * @param accessToken
-	 * @param moduleDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  moduleDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -121,8 +121,8 @@ public class ModulesController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param moduleId
+	 * @param  accessToken
+	 * @param  moduleId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -131,7 +131,7 @@ public class ModulesController {
 	@GetMapping(value = "/{moduleId}")
 	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
 	public ResponseEntity<Object> getModule(@RequestHeader("Authorization") final String accessToken, @PathVariable("moduleId") final Long moduleId)
-			throws NotFoundException {
+			throws NotFoundException, ValidationException {
 		ModulesDTO resultres = modulesService.getModule(moduleId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("modules.detail.message", null))
 				.setData(resultres).create();
@@ -140,12 +140,11 @@ public class ModulesController {
 	/**
 	 * get module list
 	 *
-	 * @param accessToken
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
@@ -161,10 +160,10 @@ public class ModulesController {
 	/**
 	 * update status
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param permissionId
-	 * @param isActive
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  permissionId
+	 * @param  isActive
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

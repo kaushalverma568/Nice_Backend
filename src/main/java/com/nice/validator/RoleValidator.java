@@ -3,14 +3,17 @@
  */
 package com.nice.validator;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.RoleService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -33,7 +36,7 @@ public class RoleValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return RoleDTO.class.equals(clazz);
+		return RoleDTO.class.equals(clazz) || RoleAndPermissionsDTO.class.equals(clazz);
 	}
 
 	/**
@@ -42,11 +45,17 @@ public class RoleValidator implements Validator {
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
-		final RoleDTO roleDto = (RoleDTO) target;
+		RoleDTO roleDto = new RoleDTO();
+		if (target instanceof RoleDTO) {
+			roleDto = (RoleDTO) target;
+		} else if (target instanceof RoleAndPermissionsDTO) {
+			RoleAndPermissionsDTO roleAndPermissionsDTO = (RoleAndPermissionsDTO) target;
+			BeanUtils.copyProperties(roleAndPermissionsDTO, roleDto);
+		}
 		/**
-		 * Check country duplication based on name
+		 * Check role duplication based on name
 		 */
-		if (roleDto != null && roleDto.getName() != null && roleService.isExists(roleDto)) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(roleDto.getName()) && roleService.isExists(roleDto)) {
 			errors.rejectValue("name", "409", messageByLocaleService.getMessage("role.name.not.unique", null));
 		}
 

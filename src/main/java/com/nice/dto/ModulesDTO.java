@@ -2,6 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -20,8 +21,11 @@ public class ModulesDTO implements Serializable {
 
 	private Long id;
 
-	@NotNull(message = "{name.not.null}")
+	@NotBlank(message = "{name.not.null}")
 	private String name;
+
+	@NotBlank(message = "{userRole.not.null}")
+	private String userRole;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;

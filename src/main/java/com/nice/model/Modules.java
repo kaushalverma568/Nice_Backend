@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Table(name = "modules")
 @Entity
@@ -31,4 +31,5 @@ public class Modules extends CommonModel {
 
 	private String name;
 
+	private String userRole;
 }

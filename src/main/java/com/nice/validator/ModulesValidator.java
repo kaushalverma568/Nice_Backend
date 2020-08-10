@@ -11,6 +11,7 @@ import org.springframework.validation.Validator;
 import com.nice.dto.ModulesDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.ModulesService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -46,7 +47,8 @@ public class ModulesValidator implements Validator {
 		/**
 		 * Check country duplication based on name
 		 */
-		if (modulesDto != null && modulesDto.getName() != null && modulesService.isExists(modulesDto)) {
+		if (modulesDto != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(modulesDto.getName())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(modulesDto.getUserRole()) && modulesService.isExists(modulesDto)) {
 			errors.rejectValue("name", "409", messageByLocaleService.getMessage("modules.name.not.unique", null));
 		}
 

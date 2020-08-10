@@ -16,20 +16,39 @@ import com.nice.model.Modules;
 @Repository
 public interface ModulesRepository extends JpaRepository<Modules, Long> {
 
-	Modules findByName(String name);
-
 	/**
+	 * get modules by name,userRole and id not
+	 *
 	 * @param  name
+	 * @param  userRole
 	 * @param  id
 	 * @return
 	 */
-	Optional<Modules> findByNameIgnoreCaseAndIdNot(String name, Long id);
+	Optional<Modules> findByNameIgnoreCaseAndUserRoleAndIdNot(String name, String userRole, Long id);
 
 	/**
+	 * get modules by name,userRole
+	 *
 	 * @param  name
+	 * @param  userRole
 	 * @return
 	 */
-	Optional<Modules> findByNameIgnoreCase(String name);
+	Optional<Modules> findByNameIgnoreCaseAndUserRole(String name, String userRole);
+
+	/**
+	 * @param  activeRecords
+	 * @param  userRole
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Modules> findAllByActiveAndUserRole(Boolean activeRecords, String userRole, Pageable pageable);
+
+	/**
+	 * @param  userRole
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Modules> findAllByUserRole(String userRole, Pageable pageable);
 
 	/**
 	 * @param  activeRecords

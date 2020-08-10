@@ -47,6 +47,8 @@ public class PermissionMapper {
 		BeanUtils.copyProperties(permission, permissionResponseDTO);
 		permissionResponseDTO.setRoleId(permission.getRole().getId());
 		permissionResponseDTO.setRoleName(permission.getRole().getName());
+		permissionResponseDTO.setRoleDescription(permission.getRole().getDescription());
+		permissionResponseDTO.setRoleActive(permission.getRole().getActive());
 		permissionResponseDTO.setModuleId(permission.getModules().getId());
 		permissionResponseDTO.setModuleName(permission.getModules().getName());
 		return permissionResponseDTO;
