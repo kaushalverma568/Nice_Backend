@@ -80,7 +80,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -188,7 +188,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
@@ -265,8 +266,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
-			 * login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email +
+			 * mobile. In this case userLogin can be active but customer can not login with
+			 * email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -543,7 +545,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms then phone number is required
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
 		 */
 		if (!(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -590,9 +593,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin
+		 * or any admin panel users
 		 */
-		if (UserType.USER.name().equals(userType)) {
+		if (UserType.USER.name().equals(userType) || UserType.VENDOR.name().equals(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
 		} else if (UserType.CUSTOMER.name().equals(userType) || UserType.DELIVERY_BOY.name().equals(userType)) {
 			return userLoginRepository.findByEmailAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(userName,
@@ -631,7 +635,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber
+		 * and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent()) {
@@ -652,7 +657,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in
+			 * userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -724,7 +730,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				Role.CUSTOMER.getStatusValue());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
-			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
+			 * OTP Verified. Check userLogin is active or not . if not then activate
+			 * customer and activate userLogin
 			 */
 			if (!optUserLogin.get().getActive().booleanValue()) {
 				UserLogin userLogin = optUserLogin.get();
@@ -804,15 +811,16 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  emailUpdateDTO
-	 * @param  userLogin
+	 * @param emailUpdateDTO
+	 * @param userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
 		String userName = null;
 		/**
-		 * if email is not null it means there is possibility that user is logged in with old email right now
+		 * if email is not null it means there is possibility that user is logged in
+		 * with old email right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail())) {
 			/**
@@ -886,11 +894,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  phoneNumber
-	 * @param  otp
-	 * @param  userType
-	 * @param  userName
-	 * @param  userLogin
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @param userName
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -900,7 +908,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		String userName = null;
 		/**
-		 * if phone number is not null it means there is possibility that customer is logged in with old phone number right now
+		 * if phone number is not null it means there is possibility that customer is
+		 * logged in with old phone number right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPhoneNumber())) {
 			/**
