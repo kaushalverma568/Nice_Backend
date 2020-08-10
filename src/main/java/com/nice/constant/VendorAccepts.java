@@ -11,7 +11,7 @@ import lombok.Getter;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 @Getter
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public enum VendorAccepts {
 	/**
 	 * Vendor supports either replacement of order or return of order
 	 */
-	REPLACEMENT("Replacement"), RETURN("Return");
+	REPLACE("Replace"), RETURN("Return");
 
 	String statusValue;
 

@@ -1105,7 +1105,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * if vendor does not accepts replacement then throw error
 		 */
-		if (!VendorAccepts.REPLACEMENT.getStatusValue().equals(orders.getVendor().getAccepts())) {
+		if (!VendorAccepts.REPLACE.getStatusValue().equals(orders.getVendor().getAccepts())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts", new Object[] { orders.getVendor().getAccepts() }));
 		}
 		Optional<OrderStatusHistory> orderStatusHistory = orderStatusRepository.findByOrderIdAndStatus(orders.getId(),
