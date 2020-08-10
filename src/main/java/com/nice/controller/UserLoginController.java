@@ -491,10 +491,9 @@ public class UserLoginController {
 	 * @throws ValidationException
 	 */
 	@GetMapping(path = "/basic")
-	public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") final String accessToken) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") final String accessToken) throws NotFoundException {
 		LoginResponse userInfo = userLoginService.getUserInfo();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(userInfo)
 				.setMessage(messageByLocaleService.getMessage("users.detail.message", null)).create();
 	}
-
 }

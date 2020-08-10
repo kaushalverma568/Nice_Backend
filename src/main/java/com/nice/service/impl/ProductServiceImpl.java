@@ -361,6 +361,13 @@ public class ProductServiceImpl implements ProductService {
 		if (productRequestDTO.getId() != null && !productRequestDTO.getVendorId().equals(userLogin.getEntityId())) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
+		/**
+		 * vendor's profile is not completed yet then throw an exception
+		 */
+		Vendor vendor = vendorService.getVendorDetail(productRequestDTO.getVendorId());
+		if (!vendor.getProfileCompleted().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.profile.incomplete", null));
+		}
 
 		/**
 		 * for validation of made product foreign keys
@@ -388,8 +395,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
-	 * entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert entity to response dto
 	 *
 	 * @param  product
 	 * @param  listForAdmin
@@ -439,8 +445,8 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
-		 * and productOutOfStock for any other category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty and productOutOfStock for any
+		 * other category type except grocery.
 		 */
 		Integer availableQty = 0;
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
@@ -565,8 +571,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
-		 * null or the userLogin->entityType is customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is null or the userLogin->entityType
+		 * is customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -660,7 +666,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public void exportProductList(final HttpServletResponse httpServletResponse, final ProductParamRequestDTO productParamRequestDTO)
-			throws  NotFoundException, ValidationException, FileNotFoundException {
+			throws NotFoundException, ValidationException, FileNotFoundException {
 		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
 		LOGGER.info("Inside export product list Based On Params {}", productParamRequestDTO);
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, null, null);
@@ -672,7 +678,7 @@ public class ProductServiceImpl implements ProductService {
 		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
 		try {
 			exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
-		}  catch (IOException e) {
+		} catch (IOException e) {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 	}
