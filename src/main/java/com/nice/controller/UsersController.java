@@ -135,7 +135,7 @@ public class UsersController {
 	@GetMapping("/{usersId}")
 	public ResponseEntity<Object> getUsers(@PathVariable("usersId") final Long usersId) throws NotFoundException, ValidationException {
 		final UsersDTO resultUsers = usersService.getUsers(usersId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.display.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.detail.message", null))
 				.setData(resultUsers).create();
 	}
 

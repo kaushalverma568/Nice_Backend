@@ -226,8 +226,7 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
-	 * then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists then will sent generated token.
 	 *
 	 * @param  socialLoginDto
 	 * @param  result
@@ -481,6 +480,21 @@ public class UserLoginController {
 		LOGGER.info("Outside add update PhoneNumber");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage("phone.update.success", null)).create();
+	}
+
+	/**
+	 * Get user info based on token
+	 *
+	 * @param  accessToken
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping(path = "/basic")
+	public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") final String accessToken) throws ValidationException, NotFoundException {
+		LoginResponse userInfo = userLoginService.getUserInfo();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(userInfo)
+				.setMessage(messageByLocaleService.getMessage("users.detail.message", null)).create();
 	}
 
 }

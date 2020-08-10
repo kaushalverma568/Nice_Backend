@@ -685,6 +685,24 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
 			}
+			if (UserType.USER.name().equals(userLogin.get().getEntityType())) {
+				Users users = usersService.getUsersDetails(userLogin.get().getEntityId());
+				BeanUtils.copyProperties(users, loginResponse);
+				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
+						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
+			}
+			if (UserType.VENDOR.name().equals(userLogin.get().getEntityType())) {
+				Vendor vendor = vendorService.getVendorDetail(userLogin.get().getEntityId());
+				BeanUtils.copyProperties(vendor, loginResponse);
+				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
+						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
+			}
+			if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
+				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.get().getEntityId());
+				BeanUtils.copyProperties(deliveryBoy, loginResponse);
+				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
+						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
+			}
 		} else {
 			userLogin = userLoginRepository.findByEmailAndRole(userLoginDto.getUserName().toLowerCase(), Role.SUPER_ADMIN.getStatusValue());
 			if (userLogin.isPresent()) {
@@ -920,5 +938,38 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		return userName;
+	}
+
+	@Override
+	public LoginResponse getUserInfo() throws NotFoundException {
+		LoginResponse loginResponse = new LoginResponse();
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		BeanUtils.copyProperties(userLogin, loginResponse);
+		loginResponse.setUserId(userLogin.getId());
+		if (Role.CUSTOMER.getStatusValue().equals(userLogin.getRole())) {
+			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
+			BeanUtils.copyProperties(customer, loginResponse);
+			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
+					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
+		}
+		if (UserType.USER.name().equals(userLogin.getEntityType())) {
+			Users users = usersService.getUsersDetails(userLogin.getEntityId());
+			BeanUtils.copyProperties(users, loginResponse);
+			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
+					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
+		}
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+			BeanUtils.copyProperties(vendor, loginResponse);
+			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
+					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
+		}
+		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
+			BeanUtils.copyProperties(deliveryBoy, loginResponse);
+			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
+					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
+		}
+		return loginResponse;
 	}
 }

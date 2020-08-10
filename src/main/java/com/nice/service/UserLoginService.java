@@ -229,4 +229,13 @@ public interface UserLoginService {
 	 * @throws ValidationException
 	 */
 	String addUpdatePhoneNumber(String phoneNumber, String otp, String userType) throws NotFoundException, ValidationException;
+
+	/**
+	 * get user Information from access token
+	 *
+	 * @return
+	 *
+	 * @throws NotFoundException
+	 */
+	LoginResponse getUserInfo() throws NotFoundException;
 }
