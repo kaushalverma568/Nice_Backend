@@ -879,7 +879,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (UserType.CUSTOMER.name().equals(userType)
 				&& customerRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("customer.phone.exists", null));
-		} else if (UserType.VENDOR.name().equals(userType) && vendorRepository.findByPhoneNumberAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
+		} else if (UserType.USER.name().equals(userType) && UserType.VENDOR.name().equals(userLogin.getEntityType())
+				&& vendorRepository.findByPhoneNumberAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.contact.not.unique", null));
 		} else if (UserType.DELIVERY_BOY.name().equals(userType)
 				&& deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
