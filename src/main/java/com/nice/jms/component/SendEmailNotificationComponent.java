@@ -152,7 +152,7 @@ public class SendEmailNotificationComponent {
 						+ UserType.CUSTOMER.name() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			} else if (UserType.USER.name().equals(emailNotification.getUserType())) {
 				emailParameterMap.put(USER_TYPE, "User");
-				emailParameterMap.put("forgotPasswordUrl", adminUrl + "authentication/reset-password?otp=" + emailNotification.getOtp() + "&userType="
+				emailParameterMap.put("forgotPasswordUrl", adminUrl + "auth/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
