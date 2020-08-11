@@ -17,10 +17,6 @@ public class UserCheckPasswordDTO implements Serializable {
 	*/
 	private static final long serialVersionUID = 5050371211899938300L;
 
-	@NotNull(message = "{entity.id.not.null}")
-	private Long entityId;
-	@NotNull(message = "{entity.type.not.null}")
-	private String entityType;
 	@NotNull(message = "{password.not.null}")
 	private String password;
 

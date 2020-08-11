@@ -265,8 +265,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
-			 * login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
+			 * active but customer can not login with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -759,7 +759,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public void checkPasswordForUser(final UserCheckPasswordDTO userCheckPasswordDTO) throws ValidationException {
-		UserLogin userLogin = getUserLoginBasedOnEntityIdAndEntityType(userCheckPasswordDTO.getEntityId(), userCheckPasswordDTO.getEntityType());
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (!BCrypt.checkpw(userCheckPasswordDTO.getPassword(), userLogin.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.match.failed", null));
 		}
