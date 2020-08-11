@@ -7,13 +7,12 @@ import java.util.List;
 
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Data
 public class VendorListFilterDTO implements Serializable {
@@ -22,7 +21,6 @@ public class VendorListFilterDTO implements Serializable {
 	*/
 	private static final long serialVersionUID = -9104413848520087852L;
 
-	@NotNull(message = "{business.category.id.not.null}")
 	private Long businessCategoryId;
 
 	private String deliveryType;
@@ -47,4 +45,6 @@ public class VendorListFilterDTO implements Serializable {
 	private Double ratingTo;
 
 	private Double ratingFrom;
+
+	private Boolean isNameSorting;
 }

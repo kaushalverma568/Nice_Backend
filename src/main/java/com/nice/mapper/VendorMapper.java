@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
 import com.nice.constant.VendorStatus;
+import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
@@ -38,30 +39,30 @@ public class VendorMapper {
 	@Autowired
 	private AssetService assetService;
 
-	public VendorResponseDTO toDto(final Vendor vendor) {
+	public VendorResponseDTO toDto(final Vendor vendor, final boolean isDetailResponse) {
 		VendorResponseDTO vendorResponseDTO = new VendorResponseDTO();
 		BeanUtils.copyProperties(vendor, vendorResponseDTO);
 		if (vendor.getSubscriptionPlan() != null) {
 			vendorResponseDTO.setSubscriptionPlanId(vendor.getSubscriptionPlan().getId());
 			vendorResponseDTO.setSubscriptionPlanName(vendor.getSubscriptionPlan().getName());
 		}
-		vendorResponseDTO.setCityId(vendor.getCity().getId());
-		vendorResponseDTO.setCityName(vendor.getCity().getName());
-		vendorResponseDTO.setCountryId(vendor.getCountry().getId());
-		vendorResponseDTO.setCountryName(vendor.getCountry().getName());
-		vendorResponseDTO.setPincodeId(vendor.getPincode().getId());
-		vendorResponseDTO.setCodeValue(vendor.getPincode().getCodeValue());
 		vendorResponseDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
 		vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
-		vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
+		vendorResponseDTO.setPincodeId(vendor.getPincode().getId());
+		vendorResponseDTO.setCodeValue(vendor.getPincode().getCodeValue());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
 			vendorResponseDTO.setStoreImageUrl(assetService.getGeneratedUrl(vendor.getStoreImageName(), AssetConstant.VENDOR));
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {
-			vendorResponseDTO.setStoreDetailImageUrl(assetService.getGeneratedUrl(vendor.getStoreDetailImageName(), AssetConstant.VENDOR));
-		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getFeaturedImageName())) {
 			vendorResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
+		}
+		if (isDetailResponse) {
+			vendorResponseDTO.setCityId(vendor.getCity().getId());
+			vendorResponseDTO.setCityName(vendor.getCity().getName());
+			vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {
+				vendorResponseDTO.setStoreDetailImageUrl(assetService.getGeneratedUrl(vendor.getStoreDetailImageName(), AssetConstant.VENDOR));
+			}
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStatus())) {
 			final VendorStatus vendorOldStatus = VendorStatus.valueOf(VendorStatus.getByValue(vendorResponseDTO.getStatus()).name());
@@ -92,7 +93,7 @@ public class VendorMapper {
 	public List<VendorResponseDTO> toDtos(final List<Vendor> vendors) {
 		List<VendorResponseDTO> results = new ArrayList<>();
 		for (Vendor vendor : vendors) {
-			results.add(toDto(vendor));
+			results.add(toDto(vendor, false));
 		}
 		return results;
 	}
@@ -104,5 +105,23 @@ public class VendorMapper {
 		vendorBasicDetailDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
 		vendorBasicDetailDTO.setManageInventory(vendor.getBusinessCategory().getManageInventory());
 		return vendorBasicDetailDTO;
+	}
+
+	public VendorAppResponseDTO toAppDto(final Vendor vendor, final boolean isDetailResponse) {
+		VendorAppResponseDTO vendorAppResponseDTO = new VendorAppResponseDTO();
+		BeanUtils.copyProperties(vendor, vendorAppResponseDTO);
+		if (isDetailResponse) {
+			vendorAppResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {
+				vendorAppResponseDTO.setStoreDetailImageUrl(assetService.getGeneratedUrl(vendor.getStoreDetailImageName(), AssetConstant.VENDOR));
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
+			vendorAppResponseDTO.setStoreImageUrl(assetService.getGeneratedUrl(vendor.getStoreImageName(), AssetConstant.VENDOR));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getFeaturedImageName())) {
+			vendorAppResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
+		}
+		return vendorAppResponseDTO;
 	}
 }

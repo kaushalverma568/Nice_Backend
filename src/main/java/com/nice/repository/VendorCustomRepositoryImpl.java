@@ -3,13 +3,20 @@
  */
 package com.nice.repository;
 
+import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,6 +26,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.nice.constant.DeliveryType;
@@ -43,6 +52,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	/**
 	 *
 	 */
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(VendorCustomRepositoryImpl.class);
 	private static final String BUSINESS_CATEGORY_PARAM = "businessCategory";
 
 	@PersistenceContext
@@ -81,7 +92,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -184,80 +196,119 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		return query.getSingleResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Vendor> getVendorListForCustomerBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorListFilterDTO vendorListFilterDTO) {
-		/**
-		 * Create Criteria builder instance using entity manager
-		 */
-		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		/**
-		 * Create Criteria query object whichever object you want to return.
-		 */
-		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
-		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
-		 */
-		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
-		/**
-		 * Inner Join to the other tables we can filter on like business category.
-		 */
-		Join<Vendor, BusinessCategory> businessCategory = vendor.join(BUSINESS_CATEGORY_PARAM, JoinType.INNER);
-
-		/**
-		 * Create the standard restrictions (i.e. the standard where clauses).
-		 */
-		List<Predicate> predicates = new ArrayList<>();
-		addConditionsForCustomerApp(vendorListFilterDTO, criteriaBuilder, vendor, businessCategory, predicates);
-		/**
-		 * Add the clauses for the query.
-		 */
-		criteriaQuery.select(vendor).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
-
-		/**
-		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
-		 */
-		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
-		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
-		TypedQuery<Vendor> query = entityManager.createQuery(criteriaQuery).setHint("javax.persistence.loadgraph", fetchGraph);
-		if (startIndex != null && pageSize != null) {
-			query.setFirstResult(startIndex);
-			query.setMaxResults(pageSize);
+		Map<String, Object> paramMap = new HashMap<>();
+		StringBuilder sqlQuery = new StringBuilder(
+				"SELECT v.id,v.email,v.first_name,v.last_name,v.store_name,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
+						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
+						+ "FROM vendor v ");
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
+			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		return query.getResultList();
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true ");
+		paramMap.put("customerLatitude", vendorListFilterDTO.getLatitude());
+		paramMap.put("customerLongitude", vendorListFilterDTO.getLongitude());
+
+		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
+		sqlQuery.append(" group by (v.id) ");
+		if (vendorListFilterDTO.getIsNameSorting() != null && vendorListFilterDTO.getIsNameSorting().booleanValue()) {
+			sqlQuery.append(" order by v.store_name asc");
+		} else {
+			sqlQuery.append(" order by distance asc");
+		}
+		if (startIndex != null && pageSize != null) {
+			sqlQuery.append(" offset :startIndex  limit :pageSize ");
+			paramMap.put("startIndex", startIndex);
+			paramMap.put("pageSize", pageSize);
+		}
+		Query q = entityManager.createNativeQuery(sqlQuery.toString());
+		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
+		Object obj = q.getResultList();
+		List<Object[]> responseObjList = (List<Object[]>) obj;
+		List<Vendor> vendors = new ArrayList<>();
+		for (Object[] responseObj : responseObjList) {
+			Vendor vendor = new Vendor();
+			vendor.setId(Long.valueOf(responseObj[0].toString()));
+			vendor.setEmail(String.valueOf(responseObj[1]));
+			vendor.setFirstName(String.valueOf(responseObj[2]));
+			vendor.setLastName(String.valueOf(responseObj[3]));
+			vendor.setStoreName(String.valueOf(responseObj[4]));
+			vendor.setStoreImageName(String.valueOf(responseObj[5]));
+			vendor.setStoreDetailImageName(String.valueOf(responseObj[6]));
+			vendor.setFeaturedImageName(String.valueOf(responseObj[7]));
+			vendor.setLatitude(BigDecimal.valueOf(Double.valueOf(responseObj[8].toString())));
+			vendor.setLongitude(BigDecimal.valueOf(Double.valueOf(responseObj[9].toString())));
+			if (responseObj[10] != null) {
+				vendor.setRating(Double.valueOf(responseObj[10].toString()));
+			}
+			if (responseObj[11] != null) {
+				vendor.setNoOfRating(Long.valueOf(responseObj[11].toString()));
+			}
+			if (responseObj[12] != null) {
+				vendor.setIsFeatured(Boolean.valueOf(responseObj[12].toString()));
+			}
+			vendor.setAccepts(String.valueOf(responseObj[13]));
+			vendor.setPhoneNumber(String.valueOf(responseObj[14]));
+			if (responseObj[15] != null) {
+				try {
+					vendor.setOpeningHoursFrom(new SimpleDateFormat("HH:mm:ss").parse(responseObj[15].toString()));
+				} catch (ParseException e) {
+					LOGGER.info("error while parsing opening hours from date");
+				}
+			}
+			if (responseObj[16] != null) {
+				try {
+					vendor.setOpeningHoursTo(new SimpleDateFormat("HH:mm:ss").parse(responseObj[16].toString()));
+				} catch (ParseException e) {
+					LOGGER.info("error while parsing opening hours to date");
+				}
+			}
+			vendor.setDeliveryType(String.valueOf(responseObj[17]));
+			vendor.setPaymentMethod(String.valueOf(responseObj[18]));
+			if (responseObj[19] != null) {
+				vendor.setMinimumOrderAmt(Double.valueOf(responseObj[19].toString()));
+			}
+			if (responseObj[20] != null) {
+				vendor.setDistance(Double.valueOf(responseObj[20].toString()));
+			}
+			vendors.add(vendor);
+		}
+		return vendors;
 	}
 
-	private void addConditionsForCustomerApp(final VendorListFilterDTO vendorListFilterDTO, final CriteriaBuilder criteriaBuilder, final Root<Vendor> vendor,
-			final Join<Vendor, BusinessCategory> businessCategory, final List<Predicate> predicates) {
-		predicates.add(criteriaBuilder.equal(vendor.get("active"), true));
-		predicates.add(criteriaBuilder.equal(vendor.get("isOrderServiceEnable"), true));
-		predicates.add(criteriaBuilder.equal(vendor.get("status"), VendorStatus.ACTIVE.getStatusValue()));
-		if (vendorListFilterDTO.getOpeningHours() != null) {
-			predicates.add(criteriaBuilder.lessThanOrEqualTo(vendor.get("openingHoursFrom"), vendorListFilterDTO.getOpeningHours()));
-			predicates.add(criteriaBuilder.greaterThanOrEqualTo(vendor.get("openingHoursTo"), vendorListFilterDTO.getOpeningHours()));
+	private void addConditionsForCustomerApp(final VendorListFilterDTO vendorListFilterDTO, final StringBuilder sqlQuery, final Map<String, Object> paramMap) {
+		if (vendorListFilterDTO.getBusinessCategoryId() != null) {
+			sqlQuery.append(" and v.business_category_id = :businessCategoryId ");
+			paramMap.put("businessCategoryId", vendorListFilterDTO.getBusinessCategoryId());
 		}
-		predicates.add(criteriaBuilder.equal(businessCategory.get("id"), vendorListFilterDTO.getBusinessCategoryId()));
+		if (vendorListFilterDTO.getOpeningHours() != null) {
+			sqlQuery.append(" and v.opening_hours_from < :openingHours and v.opening_hours_to > :openingHours ");
+			paramMap.put("openingHours", vendorListFilterDTO.getOpeningHours());
+		}
 		if (vendorListFilterDTO.getDeliveryType() != null) {
-			Predicate predicate = criteriaBuilder.or(criteriaBuilder.equal(vendor.get("deliveryType"), vendorListFilterDTO.getDeliveryType()),
-					criteriaBuilder.equal(vendor.get("deliveryType"), DeliveryType.BOTH.getStatusValue()));
-			predicates.add(predicate);
+			sqlQuery.append(" and (v.delivery_type = :deliveryType or v.delivery_type = ").append(DeliveryType.BOTH.getStatusValue()).append(")");
+			paramMap.put("deliveryType", vendorListFilterDTO.getOpeningHours());
 		}
 		if (vendorListFilterDTO.getIsFeatured() != null) {
-			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorListFilterDTO.getIsFeatured()));
+			sqlQuery.append(" and v.is_featured = :isFeatured");
+			paramMap.put("isFeatured", vendorListFilterDTO.getIsFeatured());
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorListFilterDTO.getSearchKeyword())) {
-			Expression<String> storeName = criteriaBuilder.lower(vendor.get("storeName"));
-			predicates.add(criteriaBuilder.like(storeName, "%" + vendorListFilterDTO.getSearchKeyword().toLowerCase() + "%"));
+			sqlQuery.append(" and lower(v.store_name) like CONCAT('%', :searchKeyword, '%')");
+			paramMap.put("searchKeyword", vendorListFilterDTO.getSearchKeyword().toLowerCase());
 		}
-//		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
-//			Join<Vendor, VendorCuisine> vendorCuisine = vendor.join("vendorCuisine", JoinType.INNER);
-//			predicates.add(vendorCuisine.get("cuisine").in(vendorListFilterDTO.getCuisineIds()));
-//		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
+			sqlQuery.append(" and cuisine.id in (" + vendorListFilterDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ");
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getVendorIds())) {
-			predicates.add(vendor.get("id").in(vendorListFilterDTO.getVendorIds()));
+			sqlQuery.append(" and v.id in (" + vendorListFilterDTO.getVendorIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ");
 		}
 		if (vendorListFilterDTO.getRatingFrom() != null && vendorListFilterDTO.getRatingTo() != null) {
-			predicates.add(criteriaBuilder.between(vendor.get("rating"), vendorListFilterDTO.getRatingFrom(), vendorListFilterDTO.getRatingTo()));
+			sqlQuery.append(" and v.rating between :ratingFrom and :ratingTo");
+			paramMap.put("ratingFrom", vendorListFilterDTO.getRatingFrom());
+			paramMap.put("ratingTo", vendorListFilterDTO.getRatingTo());
 		}
 	}
 

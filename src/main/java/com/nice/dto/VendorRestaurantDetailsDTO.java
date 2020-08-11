@@ -57,9 +57,6 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 
 	private List<VendorCuisineDTO> vendorCuisineDTOs;
 
-	@NotNull(message = "{isOrderServiceEnable.not.null}")
-	private Boolean isOrderServiceEnable;
-
 	@NotBlank(message = "{store.contact.not.null}")
 	private String storePhoneNumber;
 

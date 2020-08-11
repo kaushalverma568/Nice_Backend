@@ -39,6 +39,7 @@ import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.Notification;
 import com.nice.dto.UserOtpDto;
+import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorCuisineDTO;
@@ -227,7 +228,7 @@ public class VendorServiceImpl implements VendorService {
 
 	@Override
 	public VendorResponseDTO getVendor(final Long vendorId) throws NotFoundException {
-		return vendorMapper.toDto(getVendorDetail(vendorId));
+		return vendorMapper.toDto(getVendorDetail(vendorId), true);
 	}
 
 	@Override
@@ -323,8 +324,8 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
-				 * then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
+				 * the email is verified then we will be returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -338,8 +339,8 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
-			 * we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
+			 * the email is verified then we will be returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -446,6 +447,20 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setSubscriptionPlanStartDate(existingVendor.getSubscriptionPlanStartDate());
 			vendor.setSubscriptionPlanEndDate(existingVendor.getSubscriptionPlanEndDate());
 			vendor.setStatus(existingVendor.getStatus());
+			vendor.setStoreDetailImageName(existingVendor.getStoreDetailImageName());
+			vendor.setStoreImageName(existingVendor.getStoreImageName());
+			vendor.setStoreDetailImageOriginalName(existingVendor.getStoreDetailImageOriginalName());
+			vendor.setStoreImageOriginalName(existingVendor.getStoreImageOriginalName());
+			vendor.setFeaturedImageName(existingVendor.getFeaturedImageName());
+			vendor.setFeaturedImageOriginalName(existingVendor.getFeaturedImageOriginalName());
+			vendor.setAccepts(existingVendor.getAccepts());
+			vendor.setOpeningHoursFrom(existingVendor.getOpeningHoursFrom());
+			vendor.setOpeningHoursTo(existingVendor.getOpeningHoursTo());
+			vendor.setMinimumOrderAmt(existingVendor.getMinimumOrderAmt());
+			vendor.setPaymentMethod(existingVendor.getPaymentMethod());
+			vendor.setDeliveryType(existingVendor.getDeliveryType());
+			vendor.setMaxDaysForAccept(existingVendor.getMaxDaysForAccept());
+			vendor.setStorePhoneNumber(existingVendor.getStorePhoneNumber());
 			vendorRepository.save(vendor);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
@@ -567,6 +582,8 @@ public class VendorServiceImpl implements VendorService {
 		} else if (vendor.getIsOrderServiceEnable().equals(isOrderServiceEnable)) {
 			throw new ValidationException(
 					messageByLocaleService.getMessage(Boolean.TRUE.equals(isOrderServiceEnable) ? "already.enable" : "already.disable", null));
+		} else if (vendor.getProfileCompleted() != null && !vendor.getProfileCompleted().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.profile.incomplete", null));
 		}
 		vendor.setIsOrderServiceEnable(isOrderServiceEnable);
 		vendorRepository.save(vendor);
@@ -584,7 +601,7 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public List<VendorResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
+	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
@@ -594,34 +611,11 @@ public class VendorServiceImpl implements VendorService {
 			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
 		}
-		List<VendorResponseDTO> responseDTOs = new ArrayList<>();
+		List<VendorAppResponseDTO> responseDTOs = new ArrayList<>();
 		List<Vendor> vendors = vendorRepository.getVendorListForCustomerBasedOnParams(null, null, vendorListFilterDTO);
-		int size = vendors.size();
-
-		for (int i = 0; i < size; i++) {
-			Double min = null;
-			Vendor resultVendor = null;
-			for (Vendor vendor : vendors) {
-				Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
-						vendorListFilterDTO.getLatitude().doubleValue(), vendorListFilterDTO.getLongitude().doubleValue());
-				if (distance <= Constant.MAX_DISTANCE_FROM_CUSTOMER) {
-					if (min == null) {
-						min = distance;
-						resultVendor = vendor;
-					} else {
-						if (distance < min) {
-							min = distance;
-							resultVendor = vendor;
-						}
-					}
-				}
-			}
-			if (resultVendor != null) {
-				VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(resultVendor);
-				vendorResponseDTO.setDistance(CommonUtility.distance(resultVendor.getLatitude().doubleValue(), resultVendor.getLongitude().doubleValue(),
-						vendorListFilterDTO.getLatitude().doubleValue(), vendorListFilterDTO.getLongitude().doubleValue()));
-				responseDTOs.add(vendorResponseDTO);
-				vendors.remove(resultVendor);
+		for (Vendor vendor : vendors) {
+			if (vendor.getDistance() <= Constant.MAX_DISTANCE_FROM_CUSTOMER) {
+				responseDTOs.add(vendorMapper.toAppDto(vendor, false));
 			}
 		}
 		return responseDTOs;

@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
@@ -191,6 +195,8 @@ public class VendorController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping("/restaurant/details")
 	public ResponseEntity<Object> updateRestaurantDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "storeImage", required = false) final MultipartFile storeImage,
@@ -260,8 +266,7 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{vendorId}")
-	public ResponseEntity<Object> getVendor(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId)
-			throws NotFoundException {
+	public ResponseEntity<Object> getVendor(@PathVariable("vendorId") final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get Vendor for id:{}", vendorId);
 		final VendorResponseDTO resultVendorResponseDTO = vendorService.getVendor(vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.detail.message", null))
@@ -359,7 +364,7 @@ public class VendorController {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		List<VendorResponseDTO> vendorList = vendorService.getVendorListForApp(vendorListFilterDTO);
+		List<VendorAppResponseDTO> vendorList = vendorService.getVendorListForApp(vendorListFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null))
 				.setData(vendorList).create();
 

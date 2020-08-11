@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
@@ -204,7 +205,7 @@ public interface VendorService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	List<VendorResponseDTO> getVendorListForApp(VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
+	List<VendorAppResponseDTO> getVendorListForApp(VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * scheduler method for expire subscription

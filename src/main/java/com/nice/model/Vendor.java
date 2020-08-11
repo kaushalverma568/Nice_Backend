@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,7 @@ import lombok.ToString;
  * @author : Kody Technolab Pvt. Ltd.
  * @date   : 29-06-2020
  */
+
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -175,4 +177,7 @@ public class Vendor extends CommonModel {
 
 	@Column(name = "profile_completed")
 	private Boolean profileCompleted;
+
+	@Transient
+	private Double distance;
 }
