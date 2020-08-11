@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
@@ -428,13 +430,20 @@ public class UserLoginController {
 			LOGGER.error("Customers validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		String userName = userLoginService.addUpdateEmail(emailUpdateDTO);
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		String userName = userLoginService.addUpdateEmail(emailUpdateDTO, userLogin);
+		/**
+		 * for super admin we have to use USER as userType
+		 */
+		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole())) {
+			userLogin.setEntityType(UserType.USER.name());
+		}
 		LoginResponse loginResponse = null;
 		if (userName != null) {
-			revokeToken(userName.concat("!!").concat(emailUpdateDTO.getUserType()));
+			revokeToken(userName.concat("!!").concat(userLogin.getEntityType()));
 			UserLoginDto userLoginDto = new UserLoginDto();
 			userLoginDto.setUserName(emailUpdateDTO.getEmail());
-			userLoginDto.setUserType(emailUpdateDTO.getUserType());
+			userLoginDto.setUserType(userLogin.getEntityType());
 			userLoginDto.setPassword(emailUpdateDTO.getPassword());
 			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 			loginResponse = userLoginService.checkUserLogin(userLoginDto);
@@ -462,15 +471,22 @@ public class UserLoginController {
 			@RequestParam(name = "otp", required = true) final String otp, @RequestParam(name = "phoneNumber", required = true) final String phoneNumber,
 			@RequestParam(name = "userType", required = true) final String userType) throws ValidationException, NotFoundException, UnAuthorizationException {
 		LOGGER.info("Inside add update PhoneNumber {} and otp: {} and userType: {}", phoneNumber, otp, userType);
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 
-		String userName = userLoginService.addUpdatePhoneNumber(phoneNumber, otp, userType);
+		String userName = userLoginService.addUpdatePhoneNumber(phoneNumber, otp, userType, userLogin);
+		/**
+		 * for super admin we have to use USER as userType
+		 */
+		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole())) {
+			userLogin.setEntityType(UserType.USER.name());
+		}
 		LoginResponse loginResponse = null;
 		if (userName != null) {
-			revokeToken(userName.concat("!!").concat(userType));
+			revokeToken(userName.concat("!!").concat(userLogin.getEntityType()));
 			String loginOtp = userLoginService.generateOtpForLogin(phoneNumber);
 			UserLoginDto userLoginDto = new UserLoginDto();
 			userLoginDto.setUserName(userName);
-			userLoginDto.setUserType(userType);
+			userLoginDto.setUserType(userLogin.getEntityType());
 			userLoginDto.setPassword(loginOtp);
 			userLoginDto.setRegisteredVia(RegisterVia.OTP.getStatusValue());
 			loginResponse = userLoginService.checkUserLogin(userLoginDto);

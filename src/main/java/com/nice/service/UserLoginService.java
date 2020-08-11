@@ -216,7 +216,7 @@ public interface UserLoginService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	String addUpdateEmail(EmailUpdateDTO emailUpdateDTO) throws NotFoundException, ValidationException;
+	String addUpdateEmail(EmailUpdateDTO emailUpdateDTO, UserLogin userLogin) throws NotFoundException, ValidationException;
 
 	/**
 	 * add/update an phone number
@@ -228,7 +228,7 @@ public interface UserLoginService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	String addUpdatePhoneNumber(String phoneNumber, String otp, String userType) throws NotFoundException, ValidationException;
+	String addUpdatePhoneNumber(String phoneNumber, String otp, String userType, UserLogin userLogin) throws NotFoundException, ValidationException;
 
 	/**
 	 * get user Information from access token
