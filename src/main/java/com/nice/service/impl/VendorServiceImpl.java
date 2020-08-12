@@ -38,6 +38,7 @@ import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.Notification;
+import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.UserOtpDto;
 import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
@@ -55,11 +56,14 @@ import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.VendorMapper;
+import com.nice.model.Addons;
 import com.nice.model.BusinessCategory;
+import com.nice.model.Category;
 import com.nice.model.City;
 import com.nice.model.Country;
 import com.nice.model.CustomerAddress;
 import com.nice.model.Pincode;
+import com.nice.model.Product;
 import com.nice.model.SubscriptionPlan;
 import com.nice.model.UserLogin;
 import com.nice.model.UserOtp;
@@ -68,13 +72,16 @@ import com.nice.model.VendorBankDetails;
 import com.nice.model.VendorCuisine;
 import com.nice.repository.VendorBankDetailsRepository;
 import com.nice.repository.VendorRepository;
+import com.nice.service.AddonsService;
 import com.nice.service.AssetService;
 import com.nice.service.BusinessCategoryService;
+import com.nice.service.CategoryService;
 import com.nice.service.CityService;
 import com.nice.service.CountryService;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
+import com.nice.service.ProductService;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorCuisineService;
@@ -144,6 +151,15 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private AssetService assetService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private AddonsService addonsService;
+
+	@Autowired
+	private CategoryService categoryService;
 
 	@Override
 	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
@@ -280,6 +296,29 @@ public class VendorServiceImpl implements VendorService {
 				 */
 				if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 					throw new ValidationException(messageByLocaleService.getMessage("vendor.subscription.active", null));
+				}
+				/**
+				 * deactivate all product of this vendor
+				 */
+				ProductParamRequestDTO productParamRequestDTO = new ProductParamRequestDTO();
+				productParamRequestDTO.setVendorId(vendorId);
+				List<Product> products = productService.getProductListBasedOnParamsWithoutPagination(productParamRequestDTO);
+				for (Product product : products) {
+					productService.changeStatus(product.getId(), active);
+				}
+				/**
+				 * deactivate all addons for this vendor
+				 */
+				List<Addons> addons = addonsService.getAddonsListByVendor(vendorId);
+				for (Addons addons2 : addons) {
+					addonsService.changeStatus(addons2.getId(), active);
+				}
+				/**
+				 * deactivate all category for this vendor
+				 */
+				List<Category> categories = categoryService.getCategoryListByVendor(vendorId);
+				for (Category category : categories) {
+					categoryService.changeStatus(category.getId(), active);
 				}
 				/**
 				 * deActive all vendor cuisines of this vendor
@@ -651,7 +690,7 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setStatus(VendorStatus.EXPIRED.name());
 			vendor.setIsOrderServiceEnable(false);
 			vendorRepository.save(vendor);
-
+			sendEmailForChangeVendorStatus(vendor.getId());
 		}
 
 	}
@@ -680,17 +719,6 @@ public class VendorServiceImpl implements VendorService {
 		VendorStatus existingStatus = VendorStatus.getByValue(vendor.getStatus());
 		if (!existingStatus.contains(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.status.not.allowed", new Object[] { newStatus, vendor.getStatus() }));
-		}
-		if (VendorStatus.APPROVED.getStatusValue().equals(newStatus)) {
-			// send email for you account has been approved by admin kindly Login here
-		}
-		if (VendorStatus.REJECTED.getStatusValue().equals(newStatus)) {
-			// send email for you account has been rejected by admin kindly contact admin
-		}
-		if (VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)) {
-			// send email to vendor that your account is being suspended by admin kindly
-			// contact admin.
-			// revoke token
 		}
 		if (VendorStatus.EXPIRED.getStatusValue().equals(newStatus)
 				|| (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) && !VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus()))) {
@@ -781,5 +809,13 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public VendorBasicDetailDTO getVendorBasicDetailById(final Long vendorId) throws NotFoundException {
 		return vendorMapper.toBasicDto(getVendorDetail(vendorId));
+	}
+
+	@Override
+	public void sendEmailForChangeVendorStatus(final Long vendorId) {
+		Notification notification = new Notification();
+		notification.setVendorId(vendorId);
+		notification.setType(NotificationQueueConstants.VENDOR_STATUS_CHANGE);
+		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 }

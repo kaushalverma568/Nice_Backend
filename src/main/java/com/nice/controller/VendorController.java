@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
@@ -385,6 +386,10 @@ public class VendorController {
 			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
 		vendorService.changeVendorStatus(vendorId, newStatus);
+		if (VendorStatus.APPROVED.getStatusValue().equals(newStatus) || VendorStatus.REJECTED.getStatusValue().equals(newStatus)
+				|| VendorStatus.SUSPENDED.getStatusValue().equals(newStatus) || VendorStatus.EXPIRED.getStatusValue().equals(newStatus)) {
+			vendorService.sendEmailForChangeVendorStatus(vendorId);
+		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
 	}

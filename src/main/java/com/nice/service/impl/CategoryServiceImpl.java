@@ -338,4 +338,10 @@ public class CategoryServiceImpl implements CategoryService {
 		category.setImageOriginalName(null);
 		categoryRepository.save(category);
 	}
+
+	@Override
+	public List<Category> getCategoryListByVendor(final Long vendorId) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		return categoryRepository.findAllByVendor(vendor);
+	}
 }

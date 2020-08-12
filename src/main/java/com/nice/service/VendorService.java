@@ -277,4 +277,11 @@ public interface VendorService {
 	 * @throws NotFoundException
 	 */
 	VendorBasicDetailDTO getVendorBasicDetailById(Long vendorId) throws NotFoundException;
+
+	/**
+	 * send email for change vendor status
+	 * 
+	 * @param vendorId
+	 */
+	void sendEmailForChangeVendorStatus(Long vendorId);
 }
