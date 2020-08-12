@@ -84,7 +84,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -373,8 +373,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -383,7 +383,7 @@ public class VendorServiceImpl implements VendorService {
 		UserOtpDto userOtpDto = new UserOtpDto();
 		userOtpDto.setEmail(vendor.getEmail());
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setUserLoginId(userLogin.getId());
+		userOtpDto.setUserId(userLogin.getId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 		sendEmail(otp.getOtp(), userLogin.getId(), vendor.getEmail());
 	}

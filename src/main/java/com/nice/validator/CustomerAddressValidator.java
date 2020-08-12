@@ -13,7 +13,7 @@ import com.nice.service.CustomerAddressService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class CustomerAddressValidator implements Validator {
@@ -47,7 +47,7 @@ public class CustomerAddressValidator implements Validator {
 
 		try {
 			if (customersAddressDTO != null && customersAddressService.isExists(customersAddressDTO)) {
-				errors.rejectValue("name", "409", messageByLocaleService.getMessage("address.exists", new Object[] { Constant.CUSTOMER_ADDRESS }));
+				errors.rejectValue("firstName", "409", messageByLocaleService.getMessage("address.exists", new Object[] { Constant.CUSTOMER_ADDRESS }));
 			}
 		} catch (NotFoundException e) {
 			errors.rejectValue("customerId", "409",

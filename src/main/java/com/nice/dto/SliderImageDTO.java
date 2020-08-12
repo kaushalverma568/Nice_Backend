@@ -16,7 +16,9 @@ public class SliderImageDTO {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	private String imageUrl;
+	private String appImageUrl;
+
+	private String webImageUrl;
 
 	@NotNull(message = "{slider.image.type.not.null}")
 	private String type;

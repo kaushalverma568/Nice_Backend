@@ -31,7 +31,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -64,8 +64,8 @@ public class OtpServiceImpl implements OtpService {
 		/**
 		 * Check if userId or (UserEmail or phoneNumber) is available to generate OTP.
 		 */
-		if (userOtpDto.getUserLoginId() != null) {
-			userlogin = userLoginService.getUserLogin(userOtpDto.getUserLoginId());
+		if (userOtpDto.getUserId() != null) {
+			userlogin = userLoginService.getUserLogin(userOtpDto.getUserId());
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getEmail())
 				|| CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getPhoneNumber())) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getUserType())) {
@@ -85,10 +85,11 @@ public class OtpServiceImpl implements OtpService {
 		 */
 		if (!userlogin.isPresent()) {
 			LOGGER.error("user login is not present : {}", userOtpDto);
-			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserLoginId() }));
+			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a
+		 * new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {

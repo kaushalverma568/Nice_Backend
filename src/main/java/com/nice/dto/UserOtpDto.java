@@ -12,7 +12,7 @@ import lombok.Data;
 public class UserOtpDto {
 
 	private Long id;
-	private Long userLoginId;
+	private Long userId;
 	@NotBlank(message = "{otp.type.not.null}")
 	private String type;
 	private String email;

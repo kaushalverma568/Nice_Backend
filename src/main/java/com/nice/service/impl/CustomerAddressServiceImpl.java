@@ -83,6 +83,12 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 		}
 		customerAddress.setCustomer(customer);
 		customerAddress.setCountry(country);
+		/**
+		 * If the address is added for the first time then it won't be marked as default
+		 */
+		if (customerAddress.getId() == null) {
+			customerAddress.setDefaultAddress(false);
+		}
 		State state = stateService.getStateDetails(customersAddressDTO.getStateId());
 		customerAddress.setState(state);
 		City city = cityService.getCityDetails(customersAddressDTO.getCityId());
@@ -98,7 +104,8 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 		if (customersAddressDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("address.id.not.null", null));
 		}
-		getAddressDetails(customersAddressDTO.getId());
+		CustomerAddress customerAddress = getAddressDetails(customersAddressDTO.getId());
+		customersAddressDTO.setDefaultAddress(customerAddress.isDefaultAddress());
 		return addAddress(customerId, customersAddressDTO);
 	}
 

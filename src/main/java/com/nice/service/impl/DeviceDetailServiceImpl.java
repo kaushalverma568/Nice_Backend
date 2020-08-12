@@ -22,7 +22,7 @@ import com.nice.service.UserLoginService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service("deviceDetailService")
 @Transactional(rollbackOn = Throwable.class)
@@ -46,26 +46,25 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 	@Override
 	public void addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
-		LOGGER.info("inside add update device detail method for data {}", deviceDetailDTO);
-		Optional<DeviceDetail> existingDetail = getDeviceDetailByUser(deviceDetailDTO.getUserId());
-		if (existingDetail.isPresent()) {
-			if (!existingDetail.get().getDeviceId().equals(deviceDetailDTO.getDeviceId())) {
-				LOGGER.info("inside update device detail for id {}", existingDetail.get().getId());
-				existingDetail.get().setDeviceId(deviceDetailDTO.getDeviceId());
-				existingDetail.get().setDeviceType(deviceDetailDTO.getDeviceType());
-				deviceDetailRepository.save(existingDetail.get());
-			}
+		/**
+		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated
+		 * with multiple users.
+		 */
+		deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
+
+		/**
+		 *
+		 */
+
+		LOGGER.info("inside update device detail for user {} and deviceid {}", deviceDetailDTO.getUserId(), deviceDetailDTO.getDeviceId());
+		DeviceDetail deviceDetail = deviceDetailMapper.toEntity(deviceDetailDTO);
+		Optional<UserLogin> userLogin = userLoginService.getUserLogin(deviceDetailDTO.getUserId());
+		if (userLogin.isPresent()) {
+			deviceDetail.setUserLogin(userLogin.get());
 		} else {
-			LOGGER.info("inside update device detail for user {} and deviceid {}", deviceDetailDTO.getUserId(), deviceDetailDTO.getDeviceId());
-			DeviceDetail deviceDetail = deviceDetailMapper.toEntity(deviceDetailDTO);
-			Optional<UserLogin> userLogin = userLoginService.getUserLogin(deviceDetailDTO.getUserId());
-			if (userLogin.isPresent()) {
-				deviceDetail.setUserLogin(userLogin.get());
-			} else {
-				throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { deviceDetailDTO.getUserId() }));
-			}
-			deviceDetailRepository.save(deviceDetail);
+			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { deviceDetailDTO.getUserId() }));
 		}
+		deviceDetailRepository.save(deviceDetail);
 	}
 
 	@Override
@@ -108,6 +107,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { userId }));
 		}
+	}
+
+	private void deleteDeviceDetailByDeviceId(final String deviceId) {
+		deviceDetailRepository.deleteByDeviceId(deviceId);
 	}
 
 }

@@ -14,7 +14,7 @@ import com.nice.service.AssetService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class SliderImageMapper {
@@ -25,7 +25,8 @@ public class SliderImageMapper {
 	public SliderImageDTO toDto(final SliderImage sliderBanner) {
 		SliderImageDTO sliderBannerDTO = new SliderImageDTO();
 		BeanUtils.copyProperties(sliderBanner, sliderBannerDTO);
-		sliderBannerDTO.setImageUrl(assetService.getGeneratedUrl(sliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES));
+		sliderBannerDTO.setAppImageUrl(assetService.getGeneratedUrl(sliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES));
+		sliderBannerDTO.setWebImageUrl(assetService.getGeneratedUrl(sliderBanner.getWebImageName(), AssetConstant.SLIDER_IMAGES));
 		return sliderBannerDTO;
 	}
 

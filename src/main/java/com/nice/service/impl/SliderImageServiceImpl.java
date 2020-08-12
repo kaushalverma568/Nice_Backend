@@ -21,7 +21,7 @@ import com.nice.service.SliderImageService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service("sliderImageService")
 @Transactional(rollbackFor = Throwable.class)
@@ -40,20 +40,23 @@ public class SliderImageServiceImpl implements SliderImageService {
 	private MessageByLocaleService messageByLocaleService;
 
 	@Override
-	public void addSliderBanner(final SliderImageDTO sliderImageDTO, final MultipartFile image) throws ValidationException {
+	public void addSliderImages(final SliderImageDTO sliderImageDTO, final MultipartFile appImage, final MultipartFile webImage) throws ValidationException {
 
 		if (Constant.BANNER.equalsIgnoreCase(sliderImageDTO.getType())
 				&& sliderImageRepository.findAllByType(Constant.BANNER).size() == Constant.MAX_BANNER_IMAGES) {
 			throw new ValidationException(messageByLocaleService.getMessage("banner.slider.image.limit.exaust", new Object[] { Constant.MAX_BANNER_IMAGES }));
 		}
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
-		sliderBanner.setImageName(assetService.saveAsset(image, AssetConstant.SLIDER_IMAGES, 0));
-		sliderBanner.setOrigionalImageName(image.getOriginalFilename());
+		sliderBanner.setAppImageName(assetService.saveAsset(appImage, AssetConstant.SLIDER_IMAGES, 0));
+		sliderBanner.setAppOriginalImageName(appImage.getOriginalFilename());
+		sliderBanner.setWebImageName(assetService.saveAsset(webImage, AssetConstant.SLIDER_IMAGES, 1));
+		sliderBanner.setWebOriginalImageName(webImage.getOriginalFilename());
 		sliderImageRepository.save(sliderBanner);
 	}
 
 	@Override
-	public void updateSliderBanner(final SliderImageDTO sliderImageDTO, final MultipartFile image) throws NotFoundException, ValidationException {
+	public void updateSliderImage(final SliderImageDTO sliderImageDTO, final MultipartFile appImage, final MultipartFile webImage)
+			throws NotFoundException, ValidationException {
 		if (sliderImageDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.id.not.null", null));
 		}
@@ -61,10 +64,25 @@ public class SliderImageServiceImpl implements SliderImageService {
 		if (!existingSliderBanner.getType().equals(sliderImageDTO.getType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.type.cannot.change", null));
 		}
-		assetService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
-		sliderBanner.setImageName(assetService.saveAsset(image, AssetConstant.SLIDER_IMAGES, 0));
-		sliderBanner.setOrigionalImageName(image.getOriginalFilename());
+		if (appImage != null) {
+			assetService.deleteFile(existingSliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES);
+			sliderBanner.setAppImageName(assetService.saveAsset(appImage, AssetConstant.SLIDER_IMAGES, 0));
+			sliderBanner.setAppOriginalImageName(appImage.getOriginalFilename());
+
+		} else {
+			sliderBanner.setAppImageName(existingSliderBanner.getAppImageName());
+			sliderBanner.setAppOriginalImageName(existingSliderBanner.getAppOriginalImageName());
+		}
+		if (webImage != null) {
+			assetService.deleteFile(existingSliderBanner.getWebImageName(), AssetConstant.SLIDER_IMAGES);
+			sliderBanner.setWebImageName(assetService.saveAsset(webImage, AssetConstant.SLIDER_IMAGES, 1));
+			sliderBanner.setWebOriginalImageName(webImage.getOriginalFilename());
+		} else {
+			sliderBanner.setWebImageName(existingSliderBanner.getWebImageName());
+			sliderBanner.setWebOriginalImageName(existingSliderBanner.getWebOriginalImageName());
+		}
+
 		sliderImageRepository.save(sliderBanner);
 	}
 
@@ -97,7 +115,8 @@ public class SliderImageServiceImpl implements SliderImageService {
 		}
 		SliderImage existingSliderBanner = getSliderBannerById(id);
 
-		assetService.deleteFile(existingSliderBanner.getImageName(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getWebImageName(), AssetConstant.SLIDER_IMAGES);
 		sliderImageRepository.delete(existingSliderBanner);
 
 	}

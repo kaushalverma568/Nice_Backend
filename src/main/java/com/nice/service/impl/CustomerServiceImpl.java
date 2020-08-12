@@ -52,7 +52,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -227,8 +227,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -237,7 +237,7 @@ public class CustomerServiceImpl implements CustomerService {
 		UserOtpDto userOtpDto = new UserOtpDto();
 		userOtpDto.setEmail(resultCustomer.getEmail());
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setUserLoginId(userLogin.getId());
+		userOtpDto.setUserId(userLogin.getId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 
 		sendEmail(otp.getOtp(), userLogin.getId(), resultCustomer.getEmail());
@@ -333,8 +333,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
-				 * then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
+				 * if the email is verified then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

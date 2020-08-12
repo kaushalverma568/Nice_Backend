@@ -55,11 +55,10 @@ public class SliderImageController {
 	private SliderImageService sliderBannerService;
 
 	/**
-	 * add Slider Banner
 	 *
 	 * @param accessToken
-	 * @param image
-	 * @param userId
+	 * @param appImage
+	 * @param webImage
 	 * @param sliderBannerDTO
 	 * @param result
 	 * @return
@@ -68,30 +67,32 @@ public class SliderImageController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
-	public ResponseEntity<Object> addSliderBanner(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file") final MultipartFile image, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result)
-			throws ValidationException {
+	public ResponseEntity<Object> addSliderImage(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "appImage") final MultipartFile appImage, @RequestParam(name = "webImage") final MultipartFile webImage,
+			@ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add Banner {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Banner validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
+		if (appImage == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(appImage.getOriginalFilename())) {
 			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
 		}
-		sliderBannerService.addSliderBanner(sliderBannerDTO, image);
+		if (webImage == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(webImage.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
+		}
+		sliderBannerService.addSliderImages(sliderBannerDTO, appImage, webImage);
 		LOGGER.info("Outside add Banner");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.image.create.message", null))
 				.create();
 	}
 
 	/**
-	 * update Slider Banner
 	 *
 	 * @param accessToken
-	 * @param image
-	 * @param userId
+	 * @param appImage
+	 * @param webImage
 	 * @param sliderBannerDTO
 	 * @param result
 	 * @return
@@ -101,19 +102,17 @@ public class SliderImageController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
-	public ResponseEntity<Object> updateSliderBanner(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file") final MultipartFile image, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result)
-			throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updateSliderImage(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "appImage", required = false) final MultipartFile appImage,
+			@RequestParam(name = "webImage", required = false) final MultipartFile webImage, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Banner {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Banner validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (image == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
-			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
-		}
-		sliderBannerService.updateSliderBanner(sliderBannerDTO, image);
+		sliderBannerService.updateSliderImage(sliderBannerDTO, appImage, webImage);
 		LOGGER.info("Outside update Banner");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.update.message", null))
 				.create();

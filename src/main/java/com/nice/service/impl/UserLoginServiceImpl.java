@@ -80,7 +80,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -567,7 +567,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				 * generate OTP
 				 */
 				final UserOtpDto userOtpDto = new UserOtpDto();
-				userOtpDto.setUserLoginId(userLogin.get().getId());
+				userOtpDto.setUserId(userLogin.get().getId());
 				userOtpDto.setType(forgotPasswordParameterDTO.getType());
 				final UserOtp userOtp = otpService.generateOtp(userOtpDto);
 				if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
@@ -803,8 +803,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  emailUpdateDTO
-	 * @param  userLogin
+	 * @param emailUpdateDTO
+	 * @param userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -890,11 +890,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  phoneNumber
-	 * @param  otp
-	 * @param  userType
-	 * @param  userName
-	 * @param  userLogin
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @param userName
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

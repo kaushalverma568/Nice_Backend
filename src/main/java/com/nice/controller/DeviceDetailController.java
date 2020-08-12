@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -26,11 +24,10 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.DeviceDetailService;
-import com.nice.validator.DeviceDetailValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RequestMapping(path = "/device/details")
 @RestController
@@ -46,26 +43,13 @@ public class DeviceDetailController {
 	@Autowired
 	private DeviceDetailService deviceDetailService;
 
-	@Autowired
-	private DeviceDetailValidator deviceDetailValidator;
-
-	/**
-	 * Bind validator with object using 'BindingResult' in method
-	 *
-	 * @param binder
-	 */
-	@InitBinder
-	public void initialiseBinder(final WebDataBinder binder) {
-		binder.addValidators(deviceDetailValidator);
-	}
-
 	/**
 	 * add/update device details
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  deviceDetailDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param deviceDetailDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

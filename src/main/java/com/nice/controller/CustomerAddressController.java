@@ -39,7 +39,7 @@ import com.nice.validator.CustomerAddressValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @RequestMapping(path = "/customer")
 @RestController
@@ -80,9 +80,9 @@ public class CustomerAddressController {
 	/**
 	 * Add customer Address
 	 *
-	 * @param  accessToken
-	 * @param  customerAddressDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param customerAddressDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -114,9 +114,9 @@ public class CustomerAddressController {
 	/**
 	 * Update customer address
 	 *
-	 * @param  accessToken
-	 * @param  customerAddressDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param customerAddressDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -148,9 +148,9 @@ public class CustomerAddressController {
 	/**
 	 * Get customer address details based on id
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  addressId
+	 * @param accessToken
+	 * @param customerId
+	 * @param addressId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -165,11 +165,11 @@ public class CustomerAddressController {
 	/**
 	 * Get list of customer Address based on customerId
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param customerId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -188,14 +188,14 @@ public class CustomerAddressController {
 	/**
 	 * Get customer address list based on parameters
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  countryId
-	 * @param  stateId
-	 * @param  cityId
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param customerId
+	 * @param countryId
+	 * @param stateId
+	 * @param cityId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
 	 * @return
 	 */
 	@GetMapping("/address/pageNumber/{pageNumber}/pageSize/{pageSize}")
@@ -214,8 +214,8 @@ public class CustomerAddressController {
 	/**
 	 * Change status of customer Address (active/deActive)
 	 *
-	 * @param  customersAddressId
-	 * @param  active
+	 * @param customersAddressId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -223,9 +223,8 @@ public class CustomerAddressController {
 
 	@DeleteMapping("/address/{customersAddressId}")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("customersAddressId") final Long customersAddressId, @RequestParam("active") final Boolean active)
-			throws NotFoundException, ValidationException {
-		LOGGER.info("Inside change status of customer for id {} and status {}", customersAddressId, active);
+			@PathVariable("customersAddressId") final Long customersAddressId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside delete cusotmer address of customer for address id {} ", customersAddressId);
 		customerAddressService.deleteAddress(customersAddressId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("address.delete.message", null))
 				.create();
@@ -234,8 +233,8 @@ public class CustomerAddressController {
 	/**
 	 * Update customer address default based on id
 	 *
-	 * @param  accessToken
-	 * @param  addressId
+	 * @param accessToken
+	 * @param addressId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

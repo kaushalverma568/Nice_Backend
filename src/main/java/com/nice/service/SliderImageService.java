@@ -19,22 +19,24 @@ public interface SliderImageService {
 	 * add Slider Banner
 	 *
 	 * @param sliderBannerDTO
-	 * @param image
+	 * @param appImage
+	 * @param webImage
 	 * @param userId
 	 * @throws ValidationException
 	 */
-	void addSliderBanner(SliderImageDTO sliderBannerDTO, MultipartFile image) throws ValidationException;
+	void addSliderImages(SliderImageDTO sliderBannerDTO, MultipartFile appImage, MultipartFile webImage) throws ValidationException;
 
 	/**
 	 * update Slider Banner
 	 *
 	 * @param sliderBannerDTO
-	 * @param image
+	 * @param appImage
+	 * @param webImage
 	 * @param userId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateSliderBanner(SliderImageDTO sliderBannerDTO, MultipartFile image) throws NotFoundException, ValidationException;
+	void updateSliderImage(SliderImageDTO sliderBannerDTO, MultipartFile appImage, MultipartFile webImage) throws NotFoundException, ValidationException;
 
 	/**
 	 * Get Slider Banner DTO List

@@ -11,7 +11,7 @@ import com.nice.model.UserOtp;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Component
 public class UserOtpMapper {
@@ -19,7 +19,7 @@ public class UserOtpMapper {
 	public UserOtpDto toDto(final UserOtp userOtp) {
 		UserOtpDto userOtpDTO = new UserOtpDto();
 		BeanUtils.copyProperties(userOtp, userOtpDTO);
-		userOtpDTO.setUserLoginId(userOtp.getUserLogin().getId());
+		userOtpDTO.setUserId(userOtp.getUserLogin().getId());
 		return userOtpDTO;
 	}
 
