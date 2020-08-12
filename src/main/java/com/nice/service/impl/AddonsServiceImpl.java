@@ -248,4 +248,10 @@ public class AddonsServiceImpl implements AddonsService {
 		return allResult;
 	}
 
+	@Override
+	public List<Addons> getAddonsListByVendor(final Long vendorId) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		return addonsRepository.findAllByVendor(vendor);
+	}
+
 }

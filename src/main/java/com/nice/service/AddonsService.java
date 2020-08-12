@@ -1,5 +1,7 @@
 package com.nice.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
@@ -86,11 +88,18 @@ public interface AddonsService {
 	void changeStatus(Long addonsId, Boolean active) throws NotFoundException, ValidationException;
 
 	/**
-	 * 
-	 * @param file
-	 * @param httpServletResponse
-	 * @throws FileOperationException 
+	 * @param  file
+	 * @param  httpServletResponse
+	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * get addons list by vendor
+	 *
+	 * @param  vendorId
+	 * @return
+	 */
+	List<Addons> getAddonsListByVendor(Long vendorId) throws NotFoundException;
 
 }

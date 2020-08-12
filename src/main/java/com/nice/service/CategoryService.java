@@ -1,5 +1,7 @@
 package com.nice.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
@@ -117,4 +119,13 @@ public interface CategoryService {
 	 * @throws NotFoundException
 	 */
 	void deleteImage(Long categoryId) throws NotFoundException;
+
+	/**
+	 * get category list by vendor
+	 * 
+	 * @param  vendorId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<Category> getCategoryListByVendor(Long vendorId) throws NotFoundException;
 }

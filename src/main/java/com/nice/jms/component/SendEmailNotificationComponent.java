@@ -23,14 +23,17 @@ import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
+import com.nice.constant.VendorStatus;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.Notification;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
+import com.nice.model.Vendor;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
+import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.EmailTemplatesEnum;
 import com.nice.util.EmailUtil;
@@ -88,6 +91,9 @@ public class SendEmailNotificationComponent {
 	@Autowired
 	private AssetService assetService;
 
+	@Autowired
+	private VendorService vendorService;
+
 	/**
 	 * @param  notification
 	 * @throws NotFoundException
@@ -109,6 +115,8 @@ public class SendEmailNotificationComponent {
 			sendOtp(emailNotification);
 		} else if (NotificationQueueConstants.VENDOR_SUBSCRIPTION_EXPIRY_REMINDER.equals(emailNotification.getType())) {
 			subscriptionExpireReminder(emailNotification);
+		} else if (NotificationQueueConstants.VENDOR_STATUS_CHANGE.equals(emailNotification.getType())) {
+			sendEmailForChangeVendorStatus(emailNotification);
 		}
 	}
 
@@ -225,10 +233,31 @@ public class SendEmailNotificationComponent {
 
 	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
 		Map<String, String> paramMap = new HashMap<>();
-		paramMap.put("otp", emailNotification.getOtp());
 		String sendOtpSubject = applicationName + " Subscription Expire Reminder";
 		paramMap.put("message", "Your subscription will expired in 7 days.Renew Your subscription.");
 		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name());
+	}
+
+	private void sendEmailForChangeVendorStatus(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
+		String message = null;
+		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
+			message = "Your account is Approved by admin Kindly Login to procced.";
+		} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+			message = "Your account is Suspended by admin Kindly contact admin for further process.";
+		} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
+			message = "Your account is Rejected by admin Kindly contact admin for further process.";
+		} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
+			message = "Your account subscription is expired.Kindly purchase one to coutinue with us.";
+		} else {
+			return;
+		}
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = applicationName + " vendor update";
+		emailParameterMap.put("vendorName", vendor.getFirstName().concat(" ").concat(vendor.getLastName()));
+		emailParameterMap.put("message", message);
+		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name());
 	}
 
 }
