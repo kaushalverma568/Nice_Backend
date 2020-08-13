@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.ModuleAndPermissionDTO;
+import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
+import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleDTO;
 import com.nice.dto.RoleResponseDTO;
@@ -89,6 +91,20 @@ public class RoleServiceImpl implements RoleService {
 	public Role getRoleDetail(final Long roleId) throws NotFoundException {
 		return roleRepository.findById(roleId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("role.not.found", new Object[] { roleId })));
+	}
+
+	@Override
+	public RoleAndPermissionResponseDTO getRoleDetailWithPermission(final Long roleId) throws NotFoundException {
+		Role role = getRoleDetail(roleId);
+		List<ModuleAndPermissionResponseDTO> moduleAndPermissionResponseDTOs = permissionMapper
+				.toModuleAndPermissionResponseDTOs(permissionRepository.findAllByRoleAndActive(role, true));
+		RoleAndPermissionResponseDTO roleAndPermissionsDTO = new RoleAndPermissionResponseDTO();
+		roleAndPermissionsDTO.setModuleAndPermissionResponseDTOs(moduleAndPermissionResponseDTOs);
+		roleAndPermissionsDTO.setActive(role.getActive());
+		roleAndPermissionsDTO.setDescription(role.getDescription());
+		roleAndPermissionsDTO.setId(roleId);
+		roleAndPermissionsDTO.setName(role.getName());
+		return roleAndPermissionsDTO;
 	}
 
 	@Override

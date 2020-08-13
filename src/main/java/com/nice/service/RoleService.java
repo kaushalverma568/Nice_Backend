@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import org.springframework.data.domain.Page;
 
+import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleDTO;
 import com.nice.dto.RoleResponseDTO;
@@ -96,4 +97,11 @@ public interface RoleService {
 	 * @throws ValidationException
 	 */
 	void deleteRole(Long roleId) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param  roleId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	RoleAndPermissionResponseDTO getRoleDetailWithPermission(Long roleId) throws NotFoundException;
 }

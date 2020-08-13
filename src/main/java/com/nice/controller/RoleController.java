@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleDTO;
 import com.nice.dto.RoleResponseDTO;
@@ -115,6 +116,23 @@ public class RoleController {
 		RoleResponseDTO resultres = roleService.getRole(roleId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.detail.message", null))
 				.setData(resultres).create();
+	}
+
+	/**
+	 * get role with permissions
+	 *
+	 * @param  accessToken
+	 * @param  roleId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/permission/{roleId}")
+	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
+	public ResponseEntity<Object> getRoleWithPermissions(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId)
+			throws NotFoundException {
+		RoleAndPermissionResponseDTO roleAndPermissionResponseDTO = roleService.getRoleDetailWithPermission(roleId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.detail.message", null))
+				.setData(roleAndPermissionResponseDTO).create();
 	}
 
 	/**

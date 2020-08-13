@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
+import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
 import com.nice.model.Permission;
@@ -42,6 +43,14 @@ public class PermissionMapper {
 		return permissionResponseDTOList;
 	}
 
+	public List<ModuleAndPermissionResponseDTO> toModuleAndPermissionResponseDTOs(final List<Permission> permissions) {
+		List<ModuleAndPermissionResponseDTO> permissionResponseDTOList = new ArrayList<>();
+		for (Permission permission : permissions) {
+			permissionResponseDTOList.add(toModuleAndPermissionResponseDTO(permission));
+		}
+		return permissionResponseDTOList;
+	}
+
 	public PermissionResponseDTO toResponseDTO(final Permission permission) {
 		PermissionResponseDTO permissionResponseDTO = new PermissionResponseDTO();
 		BeanUtils.copyProperties(permission, permissionResponseDTO);
@@ -51,6 +60,14 @@ public class PermissionMapper {
 		permissionResponseDTO.setRoleActive(permission.getRole().getActive());
 		permissionResponseDTO.setModuleId(permission.getModules().getId());
 		permissionResponseDTO.setModuleName(permission.getModules().getName());
+		return permissionResponseDTO;
+	}
+
+	public ModuleAndPermissionResponseDTO toModuleAndPermissionResponseDTO(final Permission permission) {
+		ModuleAndPermissionResponseDTO permissionResponseDTO = new ModuleAndPermissionResponseDTO();
+		BeanUtils.copyProperties(permission, permissionResponseDTO);
+		permissionResponseDTO.setModulesId(permission.getModules().getId());
+		permissionResponseDTO.setModulesName(permission.getModules().getName());
 		return permissionResponseDTO;
 	}
 }

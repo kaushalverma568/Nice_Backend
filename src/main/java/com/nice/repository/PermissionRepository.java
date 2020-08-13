@@ -70,6 +70,15 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	Page<Permission> findAllByActiveAndRole(Boolean activeRecords, Role role, Pageable pageable);
 
 	/**
+	 * get permission list by active and role
+	 *
+	 * @param  activeRecords
+	 * @param  role
+	 * @return
+	 */
+	List<Permission> findAllByActiveAndRole(Boolean activeRecords, Role role);
+
+	/**
 	 * get page by active and module
 	 *
 	 * @param  activeRecords
