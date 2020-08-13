@@ -1,6 +1,7 @@
 package com.nice.scheduler;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,10 @@ public class VendorSubscriptionScheduler {
 	}
 
 	public void expiredSubscription(final Date runDate) {
-		vendorService.runVendorSubscriptionExpireScheduler(runDate);
+		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(new Date());
+		for (Long vendorId : vendorIds) {
+			vendorService.sendEmailForChangeVendorStatus(vendorId);
+		}
 	}
 
 	public void subscriptionExpireReminder(final Date runDate) {

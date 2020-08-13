@@ -5,8 +5,7 @@ package com.nice.repository;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -201,7 +200,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	public List<Vendor> getVendorListForCustomerBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
 		StringBuilder sqlQuery = new StringBuilder(
-				"SELECT v.id,v.email,v.first_name,v.last_name,v.store_name,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
+				"SELECT v.id,v.email,v.first_name,v.last_name,v.store_name,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
 						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
 						+ "FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
@@ -252,26 +251,27 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			vendor.setAccepts(String.valueOf(responseObj[13]));
 			vendor.setPhoneNumber(String.valueOf(responseObj[14]));
 			if (responseObj[15] != null) {
-				try {
-					vendor.setOpeningHoursFrom(new SimpleDateFormat("HH:mm:ss").parse(responseObj[15].toString()));
-				} catch (ParseException e) {
-					LOGGER.info("error while parsing opening hours from date");
-				}
+				// try {
+				vendor.setOpeningHoursFrom(Timestamp.valueOf(responseObj[15].toString()));
+				// } catch (ParseException e) {
+				// LOGGER.info("error while parsing opening hours from date");
+				// }
 			}
 			if (responseObj[16] != null) {
-				try {
-					vendor.setOpeningHoursTo(new SimpleDateFormat("HH:mm:ss").parse(responseObj[16].toString()));
-				} catch (ParseException e) {
-					LOGGER.info("error while parsing opening hours to date");
-				}
+				// try {
+				vendor.setOpeningHoursTo(Timestamp.valueOf(responseObj[16].toString()));
+				// } catch (ParseException e) {
+				// LOGGER.info("error while parsing opening hours to date");
+				// }
 			}
 			vendor.setDeliveryType(String.valueOf(responseObj[17]));
 			vendor.setPaymentMethod(String.valueOf(responseObj[18]));
 			if (responseObj[19] != null) {
 				vendor.setMinimumOrderAmt(Double.valueOf(responseObj[19].toString()));
 			}
-			if (responseObj[20] != null) {
-				vendor.setDistance(Double.valueOf(responseObj[20].toString()));
+			vendor.setStorePhoneNumber(String.valueOf(responseObj[20]));
+			if (responseObj[21] != null) {
+				vendor.setDistance(Double.valueOf(responseObj[21].toString()));
 			}
 			vendors.add(vendor);
 		}
@@ -288,8 +288,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			paramMap.put("openingHours", vendorListFilterDTO.getOpeningHours());
 		}
 		if (vendorListFilterDTO.getDeliveryType() != null) {
-			sqlQuery.append(" and (v.delivery_type = :deliveryType or v.delivery_type = ").append(DeliveryType.BOTH.getStatusValue()).append(")");
-			paramMap.put("deliveryType", vendorListFilterDTO.getOpeningHours());
+			sqlQuery.append(" and (v.delivery_type = :deliveryType or v.delivery_type = '").append(DeliveryType.BOTH.getStatusValue()).append("')");
+			paramMap.put("deliveryType", vendorListFilterDTO.getDeliveryType());
 		}
 		if (vendorListFilterDTO.getIsFeatured() != null) {
 			sqlQuery.append(" and v.is_featured = :isFeatured");

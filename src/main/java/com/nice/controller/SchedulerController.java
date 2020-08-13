@@ -50,7 +50,7 @@ public class SchedulerController {
 
 	@Autowired
 	private StockDetailsService stockDetailsService;
-	
+
 	@Autowired
 	private DiscountService discountService;
 
@@ -68,8 +68,8 @@ public class SchedulerController {
 		final LocalDate runDate = LocalDate.now();
 		LOGGER.info("Inside run Scheduler of discount for date :{}", runDate);
 
-		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name) || Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name) ||
-				Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name) || Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name))) {
+		if (!(Constant.EXPIRE_STOCK_SCHEDULER.equals(name) || Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name) || Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)
+				|| Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name))) {
 			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", new Object[] { name }));
 		}
 		SchedulerDetails schedulerDetails = schedulerDetailsService.getLastSchedulerRunDate(name);
@@ -84,9 +84,12 @@ public class SchedulerController {
 		}
 		if (Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name)) {
 			discountService.activateExpireDiscount(LocalDate.now());
-		} 
+		}
 		if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
-			vendorService.runVendorSubscriptionExpireScheduler(new Date());
+			List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(new Date());
+			for (Long vendorId : vendorIds) {
+				vendorService.sendEmailForChangeVendorStatus(vendorId);
+			}
 		} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {
 			vendorService.runVendorSubscriptionExpireReminderScheduler(new Date());
 		}

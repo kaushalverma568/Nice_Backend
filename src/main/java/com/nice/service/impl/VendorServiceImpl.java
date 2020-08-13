@@ -500,6 +500,8 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setDeliveryType(existingVendor.getDeliveryType());
 			vendor.setMaxDaysForAccept(existingVendor.getMaxDaysForAccept());
 			vendor.setStorePhoneNumber(existingVendor.getStorePhoneNumber());
+			vendor.setProfileCompleted(existingVendor.getProfileCompleted());
+			vendor.setIsFeatured(existingVendor.getIsFeatured());
 			vendorRepository.save(vendor);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
@@ -681,18 +683,19 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void runVendorSubscriptionExpireScheduler(final Date runDate) {
+	public List<Long> runVendorSubscriptionExpireScheduler(final Date runDate) {
 		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
 		vendorFilterDTO.setSubscriptionEndDate(runDate);
+		List<Long> vendorIds = new ArrayList<>();
 		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
 		for (Vendor vendor : vendors) {
 			vendor.setActive(false);
-			vendor.setStatus(VendorStatus.EXPIRED.name());
+			vendor.setStatus(VendorStatus.EXPIRED.getStatusValue());
 			vendor.setIsOrderServiceEnable(false);
 			vendorRepository.save(vendor);
-			sendEmailForChangeVendorStatus(vendor.getId());
+			vendorIds.add(vendor.getId());
 		}
-
+		return vendorIds;
 	}
 
 	@Override

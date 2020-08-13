@@ -67,8 +67,9 @@ public class OrderLocationController {
 			locationDTO.setLongitude(new BigDecimal(messageConverted.get(LONGITUDE)));
 			try {
 				orderLocationService.addOrderLocation(locationDTO);
-				simpMessagingTemplate.convertAndSend("/socket-publisher/" + "deliveryBoy".concat(locationDTO.getDeliveryBoyId().toString()), message);
-				simpMessagingTemplate.convertAndSend("/socket-publisher/" + "customer".concat(locationDTO.getCustomerId().toString()), message);
+				simpMessagingTemplate.convertAndSend("/socket-publisher/" + "order".concat(locationDTO.getOrderId().toString()), message);
+				// simpMessagingTemplate.convertAndSend("/socket-publisher/" +
+				// "customer".concat(locationDTO.getCustomerId().toString()), message);
 			} catch (ValidationException e) {
 				LOGGER.info("valiation error occur while add location with message : {}", e.getMessage());
 			} catch (NotFoundException e) {

@@ -212,7 +212,7 @@ public interface VendorService {
 	 *
 	 * @param runDate
 	 */
-	void runVendorSubscriptionExpireScheduler(Date runDate);
+	List<Long> runVendorSubscriptionExpireScheduler(Date runDate);
 
 	/**
 	 * scheduler method to send email regarding subscription expire
@@ -280,7 +280,7 @@ public interface VendorService {
 
 	/**
 	 * send email for change vendor status
-	 * 
+	 *
 	 * @param vendorId
 	 */
 	void sendEmailForChangeVendorStatus(Long vendorId);
