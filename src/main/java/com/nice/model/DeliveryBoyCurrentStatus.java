@@ -1,5 +1,7 @@
 package com.nice.model;
 
+import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -52,10 +54,14 @@ public class DeliveryBoyCurrentStatus extends CommonModel {
 	private Boolean isBusy;
 
 	/**
-	 * when delivery boy is not available for taking any order it will be mark as
-	 * isAvailable false
+	 * when delivery boy is not available for taking any order it will be mark as isAvailable false
 	 */
 	@Column(name = "is_available", nullable = false)
 	private Boolean isAvailable;
 
+	/**
+	 * If the current status of the delivery boy is active, then this will contain the last active time, el
+	 */
+	@Column(name = "last_activate_time", nullable = true)
+	private Date lastActivateTime;
 }

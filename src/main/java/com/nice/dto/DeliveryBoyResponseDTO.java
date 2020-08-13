@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Data
 public class DeliveryBoyResponseDTO implements Serializable {
@@ -57,4 +57,10 @@ public class DeliveryBoyResponseDTO implements Serializable {
 	private Long noOfRating;
 
 	private String status;
+
+	/**
+	 * Contains today's active time in minutes for delivery boy
+	 *
+	 */
+	private Long activeTime;
 }

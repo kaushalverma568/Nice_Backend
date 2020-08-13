@@ -11,7 +11,7 @@ import com.nice.model.ProductAddons;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 @Component
 public class ProductAddonsMapper {
@@ -22,6 +22,7 @@ public class ProductAddonsMapper {
 		productAddonsResponseDTO.setProductVariantId(productAddons.getProductVariant().getId());
 		productAddonsResponseDTO.setAddonsId(productAddons.getAddons().getId());
 		productAddonsResponseDTO.setAddonsName(productAddons.getAddons().getName());
+		productAddonsResponseDTO.setDescription(productAddons.getAddons().getDescription());
 		return productAddonsResponseDTO;
 	}
 

@@ -144,4 +144,11 @@
 				path="sql-files/1.0/add_column_slider_images.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
+	<changeSet id="21" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/delivery_boy_active_time.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

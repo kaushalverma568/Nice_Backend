@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 
 @Data
@@ -33,4 +33,5 @@ public class ProductAddonsDTO implements Serializable {
 
 	private String addonsName;
 
+	private String description;
 }

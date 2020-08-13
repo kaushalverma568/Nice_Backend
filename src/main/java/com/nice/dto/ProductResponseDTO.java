@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class ProductResponseDTO implements Serializable {
@@ -39,6 +39,7 @@ public class ProductResponseDTO implements Serializable {
 	private Integer productFoodType;
 	private Long cuisineId;
 	private String cuisineName;
+	private Boolean combo;
 	/**
 	 * Set to true only if all the variant of the product are out of stock
 	 */

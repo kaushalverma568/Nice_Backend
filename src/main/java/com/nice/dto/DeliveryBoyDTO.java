@@ -36,4 +36,10 @@ public class DeliveryBoyDTO implements Serializable {
 
 	@NotBlank(message = "{phone.number.not.null}")
 	private String phoneNumber;
+
+	/**
+	 * Contains today's active time in minutes for delivery boy
+	 *
+	 */
+	private Long activeTime;
 }

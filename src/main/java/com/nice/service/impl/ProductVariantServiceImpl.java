@@ -195,19 +195,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		return productVariantResponseDTOs;
 	}
 
-	// @Override
-	// public List<ProductVariantResponseDTO> convertToResponseDtoList(final
-	// List<ProductVariant> productVariantList, final
-	// Long pincodeId)
-	// throws NotFoundException, ValidationException {
-	// List<ProductVariantResponseDTO> productVariantResponseDTOList = new
-	// ArrayList<>();
-	// for (ProductVariant productVariant : productVariantList) {
-	// productVariantResponseDTOList.add(convertToResponseDto(productVariant));
-	// }
-	// return productVariantResponseDTOList;
-	// }
-
 	private ProductVariantResponseDTO convertToResponseDto(final ProductVariant productVariant, final boolean isAdmin) throws NotFoundException {
 		ProductVariantResponseDTO productVariantResponseDTO = new ProductVariantResponseDTO();
 		BeanUtils.copyProperties(productVariant, productVariantResponseDTO);
@@ -224,8 +211,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
 		/**
-		 * Set product addons, attribute values and toppings list for the product
-		 * variant
+		 * Set product addons, attribute values and toppings list for the product variant
 		 */
 		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
@@ -334,8 +320,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean isAdmin = false;
 		/**
-		 * if the user is a Vendor then check if the product belongs to him. For Super
-		 * Admin all products should be visible
+		 * if the user is a Vendor then check if the product belongs to him. For Super Admin all products should be visible
 		 */
 		if (userLogin != null && (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
 			isAdmin = true;
@@ -357,8 +342,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	/**
-	 * This method will be used only for internal calls to skip the authentication
-	 * process
+	 * This method will be used only for internal calls to skip the authentication process
 	 *
 	 * @param productVariantId
 	 * @return
@@ -375,8 +359,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Here is admin is taken as true as this method will only be accessed by
-		 * admin/vendor always.
+		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
 		 */
 		ProductVariant productVariant = getProductVariantDetailBySku(sku, userLogin.getEntityId());
 		if (userLogin.getEntityId() == null || productVariant.getVendorId().equals(userLogin.getEntityId())) {

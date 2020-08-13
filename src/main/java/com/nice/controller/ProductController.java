@@ -2,6 +2,7 @@ package com.nice.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,7 @@ import com.nice.validator.ProductValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
 @RestController(value = "productController")
@@ -90,11 +91,11 @@ public class ProductController {
 	public static final String IMAGE_NOT_NULL = "image.required";
 
 	/**
-	 * @param  accessToken
-	 * @param  image
-	 * @param  userId
-	 * @param  productRequestDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param image
+	 * @param userId
+	 * @param productRequestDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -119,11 +120,11 @@ public class ProductController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  image
-	 * @param  userId
-	 * @param  productRequestDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param image
+	 * @param userId
+	 * @param productRequestDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -149,7 +150,7 @@ public class ProductController {
 	}
 
 	/**
-	 * @param  productId
+	 * @param productId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -167,7 +168,7 @@ public class ProductController {
 	/**
 	 * Get Cuisine with count
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -181,8 +182,8 @@ public class ProductController {
 	}
 
 	/**
-	 * @param  vendorId
-	 * @param  cuisineId
+	 * @param vendorId
+	 * @param cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -201,10 +202,10 @@ public class ProductController {
 	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
 	 * products will be shown to them.
 	 *
-	 * @param  accessToken
-	 * @param  productParamRequestDTO
-	 * @param  pageNumber
-	 * @param  pageSize
+	 * @param accessToken
+	 * @param productParamRequestDTO
+	 * @param pageNumber
+	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -225,12 +226,35 @@ public class ProductController {
 	}
 
 	/**
+	 * Get product list based on parameters.This method will be used by Customer only as for admin and vendor there is not
+	 * need to group the products based on category
+	 *
+	 * @param accessToken
+	 * @param productParamRequestDTO
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PostMapping("/list/group/category")
+	public ResponseEntity<Object> getProductListBasedOnParamsGroupedByCategory(@RequestBody final ProductParamRequestDTO productParamRequestDTO)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get Product List BasedOnParams {}", productParamRequestDTO);
+		final Map<String, Map<String, List<ProductResponseDTO>>> productList = productService
+				.getProductListBasedOnParamsAndCategoryWise(productParamRequestDTO);
+		LOGGER.info("After successfully Get Product List BasedOnParams");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
+				.setData(productList).create();
+	}
+
+	/**
 	 * Change status of product
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  productId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param productId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -249,20 +273,20 @@ public class ProductController {
 	/**
 	 * export made product list
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws IOException
 	 * @throws NotFoundException
 	 * @throws ValidationException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportProductList(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final ProductParamRequestDTO productParamRequestDTO, final HttpServletResponse httpServletResponse)
-			throws  ValidationException, NotFoundException, FileNotFoundException {
+			throws ValidationException, NotFoundException, FileNotFoundException {
 		productService.exportProductList(httpServletResponse, productParamRequestDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
 				.create();
@@ -271,10 +295,10 @@ public class ProductController {
 	/**
 	 * Upload product
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param userId
+	 * @param file
+	 * @param httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
@@ -291,10 +315,10 @@ public class ProductController {
 
 	/**
 	 * to delete image by type
-	 * 
-	 * @param  accessToken
-	 * @param  imageType
-	 * @param  productId
+	 *
+	 * @param accessToken
+	 * @param imageType
+	 * @param productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

@@ -75,7 +75,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -345,7 +345,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -384,6 +384,46 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public Map<String, Map<String, List<ProductResponseDTO>>> getProductListBasedOnParamsAndCategoryWise(final ProductParamRequestDTO productParamRequestDTO)
+			throws NotFoundException, ValidationException {
+
+		LOGGER.info("Inside getProductListBasedOnParamsAndCategoryWise");
+		List<ProductResponseDTO> productResponseDtoList = getProductListBasedOnParams(productParamRequestDTO, null, null);
+		/**
+		 * Set category based product list
+		 */
+		Map<String, Map<String, List<ProductResponseDTO>>> productResponseDtoListCategoryWise = new HashMap<>();
+		for (ProductResponseDTO productResponseDto : productResponseDtoList) {
+			/**
+			 * If category does not exists in Map
+			 */
+			if (productResponseDtoListCategoryWise.get(productResponseDto.getCategoryName()) == null) {
+				List<ProductResponseDTO> prodRespDtoList = new ArrayList<>();
+				prodRespDtoList.add(productResponseDto);
+				Map<String, List<ProductResponseDTO>> subCategoryWiseProductResponseMap = new HashMap<>();
+				subCategoryWiseProductResponseMap.put(productResponseDto.getSubcategoryName(), prodRespDtoList);
+				productResponseDtoListCategoryWise.put(productResponseDto.getCategoryName(), subCategoryWiseProductResponseMap);
+			}
+			/**
+			 * If category exists but subcategory related details exists or not exists
+			 */
+			else {
+				Map<String, List<ProductResponseDTO>> subCategoryWiseProductMap = productResponseDtoListCategoryWise.get(productResponseDto.getCategoryName());
+				if (subCategoryWiseProductMap.get(productResponseDto.getSubcategoryName()) == null) {
+					List<ProductResponseDTO> prodRespDtoList = new ArrayList<>();
+					prodRespDtoList.add(productResponseDto);
+					subCategoryWiseProductMap.put(productResponseDto.getSubcategoryName(), prodRespDtoList);
+					productResponseDtoListCategoryWise.put(productResponseDto.getCategoryName(), subCategoryWiseProductMap);
+				} else {
+					subCategoryWiseProductMap.get(productResponseDto.getSubcategoryName()).add(productResponseDto);
+				}
+			}
+		}
+		LOGGER.info("After getProductListBasedOnParamsAndCategoryWise ");
+		return productResponseDtoListCategoryWise;
+	}
+
+	@Override
 	public List<ProductResponseDTO> getProductDetailList(final List<Product> products) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getProductDetailList");
 		List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
@@ -395,12 +435,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -445,8 +486,8 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty and productOutOfStock for any
-		 * other category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
+		 * and productOutOfStock for any other category type except grocery.
 		 */
 		Integer availableQty = 0;
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
@@ -509,9 +550,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -541,7 +582,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -571,8 +612,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is null or the userLogin->entityType
-		 * is customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -703,8 +744,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTOs
-	 * @param  userId
+	 * @param productImportDTOs
+	 * @param userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -769,10 +810,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTO
-	 * @param  brandId
-	 * @param  vendor
-	 * @param  productRequestDTO
+	 * @param productImportDTO
+	 * @param brandId
+	 * @param vendor
+	 * @param productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, Long brandId, final Vendor vendor,

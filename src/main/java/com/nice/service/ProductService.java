@@ -2,6 +2,7 @@ package com.nice.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +40,7 @@ public interface ProductService {
 	 * @param productRequestDTO
 	 * @param userId
 	 * @param image
-	 * @param detailImage 
+	 * @param detailImage
 	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -71,7 +72,7 @@ public interface ProductService {
 	 *
 	 * @param productRequestDTO
 	 * @param image
-	 * @param detailImage 
+	 * @param detailImage
 	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -161,10 +162,10 @@ public interface ProductService {
 	 * @throws IOException
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	void exportProductList(HttpServletResponse httpServletResponse, ProductParamRequestDTO productParamRequestDTO)
-			throws  NotFoundException, ValidationException, FileNotFoundException;
+			throws NotFoundException, ValidationException, FileNotFoundException;
 
 	/**
 	 * @param multipartFile
@@ -174,20 +175,22 @@ public interface ProductService {
 	void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException;
 
 	/**
-	 *  to delete image
+	 * to delete image
+	 *
 	 * @param imageType
 	 * @param productId
-	 * @throws NotFoundException 
-	 * @throws ValidationException 
+	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	void deleteImage(String imageType, Long productId) throws NotFoundException, ValidationException;
 
 	/**
-	 * get response of global search
-	 *
-	 * @param searchKeyword
+	 * @param productParamRequestDTO
 	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	// GlobalSearchResponseDTO getResultOfGlobalSearch(String searchKeyword);
+	Map<String, Map<String, List<ProductResponseDTO>>> getProductListBasedOnParamsAndCategoryWise(ProductParamRequestDTO productParamRequestDTO)
+			throws NotFoundException, ValidationException;
 
 }

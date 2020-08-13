@@ -69,6 +69,7 @@ import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CashcollectionService;
+import com.nice.service.DeliveryBoyActiveTimeService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
@@ -133,6 +134,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Autowired
 	private CashcollectionService cashCollectionService;
+
+	@Autowired
+	private DeliveryBoyActiveTimeService deliveryBoyActiveTimeService;
 
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
@@ -216,7 +220,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public DeliveryBoyResponseDTO getDeliveryBoy(final Long deliveryBoyId) throws NotFoundException {
-		return deliveryBoyMapper.toDto(getDeliveryBoyDetail(deliveryBoyId));
+		DeliveryBoyResponseDTO deliveryBoyResponseDto = deliveryBoyMapper.toDto(getDeliveryBoyDetail(deliveryBoyId));
+		Long activeTime = deliveryBoyActiveTimeService.getDeliveryBoyActiveTimeDetailsForToday(deliveryBoyId);
+		deliveryBoyResponseDto.setActiveTime(activeTime);
+		return deliveryBoyResponseDto;
 	}
 
 	@Override
@@ -396,7 +403,20 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(userLogin.getEntityId()));
+			if (isAvailable.equals(deliveryBoyCurrentStatus.getIsAvailable())) {
+				if (isAvailable) {
+					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.available", null));
+				} else {
+					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.unavailable", null));
+				}
+			}
 			deliveryBoyCurrentStatus.setIsAvailable(isAvailable);
+			if (isAvailable.booleanValue()) {
+				deliveryBoyCurrentStatus.setLastActivateTime(new Date());
+			} else {
+				deliveryBoyActiveTimeService.updateDeliveryActiveTime(deliveryBoyCurrentStatus.getDeliveryBoy().getId());
+				deliveryBoyCurrentStatus.setLastActivateTime(null);
+			}
 			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 			LOGGER.info("update is available for delivery boy :{} and isAvailable:{}", userLogin.getEntityId(), isAvailable);
 		} else {
