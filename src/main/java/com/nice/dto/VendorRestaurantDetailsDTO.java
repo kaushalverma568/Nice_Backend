@@ -4,13 +4,15 @@
 package com.nice.dto;
 
 import java.io.Serializable;
-import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 
@@ -36,12 +38,14 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	private String accepts;
 
 	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
 	@NotNull(message = "{openingHours.from.not.null}")
-	private Time openingHoursFrom;
+	private Date openingHoursFrom;
 
 	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
 	@NotNull(message = "{openingHours.to.not.null}")
-	private Time openingHoursTo;
+	private Date openingHoursTo;
 
 	@NotNull(message = "{minimumOrderAmt.not.null}")
 	private Double minimumOrderAmt;

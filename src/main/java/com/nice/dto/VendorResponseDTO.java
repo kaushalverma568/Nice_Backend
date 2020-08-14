@@ -8,9 +8,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import lombok.Data;
 
 /**
@@ -69,10 +66,8 @@ public class VendorResponseDTO implements Serializable {
 
 	private String deliveryType;
 
-	@Temporal(TemporalType.TIME)
 	private Date openingHoursFrom;
 
-	@Temporal(TemporalType.TIME)
 	private Date openingHoursTo;
 
 	private Long cityId;
