@@ -31,7 +31,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -70,7 +70,8 @@ public class OtpServiceImpl implements OtpService {
 				|| CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getPhoneNumber())) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getUserType())) {
 				userlogin = userLoginService.getUserLoginBasedOnUserNameAndUserType(
-						CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail() : userOtpDto.getPhoneNumber(),
+						CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail().toLowerCase()
+								: userOtpDto.getPhoneNumber(),
 						userOtpDto.getUserType());
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
@@ -88,8 +89,7 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a
-		 * new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -113,7 +113,8 @@ public class OtpServiceImpl implements OtpService {
 
 			Notification notification = new Notification();
 			notification.setOtp(otp);
-			notification.setEmail(CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail() : userlogin.getEmail());
+			notification
+					.setEmail(CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail().toLowerCase() : userlogin.getEmail());
 			notification.setType(NotificationQueueConstants.SEND_OTP);
 			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 		} else if (UserOtpTypeEnum.SMS.name().equals(userOtpDto.getType())) {

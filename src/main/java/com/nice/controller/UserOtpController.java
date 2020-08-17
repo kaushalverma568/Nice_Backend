@@ -33,7 +33,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @RestController
 @RequestMapping("/otp")
@@ -48,10 +48,10 @@ public class UserOtpController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserOtpController.class);
 
 	/**
-	 * @param userLoginId
-	 * @param type
-	 * @param otp
-	 * @param email
+	 * @param  userLoginId
+	 * @param  type
+	 * @param  otp
+	 * @param  email
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -68,7 +68,7 @@ public class UserOtpController {
 			 */
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userName)) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
-				otpService.verifyOtp(userName, type, otp, userType, false);
+				otpService.verifyOtp(userName.toLowerCase(), type, otp, userType, false);
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
 			}
@@ -82,8 +82,8 @@ public class UserOtpController {
 	}
 
 	/**
-	 * @param userOtpDto
-	 * @param result
+	 * @param  userOtpDto
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -110,11 +110,11 @@ public class UserOtpController {
 	 * This method is used when we want to verify same otp again(In mobile app first time we verify otp and second time we again verify otp and update password
 	 * )
 	 *
-	 * @param userLoginId
-	 * @param type
-	 * @param otp
-	 * @param userName
-	 * @param userType
+	 * @param  userLoginId
+	 * @param  type
+	 * @param  otp
+	 * @param  userName
+	 * @param  userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -133,7 +133,7 @@ public class UserOtpController {
 			 */
 		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userName)) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(userType)) {
-				otpService.verifyOtp(userName, type, otp, userType, true);
+				otpService.verifyOtp(userName.toLowerCase(), type, otp, userType, true);
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("user.type.not.null", null));
 			}
