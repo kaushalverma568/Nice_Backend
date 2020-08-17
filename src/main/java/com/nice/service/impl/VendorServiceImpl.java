@@ -353,7 +353,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
@@ -363,8 +364,9 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending
+				 * the verification link for him again, if the email is verified then we will be
+				 * returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -378,8 +380,9 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending
+			 * the verification link for him again, if the email is verified then we will be
+			 * returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -401,7 +404,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -543,7 +547,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription plan or not
+			 * if order service is enable by vendor then check he has active subscription
+			 * plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -642,7 +647,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
+	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO, final Integer startIndex, final Integer pageSize)
+			throws ValidationException, NotFoundException {
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
@@ -653,20 +659,33 @@ public class VendorServiceImpl implements VendorService {
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
 		}
 		List<VendorAppResponseDTO> responseDTOs = new ArrayList<>();
-		List<Vendor> vendors = vendorRepository.getVendorListForCustomerBasedOnParams(null, null, vendorListFilterDTO);
+		List<Vendor> vendors = vendorRepository.getVendorListForCustomerBasedOnParams(startIndex, pageSize, vendorListFilterDTO);
 		for (Vendor vendor : vendors) {
-			if (vendor.getDistance() <= Constant.MAX_DISTANCE_FROM_CUSTOMER) {
-				responseDTOs.add(vendorMapper.toAppDto(vendor, false));
-			}
+			responseDTOs.add(vendorMapper.toAppDto(vendor, false));
 		}
 		return responseDTOs;
+	}
+
+	@Override
+	public Long getVendorCountForCustomerBasedOnParams(final VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException {
+		if (vendorListFilterDTO.getCustomerAddressId() == null) {
+			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
+			}
+		} else {
+			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
+			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
+			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+		}
+		return vendorRepository.getVendorCountForCustomerBasedOnParams(vendorListFilterDTO);
 	}
 
 	@Override
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByPhoneNumberAndIdNot(vendorDTO.getPhoneNumber(), vendorDTO.getId()).isPresent();
 		} else {
