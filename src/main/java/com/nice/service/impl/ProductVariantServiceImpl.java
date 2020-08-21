@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
+import com.nice.dto.ProductAttributeResponseDTO;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.ProductVariantRequestDTO;
@@ -226,7 +227,22 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
-		productVariantResponseDTO.setProductAttributeValuesDtoMap(productAttributeValueDtoMap);
+
+		/**
+		 * Convert Map to List
+		 *
+		 **/
+		List<ProductAttributeResponseDTO> productAttributeResponseDtoList = new ArrayList<>();
+		for (Map.Entry<String, List<ProductAttributeValueDTO>> productAttributeValueDto : productAttributeValueDtoMap.entrySet()) {
+			List<ProductAttributeValueDTO> productAttributeValDtoList = productAttributeValueDto.getValue();
+			ProductAttributeResponseDTO productAttributeResponseDto = new ProductAttributeResponseDTO();
+			productAttributeResponseDto.setProductAttributeValueList(productAttributeValDtoList);
+			productAttributeResponseDto.setAttributeName(productAttributeValueDto.getKey());
+			productAttributeResponseDtoList.add(productAttributeResponseDto);
+		}
+
+		productVariantResponseDTO.setProductAttributeValuesDtoList(productAttributeResponseDtoList);
+
 		productVariantResponseDTO
 				.setProductToppingsDtoList(productToppingService.getToppingForProductVariant(productVariant.getId(), isAdmin ? null : Boolean.TRUE));
 		return productVariantResponseDTO;

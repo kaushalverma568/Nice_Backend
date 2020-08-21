@@ -26,7 +26,6 @@ public class SliderImageMapper {
 		SliderImageDTO sliderBannerDTO = new SliderImageDTO();
 		BeanUtils.copyProperties(sliderBanner, sliderBannerDTO);
 		sliderBannerDTO.setAppImageUrl(assetService.getGeneratedUrl(sliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES));
-		sliderBannerDTO.setWebImageUrl(assetService.getGeneratedUrl(sliderBanner.getWebImageName(), AssetConstant.SLIDER_IMAGES));
 		return sliderBannerDTO;
 	}
 

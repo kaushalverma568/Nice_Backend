@@ -6,7 +6,6 @@ package com.nice.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import lombok.Data;
 
@@ -42,10 +41,8 @@ public class ProductVariantResponseDTO implements Serializable {
 
 	private List<ProductToppingResponseDTO> productToppingsDtoList;
 	private List<ProductAddonsDTO> productAddonsDtoList;
-	/**
-	 * This Map<AttributeName, List<AttributeValues>>
-	 */
-	private Map<String, List<ProductAttributeValueDTO>> productAttributeValuesDtoMap;
+
+	private List<ProductAttributeResponseDTO> productAttributeValuesDtoList;
 
 	/**
 	 * Cart Impact of Product

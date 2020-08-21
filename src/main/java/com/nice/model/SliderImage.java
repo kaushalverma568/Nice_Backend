@@ -36,12 +36,6 @@ public class SliderImage extends CommonModel {
 	@Column(name = "app_original_image_name")
 	private String appOriginalImageName;
 
-	@Column(name = "web_image_name")
-	private String webImageName;
-
-	@Column(name = "web_original_image_name")
-	private String webOriginalImageName;
-
 	@Column(name = "image_type", nullable = false)
 	private String type;
 }
