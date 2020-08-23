@@ -8,6 +8,8 @@ import java.util.List;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Data;
 
 /**
@@ -38,6 +40,7 @@ public class VendorListFilterDTO implements Serializable {
 	private List<Long> vendorIds;
 
 	@Temporal(TemporalType.TIME)
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
 	private Date openingHours;
 
 	private Boolean isFeatured;
@@ -49,5 +52,7 @@ public class VendorListFilterDTO implements Serializable {
 	private Boolean isNameSorting;
 
 	private Double distance;
+
+	private Long cityId;
 
 }

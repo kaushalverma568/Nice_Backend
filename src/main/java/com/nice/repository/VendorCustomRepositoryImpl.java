@@ -6,7 +6,8 @@ package com.nice.repository;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.VendorFilterDTO;
@@ -210,11 +210,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
 			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue()
-				+ "' and v.is_order_service_enable = true and distance <= :maxDistance ");
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true");
 		paramMap.put("customerLatitude", vendorListFilterDTO.getLatitude());
 		paramMap.put("customerLongitude", vendorListFilterDTO.getLongitude());
-		paramMap.put("maxDistance", Constant.MAX_DISTANCE_FROM_CUSTOMER);
 
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
 		sqlQuery.append(" group by (v.id) ");
@@ -257,18 +255,18 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			vendor.setAccepts(String.valueOf(responseObj[13]));
 			vendor.setPhoneNumber(String.valueOf(responseObj[14]));
 			if (responseObj[15] != null) {
-				// try {
-				vendor.setOpeningHoursFrom(Timestamp.valueOf(responseObj[15].toString()));
-				// } catch (ParseException e) {
-				// LOGGER.info("error while parsing opening hours from date");
-				// }
+				try {
+					vendor.setOpeningHoursFrom(new SimpleDateFormat("HH:mm:ss").parse(responseObj[15].toString()));
+				} catch (ParseException e) {
+					LOGGER.info("error while parsing opening hours from date");
+				}
 			}
 			if (responseObj[16] != null) {
-				// try {
-				vendor.setOpeningHoursTo(Timestamp.valueOf(responseObj[16].toString()));
-				// } catch (ParseException e) {
-				// LOGGER.info("error while parsing opening hours to date");
-				// }
+				try {
+					vendor.setOpeningHoursTo(new SimpleDateFormat("HH:mm:ss").parse(responseObj[16].toString()));
+				} catch (ParseException e) {
+					LOGGER.info("error while parsing opening hours to date");
+				}
 			}
 			vendor.setDeliveryType(String.valueOf(responseObj[17]));
 			vendor.setPaymentMethod(String.valueOf(responseObj[18]));
@@ -316,27 +314,21 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			paramMap.put("ratingFrom", vendorListFilterDTO.getRatingFrom());
 			paramMap.put("ratingTo", vendorListFilterDTO.getRatingTo());
 		}
+		if (vendorListFilterDTO.getCityId() != null) {
+			sqlQuery.append(" and v.city_id = :cityId ");
+			paramMap.put("cityId", vendorListFilterDTO.getCityId());
+		}
 	}
 
 	@Override
 	public Long getVendorCountForCustomerBasedOnParams(final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
-		StringBuilder sqlQuery = new StringBuilder(
-				" select count(total)as count1 from (SELECT v.id as total ,v.email,v.first_name,v.last_name,v.store_name,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
-						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
-						+ "FROM vendor v ");
+		StringBuilder sqlQuery = new StringBuilder(" select count(*) FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
 			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue()
-				+ "' and v.is_order_service_enable = true and distance <= :maxDistance ");
-		paramMap.put("customerLatitude", vendorListFilterDTO.getLatitude());
-		paramMap.put("customerLongitude", vendorListFilterDTO.getLongitude());
-		paramMap.put("maxDistance", Constant.MAX_DISTANCE_FROM_CUSTOMER);
-
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true ");
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
-		sqlQuery.append(" group by (v.id)) as abc ");
-
 		Query q = entityManager.createNativeQuery(sqlQuery.toString());
 		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
 		return ((BigInteger) q.getSingleResult()).longValue();
