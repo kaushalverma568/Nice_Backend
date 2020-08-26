@@ -196,7 +196,7 @@ public class DeliveryBoyController {
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws  FileNotFoundException {
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws FileNotFoundException {
 		deliveryBoyService.exportList(activeRecords, searchKeyword, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.create();
@@ -369,7 +369,7 @@ public class DeliveryBoyController {
 	 */
 	@PutMapping("/available")
 	public ResponseEntity<Object> updateIsAvailable(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam("isAvailable") final Boolean isAvailable) throws NotFoundException, ValidationException {
+			@RequestParam(name = "isAvailable", required = true) final Boolean isAvailable) throws NotFoundException, ValidationException {
 		LOGGER.info("update is available for delivery, isAvailable : {}", isAvailable);
 		deliveryBoyService.updateIsAvailable(isAvailable);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))

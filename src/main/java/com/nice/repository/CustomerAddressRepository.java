@@ -42,25 +42,25 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 	 *
 	 * @param  streetNo
 	 * @param  buildingName
-	 * @param  landmark
+	 * @param  area
 	 * @param  id
 	 * @return
 	 */
-	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndLandmarkAndPincodeAndCustomer(String streetNo, String buildingName, String landmark,
-			Pincode pincode, Customer customer);
+	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomer(String streetNo, String buildingName, String area, Pincode pincode,
+			Customer customer);
 
 	/**
 	 * To find by streetNo, Building name and landmark and pincode and customer and id not
 	 *
 	 * @param  streetNo
 	 * @param  buildingName
-	 * @param  landmark
+	 * @param  area
 	 * @param  pincode
 	 * @param  customer
 	 * @param  id
 	 * @return
 	 */
-	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndLandmarkAndPincodeAndCustomerAndIdNot(String streetNo, String buildingName, String landmark,
+	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomerAndIdNot(String streetNo, String buildingName, String area,
 			Pincode pincode, Customer customer, Long id);
 
 	/**

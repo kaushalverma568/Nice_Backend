@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Data
 public class CustomerAddressDTO implements Serializable {
@@ -35,14 +35,17 @@ public class CustomerAddressDTO implements Serializable {
 	@NotBlank(message = "{phone.number.not.null}")
 	private String phoneNumber;
 
+	@NotBlank(message = "{block.not.null}")
+	private String block;
+
 	@NotBlank(message = "{streetNo.not.null}")
 	private String streetNo;
 
 	@NotBlank(message = "{buildingName.not.null}")
 	private String buildingName;
 
-	@NotBlank(message = "{landmark.not.null}")
-	private String landmark;
+	@NotBlank(message = "{area.not.null}")
+	private String area;
 
 	@NotNull(message = "{pincode.id.not.null}")
 	private Long pincodeId;

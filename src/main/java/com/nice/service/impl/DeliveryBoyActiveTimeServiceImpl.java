@@ -3,13 +3,12 @@
  */
 package com.nice.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ import com.nice.service.DeliveryBoyService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 07-Aug-2020
+ * @date   : 07-Aug-2020
  */
 @Service(value = "deliveryBoyActiveTimeServiceImpl")
 public class DeliveryBoyActiveTimeServiceImpl implements DeliveryBoyActiveTimeService {
@@ -93,18 +92,18 @@ public class DeliveryBoyActiveTimeServiceImpl implements DeliveryBoyActiveTimeSe
 
 		if (!deliveryBoyActiveTime.isPresent()) {
 			/**
-			 * If last active time is null means the delivery boy is currently inactive and the total active time will be already
-			 * there in the DB. </br>
-			 * If the last active time is not null means the delivery boy already has session going on and the current session time
-			 * needs to be added to the total active time
+			 * If last active time is null means the delivery boy is currently inactive and the total active time will be already there in the DB. </br>
+			 * If the last active time is not null means the delivery boy already has session going on and the current session time needs to be added to the
+			 * total active time
 			 *
 			 */
 			if (deliveryBoyCurrentStatus.getLastActivateTime() == null) {
 				return 0L;
 			} else {
-				Long lastActiveTimeInMillisec = DateTime.now().toDateTime(DateTimeZone.UTC).getMillis() > deliveryBoyCurrentStatus.getLastActivateTime()
-						.getTime() ? deliveryBoyCurrentStatus.getLastActivateTime().getTime() : DateTime.now().toDateTime(DateTimeZone.UTC).getMillis();
-				return (DateTime.now().toDateTime(DateTimeZone.UTC).getMillis() - lastActiveTimeInMillisec) / 60000;
+				Long lastActiveTimeInMillisec = LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000 > deliveryBoyCurrentStatus
+						.getLastActivateTime().getTime() ? deliveryBoyCurrentStatus.getLastActivateTime().getTime()
+								: LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000;
+				return (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000 - lastActiveTimeInMillisec) / 60000;
 			}
 
 		} else {

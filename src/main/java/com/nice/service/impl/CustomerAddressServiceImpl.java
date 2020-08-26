@@ -38,7 +38,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "customerAddressService")
 @Transactional(rollbackFor = Throwable.class)
@@ -124,16 +124,14 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 			/**
 			 * While update check whether address is exists or not
 			 */
-			return customerAddressRepository
-					.findByStreetNoAndBuildingNameAndLandmarkAndPincodeAndCustomerAndIdNot(customersAddressDTO.getStreetNo(),
-							customersAddressDTO.getBuildingName(), customersAddressDTO.getLandmark(), pincode, customer, customersAddressDTO.getId())
-					.isPresent();
+			return customerAddressRepository.findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomerAndIdNot(customersAddressDTO.getStreetNo(),
+					customersAddressDTO.getBuildingName(), customersAddressDTO.getArea(), pincode, customer, customersAddressDTO.getId()).isPresent();
 		} else {
 			/**
 			 * While create check whether address is exists or not
 			 */
-			return customerAddressRepository.findByStreetNoAndBuildingNameAndLandmarkAndPincodeAndCustomer(customersAddressDTO.getStreetNo(),
-					customersAddressDTO.getBuildingName(), customersAddressDTO.getLandmark(), pincode, customer).isPresent();
+			return customerAddressRepository.findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomer(customersAddressDTO.getStreetNo(),
+					customersAddressDTO.getBuildingName(), customersAddressDTO.getArea(), pincode, customer).isPresent();
 		}
 	}
 

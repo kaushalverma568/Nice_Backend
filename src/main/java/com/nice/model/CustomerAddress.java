@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Entity
 @Table(name = "customer_address")
@@ -58,8 +58,11 @@ public class CustomerAddress extends CommonModel {
 	@Column(name = "building_name", nullable = false)
 	private String buildingName;
 
-	@Column(name = "landmark", nullable = false)
-	private String landmark;
+	@Column(name = "block", nullable = false)
+	private String block;
+
+	@Column(name = "area", nullable = false)
+	private String area;
 
 	@JoinColumn(name = "pincode_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })

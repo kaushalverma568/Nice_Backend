@@ -301,7 +301,7 @@ public class OrdersServiceImpl implements OrdersService {
 					onlineCart.setStateId(customerAddress.getState().getId());
 					onlineCart.setPincodeId(customerAddress.getPincode().getId());
 					onlineCart.setAddress(customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
-							.concat(customerAddress.getLandmark()).concat(" ").concat(customerAddress.getCity().getName()).concat(" ")
+							.concat(customerAddress.getArea()).concat(" ").concat(customerAddress.getCity().getName()).concat(" ")
 							.concat(customerAddress.getPincode().getCodeValue()).concat(" ").concat(customerAddress.getState().getName()));
 					onlineCart.setLatitude(customerAddress.getLatitude());
 					onlineCart.setLongitude(customerAddress.getLongitude());
@@ -443,9 +443,9 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * Set Address for customer in order
 			 */
-			order.setAddress(customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
-					.concat(customerAddress.getLandmark()).concat(" ").concat(customerAddress.getCity().getName()).concat(" ")
-					.concat(customerAddress.getPincode().getCodeValue()).concat(" ").concat(customerAddress.getState().getName()));
+			order.setAddress(customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea())
+					.concat(" ").concat(customerAddress.getCity().getName()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
+					.concat(customerAddress.getState().getName()));
 			order.setLatitude(customerAddress.getLatitude());
 			order.setLongitude(customerAddress.getLongitude());
 			order.setFirstName(customerAddress.getFirstName());
