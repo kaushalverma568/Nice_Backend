@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.TicketReasonType;
 import com.nice.constant.TicketStatusEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.TicketDTO;
@@ -29,6 +33,7 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.TicketMapper;
 import com.nice.model.Ticket;
+import com.nice.model.TicketReason;
 import com.nice.model.UserLogin;
 import com.nice.repository.TicketReasonRepository;
 import com.nice.repository.TicketRepository;
@@ -38,7 +43,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("ticketService")
@@ -77,7 +82,7 @@ public class TicketServiceImpl implements TicketService {
 		} else if (!(UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type.ticket", null));
-		} else if (!ticketReasonRepository.findAllByReason(ticket.getTicketReason()).isPresent()) {
+		} else if (!ticketReasonRepository.findAllByReasonEnglishOrReasonArabic(ticket.getTicketReason(), ticket.getTicketReason()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.ticket.reason", null));
 		} else {
 
@@ -138,6 +143,20 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
+	public List<String> getTicketReasonList(final String type) throws ValidationException {
+		if (TicketReasonType.getByValue(type) == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.ticket.reason.type", null));
+		} else {
+			final Locale locale = LocaleContextHolder.getLocale();
+			if (locale.getLanguage().equals("en")) {
+				return ticketReasonRepository.findAllByType(type).stream().map(TicketReason::getReasonEnglish).collect(Collectors.toList());
+			} else {
+				return ticketReasonRepository.findAllByType(type).stream().map(TicketReason::getReasonArabic).collect(Collectors.toList());
+			}
+		}
+	}
+
+	@Override
 	public Long getTicketCountBasedOnParams(final Long entityId, final String userType, final String name) {
 		return ticketRepository.getTicketCountBasedOnParams(entityId, userType, name);
 	}
@@ -154,7 +173,8 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Inside get ticket list for user {}", userLogin.getId());
 		Long entityId = null;
 		/**
-		 * if login user is delivery boy , vendor or customer then get ticket list of that user only
+		 * if login user is delivery boy , vendor or customer then get ticket list of
+		 * that user only
 		 */
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {

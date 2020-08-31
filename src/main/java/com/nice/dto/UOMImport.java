@@ -17,8 +17,10 @@ public class UOMImport implements Serializable {
 	 */
 	private static final long serialVersionUID = 69654909411313351L;
 
-	private String measurement;
-	
+	private String measurementEnglish;
+
+	private String measurementArabic;
+
 	private Double quantity;
 
 	private String uploadMessage;

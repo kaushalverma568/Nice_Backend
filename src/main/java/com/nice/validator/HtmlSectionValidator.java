@@ -14,13 +14,14 @@ import com.nice.service.HtmlSectionService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Component
 public class HtmlSectionValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from messages_en.properties
+	 * Locale message service - to display response messages from
+	 * messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -47,7 +48,7 @@ public class HtmlSectionValidator implements Validator {
 		 */
 
 		if ((sectionDTO != null) && sectionService.isExists(sectionDTO)) {
-			errors.rejectValue("sectionValue", "409", messageByLocaleService.getMessage("section.exists", null));
+			errors.rejectValue("sectionValueEnglish", "409", messageByLocaleService.getMessage("section.exists", null));
 		}
 	}
 }

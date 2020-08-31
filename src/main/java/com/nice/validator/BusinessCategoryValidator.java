@@ -11,13 +11,14 @@ import com.nice.service.BusinessCategoryService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Component
 public class BusinessCategoryValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from messages_en.properties
+	 * Locale message service - to display response messages from
+	 * messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -40,7 +41,7 @@ public class BusinessCategoryValidator implements Validator {
 		final BusinessCategoryDTO businessCategoryDTO = (BusinessCategoryDTO) target;
 
 		if (businessCategoryService.isExists(businessCategoryDTO)) {
-			errors.rejectValue("name", "409", messageByLocaleService.getMessage("business.category.name.not.unique", null));
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("business.category.name.not.unique", null));
 		}
 	}
 }

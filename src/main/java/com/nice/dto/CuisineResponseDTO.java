@@ -23,6 +23,10 @@ public class CuisineResponseDTO implements Serializable {
 
 	private String name;
 
+	private String nameEnglish;
+
+	private String nameArabic;
+
 	private String imageUrl;
 
 	private Boolean active;

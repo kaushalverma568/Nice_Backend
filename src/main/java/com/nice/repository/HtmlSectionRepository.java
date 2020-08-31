@@ -36,6 +36,11 @@ public interface HtmlSectionRepository extends JpaRepository<HtmlSection, Long> 
 	 */
 	Optional<HtmlSection> findBySectionTypeIgnoreCaseAndIdNot(String sectionType, Long id);
 
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
 	Optional<HtmlSection> findBySectionType(String type);
 
 }

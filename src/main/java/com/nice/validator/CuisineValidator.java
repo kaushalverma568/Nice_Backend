@@ -8,6 +8,7 @@ import org.springframework.validation.Validator;
 import com.nice.dto.CuisineDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CuisineService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -45,8 +46,9 @@ public class CuisineValidator implements Validator {
 		/**
 		 * Check cuisine duplication based on name
 		 */
-		if (cuisineDTO != null && cuisineDTO.getName() != null && cuisineService.isCuisineExists(cuisineDTO)) {
-			errors.rejectValue("name", "409", messageByLocaleService.getMessage("cuisine.name.not.unique", null));
+		if (cuisineDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameEnglish())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameArabic()) && cuisineService.isCuisineExists(cuisineDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.not.unique", null));
 		}
 
 	}

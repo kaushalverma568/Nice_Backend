@@ -24,7 +24,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -95,13 +95,15 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (activeRecords != null) {
 			if (searchKeyWord != null) {
-				return subscriptionPlanRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyWord, pageable);
+				return subscriptionPlanRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,
+						searchKeyWord, activeRecords, searchKeyWord, pageable);
 			} else {
 				return subscriptionPlanRepository.findAllByActive(activeRecords, pageable);
 			}
 		} else {
 			if (searchKeyWord != null) {
-				return subscriptionPlanRepository.findAllByNameContainingIgnoreCase(searchKeyWord, pageable);
+				return subscriptionPlanRepository.findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(searchKeyWord, searchKeyWord,
+						pageable);
 			} else {
 				return subscriptionPlanRepository.findAll(pageable);
 			}
@@ -111,10 +113,12 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 	@Override
 	public boolean isExists(final SubscriptionPlanDTO subscriptionPlanDTO) {
 		if (subscriptionPlanDTO.getId() != null) {
-			return !(subscriptionPlanRepository.findByNameIgnoreCaseAndIdNot(subscriptionPlanDTO.getName(), subscriptionPlanDTO.getId()).isEmpty());
+			return subscriptionPlanRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(subscriptionPlanDTO.getNameEnglish(),
+					subscriptionPlanDTO.getId(), subscriptionPlanDTO.getNameArabic(), subscriptionPlanDTO.getId()).isPresent();
 
 		} else {
-			return !(subscriptionPlanRepository.findByNameIgnoreCase(subscriptionPlanDTO.getName()).isEmpty());
+			return subscriptionPlanRepository
+					.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(subscriptionPlanDTO.getNameEnglish(), subscriptionPlanDTO.getNameArabic()).isPresent();
 		}
 	}
 

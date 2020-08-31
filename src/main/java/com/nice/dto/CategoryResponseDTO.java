@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class CategoryResponseDTO implements Serializable {
@@ -23,4 +23,9 @@ public class CategoryResponseDTO implements Serializable {
 	private Boolean active;
 
 	private String image;
+
+	private String nameEnglish;
+
+	private String nameArabic;
+
 }

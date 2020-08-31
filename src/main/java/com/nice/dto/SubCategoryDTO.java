@@ -21,8 +21,11 @@ public class SubCategoryDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
-	private String name;
+	@NotBlank(message = "{name.english.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{name.arabic.not.null}")
+	private String nameArabic;
 
 	@NotNull(message = "{category.id.not.null}")
 	private Long categoryId;

@@ -23,14 +23,23 @@ public class VendorBankDetailsDTO implements Serializable {
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;
 
-	@NotBlank(message = "{bank.name.not.null}")
-	private String bankName;
+	@NotBlank(message = "{bank.name.english.not.null}")
+	private String bankNameEnglish;
 
-	@NotBlank(message = "{branch.name.not.null}")
-	private String branchName;
+	@NotBlank(message = "{bank.name.arabic.not.null}")
+	private String bankNameArabic;
 
-	@NotBlank(message = "{account.name.not.null}")
-	private String accountName;
+	@NotBlank(message = "{branch.name.english.not.null}")
+	private String branchNameEnglish;
+
+	@NotBlank(message = "{branch.name.arabic.not.null}")
+	private String branchNameArabic;
+
+	@NotBlank(message = "{account.name.english.not.null}")
+	private String accountNameEnglish;
+
+	@NotBlank(message = "{account.name.arabic.not.null}")
+	private String accountNameArabic;
 
 	@NotBlank(message = "{accountNumber.not.null}")
 	private String accountNumber;
@@ -38,6 +47,9 @@ public class VendorBankDetailsDTO implements Serializable {
 	@NotBlank(message = "{kibNo.not.null}")
 	private String kibNo;
 
-	@NotBlank(message = "{branch.city.not.null}")
-	private String branchCity;
+	@NotBlank(message = "{branch.city.english.not.null}")
+	private String branchCityEnglish;
+
+	@NotBlank(message = "{branch.city.arabic.not.null}")
+	private String branchCityArabic;
 }

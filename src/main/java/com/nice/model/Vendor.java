@@ -23,7 +23,7 @@ import lombok.ToString;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 
 @Entity
@@ -55,14 +55,47 @@ public class Vendor extends CommonModel {
 	@Column(name = "is_order_service_enable", nullable = false)
 	private Boolean isOrderServiceEnable;
 
-	@Column(name = "first_name", nullable = false)
-	private String firstName;
+	@Column(name = "first_name_english", nullable = false)
+	private String firstNameEnglish;
 
-	@Column(name = "last_name", nullable = false)
-	private String lastName;
+	@Column(name = "last_name_english", nullable = false)
+	private String lastNameEnglish;
 
-	@Column(name = "store_name", nullable = false)
-	private String storeName;
+	@Column(name = "store_name_english", nullable = false)
+	private String storeNameEnglish;
+
+	@Column(name = "building_english", nullable = false)
+	private String buildingEnglish;
+
+	@Column(name = "block_english", nullable = false)
+	private String blockEnglish;
+
+	@Column(name = "street_english", nullable = false)
+	private String streetEnglish;
+
+	@Column(name = "area_english", nullable = false)
+	private String areaEnglish;
+
+	@Column(name = "first_name_arabic", nullable = false)
+	private String firstNameArabic;
+
+	@Column(name = "last_name_arabic", nullable = false)
+	private String lastNameArabic;
+
+	@Column(name = "store_name_arabic", nullable = false)
+	private String storeNameArabic;
+
+	@Column(name = "building_arabic", nullable = false)
+	private String buildingArabic;
+
+	@Column(name = "block_arabic", nullable = false)
+	private String blockArabic;
+
+	@Column(name = "street_arabic", nullable = false)
+	private String streetArabic;
+
+	@Column(name = "area_arabic", nullable = false)
+	private String areaArabic;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
@@ -94,18 +127,6 @@ public class Vendor extends CommonModel {
 	// this will be online,offline or both
 	@Column(name = "payment_method")
 	private String paymentMethod;
-
-	@Column(name = "building", nullable = false)
-	private String building;
-
-	@Column(name = "block", nullable = false)
-	private String block;
-
-	@Column(name = "street", nullable = false)
-	private String street;
-
-	@Column(name = "area", nullable = false)
-	private String area;
 
 	// this will be either pickup,delivery or both
 	@Column(name = "delivery_type")

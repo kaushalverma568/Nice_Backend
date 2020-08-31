@@ -26,29 +26,38 @@ public class VendorDTO implements Serializable {
 
 	private String password;
 
-	@NotBlank(message = "{firstName.not.null}")
-	private String firstName;
+	@NotBlank(message = "{firstName.arabic.not.null}")
+	private String firstNameArabic;
+	@NotBlank(message = "{lastName.arabic.not.null}")
+	private String lastNameArabic;
+	@NotBlank(message = "{storeName.arabic.not.null}")
+	private String storeNameArabic;
+	@NotBlank(message = "{building.arabic.not.null}")
+	private String buildingArabic;
+	@NotBlank(message = "{block.arabic.not.null}")
+	private String blockArabic;
+	@NotBlank(message = "{street.arabic.not.null}")
+	private String streetArabic;
+	@NotBlank(message = "{area.arabic.not.null}")
+	private String areaArabic;
 
-	@NotBlank(message = "{lastName.not.null}")
-	private String lastName;
-
-	@NotBlank(message = "{storeName.not.null}")
-	private String storeName;
+	@NotBlank(message = "{firstName.english.not.null}")
+	private String firstNameEnglish;
+	@NotBlank(message = "{lastName.english.not.null}")
+	private String lastNameEnglish;
+	@NotBlank(message = "{storeName.english.not.null}")
+	private String storeNameEnglish;
+	@NotBlank(message = "{building.english.not.null}")
+	private String buildingEnglish;
+	@NotBlank(message = "{block.english.not.null}")
+	private String blockEnglish;
+	@NotBlank(message = "{street.english.not.null}")
+	private String streetEnglish;
+	@NotBlank(message = "{area.english.not.null}")
+	private String areaEnglish;
 
 	@NotBlank(message = "{phone.number.not.null}")
 	private String phoneNumber;
-
-	@NotBlank(message = "{building.not.null}")
-	private String building;
-
-	@NotBlank(message = "{block.not.null}")
-	private String block;
-
-	@NotBlank(message = "{street.not.null}")
-	private String street;
-
-	@NotBlank(message = "{area.not.null}")
-	private String area;
 
 	private Long countryId;
 

@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -83,7 +83,8 @@ public final class Constant {
 	public static final String ORDER_IS_READY = "Order Is Ready";
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
 	public static final String PENDING = "Pending";
-	public static final String BUSINESS_CATEGORY_FOOD = "Food Delivery";
+	public static final String BUSINESS_CATEGORY_FOOD_ENGLISH = "Food Delivery";
+	public static final String BUSINESS_CATEGORY_FOOD_ARABIC = "توصيل طلبات الطعام";
 	public static final String VENDOR_STORE_IMAGE = "VENDOR_STORE_IMAGE";
 	public static final String VENDOR_STORE_DETAIL_IMAGE = "VENDOR_STORE_DETAIL_IMAGE";
 	public static final String VENDOR_FEATURED_IMAGE = "VENDOR_FEATURED_IMAGE";

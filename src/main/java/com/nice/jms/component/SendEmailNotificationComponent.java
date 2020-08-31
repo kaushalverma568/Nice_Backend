@@ -26,10 +26,10 @@ import com.nice.constant.UserType;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.Notification;
+import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
-import com.nice.model.Vendor;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
@@ -42,7 +42,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -95,7 +95,7 @@ public class SendEmailNotificationComponent {
 	private VendorService vendorService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -166,7 +166,8 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -208,7 +209,8 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -240,7 +242,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForChangeVendorStatus(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
-		Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
+		VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
 		String message = null;
 		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
 			message = "Your account is Approved by admin Kindly Login to procced.";

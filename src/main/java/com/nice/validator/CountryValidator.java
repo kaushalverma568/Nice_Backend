@@ -8,16 +8,18 @@ import org.springframework.validation.Validator;
 import com.nice.dto.CountryDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CountryService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class CountryValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -34,7 +36,8 @@ public class CountryValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 
 	@Override
@@ -43,8 +46,9 @@ public class CountryValidator implements Validator {
 		/**
 		 * Check country duplication based on name
 		 */
-		if (countryDTO != null && countryDTO.getName() != null && countryService.isCountryExists(countryDTO)) {
-			errors.rejectValue("name", "409", messageByLocaleService.getMessage("country.name.not.unique", null));
+		if (countryDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(countryDTO.getNameEnglish())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(countryDTO.getNameArabic()) && countryService.isCountryExists(countryDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("country.name.not.unique", null));
 		}
 
 	}

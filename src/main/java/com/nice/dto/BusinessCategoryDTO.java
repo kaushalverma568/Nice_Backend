@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Data
 public class BusinessCategoryDTO implements Serializable {
@@ -20,8 +20,11 @@ public class BusinessCategoryDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
-	private String name;
+	@NotBlank(message = "{name.english.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{name.arabic.not.null}")
+	private String nameArabic;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
@@ -33,4 +36,5 @@ public class BusinessCategoryDTO implements Serializable {
 
 	private Boolean isDefault;
 
+	private String name;
 }

@@ -24,7 +24,7 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Repository
 public class StateCustomRepositoryImpl implements StateCustomRepository {
@@ -33,6 +33,15 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 	 *
 	 */
 	private static final String COUNTRY_PARAM = "country";
+	/**
+	 *
+	 */
+	private static final String NAME_ARABIC = "nameArabic";
+
+	/**
+	 *
+	 */
+	private static final String NAME_ENGLISH = "nameEnglish";
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -49,7 +58,8 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		 */
 		CriteriaQuery<State> criteriaQuery = criteriaBuilder.createQuery(State.class);
 		/**
-		 * Create and add a query root corresponding to the state.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the state.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<State> state = criteriaQuery.from(State.class);
 		/**
@@ -70,7 +80,9 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		}
 
 		if (searchKeyword != null) {
-			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(state.get("name")), "%" + searchKeyword.toLowerCase() + "%"));
+			Predicate predicateForNameEnglish = criteriaBuilder.like(criteriaBuilder.lower(state.get(NAME_ENGLISH)), "%" + searchKeyword.toLowerCase() + "%");
+			Predicate predicateForNameArabic = criteriaBuilder.like(criteriaBuilder.lower(state.get(NAME_ARABIC)), "%" + searchKeyword.toLowerCase() + "%");
+			predicates.add(criteriaBuilder.or(predicateForNameEnglish, predicateForNameArabic));
 		}
 
 		/**
@@ -81,7 +93,8 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<State> fetchGraph = entityManager.createEntityGraph(State.class);
 		fetchGraph.addSubgraph(COUNTRY_PARAM);
@@ -105,7 +118,8 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the state.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the state.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<State> state = criteriaQuery.from(State.class);
 		/**
@@ -126,7 +140,9 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		}
 
 		if (searchKeyword != null) {
-			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(state.get("name")), "%" + searchKeyword.toLowerCase() + "%"));
+			Predicate predicateForNameEnglish = criteriaBuilder.like(criteriaBuilder.lower(state.get(NAME_ENGLISH)), "%" + searchKeyword.toLowerCase() + "%");
+			Predicate predicateForNameArabic = criteriaBuilder.like(criteriaBuilder.lower(state.get(NAME_ARABIC)), "%" + searchKeyword.toLowerCase() + "%");
+			predicates.add(criteriaBuilder.or(predicateForNameEnglish, predicateForNameArabic));
 		}
 
 		/**

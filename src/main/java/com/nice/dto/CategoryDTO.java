@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Data
 public class CategoryDTO implements Serializable {
@@ -24,8 +24,11 @@ public class CategoryDTO implements Serializable {
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;
 
-	@NotBlank(message = "{name.not.null}")
-	private String name;
+	@NotBlank(message = "{name.english.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{name.arabic.not.null}")
+	private String nameArabic;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;

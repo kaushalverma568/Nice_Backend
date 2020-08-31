@@ -25,9 +25,13 @@ public class ProductImportDTO implements Serializable {
 
 	private String descriptionArabic;
 
-	private String categoryName;
+	private String categoryNameEnglish;
 
-	private String subcategoryName;
+	private String subcategoryNameEnglish;
+
+	private String categoryNameArabic;
+
+	private String subcategoryNameArabic;
 
 	private String brandName;
 

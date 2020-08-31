@@ -2,20 +2,23 @@ package com.nice.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.dto.BusinessCategoryDTO;
+import com.nice.locale.MessageByLocaleService;
 import com.nice.model.BusinessCategory;
 import com.nice.service.AssetService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component
 public class BusinessCategoryMapper {
@@ -23,10 +26,19 @@ public class BusinessCategoryMapper {
 	@Autowired
 	private AssetService assetService;
 
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
 	public BusinessCategoryDTO toDto(final BusinessCategory businessCategory) {
+		final Locale locale = LocaleContextHolder.getLocale();
 		BusinessCategoryDTO businessCategoryResponseDTO = new BusinessCategoryDTO();
 		BeanUtils.copyProperties(businessCategory, businessCategoryResponseDTO);
-		businessCategoryResponseDTO.setIsDefault(Constant.BUSINESS_CATEGORY_FOOD.equals(businessCategoryResponseDTO.getName()));
+		if (locale.getLanguage().equals("en")) {
+			businessCategoryResponseDTO.setName(businessCategory.getNameEnglish());
+		} else {
+			businessCategoryResponseDTO.setName(businessCategory.getNameArabic());
+		}
+		businessCategoryResponseDTO.setIsDefault(Constant.BUSINESS_CATEGORY_FOOD_ENGLISH.equals(businessCategoryResponseDTO.getNameEnglish()));
 		businessCategoryResponseDTO.setImageUrl(assetService.getGeneratedUrl(businessCategory.getImageName(), AssetConstant.BUSINESS_CATEGORY_DIR));
 		return businessCategoryResponseDTO;
 	}

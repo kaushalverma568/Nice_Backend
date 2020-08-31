@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Jul-2020
+ * @date : 24-Jul-2020
  */
 @Entity
 @Table(name = "subscription_plan")
@@ -30,15 +30,21 @@ public class SubscriptionPlan extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameEnglish;
+
+	@Column(name = "name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameArabic;
+
+	@Column(name = "description_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String descriptionEnglish;
+
+	@Column(name = "description_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String descriptionArabic;
 
 	@Column(name = "amount", nullable = false)
 	private Double amount;
 
 	@Column(name = "days", nullable = false)
 	private Integer days;
-
-	@Column(name = "description", nullable = true)
-	private String description;
 }

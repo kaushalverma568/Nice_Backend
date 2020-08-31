@@ -47,7 +47,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	 * @param id
 	 * @return
 	 */
-	Optional<SubCategory> findByNameIgnoreCaseAndCategoryAndIdNot(String name, Category category, Long id);
+	Optional<SubCategory> findByNameEnglishIgnoreCaseAndCategoryAndIdNotOrNameArabicIgnoreCaseAndCategoryAndIdNot(String nameEnglish, Category category,
+			Long id, String nameArabic, Category category2, Long id2);
 
 	/**
 	 * Get sub category by sub category name and category if exist
@@ -56,7 +57,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	 * @param category
 	 * @return
 	 */
-	Optional<SubCategory> findByNameIgnoreCaseAndCategory(String name, Category category);
+	Optional<SubCategory> findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(String nameEnglish, Category category, String nameArabic,
+			Category category2);
 
 	/**
 	 * get Page of sub categories by active and category
@@ -98,17 +100,21 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	 *
 	 * @param activeRecords
 	 * @param searchKeyword
+	 * @param activeRecords2
+	 * @param searchKeyword2
 	 * @return
 	 */
-	List<SubCategory> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword);
+	List<SubCategory> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
+			Boolean activeRecords2, String searchKeyword2);
 
 	/**
 	 * get sub category list by name containing search keyword
 	 *
 	 * @param searchKeyword
+	 * @param searchKeyword2
 	 * @return
 	 */
-	List<SubCategory> findAllByNameContainingIgnoreCase(String searchKeyword);
+	List<SubCategory> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2);
 
 	@Query("select sc from SubCategory sc join Category c on c.id=sc.category.id where sc.category.vendor=:vendor")
 	List<SubCategory> getAllByVendor(Vendor vendor);

@@ -13,7 +13,7 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Repository(value = "cityRepository")
 public interface CityRepository extends JpaRepository<City, Long>, CityCustomRepository {
@@ -21,36 +21,42 @@ public interface CityRepository extends JpaRepository<City, Long>, CityCustomRep
 	/**
 	 * Get Page based on active field
 	 *
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<City> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * Get City based on name,state and for not given id
 	 *
-	 * @param  name
-	 * @param  state
-	 * @param  id
-	 * @return
-	 */
-	Optional<City> findByNameIgnoreCaseAndStateAndIdNot(String name, State state, Long id);
-
-	/**
-	 * Get City based on name and state
-	 *
-	 * @param  name
-	 * @param  state
-	 * @return
-	 */
-	Optional<City> findByNameIgnoreCaseAndState(String name, State state);
-
-	/**
-	 * 
 	 * @param activeRecords
 	 * @return
 	 */
 	List<City> findAllByActive(Boolean activeRecords);
+
+	/**
+	 * Get City based on english name or arabic name ,state and for not given id
+	 *
+	 * @param nameEnglish
+	 * @param state
+	 * @param id
+	 * @param nameArabic
+	 * @param state2
+	 * @param id2
+	 * @return
+	 */
+	Optional<City> findByNameEnglishIgnoreCaseAndStateAndIdNotOrNameArabicIgnoreCaseAndStateAndIdNot(String nameEnglish, State state, Long id,
+			String nameArabic, State state2, Long id2);
+
+	/**
+	 * Get City based on english name or arabic name and state
+	 *
+	 * @param nameEnglish
+	 * @param state
+	 * @param nameArabic
+	 * @param state2
+	 * @return
+	 */
+	Optional<City> findByNameEnglishIgnoreCaseAndStateOrNameArabicIgnoreCaseAndState(String nameEnglish, State state, String nameArabic, State state2);
 
 }

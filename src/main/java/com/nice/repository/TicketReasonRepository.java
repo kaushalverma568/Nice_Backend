@@ -13,7 +13,7 @@ import com.nice.model.TicketReason;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 09-07-2020
+ * @date : 09-07-2020
  */
 @Repository
 public interface TicketReasonRepository extends JpaRepository<TicketReason, Long> {
@@ -28,48 +28,55 @@ public interface TicketReasonRepository extends JpaRepository<TicketReason, Long
 	/**
 	 * get all ticket reason by reason if exist
 	 *
-	 * @param  reason
+	 * @param reason
 	 * @return
 	 */
-	Optional<List<TicketReason>> findAllByReason(String reason);
+	Optional<List<TicketReason>> findAllByReasonEnglishOrReasonArabic(String reasonEnglish, String reasonArabic);
 
 	/**
 	 * get ticket reason ignore case by reason, type ignore case and id not if exist
 	 *
-	 * @param  reason
-	 * @param  type
-	 * @param  id
+	 * @param reasonEnglish
+	 * @param type
+	 * @param id
+	 * @param reasonArabic
+	 * @param type2
+	 * @param id2
 	 * @return
 	 */
-	Optional<TicketReason> findByReasonIgnoreCaseAndTypeIgnoreCaseAndIdNot(String reason, String type, Long id);
+	Optional<TicketReason> findByReasonEnglishIgnoreCaseAndTypeIgnoreCaseAndIdNotOrReasonArabicIgnoreCaseAndTypeIgnoreCaseAndIdNot(String reasonEnglish,
+			String type, Long id, String reasonArabic, String type2, Long id2);
 
 	/**
 	 * get ticket reason ignore case by reason and type ignore case if exist
 	 *
-	 * @param  reason
-	 * @param  type
+	 * @param reasonEnglish
+	 * @param type
+	 * @param reasonArabic
+	 * @param type2
 	 * @return
 	 */
-	Optional<TicketReason> findByReasonIgnoreCaseAndTypeIgnoreCase(String reason, String type);
+	Optional<TicketReason> findByReasonEnglishIgnoreCaseAndTypeIgnoreCaseOrReasonArabicIgnoreCaseAndTypeIgnoreCase(String reasonEnglish, String type,
+			String reasonArabic, String type2);
 
 	/**
-	 * @param  activeRecords
-	 * @param  type
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param type
+	 * @param pageable
 	 * @return
 	 */
 	Page<TicketReason> findAllByActiveAndType(Boolean activeRecords, String type, Pageable pageable);
 
 	/**
-	 * @param  type
-	 * @param  pageable
+	 * @param type
+	 * @param pageable
 	 * @return
 	 */
 	Page<TicketReason> findAllByType(String type, Pageable pageable);
 
 	/**
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<TicketReason> findAllByActive(Boolean activeRecords, Pageable pageable);

@@ -28,7 +28,7 @@ import com.nice.service.VendorService;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 09-07-2020
+ * @date : 09-07-2020
  */
 @Component
 public class TicketMapper {
@@ -65,7 +65,11 @@ public class TicketMapper {
 		} else if (UserType.VENDOR.name().equals(ticket.getUserType())) {
 			Vendor vendor = vendorService.getVendorDetail(ticket.getEntityId());
 			ticketResponseDTO.setEmail(vendor.getEmail());
-			ticketResponseDTO.setName(vendor.getFirstName() + " " + vendor.getLastName());
+			if (locale.getLanguage().equals("en")) {
+				ticketResponseDTO.setName(vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
+			} else {
+				ticketResponseDTO.setName(vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
+			}
 			ticketResponseDTO.setPhoneNumber(vendor.getPhoneNumber());
 
 		} else if (UserType.DELIVERY_BOY.name().equals(ticket.getUserType())) {

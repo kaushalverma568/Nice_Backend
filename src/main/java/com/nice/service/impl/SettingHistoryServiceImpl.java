@@ -2,8 +2,10 @@ package com.nice.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,25 +43,27 @@ public class SettingHistoryServiceImpl implements SettingHistoryService {
 	private UsersService usersSerive;
 
 	@Override
-	public Long getCountBasedOnParams(String fieldName, Date fromDate, Date toDate) {
+	public Long getCountBasedOnParams(final String fieldName, final Date fromDate, final Date toDate) {
 		return settingHistoryRepository.getCountBasedOnParams(fieldName, fromDate, toDate);
 	}
 
 	@Override
-	public List<SettingHistory> getListBasedOnParams(Integer startIndex, Integer pageSize, String fieldName,
-			Date fromDate, Date toDate) throws NotFoundException, ValidationException {
-		List<SettingHistory> settingList = settingHistoryRepository.getListBasedOnParams(startIndex, pageSize,
-				fieldName, fromDate, toDate);
+	public List<SettingHistory> getListBasedOnParams(final Integer startIndex, final Integer pageSize, final String fieldName, final Date fromDate,
+			final Date toDate) throws NotFoundException, ValidationException {
+		List<SettingHistory> settingList = settingHistoryRepository.getListBasedOnParams(startIndex, pageSize, fieldName, fromDate, toDate);
+		Locale locale = LocaleContextHolder.getLocale();
 		for (SettingHistory settingHistory : settingList) {
 			UserLogin userLogin = userLoginSerive.getUserLoginDetail(settingHistory.getUpdatedBy());
 			if (userLogin.getEntityType() == null) {
 				settingHistory.setUserName("Super Admin");
 			} else if (userLogin.getEntityType().equals(UserType.VENDOR.name())) {
 				Vendor vendor = vendorSerive.getVendorDetail(userLogin.getEntityId());
-				settingHistory.setUserName(vendor.getFirstName() + " " + vendor.getLastName());
+				settingHistory.setUserName(locale.getLanguage().equals("en") ? vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish()
+						: vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
 			} else if (userLogin.getEntityType().equals(UserType.USER.name())) {
 				UsersDTO user = usersSerive.getUsers(userLogin.getEntityId());
-				settingHistory.setUserName(user.getFirstName() + " " + user.getLastName());
+				settingHistory.setUserName(locale.getLanguage().equals("en") ? user.getFirstNameEnglish() + " " + user.getLastNameEnglish()
+						: user.getFirstNameArabic() + " " + user.getLastNameArabic());
 			}
 		}
 		return settingList;

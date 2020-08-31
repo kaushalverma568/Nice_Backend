@@ -11,7 +11,7 @@ import com.nice.model.Addons;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Component
 public class AddonsMapper {
@@ -19,7 +19,6 @@ public class AddonsMapper {
 	public AddonsDTO toDto(final Addons addons) {
 		AddonsDTO addonsDTO = new AddonsDTO();
 		BeanUtils.copyProperties(addons, addonsDTO);
-		addonsDTO.setVendorName(addons.getVendor().getFirstName() + " " + addons.getVendor().getLastName());
 		addonsDTO.setVendorId(addons.getVendor().getId());
 		return addonsDTO;
 	}

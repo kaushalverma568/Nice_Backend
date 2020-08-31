@@ -3,7 +3,10 @@
  */
 package com.nice.mapper;
 
+import java.util.Locale;
+
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.HtmlSectionDTO;
@@ -19,8 +22,14 @@ import com.nice.model.HtmlSection;
 public class HtmlSectionMapper {
 
 	public HtmlSectionDTO toDto(final HtmlSection section) {
+		final Locale locale = LocaleContextHolder.getLocale();
 		HtmlSectionDTO sectionDto = new HtmlSectionDTO();
 		BeanUtils.copyProperties(section, sectionDto);
+		if (locale.getLanguage().equals("en")) {
+			sectionDto.setSectionValue(section.getSectionValueEnglish());
+		} else {
+			sectionDto.setSectionValue(section.getSectionValueArabic());
+		}
 		return sectionDto;
 	}
 

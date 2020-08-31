@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -33,8 +33,11 @@ public class HtmlSection extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "section_value", nullable = false)
-	private String sectionValue;
+	@Column(name = "section_value_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String sectionValueEnglish;
+
+	@Column(name = "section_value_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String sectionValueArabic;
 
 	@Column(name = "section_type", nullable = false)
 	private String sectionType;

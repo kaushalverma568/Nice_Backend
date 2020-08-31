@@ -17,7 +17,9 @@ public class BrandImport implements Serializable {
 	 */
 	private static final long serialVersionUID = 7966696376518001219L;
 
-	private String name;
+	private String nameEnglish;
+
+	private String nameArabic;
 
 	private String uploadMessage;
 }

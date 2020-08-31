@@ -68,7 +68,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		BusinessCategory businessCategory = getBusinessCategoryDetail(businessCategoryDTO.getId());
 		String oldImageName = businessCategory.getImageName();
 		String oldOriginalName = businessCategory.getOriginalImageName();
-		if (!businessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+		if (!businessCategory.getNameEnglish().equals(Constant.BUSINESS_CATEGORY_FOOD_ENGLISH)) {
 			businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
 		}
 		if (image != null) {
@@ -90,7 +90,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	@Override
 	public void changeStatus(final Long businessCategoryId, final Boolean active) throws ValidationException, NotFoundException {
 		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
-		if (existingBusinessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+		if (existingBusinessCategory.getNameEnglish().equals(Constant.BUSINESS_CATEGORY_FOOD_ENGLISH)) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.deactivate", null));
 		}
 		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
@@ -121,7 +121,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	@Override
 	public void updateManageInventory(final Long businessCategoryId, final Boolean manageInventory) throws NotFoundException, ValidationException {
 		BusinessCategory existingBusinessCategory = getBusinessCategoryDetail(businessCategoryId);
-		if (existingBusinessCategory.getName().equals(Constant.BUSINESS_CATEGORY_FOOD)) {
+		if (existingBusinessCategory.getNameEnglish().equals(Constant.BUSINESS_CATEGORY_FOOD_ENGLISH)) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.business.category.not.update", null));
 		}
 		LOGGER.info("Existing  BusinessCategory details {} ", existingBusinessCategory);
@@ -146,10 +146,11 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	@Override
 	public boolean isExists(final BusinessCategoryDTO businessCategoryDTO) {
 		if (businessCategoryDTO.getId() != null) {
-			return !(businessCategoryRepository.findByNameIgnoreCaseAndIdNot(businessCategoryDTO.getName(), businessCategoryDTO.getId()).isEmpty());
-
+			return !(businessCategoryRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(businessCategoryDTO.getNameEnglish(),
+					businessCategoryDTO.getId(), businessCategoryDTO.getNameArabic(), businessCategoryDTO.getId()).isEmpty());
 		} else {
-			return !(businessCategoryRepository.findByNameIgnoreCase(businessCategoryDTO.getName()).isEmpty());
+			return !(businessCategoryRepository
+					.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(businessCategoryDTO.getNameEnglish(), businessCategoryDTO.getNameArabic()).isEmpty());
 		}
 	}
 

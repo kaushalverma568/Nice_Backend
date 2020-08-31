@@ -78,9 +78,8 @@ public class BusinessCategoryController {
 		binder.addValidators(businessCategoryValidator);
 	}
 
-
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param image
 	 * @param businessCategoryDTO
@@ -91,8 +90,8 @@ public class BusinessCategoryController {
 	 */
 	@PostMapping
 	public ResponseEntity<Object> addBusinessCategory(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image,
-			@ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -108,9 +107,8 @@ public class BusinessCategoryController {
 				.setMessage(messageByLocaleService.getMessage("business.category.create.message", null)).setData(resultBusinessCategory).create();
 	}
 
-	
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param image
 	 * @param businessCategoryDTO
@@ -120,9 +118,9 @@ public class BusinessCategoryController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	public ResponseEntity<Object> updateBusinessCategory(@RequestHeader("Authorization") final String accessToken,	
-			@RequestParam(name = "image", required = false) final MultipartFile image,
-			@ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO, final BindingResult result) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updateBusinessCategory(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -136,23 +134,22 @@ public class BusinessCategoryController {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param businessCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping(value = "/{businessCategoryId}")
-	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("businessCategoryId") final Long businessCategoryId)
-			throws NotFoundException {
+	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("businessCategoryId") final Long businessCategoryId) throws NotFoundException {
 		BusinessCategoryDTO resultBusinessCategory = businessCategoryService.getBusinessCategory(businessCategoryId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("business.category.detail.message", null)).setData(resultBusinessCategory).create();
 	}
 
-	
 	/**
-	 * 
+	 *
 	 * @param pageNumber
 	 * @param pageSize
 	 * @param activeRecords
@@ -163,13 +160,14 @@ public class BusinessCategoryController {
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<BusinessCategory> resultBusinessCategory = businessCategoryService.getList(pageNumber, pageSize, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("business.category.list.message", null)).setData(businessCategoryMapper.toDtos(resultBusinessCategory.getContent()))
-				.setHasNextPage(resultBusinessCategory.hasNext()).setHasPreviousPage(resultBusinessCategory.hasPrevious()).setTotalPages(resultBusinessCategory.getTotalPages())
+				.setMessage(messageByLocaleService.getMessage("business.category.list.message", null))
+				.setData(businessCategoryMapper.toDtos(resultBusinessCategory.getContent())).setHasNextPage(resultBusinessCategory.hasNext())
+				.setHasPreviousPage(resultBusinessCategory.hasPrevious()).setTotalPages(resultBusinessCategory.getTotalPages())
 				.setPageNumber(resultBusinessCategory.getNumber() + 1).setTotalCount(resultBusinessCategory.getTotalElements()).create();
 	}
 
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param businessCategoryId
 	 * @param active
@@ -179,15 +177,16 @@ public class BusinessCategoryController {
 	 */
 	@PutMapping("/status/{businessCategoryId}")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
+			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean active)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of BusinessCategory of id {} and status {}", businessCategoryId, active);
 		businessCategoryService.changeStatus(businessCategoryId, active);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null )).create();
+				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null)).create();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param accessToken
 	 * @param businessCategoryId
 	 * @param manageInventory
@@ -197,10 +196,12 @@ public class BusinessCategoryController {
 	 */
 	@PutMapping("/inventory/manage/{businessCategoryId}")
 	public ResponseEntity<Object> updateManageInventory(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean manageInventory) throws ValidationException, NotFoundException {
+			@PathVariable("businessCategoryId") final Long businessCategoryId, @RequestParam final Boolean manageInventory)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of BusinessCategory of id {} and status {}", businessCategoryId, manageInventory);
 		businessCategoryService.updateManageInventory(businessCategoryId, manageInventory);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null )).create();
+				.setMessage(messageByLocaleService.getMessage("business.category.update.message", null)).create();
 	}
+
 }

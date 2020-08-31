@@ -17,16 +17,16 @@ import com.nice.model.Brand;
  */
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Long> {
-
 	/**
 	 * Get Brand by brand name and brand Id not equal if exist
 	 *
-	 * @param name
-	 * @param classification
+	 * @param nameEnglish
 	 * @param id
+	 * @param nameArabic
+	 * @param id2
 	 * @return
 	 */
-	Optional<Brand> findByNameIgnoreCaseAndIdNot(String name, Long id);
+	Optional<Brand> findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(String nameEnglish, Long id, String nameArabic, Long id2);
 
 	/**
 	 * Get Brand Page by active
@@ -40,11 +40,11 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 	/**
 	 * Get Brand by brand name if exist
 	 *
-	 * @param name
-	 * @param classification
+	 * @param nameEnglish
+	 * @param nameArabic
 	 * @return
 	 */
-	Optional<Brand> findByNameIgnoreCase(String name);
+	Optional<Brand> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
 
 	/**
 	 * get brand list by active
@@ -59,34 +59,42 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 	 *
 	 * @param activeRecords
 	 * @param searchKeyword
+	 * @param activeRecords2
+	 * @param searchKeyword2
 	 * @return
 	 */
-	List<Brand> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword);
+	List<Brand> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
+			Boolean activeRecords2, String searchKeyword2);
 
 	/**
 	 * get brand list by name containing search keyword
 	 *
-	 * @param searchKeyword
+	 * @param nameEnglish
+	 * @param nameArabic
 	 * @return
 	 */
-	List<Brand> findAllByNameContainingIgnoreCase(String searchKeyword);
+	List<Brand> findAllByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
 
 	/**
 	 * get brand page by active and name containing search keyword
 	 *
 	 * @param activeRecords
 	 * @param searchKeyword
+	 * @param activeRecords2
+	 * @param searchKeyword2
 	 * @param pageable
 	 * @return
 	 */
-	Page<Brand> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword, Pageable pageable);
+	Page<Brand> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
+			Boolean activeRecords2, String searchKeyword2, Pageable pageable);
 
 	/**
 	 * get brand page by name containing search keyword
-	 * 
+	 *
 	 * @param searchKeyword
+	 * @param searchKeyword2
 	 * @param pageable
 	 * @return
 	 */
-	Page<Brand> findAllByNameContainingIgnoreCase(String searchKeyword, Pageable pageable);
+	Page<Brand> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2, Pageable pageable);
 }

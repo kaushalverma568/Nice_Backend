@@ -11,16 +11,18 @@ import com.nice.dto.CityDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.CityService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Component
 public class CityValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CityValidator.class);
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 
 	@Autowired
@@ -38,7 +40,8 @@ public class CityValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 	@Override
 	public void validate(final Object target, final Errors errors) {
@@ -57,8 +60,10 @@ public class CityValidator implements Validator {
 			/**
 			 * to check city duplication
 			 */
-			if (cityDTO.getName() != null && cityDTO.getStateId() != null && cityService.isCityExists(cityDTO)) {
-				errors.rejectValue("name", "409", messageByLocaleService.getMessage("city.name.not.unique", null));
+			if (cityDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameEnglish())
+					&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameArabic()) && cityDTO.getStateId() != null
+					&& cityService.isCityExists(cityDTO)) {
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("city.name.not.unique", null));
 			}
 		} catch (NotFoundException e) {
 			LOGGER.error("State not found for id : {} ", cityDTO.getStateId());

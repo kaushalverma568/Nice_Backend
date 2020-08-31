@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 25, 2020
+ * @date : Jun 25, 2020
  */
 @Data
 public class VendorResponseDTO implements Serializable {
@@ -34,12 +34,6 @@ public class VendorResponseDTO implements Serializable {
 
 	private Boolean isOrderServiceEnable;
 
-	private String firstName;
-
-	private String lastName;
-
-	private String storeName;
-
 	private String phoneNumber;
 
 	private Long subscriptionPlanId;
@@ -55,14 +49,6 @@ public class VendorResponseDTO implements Serializable {
 	private Double minimumOrderAmt;
 
 	private String paymentMethod;
-
-	private String building;
-
-	private String block;
-
-	private String street;
-
-	private String area;
 
 	private String deliveryType;
 
@@ -117,4 +103,27 @@ public class VendorResponseDTO implements Serializable {
 
 	private List<String> nextStatus;
 
+	private String firstNameEnglish;
+	private String lastNameEnglish;
+	private String storeNameEnglish;
+	private String buildingEnglish;
+	private String blockEnglish;
+	private String streetEnglish;
+	private String areaEnglish;
+
+	private String firstNameArabic;
+	private String lastNameArabic;
+	private String storeNameArabic;
+	private String buildingArabic;
+	private String blockArabic;
+	private String streetArabic;
+	private String areaArabic;
+
+	private String firstName;
+	private String lastName;
+	private String storeName;
+	private String building;
+	private String block;
+	private String street;
+	private String area;
 }

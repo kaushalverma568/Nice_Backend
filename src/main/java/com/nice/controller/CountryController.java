@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -136,27 +135,6 @@ public class CountryController {
 		final CountryDTO resultCountry = countryService.getCountry(countryId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("country.detail.message", null))
 				.setData(resultCountry).create();
-	}
-
-	/**
-	 * Get Country list
-	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getCountryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) throws NotFoundException, ValidationException {
-		final Page<Country> resultCountries = countryService.getCountryList(pageNumber, pageSize, activeRecords, searchKeyWord);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("country.list.message", null))
-				.setData(countryMapper.toDtos(resultCountries.getContent())).setHasNextPage(resultCountries.hasNext())
-				.setHasPreviousPage(resultCountries.hasPrevious()).setTotalPages(resultCountries.getTotalPages()).setPageNumber(resultCountries.getNumber() + 1)
-				.setTotalCount(resultCountries.getTotalElements()).create();
-
 	}
 
 	/**

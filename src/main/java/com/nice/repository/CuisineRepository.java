@@ -18,24 +18,7 @@ import com.nice.model.Cuisine;
 public interface CuisineRepository extends JpaRepository<Cuisine, Long> {
 
 	/**
-	 * Get Cuisine by cuisine name if exist
 	 *
-	 * @param cuisineName
-	 * @return
-	 */
-	Optional<Cuisine> findByNameIgnoreCase(String cuisineName);
-
-	/**
-	 * Get Cuisine by cuisine name and cuisine Id not equal if exist
-	 *
-	 * @param cuisineName
-	 * @param cuisineId
-	 * @return
-	 */
-
-	Optional<Cuisine> findByNameIgnoreCaseAndIdNot(String cuisineName, Long cuisineId);
-
-	/**
 	 * @param activeRecords
 	 * @param pageable
 	 * @return
@@ -43,18 +26,44 @@ public interface CuisineRepository extends JpaRepository<Cuisine, Long> {
 	Page<Cuisine> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
+	 *
 	 * @param searchKeyWord
+	 * @param searchKeyWord2
 	 * @param pageable
 	 * @return
 	 */
-	Page<Cuisine> findAllByNameContainingIgnoreCase(String searchKeyWord, Pageable pageable);
+	Page<Cuisine> findAllByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String searchKeyWord, String searchKeyWord2, Pageable pageable);
 
 	/**
+	 *
 	 * @param activeRecords
 	 * @param searchKeyWord
+	 * @param activeRecords2
+	 * @param searchKeyWord2
 	 * @param pageable
 	 * @return
 	 */
-	Page<Cuisine> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyWord, Pageable pageable);
+	Page<Cuisine> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyWord,
+			Boolean activeRecords2, String searchKeyWord2, Pageable pageable);
 
+	/**
+	 * Get Cuisine by Cuisine english name or arabic name if exist
+	 *
+	 * @param nameEnglish
+	 * @param nameArabic
+	 * @return
+	 */
+	Optional<Cuisine> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
+
+	/**
+	 * Get Cuisine by Cuisine english name or arabic name and Cuisine Id not equal
+	 * if exist
+	 *
+	 * @param nameEnglish
+	 * @param id
+	 * @param nameArabic
+	 * @param id2
+	 * @return
+	 */
+	Optional<Cuisine> findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(String nameEnglish, Long id, String nameArabic, Long id2);
 }

@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class SubCategoryResponseDTO implements Serializable {
@@ -22,6 +22,10 @@ public class SubCategoryResponseDTO implements Serializable {
 	private Long id;
 
 	private String name;
+
+	private String nameEnglish;
+
+	private String nameArabic;
 
 	private Long categoryId;
 

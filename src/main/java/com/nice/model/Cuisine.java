@@ -31,8 +31,11 @@ public class Cuisine extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false, unique = true)
-	private String name;
+	@Column(name = "name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameEnglish;
+
+	@Column(name = "name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameArabic;
 
 	@Column(name = "image_name")
 	private String imageName;

@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Entity
 @Table(name = "company")
@@ -30,8 +30,11 @@ public class Company extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameEnglish;
+
+	@Column(name = "name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameArabic;
 
 	@Column(name = "gstin", nullable = false)
 	private String gstin;
@@ -42,8 +45,11 @@ public class Company extends CommonModel {
 	@Column(name = "customer_care_email", nullable = false)
 	private String customerCareEmail;
 
-	@Column(name = "company_address", nullable = false)
-	private String companyAddress;
+	@Column(name = "company_address_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String companyAddressEnglish;
+
+	@Column(name = "company_address_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String companyAddressArabic;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;

@@ -27,7 +27,7 @@ import com.nice.util.CommonUtility;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : Aug 19, 2020
+ * @date : Aug 19, 2020
  */
 @Service(value = "ticketReasonService")
 @Transactional(rollbackFor = Throwable.class)
@@ -119,16 +119,18 @@ public class TicketReasonServiceImpl implements TicketReasonService {
 	public boolean isTicketReasonExists(final TicketReasonDTO ticketReasonDTO) {
 		if (ticketReasonDTO.getId() != null) {
 			/**
-			 * At the time of update is ticketReason with same reason exist or not except its own id.
+			 * At the time of update is ticketReason with same reason exist or not except
+			 * its own id.
 			 */
-			return ticketReasonRepository
-					.findByReasonIgnoreCaseAndTypeIgnoreCaseAndIdNot(ticketReasonDTO.getReason(), ticketReasonDTO.getType(), ticketReasonDTO.getId())
-					.isPresent();
+			return ticketReasonRepository.findByReasonEnglishIgnoreCaseAndTypeIgnoreCaseAndIdNotOrReasonArabicIgnoreCaseAndTypeIgnoreCaseAndIdNot(
+					ticketReasonDTO.getReasonEnglish(), ticketReasonDTO.getType(), ticketReasonDTO.getId(), ticketReasonDTO.getReasonArabic(),
+					ticketReasonDTO.getType(), ticketReasonDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is ticketReason with same reason exist or not
 			 */
-			return ticketReasonRepository.findByReasonIgnoreCaseAndTypeIgnoreCase(ticketReasonDTO.getReason(), ticketReasonDTO.getType()).isPresent();
+			return ticketReasonRepository.findByReasonEnglishIgnoreCaseAndTypeIgnoreCaseOrReasonArabicIgnoreCaseAndTypeIgnoreCase(
+					ticketReasonDTO.getReasonEnglish(), ticketReasonDTO.getType(), ticketReasonDTO.getReasonArabic(), ticketReasonDTO.getType()).isPresent();
 		}
 	}
 

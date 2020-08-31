@@ -112,8 +112,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		LOGGER.info("StockDetail Object to save :{}", stockDetails);
 		stockDetails = stockDetailsRepository.save(stockDetails);
 		/**
-		 * Make an entry in the manual transaction table related to addition of new stock. Here direct repository call of manual
-		 * stock transfer is made
+		 * Make an entry in the manual transaction table related to addition of new
+		 * stock. Here direct repository call of manual stock transfer is made
 		 */
 		StockTransfer stockTransfer = new StockTransfer();
 		stockTransfer.setActive(true);
@@ -313,10 +313,10 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		stockDetailsDto.setProductId(productVariant.getProduct().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameEnglish());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabel());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabelEnglish());
 		} else {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameArabic());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabel());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabelArabic());
 		}
 		stockDetailsDto.setUomId(productVariant.getUom().getId());
 		stockDetailsDto.setSku(productVariant.getSku());
@@ -463,7 +463,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 			return stockDetails.get();
 		}
 		/**
-		 * Create a new object and insert it into database and return it back with default values of qty in all status as 0
+		 * Create a new object and insert it into database and return it back with
+		 * default values of qty in all status as 0
 		 */
 		else {
 			StockDetails stockDetail = createDefaultStockDetailObject(productvariant, lotNo, vendorId);

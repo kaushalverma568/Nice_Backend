@@ -15,7 +15,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Component
 public class CategoryValidator implements Validator {
@@ -25,7 +25,8 @@ public class CategoryValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -42,7 +43,8 @@ public class CategoryValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 
 	@Override
@@ -51,9 +53,10 @@ public class CategoryValidator implements Validator {
 			final CategoryDTO categoryDTO = (CategoryDTO) target;
 			// to check category duplication
 			try {
-				if (categoryDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(categoryDTO.getName())
+				if (categoryDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(categoryDTO.getNameEnglish())
+						&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(categoryDTO.getNameArabic())
 						&& categoryService.isCategoryExists(categoryDTO).booleanValue()) {
-					errors.rejectValue("name", "409", messageByLocaleService.getMessage("category.name.not.unique", null));
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("category.name.not.unique", null));
 				}
 			} catch (NotFoundException e) {
 				LOGGER.error("Category not found for id : {} ", categoryDTO.getVendorId());

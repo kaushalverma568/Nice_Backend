@@ -11,13 +11,14 @@ import com.nice.service.SubscriptionPlanService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Component
 public class SubscriptionPlanValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from messages_en.properties
+	 * Locale message service - to display response messages from
+	 * messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -40,7 +41,7 @@ public class SubscriptionPlanValidator implements Validator {
 		final SubscriptionPlanDTO subscriptionPlanDTO = (SubscriptionPlanDTO) target;
 
 		if (subscriptionPlanService.isExists(subscriptionPlanDTO)) {
-			errors.rejectValue("name", "409", messageByLocaleService.getMessage("subscription.plan.name.not.unique", null));
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("subscription.plan.name.not.unique", null));
 		}
 
 		if (subscriptionPlanService.isDaysExist(subscriptionPlanDTO)) {

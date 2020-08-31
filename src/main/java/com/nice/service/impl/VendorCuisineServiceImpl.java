@@ -3,6 +3,7 @@ package com.nice.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,8 +145,15 @@ public class VendorCuisineServiceImpl implements VendorCuisineService {
 	public VendorCuisine getVendorCuisineByVendorIdAndCuisineId(final Long vendorId, final Long cuisineId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		Cuisine cuisine = cuisineService.getCuisineDetails(cuisineId);
-		return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId).orElseThrow(() -> new NotFoundException(messageByLocaleService
-				.getMessage("vendor.cuisine.not.found", new Object[] { cuisine.getName(), vendor.getFirstName().concat(vendor.getLastName()) })));
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId)
+					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("vendor.cuisine.not.found",
+							new Object[] { cuisine.getNameEnglish(), vendor.getFirstNameEnglish().concat(vendor.getLastNameEnglish()) })));
+		} else {
+			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId)
+					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("vendor.cuisine.not.found",
+							new Object[] { cuisine.getNameArabic(), vendor.getFirstNameArabic().concat(vendor.getLastNameArabic()) })));
+		}
 	}
 
 	@Override

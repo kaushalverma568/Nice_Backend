@@ -98,10 +98,14 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	// @Override
-	// public List<OrderItem> getOrderItemForReplacementOrderId(final Long orderId) throws NotFoundException {
-	// List<OrderItem> orderItemList = orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
+	// public List<OrderItem> getOrderItemForReplacementOrderId(final Long orderId)
+	// throws NotFoundException {
+	// List<OrderItem> orderItemList =
+	// orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
 	// if (orderItemList.isEmpty()) {
-	// throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
+	// throw new
+	// NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new
+	// Object[] { orderId }));
 	// }
 	// return orderItemList;
 	// }
@@ -138,11 +142,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
-			// TODO : Make the UOM Label based on language
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabelEnglish());
 		} else {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabelArabic());
 		}
 		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
 		orderItemResponseDTO.setProductVariantId(productVariant.getId());

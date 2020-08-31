@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Data
 public class CityDTO implements Serializable {
@@ -21,8 +21,11 @@ public class CityDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
-	private String name;
+	@NotBlank(message = "{name.english.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{name.arabic.not.null}")
+	private String nameArabic;
 
 	private Long stateId;
 

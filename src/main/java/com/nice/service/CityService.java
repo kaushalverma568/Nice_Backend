@@ -1,9 +1,6 @@
 package com.nice.service;
 
-import java.io.IOException;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 
 import com.nice.dto.CityDTO;
 import com.nice.dto.CityResponseDTO;
@@ -13,14 +10,14 @@ import com.nice.model.City;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 public interface CityService {
 
 	/**
 	 * Add city for State
 	 *
-	 * @param  cityDTO
+	 * @param cityDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -29,7 +26,7 @@ public interface CityService {
 	/**
 	 * Update city for state
 	 *
-	 * @param  cityDTO
+	 * @param cityDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -38,7 +35,7 @@ public interface CityService {
 	/**
 	 * Get city details based on cityId
 	 *
-	 * @param  cityId
+	 * @param cityId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -47,7 +44,7 @@ public interface CityService {
 	/**
 	 * Get City details based on Id : Specially for internally calls
 	 *
-	 * @param  cityId
+	 * @param cityId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -56,7 +53,7 @@ public interface CityService {
 	/**
 	 * Check city is exists for same state other than the one getting updated now
 	 *
-	 * @param  cityDTO
+	 * @param cityDTO
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -65,8 +62,8 @@ public interface CityService {
 	/**
 	 * Change status of city (active/deActive)
 	 *
-	 * @param  cityId
-	 * @param  active
+	 * @param cityId
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -75,9 +72,9 @@ public interface CityService {
 	/**
 	 * Get city count based on parameters
 	 *
-	 * @param  activeRecords
-	 * @param  stateId
-	 * @param  searchKeyword
+	 * @param activeRecords
+	 * @param stateId
+	 * @param searchKeyword
 	 * @return
 	 */
 	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword);
@@ -85,14 +82,13 @@ public interface CityService {
 	/**
 	 * Get city list based on parameters
 	 *
-	 * @param  startIndex
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  stateId
-	 * @param  searchKeyword
+	 * @param startIndex
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param stateId
+	 * @param searchKeyword
 	 * @return
 	 */
 	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword);
-
 
 }

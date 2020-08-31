@@ -2,8 +2,10 @@ package com.nice.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.VendorCuisineDTO;
@@ -11,19 +13,26 @@ import com.nice.model.VendorCuisine;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 01-Jul-2020
+ * @date : 01-Jul-2020
  */
 @Component
 public class VendorCuisineMapper {
 
 	public VendorCuisineDTO toDto(final VendorCuisine vendorCuisine) {
+		Locale locale = LocaleContextHolder.getLocale();
 		VendorCuisineDTO vendorCuisineDTO = new VendorCuisineDTO();
 		BeanUtils.copyProperties(vendorCuisine, vendorCuisineDTO);
 		vendorCuisineDTO.setCuisineId(vendorCuisine.getCuisine().getId());
 		vendorCuisineDTO.setVendorId(vendorCuisine.getVendor().getId());
-		vendorCuisineDTO.setCuisineName(vendorCuisine.getCuisine().getName());
-		vendorCuisineDTO.setStoreName(vendorCuisine.getVendor().getStoreName());
-		vendorCuisineDTO.setVendorName(vendorCuisine.getVendor().getFirstName().concat(" ").concat(vendorCuisine.getVendor().getLastName()));
+		if (locale.getLanguage().equals("en")) {
+			vendorCuisineDTO.setCuisineName(vendorCuisine.getCuisine().getNameEnglish());
+			vendorCuisineDTO.setStoreName(vendorCuisine.getVendor().getStoreNameEnglish());
+			vendorCuisineDTO.setVendorName(vendorCuisine.getVendor().getFirstNameEnglish().concat(" ").concat(vendorCuisine.getVendor().getLastNameEnglish()));
+		} else {
+			vendorCuisineDTO.setCuisineName(vendorCuisine.getCuisine().getNameArabic());
+			vendorCuisineDTO.setStoreName(vendorCuisine.getVendor().getStoreNameArabic());
+			vendorCuisineDTO.setVendorName(vendorCuisine.getVendor().getFirstNameArabic().concat(" ").concat(vendorCuisine.getVendor().getLastNameArabic()));
+		}
 		return vendorCuisineDTO;
 	}
 

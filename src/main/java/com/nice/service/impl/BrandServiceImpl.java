@@ -38,7 +38,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("brandService")
@@ -97,13 +97,14 @@ public class BrandServiceImpl implements BrandService {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return brandRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyword, pageable);
+				return brandRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords, searchKeyword,
+						activeRecords, searchKeyword, pageable);
 			} else {
 				return brandRepository.findAllByActive(activeRecords, pageable);
 			}
 		} else {
 			if (searchKeyword != null) {
-				return brandRepository.findAllByNameContainingIgnoreCase(searchKeyword, pageable);
+				return brandRepository.findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
 			} else {
 				return brandRepository.findAll(pageable);
 			}
@@ -136,12 +137,13 @@ public class BrandServiceImpl implements BrandService {
 			/**
 			 * At the time of update is brand with same name exist or not except it's own id
 			 */
-			return brandRepository.findByNameIgnoreCaseAndIdNot(brandDTO.getName(), brandDTO.getId()).isPresent();
+			return brandRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(brandDTO.getNameEnglish(), brandDTO.getId(),
+					brandDTO.getNameArabic(), brandDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is brand with same name exist or not
 			 */
-			return brandRepository.findByNameIgnoreCase(brandDTO.getName()).isPresent();
+			return brandRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(brandDTO.getNameEnglish(), brandDTO.getNameArabic()).isPresent();
 		}
 	}
 
@@ -167,7 +169,8 @@ public class BrandServiceImpl implements BrandService {
 			final List<BrandImport> brandImports = csvProcessor.convertCSVFileToListOfBean(file, BrandImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(brandImports)) {
 				final List<BrandImport> insertListOfBean = insertListOfBrands(
-						brandImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
+						brandImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())
+								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameArabic())).collect(Collectors.toList()));
 				Object[] brandDetailsHeadersField = new Object[] { "Brand Name", "Result" };
 				Object[] brandDetailsField = new Object[] { "name", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, brandDetailsField, brandDetailsHeadersField, httpServletResponse);
@@ -178,19 +181,20 @@ public class BrandServiceImpl implements BrandService {
 	}
 
 	/**
-	 * @param  brandImports
-	 * @param  userId
+	 * @param brandImports
+	 * @param userId
 	 * @return
 	 */
 	private List<BrandImport> insertListOfBrands(final List<BrandImport> brandImports) {
 		final List<BrandImport> allResult = new ArrayList<>();
 		for (BrandImport brandImport : brandImports) {
 			try {
-				if (brandRepository.findByNameIgnoreCase(brandImport.getName()).isPresent()) {
+				if (brandRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(brandImport.getNameEnglish(), brandImport.getNameArabic()).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("brand.name.not.unique", null));
 				} else {
 					final BrandDTO brandDTO = new BrandDTO();
-					brandDTO.setName(brandImport.getName());
+					brandDTO.setNameEnglish(brandImport.getNameEnglish());
+					brandDTO.setNameArabic(brandImport.getNameArabic());
 					brandDTO.setActive(true);
 					addBrand(brandDTO);
 					brandImport.setUploadMessage(messageByLocaleService.getMessage("upload.success", null));
@@ -207,13 +211,14 @@ public class BrandServiceImpl implements BrandService {
 	public List<Brand> getBrandList(final Boolean activeRecords, final String searchKeyword) {
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return brandRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyword);
+				return brandRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords, searchKeyword,
+						activeRecords, searchKeyword);
 			} else {
 				return brandRepository.findAllByActive(activeRecords);
 			}
 		} else {
 			if (searchKeyword != null) {
-				return brandRepository.findAllByNameContainingIgnoreCase(searchKeyword);
+				return brandRepository.findAllByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(searchKeyword, searchKeyword);
 			} else {
 				return brandRepository.findAll();
 			}

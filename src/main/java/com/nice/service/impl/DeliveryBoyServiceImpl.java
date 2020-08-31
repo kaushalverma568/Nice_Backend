@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -84,7 +86,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -145,7 +147,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
-		 * Check if delivery boy already exists, if so then lets only send him email again.
+		 * Check if delivery boy already exists, if so then lets only send him email
+		 * again.
 		 */
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getEmailVerified().booleanValue()) {
@@ -180,7 +183,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		deliveryBoyCurrentStatus.setIsBusy(false);
 		/**
-		 * it will be true when he is able to deliver order(getting notifications for delivery)
+		 * it will be true when he is able to deliver order(getting notifications for
+		 * delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
@@ -259,8 +263,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -288,8 +292,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	/**
 	 *
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
@@ -410,7 +414,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isDeliveryBoyExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is deliveryBoy with same email exist or not except it's own id
+			 * At the time of update is deliveryBoy with same email exist or not except it's
+			 * own id
 			 */
 			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail().toLowerCase(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -420,8 +425,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
-				 * verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -500,8 +506,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  deliveryBoy
+	 * @param userLogin
+	 * @param deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -541,13 +547,15 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
-		 * get all delivery boys who is logged in, not busy with any orders and has not sended notification before
+		 * get all delivery boys who is logged in, not busy with any orders and has not
+		 * sended notification before
 		 */
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
-		 * time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who
+		 * is going for delivery of orders(not for replacement or return) and at a time
+		 * assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -588,7 +596,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Long thirdMinDeliveryBoyId = null;
 		for (Entry<Long, Double> deliveryBoyWithDistanceEntrySet : deliveryBoyWithDistanceMap.entrySet()) {
 			/**
-			 * Check if delivery boy's distance is less than first min distance, then update first, second and third
+			 * Check if delivery boy's distance is less than first min distance, then update
+			 * first, second and third
 			 */
 			if (deliveryBoyWithDistanceEntrySet.getValue() < firstMin) {
 				thirdMin = secMin;
@@ -600,7 +609,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than sec min distance then update second and third
+			 * Check if delivery boy's distance is less than sec min distance then update
+			 * second and third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < secMin) {
 				thirdMin = secMin;
@@ -610,7 +620,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than third min distance then update third
+			 * Check if delivery boy's distance is less than third min distance then update
+			 * third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < thirdMin) {
 				thirdMin = deliveryBoyWithDistanceEntrySet.getValue();
@@ -633,7 +644,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public synchronized void acceptOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException, ValidationException {
 		/**
-		 * check is order already accepted then throw exception else set delivery boy in order
+		 * check is order already accepted then throw exception else set delivery boy in
+		 * order
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
@@ -702,7 +714,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is delivery boy with same phone number exist or not except it's own id
+			 * At the time of update is delivery boy with same phone number exist or not
+			 * except it's own id
 			 */
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -733,7 +746,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = getVendorAddress(orders.getVendor());
 			dropAddress = orders.getAddress();
 			/**
-			 * distance will be delivery boy's distance from vendor + distance between vendor and delivery location
+			 * distance will be delivery boy's distance from vendor + distance between
+			 * vendor and delivery location
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue())
@@ -747,7 +761,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = orders.getAddress();
 			dropAddress = getVendorAddress(orders.getVendor());
 			/**
-			 * distance will be delivery boy's distance from customer + 2 times distance between vendor and customer
+			 * distance will be delivery boy's distance from customer + 2 times distance
+			 * between vendor and customer
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue())
@@ -762,9 +777,16 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	protected String getVendorAddress(final Vendor vendor) {
+		Locale locale = LocaleContextHolder.getLocale();
 		StringBuilder address = new StringBuilder();
-		address.append(vendor.getBlock()).append(",").append(vendor.getBuilding()).append(",").append(vendor.getStreet()).append(",").append(vendor.getArea())
-				.append(",").append(vendor.getCity().getName()).append(",").append(vendor.getPincode().getCodeValue());
+		if (locale.getLanguage().equals("en")) {
+			address.append(vendor.getBlockEnglish()).append(",").append(vendor.getBuildingEnglish()).append(",").append(vendor.getStreetEnglish()).append(",")
+					.append(vendor.getAreaEnglish()).append(",").append(vendor.getCity().getNameEnglish()).append(",");
+		} else {
+			address.append(vendor.getBlockArabic()).append(",").append(vendor.getBuildingArabic()).append(",").append(vendor.getStreetArabic()).append(",")
+					.append(vendor.getAreaArabic()).append(",").append(vendor.getCity().getNameArabic()).append(",");
+		}
+		address.append(vendor.getPincode().getCodeValue());
 		return address.toString();
 	}
 

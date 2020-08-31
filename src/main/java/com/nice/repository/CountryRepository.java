@@ -11,49 +11,53 @@ import com.nice.model.Country;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Repository(value = "countryRepository")
 public interface CountryRepository extends JpaRepository<Country, Long> {
 
 	/**
-	 * Get Country by country name if exist
-	 *
-	 * @param  countryName
-	 * @return
-	 */
-	Optional<Country> findByNameIgnoreCase(String countryName);
-
-	/**
-	 * Get Country by country name and country Id not equal if exist
-	 *
-	 * @param  countryName
-	 * @param  countryId
-	 * @return
-	 */
-
-	Optional<Country> findByNameIgnoreCaseAndIdNot(String countryName, Long countryId);
-
-	/**
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<Country> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * @param  searchKeyWord
-	 * @param  pageable
+	 * @param searchKeyWord
+	 * @param pageable
 	 * @return
 	 */
-	Page<Country> findAllByNameContainingIgnoreCase(String searchKeyWord, Pageable pageable);
+	Page<Country> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyWord, String searchKeyWord2, Pageable pageable);
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyWord
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyWord
+	 * @param pageable
 	 * @return
 	 */
-	Page<Country> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyWord, Pageable pageable);
+	Page<Country> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyWord,
+			Boolean activeRecords2, String searchKeyWord2, Pageable pageable);
+
+	/**
+	 * Get Country by country english name or arabic name if exist
+	 *
+	 * @param nameEnglish
+	 * @param nameArabic
+	 * @return
+	 */
+	Optional<Country> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
+
+	/**
+	 * Get Country by country english name or arabic name and country Id not equal
+	 * if exist
+	 *
+	 * @param nameEnglish
+	 * @param id
+	 * @param nameArabic
+	 * @param id2
+	 * @return
+	 */
+	Optional<Country> findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(String nameEnglish, Long id, String nameArabic, Long id2);
 
 }

@@ -34,10 +34,10 @@ public class Addons extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name_english", nullable = false)
+	@Column(name = "name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
 	private String nameEnglish;
 
-	@Column(name = "name_arabic", nullable = false)
+	@Column(name = "name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
 	private String nameArabic;
 
 	@Column(name = "description_english", nullable = false)

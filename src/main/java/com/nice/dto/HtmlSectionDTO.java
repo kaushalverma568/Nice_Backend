@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Data
 public class HtmlSectionDTO implements Serializable {
@@ -24,8 +24,13 @@ public class HtmlSectionDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{section.text.not.null}")
 	private String sectionValue;
+
+	@NotBlank(message = "{section.text.english.not.null}")
+	private String sectionValueEnglish;
+
+	@NotBlank(message = "{section.text.arabic.not.null}")
+	private String sectionValueArabic;
 
 	@NotBlank(message = "{section.type.not.null}")
 	private String sectionType;

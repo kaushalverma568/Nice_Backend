@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
@@ -28,7 +30,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -40,14 +42,33 @@ public class VendorMapper {
 	private AssetService assetService;
 
 	public VendorResponseDTO toDto(final Vendor vendor, final boolean isDetailResponse) {
+		Locale locale = LocaleContextHolder.getLocale();
 		VendorResponseDTO vendorResponseDTO = new VendorResponseDTO();
 		BeanUtils.copyProperties(vendor, vendorResponseDTO);
+		if (locale.getLanguage().equals("en")) {
+			vendorResponseDTO.setFirstName(vendor.getFirstNameEnglish());
+			vendorResponseDTO.setLastName(vendor.getLastNameEnglish());
+			vendorResponseDTO.setBlock(vendor.getBlockEnglish());
+			vendorResponseDTO.setBuilding(vendor.getBuildingEnglish());
+			vendorResponseDTO.setStreet(vendor.getStreetEnglish());
+			vendorResponseDTO.setArea(vendor.getAreaEnglish());
+			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameEnglish());
+		} else {
+			vendorResponseDTO.setFirstName(vendor.getFirstNameArabic());
+			vendorResponseDTO.setLastName(vendor.getLastNameArabic());
+			vendorResponseDTO.setBlock(vendor.getBlockArabic());
+			vendorResponseDTO.setBuilding(vendor.getBuildingArabic());
+			vendorResponseDTO.setStreet(vendor.getStreetArabic());
+			vendorResponseDTO.setArea(vendor.getAreaArabic());
+			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameArabic());
+		}
 		if (vendor.getSubscriptionPlan() != null) {
 			vendorResponseDTO.setSubscriptionPlanId(vendor.getSubscriptionPlan().getId());
-			vendorResponseDTO.setSubscriptionPlanName(vendor.getSubscriptionPlan().getName());
+			vendorResponseDTO.setSubscriptionPlanName(
+					locale.getLanguage().equals("en") ? vendor.getSubscriptionPlan().getNameEnglish() : vendor.getSubscriptionPlan().getNameArabic());
 		}
 		vendorResponseDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
-		vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
+
 		vendorResponseDTO.setPincodeId(vendor.getPincode().getId());
 		vendorResponseDTO.setCodeValue(vendor.getPincode().getCodeValue());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
@@ -58,8 +79,8 @@ public class VendorMapper {
 		}
 		if (isDetailResponse) {
 			vendorResponseDTO.setCityId(vendor.getCity().getId());
-			vendorResponseDTO.setCityName(vendor.getCity().getName());
 			vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
+			vendorResponseDTO.setCityName(locale.getLanguage().equals("en") ? vendor.getCity().getNameEnglish() : vendor.getCity().getNameArabic());
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {
 				vendorResponseDTO.setStoreDetailImageUrl(assetService.getGeneratedUrl(vendor.getStoreDetailImageName(), AssetConstant.VENDOR));
 			}
@@ -99,11 +120,16 @@ public class VendorMapper {
 	}
 
 	public VendorBasicDetailDTO toBasicDto(final Vendor vendor) {
+		Locale locale = LocaleContextHolder.getLocale();
 		VendorBasicDetailDTO vendorBasicDetailDTO = new VendorBasicDetailDTO();
 		BeanUtils.copyProperties(vendor, vendorBasicDetailDTO);
 		vendorBasicDetailDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
-		vendorBasicDetailDTO.setBusinessCategoryName(vendor.getBusinessCategory().getName());
 		vendorBasicDetailDTO.setManageInventory(vendor.getBusinessCategory().getManageInventory());
+		if (locale.getLanguage().equals("en")) {
+			vendorBasicDetailDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameEnglish());
+		} else {
+			vendorBasicDetailDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameArabic());
+		}
 		return vendorBasicDetailDTO;
 	}
 

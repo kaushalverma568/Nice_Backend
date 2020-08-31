@@ -2,9 +2,11 @@ package com.nice.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
@@ -16,7 +18,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Component
 public class CuisineMapper {
@@ -25,8 +27,14 @@ public class CuisineMapper {
 	private AssetService assetService;
 
 	public CuisineResponseDTO toDto(final Cuisine cuisine) {
+		final Locale locale = LocaleContextHolder.getLocale();
 		CuisineResponseDTO cuisineResponseDTO = new CuisineResponseDTO();
 		BeanUtils.copyProperties(cuisine, cuisineResponseDTO);
+		if (locale.getLanguage().equals("en")) {
+			cuisineResponseDTO.setName(cuisine.getNameEnglish());
+		} else {
+			cuisineResponseDTO.setName(cuisine.getNameArabic());
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisine.getImageName())) {
 			cuisineResponseDTO.setImageUrl(assetService.getGeneratedUrl(cuisine.getImageName(), AssetConstant.CUISINE));
 		}

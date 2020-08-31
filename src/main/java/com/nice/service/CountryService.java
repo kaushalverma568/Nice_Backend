@@ -9,13 +9,13 @@ import com.nice.model.Country;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 public interface CountryService {
 	/**
 	 * Add country
 	 *
-	 * @param  countryDTO
+	 * @param countryDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -24,7 +24,7 @@ public interface CountryService {
 	/**
 	 * Update country
 	 *
-	 * @param  country
+	 * @param country
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -34,7 +34,7 @@ public interface CountryService {
 	/**
 	 * Get details of country
 	 *
-	 * @param  countryId
+	 * @param countryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -43,8 +43,8 @@ public interface CountryService {
 	/**
 	 * Change status of country (active/deActive)
 	 *
-	 * @param  countryId
-	 * @param  active
+	 * @param countryId
+	 * @param active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -53,7 +53,7 @@ public interface CountryService {
 	/**
 	 * to check country duplication and returning Boolean value.
 	 *
-	 * @param  country
+	 * @param country
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -69,10 +69,10 @@ public interface CountryService {
 	/**
 	 * Get List of country based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyWord
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyWord
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -83,7 +83,7 @@ public interface CountryService {
 	/**
 	 * Get Country details based on Id : Specially for internally calls
 	 *
-	 * @param  countryId
+	 * @param countryId
 	 * @return
 	 * @throws NotFoundException
 	 */

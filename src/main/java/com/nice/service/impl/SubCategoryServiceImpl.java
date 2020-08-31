@@ -51,7 +51,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
@@ -207,12 +207,16 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 			/**
 			 * At the time of update is subCategory with same name exist or not
 			 */
-			return subCategoryRepository.findByNameIgnoreCaseAndCategoryAndIdNot(subCategoryDTO.getName(), category, subCategoryDTO.getId()).isPresent();
+			return subCategoryRepository
+					.findByNameEnglishIgnoreCaseAndCategoryAndIdNotOrNameArabicIgnoreCaseAndCategoryAndIdNot(subCategoryDTO.getNameEnglish(), category,
+							subCategoryDTO.getId(), subCategoryDTO.getNameArabic(), category, subCategoryDTO.getId())
+					.isPresent();
 		} else {
 			/**
 			 * At the time of create is subCategory with same name exist or not
 			 */
-			return subCategoryRepository.findByNameIgnoreCaseAndCategory(subCategoryDTO.getName(), category).isPresent();
+			return subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(subCategoryDTO.getNameEnglish(), category,
+					subCategoryDTO.getNameArabic(), category).isPresent();
 		}
 	}
 
@@ -264,8 +268,11 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 		try {
 			final List<SubCategoryImport> subCategoryImports = csvProcessor.convertCSVFileToListOfBean(file, SubCategoryImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(subCategoryImports)) {
-				final List<SubCategoryImport> insertListOfBean = insertListOfSubCategories(subCategoryImports.stream().filter(
-						x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName()) && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getCategoryName()))
+				final List<SubCategoryImport> insertListOfBean = insertListOfSubCategories(subCategoryImports.stream()
+						.filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())
+								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getCategoryNameEnglish())
+								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameArabic())
+								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getCategoryNameArabic()))
 						.collect(Collectors.toList()));
 				Object[] subCategoryDetailsHeadersField = new Object[] { "SubCategory Name", "Category Name", "Result" };
 				Object[] subCategoryDetailsField = new Object[] { "name", "categoryName", "uploadMessage" };
@@ -277,8 +284,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param  subCategoryImports
-	 * @param  userId
+	 * @param subCategoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {
@@ -291,15 +298,18 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				Optional<Category> category = categoryRepository.findByNameIgnoreCaseAndVendor(subCategoryImport.getCategoryName(), vendor);
+				Optional<Category> category = categoryRepository.findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(
+						subCategoryImport.getCategoryNameEnglish(), vendor, subCategoryImport.getCategoryNameArabic(), vendor);
 				if (!category.isPresent()) {
-					throw new ValidationException(
-							messageByLocaleService.getMessage("category.not.present", new Object[] { subCategoryImport.getCategoryName() }));
-				} else if (subCategoryRepository.findByNameIgnoreCaseAndCategory(subCategoryImport.getName(), category.get()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("category.not.present",
+							new Object[] { subCategoryImport.getCategoryNameEnglish().concat(" , ").concat(subCategoryImport.getCategoryNameArabic()) }));
+				} else if (subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(subCategoryImport.getNameEnglish(),
+						category.get(), subCategoryImport.getCategoryNameArabic(), category.get()).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("subcategory.name.not.unique", null));
 				} else {
 					final SubCategoryDTO subCategoryDTO = new SubCategoryDTO();
-					subCategoryDTO.setName(subCategoryImport.getName());
+					subCategoryDTO.setNameEnglish(subCategoryImport.getNameEnglish());
+					subCategoryDTO.setNameEnglish(subCategoryImport.getNameEnglish());
 					subCategoryDTO.setCategoryId(category.get().getId());
 					subCategoryDTO.setActive(true);
 					addSubCategory(subCategoryDTO, null);
@@ -317,13 +327,14 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	public List<SubCategory> getSubCategoryList(final Boolean activeRecords, final String searchKeyword) {
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return subCategoryRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyword);
+				return subCategoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,
+						searchKeyword, activeRecords, searchKeyword);
 			} else {
 				return subCategoryRepository.findAllByActive(activeRecords);
 			}
 		} else {
 			if (searchKeyword != null) {
-				return subCategoryRepository.findAllByNameContainingIgnoreCase(searchKeyword);
+				return subCategoryRepository.findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(searchKeyword, searchKeyword);
 			} else {
 				return subCategoryRepository.findAll();
 			}

@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Data
 public class UOMDTO implements Serializable {
@@ -21,8 +21,11 @@ public class UOMDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{uom.measurement.not.null}")
-	private String measurement;
+	@NotBlank(message = "{measurement.english.not.null}")
+	private String measurementEnglish;
+
+	@NotBlank(message = "{measurement.arabic.not.null}")
+	private String measurementArabic;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
@@ -37,5 +40,8 @@ public class UOMDTO implements Serializable {
 	 * for response purpose only
 	 */
 	private String uomLabel;
+	private String measurement;
+	private String uomLabelEnglish;
+	private String uomLabelArabic;
 
 }

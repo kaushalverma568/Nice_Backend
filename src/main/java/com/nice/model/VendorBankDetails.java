@@ -35,21 +35,34 @@ public class VendorBankDetails extends CommonModel {
 	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	private Vendor vendor;
 
-	@Column(name = "bank_name", nullable = false)
-	private String bankName;
-
-	@Column(name = "branch_name", nullable = false)
-	private String branchName;
-
-	@Column(name = "account_name", nullable = false)
-	private String accountName;
-
 	@Column(name = "account_number", nullable = false)
 	private String accountNumber;
 
-	@Column(name = "kib_no", nullable = false)
+	@Column(name = "bank_name_english")
+	private String bankNameEnglish;
+
+	@Column(name = "bank_name_arabic")
+	private String bankNameArabic;
+
+	@Column(name = "branch_name_english")
+	private String branchNameEnglish;
+
+	@Column(name = "branch_name_arabic")
+	private String branchNameArabic;
+
+	@Column(name = "account_name_english")
+	private String accountNameEnglish;
+
+	@Column(name = "account_name_arabic")
+	private String accountNameArabic;
+
+	@Column(name = "kib_no")
 	private String kibNo;
 
-	@Column(name = "branch_city", nullable = false)
-	private String branchCity;
+	@Column(name = "branch_city_english")
+	private String branchCityEnglish;
+
+	@Column(name = "branch_city_arabic")
+	private String branchCityArabic;
+
 }

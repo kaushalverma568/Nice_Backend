@@ -12,31 +12,42 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Repository
 public interface StateRepository extends JpaRepository<State, Long>, StateCustomRepository {
 
 	/**
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<State> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 * @param  name
-	 * @param  country
-	 * @param  id
+	 * Get state by state english name or arabic name,country and state Id not equal
+	 * if exist
+	 *
+	 * @param nameEnglish
+	 * @param country
+	 * @param id
+	 * @param nameArabic
+	 * @param country2
+	 * @param id2
 	 * @return
 	 */
-	Optional<State> findByNameIgnoreCaseAndCountryAndIdNot(String name, Country country, Long id);
+	Optional<State> findByNameEnglishIgnoreCaseAndCountryAndIdNotOrNameArabicIgnoreCaseAndCountryAndIdNot(String nameEnglish, Country country, Long id,
+			String nameArabic, Country country2, Long id2);
 
 	/**
-	 * @param  name
-	 * @param  country
+	 * Get state by state english name or arabic name,country and country if exist
+	 *
+	 * @param nameEnglish
+	 * @param country
+	 * @param nameArabic
+	 * @param country2
 	 * @return
 	 */
-	Optional<State> findByNameIgnoreCaseAndCountry(String name, Country country);
-
+	Optional<State> findByNameEnglishIgnoreCaseAndCountryOrNameArabicIgnoreCaseAndCountry(String nameEnglish, Country country, String nameArabic,
+			Country country2);
 }

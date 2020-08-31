@@ -17,9 +17,13 @@ public class SubCategoryImport implements Serializable {
 	 */
 	private static final long serialVersionUID = 4040224817432223969L;
 
-	private String name;
+	private String nameEnglish;
 
-	private String categoryName;
+	private String nameArabic;
+
+	private String categoryNameEnglish;
+
+	private String categoryNameArabic;
 
 	private String uploadMessage;
 }

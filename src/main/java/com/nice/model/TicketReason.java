@@ -31,8 +31,11 @@ public class TicketReason extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "reason", nullable = false)
-	private String reason;
+	@Column(name = "reason_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String reasonEnglish;
+
+	@Column(name = "reason_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String reasonArabic;
 
 	@Column(name = "type", nullable = false)
 	private String type;

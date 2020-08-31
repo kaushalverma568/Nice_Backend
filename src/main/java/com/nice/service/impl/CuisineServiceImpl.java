@@ -30,7 +30,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Service("cuisineService")
 @Transactional(rollbackFor = Throwable.class)
@@ -121,13 +121,14 @@ public class CuisineServiceImpl implements CuisineService {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
 		if (activeRecords != null) {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(searchKeyWord)) {
-				return cuisineRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyWord, pageable);
+				return cuisineRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,
+						searchKeyWord, activeRecords, searchKeyWord, pageable);
 			} else {
 				return cuisineRepository.findAllByActive(activeRecords, pageable);
 			}
 		} else {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(searchKeyWord)) {
-				return cuisineRepository.findAllByNameContainingIgnoreCase(searchKeyWord, pageable);
+				return cuisineRepository.findAllByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(searchKeyWord, searchKeyWord, pageable);
 			} else {
 				return cuisineRepository.findAll(pageable);
 			}
@@ -163,12 +164,13 @@ public class CuisineServiceImpl implements CuisineService {
 			/**
 			 * At the time of update is cuisine with same name exist or not
 			 */
-			return cuisineRepository.findByNameIgnoreCaseAndIdNot(cuisineDTO.getName(), cuisineDTO.getId()).isPresent();
+			return cuisineRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(cuisineDTO.getNameEnglish(), cuisineDTO.getId(),
+					cuisineDTO.getNameArabic(), cuisineDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is cuisine with same name exist or not
 			 */
-			return cuisineRepository.findByNameIgnoreCase(cuisineDTO.getName()).isPresent();
+			return cuisineRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(cuisineDTO.getNameEnglish(), cuisineDTO.getNameArabic()).isPresent();
 		}
 	}
 

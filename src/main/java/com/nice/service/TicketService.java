@@ -16,15 +16,15 @@ import com.nice.model.Ticket;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 09-07-2020
+ * @date : 09-07-2020
  */
 public interface TicketService {
 
 	/**
 	 * create ticket
 	 *
-	 * @param  ticketDTO
-	 * @param  userId
+	 * @param ticketDTO
+	 * @param userId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -33,7 +33,7 @@ public interface TicketService {
 	/**
 	 * get ticket by ticketId
 	 *
-	 * @param  ticketId
+	 * @param ticketId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -42,7 +42,7 @@ public interface TicketService {
 	/**
 	 * get ticket detail by ticketId
 	 *
-	 * @param  ticketId
+	 * @param ticketId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -51,9 +51,9 @@ public interface TicketService {
 	/**
 	 * get page of ticket by parameter
 	 *
-	 * @param  userType
-	 * @param  pageNumber
-	 * @param  pageSize
+	 * @param userType
+	 * @param pageNumber
+	 * @param pageSize
 	 * @return
 	 */
 	Page<Ticket> getTicketList(String userType, Integer pageNumber, Integer pageSize);
@@ -61,9 +61,9 @@ public interface TicketService {
 	/**
 	 * update ticket status
 	 *
-	 * @param  ticketId
-	 * @param  ticketStatus
-	 * @param  comment
+	 * @param ticketId
+	 * @param ticketStatus
+	 * @param comment
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -72,9 +72,9 @@ public interface TicketService {
 	/**
 	 * get ticket count based on parameters
 	 *
-	 * @param  entityId
-	 * @param  userType
-	 * @param  name
+	 * @param entityId
+	 * @param userType
+	 * @param name
 	 * @return
 	 */
 	Long getTicketCountBasedOnParams(Long entityId, String userType, String name);
@@ -82,24 +82,33 @@ public interface TicketService {
 	/**
 	 * get ticket list based on parameters
 	 *
-	 * @param  entityId
-	 * @param  userType
-	 * @param  name
-	 * @param  startIndex
-	 * @param  pageSize
+	 * @param entityId
+	 * @param userType
+	 * @param name
+	 * @param startIndex
+	 * @param pageSize
 	 * @return
 	 */
 	List<Ticket> getTicketListBasedOnParams(Long entityId, String userType, String name, Integer startIndex, Integer pageSize);
 
 	/**
 	 *
-	 * @param  userType
-	 * @param  name
-	 * @param  activeRecords
-	 * @param  httpServletResponse
+	 * @param userType
+	 * @param name
+	 * @param activeRecords
+	 * @param httpServletResponse
 	 * @throws NotFoundException
 	 * @throws FileNotFoundException
 	 */
 	void exportList(String userType, String name, HttpServletResponse httpServletResponse) throws NotFoundException, FileNotFoundException;
+
+	/**
+	 * get ticket reason list
+	 *
+	 * @param type
+	 * @return
+	 * @throws ValidationException
+	 */
+	List<String> getTicketReasonList(String type) throws ValidationException;
 
 }

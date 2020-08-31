@@ -20,16 +20,6 @@ import com.nice.model.Vendor;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
 	/**
-	 * Get category by category name, category Id not equal and vendor if exist
-	 *
-	 * @param name
-	 * @param vendor
-	 * @param id
-	 * @return
-	 */
-	Optional<Category> findByNameIgnoreCaseAndVendorAndIdNot(String name, Vendor vendor, Long id);
-
-	/**
 	 * Get category Page by active
 	 *
 	 * @param pageable
@@ -39,21 +29,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	Page<Category> findAllByActive(Boolean active, Pageable pageable);
 
 	/**
-	 * Get category by category name and vendor if exist
-	 *
-	 * @param name
-	 * @return
-	 */
-	Optional<Category> findByNameIgnoreCaseAndVendor(String name, Vendor vendor);
-
-	/**
 	 * get category page name containing search keyword
 	 *
 	 * @param searchKeyword
 	 * @param pageable
 	 * @return
 	 */
-	Page<Category> findAllByNameContainingIgnoreCase(String searchKeyword, Pageable pageable);
+	Page<Category> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2, Pageable pageable);
 
 	/**
 	 * get category page name containing search keyword andactive
@@ -63,7 +45,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	 * @param pageable
 	 * @return
 	 */
-	Page<Category> findAllByActiveAndNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword, Pageable pageable);
+	Page<Category> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
+			Boolean activeRecords2, String searchKeyword2, Pageable pageable);
 
 	/**
 	 * get category list by vendor
@@ -79,7 +62,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	 * @param pageable
 	 * @return
 	 */
-	Page<Category> findAllByNameContainingIgnoreCaseAndVendor(String searchKeyword, Vendor vendor, Pageable pageable);
+	Page<Category> findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(String searchKeyword, Vendor vendor,
+			String searchKeyword2, Vendor vendor2, Pageable pageable);
 
 	/**
 	 * @param vendor
@@ -95,7 +79,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	 * @param pageable
 	 * @return
 	 */
-	Page<Category> findAllByActiveAndNameContainingIgnoreCaseAndVendor(Boolean activeRecords, String searchKeyword, Vendor vendor, Pageable pageable);
+	Page<Category> findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(Boolean activeRecords,
+			String searchKeyword, Vendor vendor, Boolean activeRecords2, String searchKeyword2, Vendor vendor2, Pageable pageable);
 
 	/**
 	 * @param activeRecords
@@ -104,4 +89,31 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	 * @return
 	 */
 	Page<Category> findAllByActiveAndVendor(Boolean activeRecords, Vendor vendor, Pageable pageable);
+
+	/**
+	 * Get Category based on english name or arabic name ,vendor and for not given
+	 * id
+	 *
+	 * @param nameEnglish
+	 * @param vendor
+	 * @param id
+	 * @param nameArabic
+	 * @param vendor2
+	 * @param id2
+	 * @return
+	 */
+	Optional<Category> findByNameEnglishIgnoreCaseAndVendorAndIdNotOrNameArabicIgnoreCaseAndVendorAndIdNot(String nameEnglish, Vendor vendor, Long id,
+			String nameArabic, Vendor vendor2, Long id2);
+
+	/**
+	 * Get Category based on english name or arabic name and vendor
+	 *
+	 * @param nameEnglish
+	 * @param vendor
+	 * @param nameArabic
+	 * @param vendor2
+	 * @return
+	 */
+	Optional<Category> findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(String nameEnglish, Vendor vendor, String nameArabic,
+			Vendor vendor2);
 }

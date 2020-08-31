@@ -24,7 +24,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Service(value = "stateService")
 @Transactional(rollbackFor = Throwable.class)
@@ -88,14 +88,18 @@ public class StateServiceImpl implements StateService {
 
 		if (stateDTO.getId() != null) {
 			/**
-			 * At the time of update is state with same name for same country exist or not except it's own ID
+			 * At the time of update is state with same english name or arabic name for same
+			 * country exist or not except it's own ID
 			 */
-			return stateRepository.findByNameIgnoreCaseAndCountryAndIdNot(stateDTO.getName(), country, stateDTO.getId()).isPresent();
+			return stateRepository.findByNameEnglishIgnoreCaseAndCountryAndIdNotOrNameArabicIgnoreCaseAndCountryAndIdNot(stateDTO.getNameEnglish(), country,
+					stateDTO.getId(), stateDTO.getNameArabic(), country, stateDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is state with same name for same country exist or not
+			 * At the time of create is state with same english name or arabic name for same
+			 * country exist or not
 			 */
-			return stateRepository.findByNameIgnoreCaseAndCountry(stateDTO.getName(), country).isPresent();
+			return stateRepository.findByNameEnglishIgnoreCaseAndCountryOrNameArabicIgnoreCaseAndCountry(stateDTO.getNameEnglish(), country,
+					stateDTO.getNameArabic(), country).isPresent();
 		}
 	}
 
@@ -121,12 +125,13 @@ public class StateServiceImpl implements StateService {
 	}
 
 	/**
-	 * Deactivate city and customer address and validation while activate state & validate country while state is activate
+	 * Deactivate city and customer address and validation while activate state &
+	 * validate country while state is activate
 	 *
-	 * @param  stateId
-	 * @param  active
-	 * @param  userId
-	 * @param  existingState
+	 * @param stateId
+	 * @param active
+	 * @param userId
+	 * @param existingState
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -148,5 +153,4 @@ public class StateServiceImpl implements StateService {
 	public Long getStateCountBasedOnParams(final Boolean activeRecords, final Long countryId, final String searchKeyword) {
 		return stateRepository.getStateCountBasedonParams(activeRecords, countryId, searchKeyword);
 	}
-
 }

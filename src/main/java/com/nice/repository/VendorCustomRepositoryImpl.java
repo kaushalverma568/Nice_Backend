@@ -46,7 +46,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -72,7 +72,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -101,7 +102,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -181,7 +183,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -209,7 +212,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	public List<Vendor> getVendorListForCustomerBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
 		StringBuilder sqlQuery = new StringBuilder(
-				"SELECT v.id,v.email,v.first_name,v.last_name,v.store_name,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
+				"SELECT v.id,v.email,v.first_name_english,v.last_name_english,v.store_name_english,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number,,v.first_name_arabic,v.last_name_arabic,v.store_name_arabic, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
 						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
 						+ "FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
@@ -240,9 +243,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			Vendor vendor = new Vendor();
 			vendor.setId(Long.valueOf(responseObj[0].toString()));
 			vendor.setEmail(String.valueOf(responseObj[1]));
-			vendor.setFirstName(String.valueOf(responseObj[2]));
-			vendor.setLastName(String.valueOf(responseObj[3]));
-			vendor.setStoreName(String.valueOf(responseObj[4]));
+			vendor.setFirstNameEnglish(String.valueOf(responseObj[2]));
+			vendor.setLastNameEnglish(String.valueOf(responseObj[3]));
+			vendor.setStoreNameEnglish(String.valueOf(responseObj[4]));
 			vendor.setStoreImageName(String.valueOf(responseObj[5]));
 			vendor.setStoreDetailImageName(String.valueOf(responseObj[6]));
 			vendor.setFeaturedImageName(String.valueOf(responseObj[7]));
@@ -279,8 +282,11 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 				vendor.setMinimumOrderAmt(Double.valueOf(responseObj[19].toString()));
 			}
 			vendor.setStorePhoneNumber(String.valueOf(responseObj[20]));
+			vendor.setFirstNameArabic(String.valueOf(responseObj[21]));
+			vendor.setLastNameArabic(String.valueOf(responseObj[22]));
+			vendor.setStoreNameArabic(String.valueOf(responseObj[23]));
 			if (responseObj[21] != null) {
-				vendor.setDistance(Double.valueOf(responseObj[21].toString()));
+				vendor.setDistance(Double.valueOf(responseObj[24].toString()));
 			}
 			vendors.add(vendor);
 		}
