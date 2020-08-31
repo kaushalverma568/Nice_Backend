@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +48,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Service("addonsService")
 @Transactional(rollbackOn = Throwable.class)
@@ -80,12 +81,22 @@ public class AddonsServiceImpl implements AddonsService {
 	private FileStorageService fileStorageService;
 
 	@Override
-	public Boolean isExists(final AddonsDTO addonsDto) throws ValidationException, NotFoundException {
+	public Boolean isExistsEnglish(final AddonsDTO addonsDto) throws ValidationException, NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(addonsDto.getVendorId());
 		if (addonsDto.getId() != null) {
-			return addonsRepository.findByNameIgnoreCaseAndVendorAndIdNot(addonsDto.getName(), vendor, addonsDto.getId()).isPresent();
+			return addonsRepository.findByNameEnglishIgnoreCaseAndVendorAndIdNot(addonsDto.getNameEnglish(), vendor, addonsDto.getId()).isPresent();
 		} else {
-			return addonsRepository.findByNameIgnoreCaseAndVendor(addonsDto.getName(), vendor).isPresent();
+			return addonsRepository.findByNameEnglishIgnoreCaseAndVendor(addonsDto.getNameEnglish(), vendor).isPresent();
+		}
+	}
+
+	@Override
+	public Boolean isExistsArabic(final AddonsDTO addonsDto) throws ValidationException, NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(addonsDto.getVendorId());
+		if (addonsDto.getId() != null) {
+			return addonsRepository.findByNameArabicIgnoreCaseAndVendorAndIdNot(addonsDto.getNameArabic(), vendor, addonsDto.getId()).isPresent();
+		} else {
+			return addonsRepository.findByNameArabicIgnoreCaseAndVendor(addonsDto.getNameArabic(), vendor).isPresent();
 		}
 	}
 
@@ -129,17 +140,28 @@ public class AddonsServiceImpl implements AddonsService {
 	public Page<Addons> getAddonsList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
 			final Long vendorId) throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		String langauge = LocaleContextHolder.getLocale().getLanguage();
 		if (vendorId != null) {
 			Vendor vendor = vendorService.getVendorDetail(vendorId);
 			if (activeRecords != null) {
 				if (searchKeyword != null) {
-					return addonsRepository.findAllByActiveAndNameContainingIgnoreCaseAndVendor(activeRecords, searchKeyword, vendor, pageable);
+					if ("en".equals(langauge)) {
+						return addonsRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendor(activeRecords, searchKeyword, vendor, pageable);
+					} else {
+						return addonsRepository.findAllByActiveAndNameArabicContainingIgnoreCaseAndVendor(activeRecords, searchKeyword, vendor, pageable);
+					}
+
 				} else {
 					return addonsRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
 				}
 			} else {
 				if (searchKeyword != null) {
-					return addonsRepository.findAllByNameContainingIgnoreCaseAndVendor(searchKeyword, vendor, pageable);
+					if ("en".equals(langauge)) {
+						return addonsRepository.findAllByNameEnglishContainingIgnoreCaseAndVendor(searchKeyword, vendor, pageable);
+					} else {
+						return addonsRepository.findAllByNameArabicContainingIgnoreCaseAndVendor(searchKeyword, vendor, pageable);
+					}
+
 				} else {
 					return addonsRepository.findAllByVendor(vendor, pageable);
 				}
@@ -150,22 +172,33 @@ public class AddonsServiceImpl implements AddonsService {
 	}
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param pageable
 	 * @return
 	 */
 	private Page<Addons> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
+		String language = LocaleContextHolder.getLocale().getLanguage();
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return addonsRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyword, pageable);
+				if ("en".equals(language)) {
+					return addonsRepository.findAllByActiveAndNameEnglishContainingIgnoreCase(activeRecords, searchKeyword, pageable);
+				} else {
+					return addonsRepository.findAllByActiveAndNameArabicContainingIgnoreCase(activeRecords, searchKeyword, pageable);
+				}
+
 			} else {
 				return addonsRepository.findAllByActive(activeRecords, pageable);
 			}
 
 		} else {
 			if (searchKeyword != null) {
-				return addonsRepository.findAllByNameContainingIgnoreCase(searchKeyword, pageable);
+				if ("en".equals(language)) {
+					return addonsRepository.findAllByNameEnglishContainingIgnoreCase(searchKeyword, pageable);
+				} else {
+					return addonsRepository.findAllByNameArabicContainingIgnoreCase(searchKeyword, pageable);
+				}
+
 			} else {
 				return addonsRepository.findAll(pageable);
 			}
@@ -209,9 +242,9 @@ public class AddonsServiceImpl implements AddonsService {
 			final List<AddonsImport> addonsImports = csvProcessor.convertCSVFileToListOfBean(file, AddonsImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(addonsImports)) {
 				final List<AddonsImport> insertListOfBean = insertListOfUoms(
-						addonsImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
-				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name", "Description", "Result" };
-				Object[] addonsDetailsField = new Object[] { "name", "description", "uploadMessage" };
+						addonsImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
+				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name English", "Addons Name Arabic", "Description", "Result" };
+				Object[] addonsDetailsField = new Object[] { "nameEnglish", "nameArabic", "description", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, addonsDetailsField, addonsDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
@@ -229,12 +262,16 @@ public class AddonsServiceImpl implements AddonsService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (addonsRepository.findByNameIgnoreCaseAndVendor(addonsImport.getName(), vendor).isPresent()) {
+				if (addonsRepository.findByNameEnglishIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("addons.not.unique", null));
+				} else if (addonsRepository.findByNameArabicIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("addons.not.unique", null));
 				} else {
 					final AddonsDTO addonsDTO = new AddonsDTO();
-					addonsDTO.setName(addonsImport.getName());
-					addonsDTO.setDescription(addonsImport.getDescription());
+					addonsDTO.setNameEnglish(addonsImport.getNameEnglish());
+					addonsDTO.setDescriptionEnglish(addonsImport.getDescriptionEnglish());
+					addonsDTO.setNameArabic(addonsImport.getNameArabic());
+					addonsDTO.setDescriptionArabic(addonsImport.getDescriptionArabic());
 					addonsDTO.setActive(true);
 					addonsDTO.setVendorId(vendor.getId());
 					addAddons(addonsDTO);

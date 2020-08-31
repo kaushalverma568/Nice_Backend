@@ -39,9 +39,6 @@ public class OrdersExtras extends CommonModel {
 	@JoinColumn(name = "product_extras_id", referencedColumnName = "id", nullable = false)
 	private ProductExtras productExtras;
 
-	@Column(name = "extras_name", nullable = false)
-	private String extrasName;
-
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_item_id", referencedColumnName = "id", nullable = false)
 	private OrdersItem orderItem;

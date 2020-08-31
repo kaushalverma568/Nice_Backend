@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ import com.nice.service.TempCartToppingsService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("tempCartToppingsService")
@@ -63,8 +64,13 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsTempCartToppingsForCartItemAndAddons(tempCartItem, productToppings)) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productToppings.getTopping().getName() }));
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getNameEnglish() }));
+			} else {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getNameArabic() }));
+			}
 		}
 		tempCartAddons.setProductToppings(productToppings);
 		tempCartAddons.setTempCartItem(tempCartItem);
@@ -95,7 +101,7 @@ public class TempCartToppingsServiceImpl implements TempCartToppingsService {
 	}
 
 	/**
-	 * @param  tempCartAddon
+	 * @param tempCartAddon
 	 * @return
 	 */
 	private ProductToppingResponseDTO convertEntityToDto(final TempCartToppings tempCartAddon) {

@@ -13,18 +13,12 @@ import com.nice.model.ProductExtrasMaster;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Jul-2020
+ * @date : 24-Jul-2020
  */
 public interface ProductExtrasMasterService {
 
 	/**
-	 * @param  productExtrasMasterDto
-	 * @return
-	 */
-	boolean isExists(ProductExtrasMasterDTO productExtrasMasterDto);
-
-	/**
-	 * @param  productExtrasMasterDto
+	 * @param productExtrasMasterDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -32,7 +26,7 @@ public interface ProductExtrasMasterService {
 	Long addProductExtrasMaster(ProductExtrasMasterDTO productExtrasMasterDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  productExtrasMasterDTO
+	 * @param productExtrasMasterDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -40,22 +34,22 @@ public interface ProductExtrasMasterService {
 	Long updateProductExtrasMaster(ProductExtrasMasterDTO productExtrasMasterDTO) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  productExtrasMasterId
+	 * @param productExtrasMasterId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	ProductExtrasMasterDTO getProductExtrasMaster(Long productExtrasMasterId) throws NotFoundException;
 
 	/**
-	 * @param  productExtrasMasterId
-	 * @param  active
+	 * @param productExtrasMasterId
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	void changeStatus(Long productExtrasMasterId, Boolean active) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  productExtrasMasterId
+	 * @param productExtrasMasterId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -67,20 +61,32 @@ public interface ProductExtrasMasterService {
 	void deleteProductExtrasMaster(Long productExtrasMasterId);
 
 	/**
-	 * @param pageSize 
-	 * @param pageNumber 
-	 * @param  activeRecords
-	 * @param  vendorId
+	 * @param pageSize
+	 * @param pageNumber
+	 * @param activeRecords
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Page<ProductExtrasMaster> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException;
 
 	/**
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param file
+	 * @param httpServletResponse
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * @param productExtrasMasterDTO
+	 * @return
+	 */
+	boolean isExistsArabic(ProductExtrasMasterDTO productExtrasMasterDTO);
+
+	/**
+	 * @param productExtrasMasterDTO
+	 * @return
+	 */
+	boolean isExistsEnglish(ProductExtrasMasterDTO productExtrasMasterDTO);
 
 }

@@ -46,12 +46,6 @@ public class OrdersProductAttributeValue extends CommonModel {
 	@JoinColumn(name = "order_item_id", referencedColumnName = "id", nullable = false)
 	private OrdersItem orderItem;
 
-	@Column(name = "attribute_name", nullable = false)
-	private String attributeName;
-
-	@Column(name = "attribute_value", nullable = false)
-	private String attributeValue;
-
 	@Column(name = "quantity", nullable = false)
 	private Long quantity;
 

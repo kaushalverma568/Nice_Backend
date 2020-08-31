@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Entity
 @Table(name = "addons")
@@ -34,11 +34,17 @@ public class Addons extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "name_english", nullable = false)
+	private String nameEnglish;
 
-	@Column(name = "description", nullable = false)
-	private String description;
+	@Column(name = "name_arabic", nullable = false)
+	private String nameArabic;
+
+	@Column(name = "description_english", nullable = false)
+	private String descriptionEnglish;
+
+	@Column(name = "description_arabic", nullable = false)
+	private String descriptionArabic;
 
 	@JoinColumn(name = "vendor_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })

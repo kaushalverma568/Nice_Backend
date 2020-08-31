@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ import com.nice.service.TempCartProductAttributeValueService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("tempCartAttributeValueService")
@@ -68,8 +69,13 @@ public class TempCartProductAttributeValueServiceImpl implements TempCartProduct
 		 * check for existing product attribute values
 		 */
 		if (checkIfExistsTempCartProductAttributeValueForCartItemAndAttributeValue(tempCartItem, productAttributeValue)) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
-					new Object[] { productAttributeValue.getProductAttribute().getName() }));
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
+						new Object[] { productAttributeValue.getProductAttribute().getNameEnglish() }));
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("product.attribute.value.exists.temp.cart",
+						new Object[] { productAttributeValue.getProductAttribute().getNameArabic() }));
+			}
 		}
 		tempCartAttributeValueRepository.save(tempCartAttributeValue);
 	}
@@ -98,7 +104,7 @@ public class TempCartProductAttributeValueServiceImpl implements TempCartProduct
 	}
 
 	/**
-	 * @param  tempCartAddon
+	 * @param tempCartAddon
 	 * @return
 	 */
 	private ProductAttributeValueDTO convertEntityToDto(final TempCartProductAttributeValue tempCartAddon) {

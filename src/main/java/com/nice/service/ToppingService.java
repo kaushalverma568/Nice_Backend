@@ -67,7 +67,7 @@ public interface ToppingService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Boolean isToppingExists(ToppingDTO toppingDTO);
+	Boolean isToppingExistsEnglish(ToppingDTO toppingDTO);
 
 	/**
 	 * get detail object of topping
@@ -98,4 +98,10 @@ public interface ToppingService {
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * @param toppingDTO
+	 * @return
+	 */
+	Boolean isToppingExistsArabic(ToppingDTO toppingDTO);
 }

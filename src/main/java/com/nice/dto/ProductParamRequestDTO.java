@@ -7,7 +7,7 @@ import lombok.Data;
 
 /**
  * @author Kody Technolab PVT. LTD.
- * @date   08-Jan-2020
+ * @date 08-Jan-2020
  */
 @Data
 public class ProductParamRequestDTO implements Serializable {
@@ -23,7 +23,9 @@ public class ProductParamRequestDTO implements Serializable {
 
 	private List<Long> brandIds;
 
-	private String searchKeyword;
+	private String searchKeywordEnglish;
+
+	private String searchKeywordArabic;
 
 	private Boolean activeRecords;
 

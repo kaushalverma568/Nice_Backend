@@ -2,13 +2,14 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 
 @Data
@@ -23,9 +24,15 @@ public class ProductAttributeValueDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	private String attributeValue;
+	@NotEmpty(message = "{english.attribute.value.not.null}")
+	private String attributeValueEnglish;
 
-	private String description;
+	@NotEmpty(message = "{arabic.attribute.value.not.null}")
+	private String attributeValueArabic;
+
+	private String descriptionEnglish;
+
+	private String descriptionArabic;
 
 	private Double rate;
 
@@ -34,4 +41,12 @@ public class ProductAttributeValueDTO implements Serializable {
 	private Long productAttributeId;
 
 	private String productAttributeName;
+
+	/**
+	 * This will be used only for response, it will contain the language specific values for the fields.
+	 */
+	private String attributeValue;
+
+	private String description;
+
 }

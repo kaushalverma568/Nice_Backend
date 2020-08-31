@@ -22,11 +22,21 @@ public class ProductRequestDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
 	private String name;
 
-	@NotBlank(message = "{description.not.null}")
 	private String description;
+
+	@NotBlank(message = "{english.name.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{english.description.not.null}")
+	private String descriptionEnglish;
+
+	@NotBlank(message = "{arabic.name.not.null}")
+	private String nameArabic;
+
+	@NotBlank(message = "{arabic.description.not.null}")
+	private String descriptionArabic;
 
 	@NotNull(message = "{category.id.not.null}")
 	private Long categoryId;

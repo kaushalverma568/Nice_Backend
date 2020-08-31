@@ -15,23 +15,13 @@ import com.nice.model.Addons;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 public interface AddonsService {
 	/**
-	 * check is exists or not
-	 *
-	 * @param  addonsDto
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	Boolean isExists(AddonsDTO addonsDto) throws NotFoundException, ValidationException;
-
-	/**
 	 * add addons
 	 *
-	 * @param  addonsDTO
+	 * @param addonsDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -40,7 +30,7 @@ public interface AddonsService {
 	/**
 	 * update addons
 	 *
-	 * @param  addonsDTO
+	 * @param addonsDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -49,7 +39,7 @@ public interface AddonsService {
 	/**
 	 * get addons detail in DTO by id
 	 *
-	 * @param  id
+	 * @param id
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -58,7 +48,7 @@ public interface AddonsService {
 	/**
 	 * get Addons by id
 	 *
-	 * @param  id
+	 * @param id
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -67,11 +57,11 @@ public interface AddonsService {
 	/**
 	 * paginated and filter addons list based on params
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  vendorId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -80,16 +70,16 @@ public interface AddonsService {
 	/**
 	 * change status (active/deactive)
 	 *
-	 * @param  addonsId
-	 * @param  active
+	 * @param addonsId
+	 * @param active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void changeStatus(Long addonsId, Boolean active) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param file
+	 * @param httpServletResponse
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
@@ -97,9 +87,25 @@ public interface AddonsService {
 	/**
 	 * get addons list by vendor
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 */
 	List<Addons> getAddonsListByVendor(Long vendorId) throws NotFoundException;
+
+	/**
+	 * @param addonsDto
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	Boolean isExistsEnglish(AddonsDTO addonsDto) throws ValidationException, NotFoundException;
+
+	/**
+	 * @param addonsDto
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	Boolean isExistsArabic(AddonsDTO addonsDto) throws ValidationException, NotFoundException;
 
 }

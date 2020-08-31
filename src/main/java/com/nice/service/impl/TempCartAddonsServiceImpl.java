@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ import com.nice.service.TempCartItemService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("tempCartAddonsService")
@@ -62,7 +63,13 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 		 * check for existing addons
 		 */
 		if (checkIfExistsTempCartAddonsForCartItemAndAddons(tempCartItem, productAddons)) {
-			throw new ValidationException(messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getAddons().getName() }));
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getAddons().getNameEnglish() }));
+			} else {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("addons.exists.temp.cart", new Object[] { productAddons.getAddons().getNameArabic() }));
+			}
 		}
 		tempCartAddons.setProductAddons(productAddons);
 		tempCartAddons.setTempCartItem(tempCartItem);
@@ -93,7 +100,7 @@ public class TempCartAddonsServiceImpl implements TempCartAddonsService {
 	}
 
 	/**
-	 * @param  tempCartAddon
+	 * @param tempCartAddon
 	 * @return
 	 */
 	private ProductAddonsDTO convertEntityToDto(final TempCartAddons tempCartAddon) {

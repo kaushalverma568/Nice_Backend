@@ -44,26 +44,40 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
 	Page<ProductAttribute> findAllByVendorId(Long vendorId, Pageable pageable);
 
 	/**
-	 *
-	 * @param name
-	 * @param id
-	 * @return
-	 */
-
-	Optional<ProductAttribute> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
-
-	/**
-	 *
-	 * @param name
-	 * @return
-	 */
-	Optional<ProductAttribute> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
-
-	/**
 	 * @param b
 	 * @param vendorId
 	 * @return
 	 */
 	List<ProductAttribute> findAllByActiveAndVendorId(boolean b, Long vendorId);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductAttribute> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<ProductAttribute> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductAttribute> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<ProductAttribute> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
 
 }

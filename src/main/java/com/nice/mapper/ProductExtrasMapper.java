@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.ProductExtrasDTO;
@@ -22,8 +23,13 @@ public class ProductExtrasMapper {
 		BeanUtils.copyProperties(productExtras, productExtrasResponseDTO);
 		productExtrasResponseDTO.setProductId(productExtras.getProduct().getId());
 		productExtrasResponseDTO.setProductExtrasMasterId(productExtras.getProductExtrasMaster().getId());
-		productExtrasResponseDTO.setName(productExtras.getProductExtrasMaster().getName());
-		productExtrasResponseDTO.setDescription(productExtras.getProductExtrasMaster().getDescription());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			productExtrasResponseDTO.setName(productExtras.getProductExtrasMaster().getNameEnglish());
+			productExtrasResponseDTO.setDescription(productExtras.getProductExtrasMaster().getDescriptionEnglish());
+		} else {
+			productExtrasResponseDTO.setName(productExtras.getProductExtrasMaster().getNameArabic());
+			productExtrasResponseDTO.setDescription(productExtras.getProductExtrasMaster().getDescriptionArabic());
+		}
 		productExtrasResponseDTO.setRate(productExtras.getRate());
 		return productExtrasResponseDTO;
 	}

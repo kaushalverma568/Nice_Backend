@@ -21,21 +21,6 @@ import com.nice.model.Product;
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductCustomRepository {
 
 	/**
-	 * @param name
-	 * @param brandId
-	 * @param id
-	 * @return
-	 */
-	Optional<Product> findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(String name, Long brandId, Long vendorId, Long id);
-
-	/**
-	 * @param name
-	 * @param brandId
-	 * @return
-	 */
-	Optional<Product> findByNameIgnoreCaseAndBrandIdAndVendorId(String name, Long brandId, Long vendorId);
-
-	/**
 	 * @param pageable
 	 * @param vendorId
 	 * @return
@@ -72,7 +57,16 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 	 * @param id
 	 * @return
 	 */
-	Optional<Product> findByNameIgnoreCaseAndCuisineIdAndVendorIdAndIdNot(String name, Long cuisineId, Long vendorId, Long id);
+	Optional<Product> findByNameArabicIgnoreCaseAndCuisineIdAndVendorIdAndIdNot(String name, Long cuisineId, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param cuisineId
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndCuisineIdAndVendorIdAndIdNot(String name, Long cuisineId, Long vendorId, Long id);
 
 	/**
 	 * @param name
@@ -80,7 +74,15 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 	 * @param vendorId
 	 * @return
 	 */
-	Optional<Product> findByNameIgnoreCaseAndCuisineIdAndVendorId(String name, Long brandId, Long vendorId);
+	Optional<Product> findByNameArabicIgnoreCaseAndCuisineIdAndVendorId(String name, Long brandId, Long vendorId);
+
+	/**
+	 * @param name
+	 * @param brandId
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndCuisineIdAndVendorId(String name, Long brandId, Long vendorId);
 
 	/**
 	 * @param name
@@ -88,13 +90,62 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 	 * @param id
 	 * @return
 	 */
-	Optional<Product> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	Optional<Product> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 * @param name
 	 * @param vendorId
 	 * @return
 	 */
-	Optional<Product> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+	Optional<Product> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 * @param name
+	 * @param brandId
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndBrandIdAndVendorIdAndIdNot(String name, Long brandId, Long vendorId, Long id);
+
+	/**
+	 * @param name
+	 * @param brandId
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Product> findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(String name, Long brandId, Long vendorId);
+
+	/**
+	 * @param nameArabic
+	 * @param brandId
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Product> findByNameArabicIgnoreCaseAndBrandIdAndVendorIdAndIdNot(String nameArabic, Long brandId, Long vendorId, Long id);
+
+	/**
+	 * @param nameArabic
+	 * @param brandId
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Product> findByNameArabicIgnoreCaseAndBrandIdAndVendorId(String nameArabic, Long brandId, Long vendorId);
 
 }

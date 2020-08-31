@@ -57,4 +57,11 @@ public interface ProductAttributeService {
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
 
+	/**
+	 * @param productAttributeDTO
+	 * @return
+	 * @throws ValidationException
+	 */
+	boolean isExistsArabic(ProductAttributeDTO productAttributeDTO) throws ValidationException;
+
 }

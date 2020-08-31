@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -201,11 +202,19 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		BeanUtils.copyProperties(productVariant, productVariantResponseDTO);
 		productVariantResponseDTO.setId(productVariant.getId());
 		productVariantResponseDTO.setProductId(productVariant.getProduct().getId());
-		productVariantResponseDTO.setProductName(productVariant.getProduct().getName());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			productVariantResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
+			productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurement());
+			productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		} else {
+			productVariantResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
+			productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurement());
+			productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		}
 		productVariantResponseDTO.setUomId(productVariant.getUom().getId());
-		productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurement());
+
 		productVariantResponseDTO.setUomQuantity(productVariant.getUom().getQuantity());
-		productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+
 		// TODO
 		/**
 		 * Get available qty from inventory and set here, currently set as 0

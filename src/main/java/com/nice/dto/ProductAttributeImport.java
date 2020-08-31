@@ -16,10 +16,14 @@ public class ProductAttributeImport implements Serializable {
 	 *
 	 */
 	private static final long serialVersionUID = 69654909411313351L;
-	
-	private String name;
-	
-	private String description;
+
+	private String nameEnglish;
+
+	private String descriptionEnglish;
+
+	private String nameArabic;
+
+	private String descriptionArabic;
 
 	private String uploadMessage;
 }

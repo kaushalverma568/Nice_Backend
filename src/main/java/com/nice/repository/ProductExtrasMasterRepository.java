@@ -18,6 +18,13 @@ import com.nice.model.ProductExtrasMaster;
 @Repository
 public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtrasMaster, Long> {
 
+	/**
+	 *
+	 * @param name
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndIdNot(String name, Long id);
 
 	/**
 	 *
@@ -25,9 +32,8 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param id
 	 * @return
 	 */
-	Optional<ProductExtrasMaster> findByNameIgnoreCaseAndIdNot(String name, Long id);
+	Optional<ProductExtrasMaster> findByNameArabicIgnoreCaseAndIdNot(String name, Long id);
 
-	
 	/**
 	 *
 	 * @param name
@@ -35,14 +41,30 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param id
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	List<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 *
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	List<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 *
 	 * @param name
 	 * @return
 	 */
-	Optional<ProductExtrasMaster> findByNameIgnoreCase(String name);
+	Optional<ProductExtrasMaster> findByNameEnglishIgnoreCase(String name);
+
+	/**
+	 *
+	 * @param name
+	 * @return
+	 */
+	Optional<ProductExtrasMaster> findByNameArabicIgnoreCase(String name);
 
 	/**
 	 *
@@ -50,7 +72,15 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param vendorId
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+	List<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 *
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	List<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 * @param vendorId
@@ -60,7 +90,7 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	Page<ProductExtrasMaster> findAllByVendorId(Long vendorId, Pageable pageable);
 
 	/**
-	 * 
+	 *
 	 * @param activeRecords
 	 * @param vendorId
 	 * @param pageable
@@ -68,9 +98,8 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 */
 	Page<ProductExtrasMaster> findAllByActiveAndVendorId(Boolean activeRecords, Long vendorId, Pageable pageable);
 
-
 	/**
-	 * 
+	 *
 	 * @param activeRecords
 	 * @param pageable
 	 * @return

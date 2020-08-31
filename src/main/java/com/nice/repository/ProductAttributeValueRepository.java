@@ -20,12 +20,6 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
 
 	List<Optional<ProductAttributeValue>> findByProductAttributeAndIdNot(ProductAttribute productAttribute, Long id);
 
-	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(ProductVariant productVariant,
-			ProductAttribute productAttribute, String value, Long id);
-
-	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValue(ProductVariant productVariant, ProductAttribute productAttribute,
-			String value);
-
 	/**
 	 * @param productVariant
 	 * @param activeRecords
@@ -63,4 +57,42 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
 	 * @return
 	 */
 	List<ProductAttributeValue> findAllByActive(Boolean activeRecords);
+
+	/**
+	 * @param productVariant
+	 * @param productAttribute
+	 * @param attributeValueEnglish
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValueEnglishAndIdNot(ProductVariant productVariant,
+			ProductAttribute productAttribute, String attributeValueEnglish, Long id);
+
+	/**
+	 * @param productVariant
+	 * @param productAttribute
+	 * @param attributeValueArabic
+	 * @param id
+	 * @return
+	 */
+	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValueArabicAndIdNot(ProductVariant productVariant,
+			ProductAttribute productAttribute, String attributeValueArabic, Long id);
+
+	/**
+	 * @param productVariant
+	 * @param productAttribute
+	 * @param attributeValueEnglish
+	 * @return
+	 */
+	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValueEnglish(ProductVariant productVariant,
+			ProductAttribute productAttribute, String attributeValueEnglish);
+
+	/**
+	 * @param productVariant
+	 * @param productAttribute
+	 * @param attributeValueArabic
+	 * @return
+	 */
+	Optional<ProductAttributeValue> findByProductVariantAndProductAttributeAndAttributeValueArabic(ProductVariant productVariant,
+			ProductAttribute productAttribute, String attributeValueArabic);
 }

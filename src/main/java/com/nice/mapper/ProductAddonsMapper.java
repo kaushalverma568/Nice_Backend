@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.ProductAddonsDTO;
@@ -21,8 +22,14 @@ public class ProductAddonsMapper {
 		BeanUtils.copyProperties(productAddons, productAddonsResponseDTO);
 		productAddonsResponseDTO.setProductVariantId(productAddons.getProductVariant().getId());
 		productAddonsResponseDTO.setAddonsId(productAddons.getAddons().getId());
-		productAddonsResponseDTO.setAddonsName(productAddons.getAddons().getName());
-		productAddonsResponseDTO.setDescription(productAddons.getAddons().getDescription());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			productAddonsResponseDTO.setAddonsName(productAddons.getAddons().getNameEnglish());
+			productAddonsResponseDTO.setDescription(productAddons.getAddons().getDescriptionEnglish());
+		} else {
+			productAddonsResponseDTO.setAddonsName(productAddons.getAddons().getNameArabic());
+			productAddonsResponseDTO.setDescription(productAddons.getAddons().getDescriptionArabic());
+		}
+
 		return productAddonsResponseDTO;
 	}
 

@@ -177,17 +177,30 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public boolean isProductExists(final ProductRequestDTO productRequestDTO) throws ValidationException {
+	public boolean isProductExistsEnglish(final ProductRequestDTO productRequestDTO) throws ValidationException {
 		LOGGER.info("Inside isExists method, with productReqDto : {}", productRequestDTO);
 		UserLogin userLogin = checkForUserLogin();
 		productRequestDTO.setVendorId(userLogin.getEntityId());
 		if (productRequestDTO.getId() != null) {
-			return productRepository.findByNameIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getName(), productRequestDTO.getBrandId(),
+			return productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getNameEnglish(),
+					productRequestDTO.getBrandId(), productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
+		} else {
+			return productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getNameEnglish(), productRequestDTO.getBrandId(),
+					productRequestDTO.getVendorId()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isProductExistsArabic(final ProductRequestDTO productRequestDTO) throws ValidationException {
+		LOGGER.info("Inside isExists method, with productReqDto : {}", productRequestDTO);
+		UserLogin userLogin = checkForUserLogin();
+		productRequestDTO.setVendorId(userLogin.getEntityId());
+		if (productRequestDTO.getId() != null) {
+			return productRepository.findByNameArabicIgnoreCaseAndBrandIdAndVendorIdAndIdNot(productRequestDTO.getNameArabic(), productRequestDTO.getBrandId(),
 					productRequestDTO.getVendorId(), productRequestDTO.getId()).isPresent();
 		} else {
-			return productRepository
-					.findByNameIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getName(), productRequestDTO.getBrandId(), productRequestDTO.getVendorId())
-					.isPresent();
+			return productRepository.findByNameArabicIgnoreCaseAndBrandIdAndVendorId(productRequestDTO.getNameArabic(), productRequestDTO.getBrandId(),
+					productRequestDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -778,11 +791,15 @@ public class ProductServiceImpl implements ProductService {
 		productRequestDTO.setVendorId(vendor.getId());
 		productRequestDTO.setActive(true);
 
-		if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getName())) {
+		if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getNameEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("product.name.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getNameArabic())) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.name.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryName())) {
 			throw new ValidationException(messageByLocaleService.getMessage("category.name.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescription())) {
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionArabic())) {
 			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getProductFoodType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.null", null));
@@ -850,7 +867,8 @@ public class ProductServiceImpl implements ProductService {
 				productRequestDTO.setBrandId(brandId);
 			}
 		}
-		if (productRepository.findByNameIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getName(), brandId, vendor.getId()).isPresent()) {
+		if (productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameEnglish(), brandId, vendor.getId()).isPresent()
+				|| productRepository.findByNameArabicIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameArabic(), brandId, vendor.getId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.already.exists", null));
 		}
 	}

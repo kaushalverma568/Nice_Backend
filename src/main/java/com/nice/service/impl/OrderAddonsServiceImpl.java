@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.OrderAddonsDTO;
+import com.nice.dto.ProductAddonsDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.OrdersAddons;
@@ -21,7 +22,7 @@ import com.nice.service.ProductAddonsService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("orderAddonsService")
@@ -54,21 +55,28 @@ public class OrderAddonsServiceImpl implements OrderAddonsService {
 	}
 
 	/**
-	 * @param  orderAddon
+	 * @param orderAddon
 	 * @return
+	 * @throws NotFoundException
 	 */
-	private OrderAddonsDTO convertEntityToDto(final OrdersAddons orderAddon) {
+	private OrderAddonsDTO convertEntityToDto(final OrdersAddons orderAddon) throws NotFoundException {
+
 		OrderAddonsDTO orderAddonsDto = new OrderAddonsDTO();
 		BeanUtils.copyProperties(orderAddon, orderAddonsDto);
 		orderAddonsDto.setOrderItemtId(orderAddon.getOrderItem().getId());
-		orderAddonsDto.setProductAddonsId(orderAddon.getProductAddons().getId());
+		if (orderAddon.getProductAddons() != null) {
+			orderAddonsDto.setProductAddonsId(orderAddon.getProductAddons().getId());
+			ProductAddonsDTO productAddonsDto = productAddonsService.getProductAddons(orderAddon.getProductAddons().getId());
+			orderAddonsDto.setAddonsName(productAddonsDto.getAddonsName());
+		}
 		return orderAddonsDto;
 	}
 
 	/**
 	 * @param orderAddonsList
+	 * @throws NotFoundException
 	 */
-	private List<OrderAddonsDTO> convertEntityToDtos(final List<OrdersAddons> orderAddonsList) {
+	private List<OrderAddonsDTO> convertEntityToDtos(final List<OrdersAddons> orderAddonsList) throws NotFoundException {
 		List<OrderAddonsDTO> orderAddonsDtoList = new ArrayList<>();
 		for (OrdersAddons orderAddons : orderAddonsList) {
 			orderAddonsDtoList.add(convertEntityToDto(orderAddons));

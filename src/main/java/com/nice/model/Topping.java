@@ -34,11 +34,17 @@ public class Topping extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "name_english", nullable = false)
+	private String nameEnglish;
 
-	@Column(name = "description", nullable = false)
-	private String description;
+	@Column(name = "name_arabic", nullable = false)
+	private String nameArabic;
+
+	@Column(name = "description_english", nullable = false)
+	private String descriptionEnglish;
+
+	@Column(name = "description_arabic", nullable = false)
+	private String descriptionArabic;
 
 	@Column(name = "vendor_id", nullable = false)
 	private Long vendorId;

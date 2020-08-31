@@ -39,9 +39,6 @@ public class OrdersAddons extends CommonModel {
 	@JoinColumn(name = "product_addons_id", referencedColumnName = "id", nullable = false)
 	private ProductAddons productAddons;
 
-	@Column(name = "addons_name", nullable = false)
-	private String addonsName;
-
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_item_id", referencedColumnName = "id", nullable = false)
 	private OrdersItem orderItem;

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,8 +79,14 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			}
 
 			if (isExists(productAttributeValuesDto, productVariant, productAttribute)) {
-				throw new ValidationException(messageByLocaleService.getMessage("attribute.value.already.exists",
-						new Object[] { productAttributeValuesDto.getAttributeValue(), productAttribute.getName() }));
+				if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+					throw new ValidationException(messageByLocaleService.getMessage("attribute.value.already.exists",
+							new Object[] { productAttributeValuesDto.getAttributeValueEnglish(), productAttribute.getNameEnglish() }));
+				} else {
+					throw new ValidationException(messageByLocaleService.getMessage("attribute.value.already.exists",
+							new Object[] { productAttributeValuesDto.getAttributeValueArabic(), productAttribute.getNameArabic() }));
+				}
+
 			}
 			validateProductAttributeValues(productVariant, productAttributeValuesDto);
 			productAttributeValuesDto.setProductVariantId(productVariantId);
@@ -192,12 +199,19 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			final ProductAttribute productAttribute) throws NotFoundException {
 		LOGGER.info("After ProductAttributeValue isExists");
 		if (productAttributeValueDTO.getId() != null) {
-			return productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueAndIdNot(productVariant, productAttribute,
-					productAttributeValueDTO.getAttributeValue(), productAttributeValueDTO.getId()).isPresent();
+			return productAttributeValueRepository
+					.findByProductVariantAndProductAttributeAndAttributeValueEnglishAndIdNot(productVariant, productAttribute,
+							productAttributeValueDTO.getAttributeValueEnglish(), productAttributeValueDTO.getId())
+					.isPresent()
+					|| productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueArabicAndIdNot(productVariant, productAttribute,
+							productAttributeValueDTO.getAttributeValueArabic(), productAttributeValueDTO.getId()).isPresent();
 		} else {
 			return productAttributeValueRepository
-					.findByProductVariantAndProductAttributeAndAttributeValue(productVariant, productAttribute, productAttributeValueDTO.getAttributeValue())
-					.isPresent();
+					.findByProductVariantAndProductAttributeAndAttributeValueEnglish(productVariant, productAttribute,
+							productAttributeValueDTO.getAttributeValueEnglish())
+					.isPresent()
+					|| productAttributeValueRepository.findByProductVariantAndProductAttributeAndAttributeValueArabic(productVariant, productAttribute,
+							productAttributeValueDTO.getAttributeValueArabic()).isPresent();
 		}
 	}
 
@@ -245,8 +259,10 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 			throw new ValidationException(messageByLocaleService.getMessage("attribute.value.rate.not.null", null));
 		} else if (productAttributeValuesDto.getActive() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productAttributeValuesDto.getAttributeValue())) {
-			throw new ValidationException(messageByLocaleService.getMessage("attribute.value.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productAttributeValuesDto.getAttributeValueEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("english.attribute.value.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productAttributeValuesDto.getAttributeValueArabic())) {
+			throw new ValidationException(messageByLocaleService.getMessage("arabic.attribute.value.not.null", null));
 		} else if (productAttributeValuesDto.getProductAttributeId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("product.attribute.not.null", null));
 		}

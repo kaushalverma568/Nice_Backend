@@ -17,7 +17,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Component
 public class AddonsValidator implements Validator {
@@ -50,9 +50,12 @@ public class AddonsValidator implements Validator {
 			final AddonsDTO addonsDTO = (AddonsDTO) target;
 			// to check Addons duplication
 			try {
-				if (addonsDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(addonsDTO.getName())
-						&& addonsService.isExists(addonsDTO).booleanValue()) {
-					errors.rejectValue("name", "409", messageByLocaleService.getMessage("addons.not.unique", null));
+				if (addonsDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(addonsDTO.getNameEnglish())
+						&& addonsService.isExistsEnglish(addonsDTO).booleanValue()) {
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("addons.not.unique", null));
+				} else if (addonsDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(addonsDTO.getNameArabic())
+						&& addonsService.isExistsArabic(addonsDTO).booleanValue()) {
+					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("addons.not.unique", null));
 				}
 			} catch (NotFoundException e) {
 				LOGGER.error("Addons not found for vendor id : {} ", addonsDTO.getVendorId());

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,7 +104,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -227,26 +228,49 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check if the vendor servicable and customer delivery belong to same city
 		 */
-		if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
-		} else if (!vendor.getCity().getId().equals(city.getId())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getName() }));
-		} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
-				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
-		} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
-				&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
+			} else if (!vendor.getCity().getId().equals(city.getId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getName() }));
+			} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
+					&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
+			} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
+					&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
+			}
+		} else {
+			// TODO : change the validation errors to arabic
+			if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
+			} else if (!vendor.getCity().getId().equals(city.getId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getName() }));
+			} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
+					&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
+			} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
+					&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
+			}
 		}
+
 		/**
 		 * check if the products in cart are active or not active then throw error also check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
 			if (!productVariant.getActive().booleanValue()) {
-				throw new ValidationException(messageByLocaleService.getMessage("product.inactive",
-						new Object[] { productVariant.getProduct().getName(), productVariant.getUom().getUomLabel() }));
+				if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+					throw new ValidationException(messageByLocaleService.getMessage("product.inactive",
+							new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabel() }));
+				} else {
+					throw new ValidationException(messageByLocaleService.getMessage("product.inactive",
+							new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabel() }));
+				}
+
 			} else {
 				// TODO
 				// Stock check here for grocery related orders.
@@ -260,8 +284,14 @@ public class OrdersServiceImpl implements OrdersService {
 					// productVariant.getUom().getUomLabel(), availableQty }));
 					// }
 				} else if (!productVariant.getProductAvailable().booleanValue()) {
-					throw new ValidationException(messageByLocaleService.getMessage("product.not.available",
-							new Object[] { productVariant.getProduct().getName() + "-" + productVariant.getUom().getUomLabel() }));
+					if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+						throw new ValidationException(messageByLocaleService.getMessage("product.not.available",
+								new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabel() }));
+					} else {
+						throw new ValidationException(messageByLocaleService.getMessage("product.not.available",
+								new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabel() }));
+					}
+
 				}
 
 			}
@@ -408,9 +438,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -567,7 +597,6 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersAddons orderAddons = new OrdersAddons();
 				orderAddons.setActive(true);
 				orderAddons.setProductAddons(cartAddons.getProductAddons());
-				orderAddons.setAddonsName(cartAddons.getProductAddons().getAddons().getName());
 				orderAddons.setQuantity(cartAddons.getQuantity());
 				orderAddons.setAmount(cartAddons.getProductAddons().getRate() * cartAddons.getQuantity());
 				if (cartAddons.getProductAddons().getDiscountedRate() != null) {
@@ -585,7 +614,6 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersExtras orderExtras = new OrdersExtras();
 				orderExtras.setActive(true);
 				orderExtras.setProductExtras(cartExtras.getProductExtras());
-				orderExtras.setExtrasName(cartExtras.getProductExtras().getProductExtrasMaster().getName());
 				orderExtras.setQuantity(cartExtras.getQuantity());
 				orderExtras.setAmount(cartExtras.getProductExtras().getRate() * cartExtras.getQuantity());
 				if (cartExtras.getProductExtras().getDiscountedRate() != null) {
@@ -606,8 +634,6 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersProductAttributeValue orderProductAttributeValue = new OrdersProductAttributeValue();
 				orderProductAttributeValue.setActive(true);
 				orderProductAttributeValue.setProductAttributeValue(cartProductAttribute.getProductAttributeValue());
-				orderProductAttributeValue.setAttributeValue(productAttributeValue.getAttributeValue());
-				orderProductAttributeValue.setAttributeName(productAttributeValue.getProductAttribute().getName());
 				orderProductAttributeValue.setQuantity(cartProductAttribute.getQuantity());
 				orderProductAttributeValue.setAmount(cartProductAttribute.getProductAttributeValue().getRate() * cartProductAttribute.getQuantity());
 				if (cartProductAttribute.getProductAttributeValue().getDiscountedRate() != null) {
@@ -625,7 +651,6 @@ public class OrdersServiceImpl implements OrdersService {
 				OrdersToppings orderToppings = new OrdersToppings();
 				orderToppings.setActive(true);
 				orderToppings.setProductToppings(cartToppings.getProductToppings());
-				orderToppings.setToppingsName(cartToppings.getProductToppings().getTopping().getName());
 				orderToppings.setQuantity(cartToppings.getQuantity());
 				orderToppings.setAmount(cartToppings.getProductToppings().getRate() * cartToppings.getQuantity());
 				if (cartToppings.getProductToppings().getDiscountedRate() != null) {
@@ -705,8 +730,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
+	 * @param cartItemList
+	 * @param orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -786,7 +811,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orderAmt
+	 * @param orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -834,6 +859,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * set city field for email
 		 */
 		orderResponseDto.setCity(orders.getCity().getName());
+		orderResponseDto.setVendorName(orders.getVendor().getFirstName() + " " + orders.getVendor().getLastName());
 		/**
 		 * set pincode field for email and push notification
 		 */
@@ -847,7 +873,6 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			orderResponseDto.setPhoneNumber(customer.getPhoneNumber());
 		}
-		orderResponseDto.setVendorName(orders.getVendor().getFirstName() + " " + orders.getVendor().getLastName());
 		orderResponseDto.setVendorId(orders.getVendor().getId());
 		orderResponseDto.setEmail(orders.getCustomer().getEmail());
 
@@ -876,8 +901,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -922,8 +947,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
-		 * will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -949,7 +974,8 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =

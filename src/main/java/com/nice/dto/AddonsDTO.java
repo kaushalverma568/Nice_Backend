@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Data
 public class AddonsDTO implements Serializable {
@@ -22,11 +22,17 @@ public class AddonsDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	@NotNull(message = "{name.not.null}")
-	private String name;
+	@NotNull(message = "{english.name.not.null}")
+	private String nameEnglish;
 
-	@NotNull(message = "{description.not.null}")
-	private String description;
+	@NotNull(message = "{arabic.name.not.null}")
+	private String nameArabic;
+
+	@NotNull(message = "{english.description.not.null}")
+	private String descriptionEnglish;
+
+	@NotNull(message = "{arabic.description.not.null}")
+	private String descriptionArabic;
 
 	@NotNull(message = "{vendor.not.null}")
 	private Long vendorId;

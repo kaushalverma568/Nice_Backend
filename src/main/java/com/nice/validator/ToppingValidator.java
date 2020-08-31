@@ -14,7 +14,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Component
 public class ToppingValidator implements Validator {
@@ -50,10 +50,12 @@ public class ToppingValidator implements Validator {
 			final ToppingDTO toppingDTO = (ToppingDTO) target;
 			// to check topping duplication
 
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(toppingDTO.getName()) && toppingService.isToppingExists(toppingDTO).booleanValue()) {
-				errors.rejectValue("name", "409", messageByLocaleService.getMessage("topping.name.not.unique", null));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(toppingDTO.getNameEnglish()) && toppingService.isToppingExistsEnglish(toppingDTO).booleanValue()) {
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("topping.name.not.unique", null));
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(toppingDTO.getNameArabic())
+					&& toppingService.isToppingExistsArabic(toppingDTO).booleanValue()) {
+				errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("topping.name.not.unique", null));
 			}
-
 		} else {
 			LOGGER.info("target is not instance of ToppingDTO");
 		}

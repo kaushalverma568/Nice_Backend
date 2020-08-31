@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.ProductAttributeDTO;
@@ -20,6 +21,13 @@ public class ProductAttributeMapper {
 	public ProductAttributeDTO toDto(final ProductAttribute productAttribute) {
 		ProductAttributeDTO productAttributeResponseDTO = new ProductAttributeDTO();
 		BeanUtils.copyProperties(productAttribute, productAttributeResponseDTO);
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			productAttributeResponseDTO.setName(productAttribute.getNameEnglish());
+			productAttributeResponseDTO.setDescription(productAttribute.getDescriptionEnglish());
+		} else {
+			productAttributeResponseDTO.setName(productAttribute.getNameArabic());
+			productAttributeResponseDTO.setDescription(productAttribute.getDescriptionArabic());
+		}
 		return productAttributeResponseDTO;
 	}
 

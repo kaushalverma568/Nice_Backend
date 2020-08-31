@@ -41,7 +41,6 @@ import com.nice.repository.ProductExtrasRepository;
 import com.nice.service.FileStorageService;
 import com.nice.service.ProductExtrasMasterService;
 import com.nice.service.ProductExtrasService;
-import com.nice.service.ProductService;
 import com.nice.service.VendorService;
 import com.nice.util.CSVProcessor;
 import com.nice.util.CommonUtility;
@@ -72,10 +71,10 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-	
+
 	@Autowired
 	private ProductExtrasService productExtrasService;
-	
+
 	@Autowired
 	private ProductExtrasRepository productExtrasRepository;
 
@@ -87,8 +86,7 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 
 	@Autowired
 	private FileStorageService fileStorageService;
-	
-	
+
 	@Override
 	public Long addProductExtrasMaster(final ProductExtrasMasterDTO productExtrasMasterDTO) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside addProductExtrasMaster method, with productExtrasMasterDTO : {}", productExtrasMasterDTO);
@@ -159,13 +157,12 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 				for (ProductExtras productExtra : productExtrasList) {
 					productExtrasService.changeStatus(productExtra.getId(), active);
 				}
-			} 
+			}
 			existingProductExtrasMaster.setActive(active);
 			productExtrasMasterRepository.save(existingProductExtrasMaster);
 		}
 		LOGGER.info("Inside changeStatus method, with productExtrasMasterId : {} and active :{}", productExtrasMasterId, active);
 	}
-
 
 	/**
 	 * @param activeRecords
@@ -174,7 +171,8 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	 * @throws NotFoundException
 	 */
 	@Override
-	public Page<ProductExtrasMaster> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException{
+	public Page<ProductExtrasMaster> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId)
+			throws NotFoundException {
 		LOGGER.info("Inside getList method, with productId : {} and active :{}", vendorId, activeRecords);
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
 		if (activeRecords != null) {
@@ -193,13 +191,26 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	}
 
 	@Override
-	public boolean isExists(final ProductExtrasMasterDTO productExtrasMasterDTO) {
+	public boolean isExistsEnglish(final ProductExtrasMasterDTO productExtrasMasterDTO) {
 		LOGGER.info("Inside isExists method, with productExtrasMasterDTO : {} ", productExtrasMasterDTO);
 		if (productExtrasMasterDTO.getId() != null) {
-			return productExtrasMasterRepository.findByNameIgnoreCaseAndIdNot(productExtrasMasterDTO.getName(), productExtrasMasterDTO.getId()).isPresent();
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndIdNot(productExtrasMasterDTO.getName(), productExtrasMasterDTO.getId())
+					.isPresent();
 
 		} else {
-			return productExtrasMasterRepository.findByNameIgnoreCase(productExtrasMasterDTO.getName()).isPresent();
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCase(productExtrasMasterDTO.getName()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isExistsArabic(final ProductExtrasMasterDTO productExtrasMasterDTO) {
+		LOGGER.info("Inside isExists method, with productExtrasMasterDTO : {} ", productExtrasMasterDTO);
+		if (productExtrasMasterDTO.getId() != null) {
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndIdNot(productExtrasMasterDTO.getName(), productExtrasMasterDTO.getId())
+					.isPresent();
+
+		} else {
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCase(productExtrasMasterDTO.getName()).isPresent();
 		}
 	}
 
@@ -248,29 +259,26 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	}
 
 	@Override
-	public void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException {
-		final String fileName = fileStorageService.storeFile(multipartFile, "productExtrasMaster_"+System.currentTimeMillis(), AssetConstant.EXTRAS);
+	public void uploadFile(final MultipartFile multipartFile, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		final String fileName = fileStorageService.storeFile(multipartFile, "productExtrasMaster_" + System.currentTimeMillis(), AssetConstant.EXTRAS);
 		Path filePath = fileStorageService.getOriginalFilePath(fileName, AssetConstant.EXTRAS);
 		final File file = new File(filePath.toString());
 		final CSVProcessor<ExtrasImport> csvProcessor = new CSVProcessor<>();
 		try {
 			final List<ExtrasImport> extrasImports = csvProcessor.convertCSVFileToListOfBean(file, ExtrasImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(extrasImports)) {
-				final List<ExtrasImport> insertListOfBean = insertListOfUoms(
-						extrasImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName()) 
-								&&	x.getRate() > 0).collect(Collectors.toList()));
-				Object[] extrasDetailsHeadersField = new Object[] { "Name","Description","Rate", "Result" };
+				final List<ExtrasImport> insertListOfBean = insertListOfUoms(extrasImports.stream()
+						.filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish()) && x.getRate() > 0).collect(Collectors.toList()));
+				Object[] extrasDetailsHeadersField = new Object[] { "Name", "Description", "Rate", "Result" };
 				Object[] extrasDetailsField = new Object[] { "Name", "description", "rate", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, extrasDetailsField, extrasDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
 		}
-		
+
 	}
-	
-	
-	
+
 	private List<ExtrasImport> insertListOfUoms(final List<ExtrasImport> productExtrasMasterImports) {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		final List<ExtrasImport> allResult = new ArrayList<>();
@@ -280,12 +288,18 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (!productExtrasMasterRepository.findByNameIgnoreCaseAndVendorId(productExtrasMasterImport.getName(), vendor.getId()).isEmpty()) {
+				if (!productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorId(productExtrasMasterImport.getNameEnglish(), vendor.getId())
+						.isEmpty()) {
+					throw new ValidationException(messageByLocaleService.getMessage("productExtrasMaster.not.unique", null));
+				} else if (!productExtrasMasterRepository.findByNameArabicIgnoreCaseAndVendorId(productExtrasMasterImport.getNameArabic(), vendor.getId())
+						.isEmpty()) {
 					throw new ValidationException(messageByLocaleService.getMessage("productExtrasMaster.not.unique", null));
 				} else {
 					final ProductExtrasMasterDTO productExtrasMasterDTO = new ProductExtrasMasterDTO();
-					productExtrasMasterDTO.setName(productExtrasMasterImport.getName());
-					productExtrasMasterDTO.setDescription(productExtrasMasterImport.getDescription());
+					productExtrasMasterDTO.setNameEnglish(productExtrasMasterImport.getNameEnglish());
+					productExtrasMasterDTO.setDescriptionEnglish(productExtrasMasterImport.getDescriptionEnglish());
+					productExtrasMasterDTO.setNameArabic(productExtrasMasterImport.getNameArabic());
+					productExtrasMasterDTO.setDescriptionArabic(productExtrasMasterImport.getDescriptionArabic());
 					productExtrasMasterDTO.setRate(productExtrasMasterImport.getRate());
 					productExtrasMasterDTO.setActive(true);
 					productExtrasMasterDTO.setVendorId(vendor.getId());
@@ -299,6 +313,5 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 		}
 		return allResult;
 	}
-	
 
 }

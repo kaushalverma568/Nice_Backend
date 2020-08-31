@@ -17,9 +17,13 @@ public class ProductImportDTO implements Serializable {
 	 */
 	private static final long serialVersionUID = -4709686418979806851L;
 
-	private String name;
+	private String nameEnglish;
 
-	private String description;
+	private String descriptionEnglish;
+
+	private String nameArabic;
+
+	private String descriptionArabic;
 
 	private String categoryName;
 

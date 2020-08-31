@@ -195,10 +195,27 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		if (productAttributeDTO.getId() != null) {
-			return productAttributeRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(productAttributeDTO.getName(), vendorId, productAttributeDTO.getId())
-					.isPresent();
+			return productAttributeRepository
+					.findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(productAttributeDTO.getName(), vendorId, productAttributeDTO.getId()).isPresent();
 		} else {
-			return productAttributeRepository.findByNameIgnoreCaseAndVendorId(productAttributeDTO.getName(), vendorId).isPresent();
+			return productAttributeRepository.findByNameEnglishIgnoreCaseAndVendorId(productAttributeDTO.getName(), vendorId).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isExistsArabic(final ProductAttributeDTO productAttributeDTO) throws ValidationException {
+		Long vendorId = getVendorIdForLoginUser();
+		/**
+		 * Only vendor can update the product attribute
+		 */
+		if (vendorId == null) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+		if (productAttributeDTO.getId() != null) {
+			return productAttributeRepository
+					.findByNameArabicIgnoreCaseAndVendorIdAndIdNot(productAttributeDTO.getName(), vendorId, productAttributeDTO.getId()).isPresent();
+		} else {
+			return productAttributeRepository.findByNameArabicIgnoreCaseAndVendorId(productAttributeDTO.getName(), vendorId).isPresent();
 		}
 	}
 
@@ -249,7 +266,7 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			final List<ProductAttributeImport> attributeImports = csvProcessor.convertCSVFileToListOfBean(file, ProductAttributeImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(attributeImports)) {
 				final List<ProductAttributeImport> insertListOfBean = insertListOfUoms(
-						attributeImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
+						attributeImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
 				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name", "Description", "Result" };
 				Object[] attributeDetailsField = new Object[] { "name", "description", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, attributeDetailsField, attributeDetailsHeadersField, httpServletResponse);
@@ -269,12 +286,17 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (productAttributeRepository.findByNameIgnoreCaseAndVendorId(productAttributeImport.getName(), vendor.getId()).isPresent()) {
+				if (productAttributeRepository.findByNameEnglishIgnoreCaseAndVendorId(productAttributeImport.getNameEnglish(), vendor.getId()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("productAttribute.not.unique", null));
+				} else if (productAttributeRepository.findByNameArabicIgnoreCaseAndVendorId(productAttributeImport.getNameArabic(), vendor.getId())
+						.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("productAttribute.not.unique", null));
 				} else {
 					final ProductAttributeDTO productAttributeDTO = new ProductAttributeDTO();
-					productAttributeDTO.setName(productAttributeImport.getName());
-					productAttributeDTO.setDescription(productAttributeImport.getDescription());
+					productAttributeDTO.setNameEnglish(productAttributeImport.getNameEnglish());
+					productAttributeDTO.setDescriptionEnglish(productAttributeImport.getDescriptionEnglish());
+					productAttributeDTO.setNameArabic(productAttributeImport.getNameArabic());
+					productAttributeDTO.setDescriptionArabic(productAttributeImport.getDescriptionArabic());
 					productAttributeDTO.setActive(true);
 					productAttributeDTO.setVendorId(vendor.getId());
 					addProductAttribute(productAttributeDTO);

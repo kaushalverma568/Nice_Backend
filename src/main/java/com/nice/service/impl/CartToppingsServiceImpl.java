@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ import com.nice.service.ProductToppingService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartToppingsService")
@@ -63,8 +64,13 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 		 * check for existing Toppings
 		 */
 		if (checkIfExistsCartToppingsForCartItemAndToppings(cartItem, productToppings)) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getName() }));
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getNameEnglish() }));
+			} else {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("toppings.exists.temp.cart", new Object[] { productToppings.getTopping().getNameArabic() }));
+			}
 		}
 		cartToppings.setProductToppings(productToppings);
 		cartToppings.setCartItem(cartItem);
@@ -108,7 +114,7 @@ public class CartToppingsServiceImpl implements CartToppingsService {
 	}
 
 	/**
-	 * @param  cartAddon
+	 * @param cartAddon
 	 * @return
 	 */
 	private ProductToppingResponseDTO convertEntityToDto(final CartToppings cartTopping) {

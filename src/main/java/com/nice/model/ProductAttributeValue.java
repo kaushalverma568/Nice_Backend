@@ -35,11 +35,17 @@ public class ProductAttributeValue extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "attribute_value", nullable = false)
-	private String attributeValue;
+	@Column(name = "attribute_value_english", nullable = false)
+	private String attributeValueEnglish;
 
-	@Column(name = "description")
-	private String description;
+	@Column(name = "attribute_value_arabic", nullable = false)
+	private String attributeValueArabic;
+
+	@Column(name = "description_english", nullable = false)
+	private String descriptionEnglish;
+
+	@Column(name = "description_arabic", nullable = false)
+	private String descriptionArabic;
 
 	@Column(name = "rate")
 	private Double rate;

@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 
 @Data
@@ -26,10 +26,19 @@ public class ProductExtrasMasterDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	@NotBlank(message = "{name.not.null}")
 	private String name;
 
 	private String description;
+
+	@NotBlank(message = "{english.name.not.null}")
+	private String nameEnglish;
+
+	private String descriptionEnglish;
+
+	@NotBlank(message = "{arabic.name.not.null}")
+	private String nameArabic;
+
+	private String descriptionArabic;
 
 	@NotNull(message = "{rate.not.null}")
 	private Double rate;

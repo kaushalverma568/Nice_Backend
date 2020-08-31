@@ -26,15 +26,6 @@ import com.nice.model.Product;
 public interface ProductService {
 
 	/**
-	 * product ith same name exist or not
-	 *
-	 * @param productRequestDTO
-	 * @return
-	 * @throws ValidationException
-	 */
-	boolean isProductExists(ProductRequestDTO productRequestDTO) throws ValidationException;
-
-	/**
 	 * add product
 	 *
 	 * @param productRequestDTO
@@ -192,5 +183,19 @@ public interface ProductService {
 	 */
 	Map<String, Map<String, List<ProductResponseDTO>>> getProductListBasedOnParamsAndCategoryWise(ProductParamRequestDTO productParamRequestDTO)
 			throws NotFoundException, ValidationException;
+
+	/**
+	 * @param productRequestDTO
+	 * @return
+	 * @throws ValidationException
+	 */
+	boolean isProductExistsArabic(ProductRequestDTO productRequestDTO) throws ValidationException;
+
+	/**
+	 * @param productRequestDTO
+	 * @return
+	 * @throws ValidationException
+	 */
+	boolean isProductExistsEnglish(ProductRequestDTO productRequestDTO) throws ValidationException;
 
 }

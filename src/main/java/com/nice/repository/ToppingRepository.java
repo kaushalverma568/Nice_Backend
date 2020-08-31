@@ -48,7 +48,16 @@ public interface ToppingRepository extends JpaRepository<Topping, Long> {
 	 * @param id
 	 * @return
 	 */
-	Optional<Topping> findByNameIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	Optional<Topping> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+
+	/**
+	 *
+	 * @param name
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<Topping> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 * get topping by name and vendor id
@@ -57,7 +66,16 @@ public interface ToppingRepository extends JpaRepository<Topping, Long> {
 	 * @param vendorId
 	 * @return
 	 */
-	Optional<Topping> findByNameIgnoreCaseAndVendorId(String name, Long vendorId);
+	Optional<Topping> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
+
+	/**
+	 * get topping by name and vendor id
+	 *
+	 * @param name
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<Topping> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 * get all toppings by active and vendor id

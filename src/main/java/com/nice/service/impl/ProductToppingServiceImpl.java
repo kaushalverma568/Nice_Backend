@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,8 +115,13 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		BeanUtils.copyProperties(productTopping, productToppingResponseDTO);
 		productToppingResponseDTO.setProductVariantId(productTopping.getProductVariant().getId());
 		productToppingResponseDTO.setToppingId(productTopping.getTopping().getId());
-		productToppingResponseDTO.setName(productTopping.getTopping().getName());
-		productToppingResponseDTO.setDescription(productTopping.getTopping().getDescription());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			productToppingResponseDTO.setName(productTopping.getTopping().getNameEnglish());
+			productToppingResponseDTO.setDescription(productTopping.getTopping().getDescriptionEnglish());
+		} else {
+			productToppingResponseDTO.setName(productTopping.getTopping().getNameArabic());
+			productToppingResponseDTO.setDescription(productTopping.getTopping().getDescriptionArabic());
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(productTopping.getTopping().getProductFoodType())) {
 			productToppingResponseDTO.setProductFoodType(productTopping.getTopping().getProductFoodType());
 		}

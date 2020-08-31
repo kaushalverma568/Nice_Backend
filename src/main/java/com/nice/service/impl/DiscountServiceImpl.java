@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +51,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service("discountService")
 @Transactional(rollbackFor = Throwable.class)
@@ -154,8 +155,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  discountDTO
-	 * @param  discount
+	 * @param discountDTO
+	 * @param discount
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -233,8 +234,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  discountId
-	 * @param  status
+	 * @param discountId
+	 * @param status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -280,7 +281,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  discount
+	 * @param discount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -338,7 +339,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  existingDiscount
+	 * @param existingDiscount
 	 * @throws NotFoundException
 	 */
 	private void setDiscountInProducts(final Discount existingDiscount) throws NotFoundException {
@@ -453,7 +454,13 @@ public class DiscountServiceImpl implements DiscountService {
 		List<DiscountAppliedProductHistory> discountAppliedProductHistoryList = discountAppliedProductHistoryRepository.findAllByDiscountId(discountId);
 		for (Long productId : discountAppliedProductHistoryList.stream().map(DiscountAppliedProductHistory::getProductId).collect(Collectors.toList())) {
 			final Product product = productService.getProductDetail(productId);
-			productMap.put(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR), product.getName());
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				productMap.put(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR), product.getNameEnglish());
+
+			} else {
+				productMap.put(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR), product.getNameArabic());
+
+			}
 		}
 		return productMap;
 	}

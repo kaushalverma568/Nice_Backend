@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class ToppingDTO implements Serializable {
@@ -24,11 +24,21 @@ public class ToppingDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{name.not.null}")
-	private String name;
+	// private String name;
 
-	@NotBlank(message = "{description.not.null}")
-	private String description;
+	// private String description;
+
+	@NotBlank(message = "{english.name.not.null}")
+	private String nameEnglish;
+
+	@NotBlank(message = "{english.description.not.null}")
+	private String descriptionEnglish;
+
+	@NotBlank(message = "{arabic.name.not.null}")
+	private String nameArabic;
+
+	@NotBlank(message = "{arabic.description.not.null}")
+	private String descriptionArabic;
 
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -55,7 +56,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service("stockDetailsService")
 @Transactional(rollbackFor = Throwable.class)
@@ -209,7 +210,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	/**
-	 * @param  stockTransferDto
+	 * @param stockTransferDto
 	 * @throws ValidationException
 	 */
 	private void validateStockTransfer(final StockTransferDto stockTransferDto) throws ValidationException {
@@ -282,9 +283,9 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	/**
-	 * @param  userId
-	 * @param  lotNo
-	 * @param  readmadeProductVariant
+	 * @param userId
+	 * @param lotNo
+	 * @param readmadeProductVariant
 	 * @return
 	 */
 	private StockDetails createDefaultStockDetailObject(final ProductVariant productvariant, final Long lotNo, final Long vendorId) {
@@ -310,13 +311,19 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		BeanUtils.copyProperties(stockDetails, stockDetailsDto);
 		ProductVariant productVariant = stockDetails.getProductVariant();
 		stockDetailsDto.setProductId(productVariant.getProduct().getId());
-		stockDetailsDto.setProductName(productVariant.getProduct().getName());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			stockDetailsDto.setProductName(productVariant.getProduct().getNameEnglish());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabel());
+		} else {
+			stockDetailsDto.setProductName(productVariant.getProduct().getNameArabic());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabel());
+		}
 		stockDetailsDto.setUomId(productVariant.getUom().getId());
 		stockDetailsDto.setSku(productVariant.getSku());
 		stockDetailsDto.setExpiryDate(stockDetails.getExpiryDate());
 		stockDetailsDto.setLotDate(stockDetails.getLotDate());
 		stockDetailsDto.setLotNo(stockDetails.getLotNo());
-		stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabel());
+
 		stockDetailsDto.setProductVariantId(productVariant.getId());
 		return stockDetailsDto;
 	}
@@ -350,7 +357,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 				"lotDate" };
 		try {
 			exportCSV.writeCSVFile(stockDetailsDtoList, stockDataField, stockHeaderField, httpServletResponse);
-		}  catch (IOException e) {
+		} catch (IOException e) {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 

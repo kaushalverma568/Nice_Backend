@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @Service(value = "orderItemService")
 @Transactional(rollbackFor = Throwable.class)
@@ -126,7 +127,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	/**
-	 * @param  orderItem
+	 * @param orderItem
 	 * @throws NotFoundException
 	 */
 	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {
@@ -135,11 +136,18 @@ public class OrderItemServiceImpl implements OrderItemService {
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(ORDER_ITEM_NOT_FOUND, new Object[] { orderItem.getId() })));
 		BeanUtils.copyProperties(orderItemDetail, orderItemResponseDTO);
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
-		orderItemResponseDTO.setProductName(productVariant.getProduct().getName());
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
+			// TODO : Make the UOM Label based on language
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		} else {
+			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+		}
 		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
 		orderItemResponseDTO.setProductVariantId(productVariant.getId());
 		orderItemResponseDTO.setProductImageUrl(assetService.getGeneratedUrl(productVariant.getProduct().getImage(), AssetConstant.PRODUCT_DIR));
-		orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabel());
+
 		orderItemResponseDTO.setOrderQty(orderItem.getQuantity());
 		Double totalOrderItemAmount = orderItem.getTotalAmt();
 		/**

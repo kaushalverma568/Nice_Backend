@@ -27,7 +27,6 @@ import com.nice.util.CommonUtility;
 @Repository(value = "niceProductCustomRepository")
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
-
 	private static final String PRODUCT_TABLE_NAME = "product";
 	private static final String PRODUCT_VARIANT_TABLE_NAME = "product_variant";
 	@PersistenceContext
@@ -93,12 +92,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			sqlQuery.append(" and p.vendor_id = :vendorId ");
 			paramMap.put("vendorId", productParamRequestDTO.getVendorId());
 		}
-		
+
 		if (productParamRequestDTO.getUomId() != null) {
 			sqlQuery.append(" and pv.uom_id = :uom_id ");
 			paramMap.put("uom_id", productParamRequestDTO.getUomId());
 		}
-		
+
 		if (productParamRequestDTO.getDiscountId() != null) {
 			sqlQuery.append(" and p.discount_id = :discountId ");
 			paramMap.put("discountId", productParamRequestDTO.getDiscountId());
@@ -118,19 +117,23 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 			sqlQuery.append(
 					" and p.brand_id in (" + productParamRequestDTO.getBrandIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
 		}
-		
+
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getCuisineIds())) {
 			sqlQuery.append(
 					" and p.cuisine_id in (" + productParamRequestDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
 		}
 
-		if (productParamRequestDTO.getSearchKeyword() != null) {
-			sqlQuery.append(" and lower(p.name) like CONCAT('%', :searchKeyword, '%')");
-			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeyword().toLowerCase());
+		/**
+		 * Language specific search for products
+		 */
+		if (productParamRequestDTO.getSearchKeywordEnglish() != null) {
+			sqlQuery.append(" and lower(p.name_english) like CONCAT('%', :searchKeyword, '%')");
+			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeywordEnglish().toLowerCase());
+		} else if (productParamRequestDTO.getSearchKeywordArabic() != null) {
+			sqlQuery.append(" and lower(p.name_arabic) like CONCAT('%', :searchKeyword, '%')");
+			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeywordArabic().toLowerCase());
 		}
-
 		return sqlQuery;
 	}
-
 
 }

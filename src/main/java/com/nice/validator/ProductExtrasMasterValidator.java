@@ -35,8 +35,10 @@ public class ProductExtrasMasterValidator implements Validator {
 
 		final ProductExtrasMasterDTO productExtrasMasterDTO = (ProductExtrasMasterDTO) target;
 
-			if (productExtrasMasterService.isExists(productExtrasMasterDTO)) {
-				errors.rejectValue("name", "409", messageByLocaleService.getMessage("product.extras.master.name.not.unique", null));
-			}
+		if (productExtrasMasterService.isExistsEnglish(productExtrasMasterDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("product.extras.master.name.not.unique", null));
+		} else if (productExtrasMasterService.isExistsArabic(productExtrasMasterDTO)) {
+			errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("product.extras.master.name.not.unique", null));
+		}
 	}
 }

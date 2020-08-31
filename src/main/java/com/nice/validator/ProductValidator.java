@@ -49,11 +49,13 @@ public class ProductValidator implements Validator {
 			 * Check for the already existing product
 			 */
 			try {
-				if (productService.isProductExists(productRequestDto)) {
-					errors.rejectValue("name", "409", messageByLocaleService.getMessage("product.already.exists", null));
+				if (productService.isProductExistsEnglish(productRequestDto)) {
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("product.already.exists", null));
+				} else if (productService.isProductExistsArabic(productRequestDto)) {
+					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("product.already.exists", null));
 				}
 			} catch (ValidationException e) {
-				errors.rejectValue("name", "409", e.getMessage());
+				errors.rejectValue("nameEnglish", "409", e.getMessage());
 			}
 		}
 	}

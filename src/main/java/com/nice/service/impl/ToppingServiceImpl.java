@@ -147,8 +147,7 @@ public class ToppingServiceImpl implements ToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "topping.active" : "topping.deactive", null));
 		} else {
 			/**
-			 * deActive All product toppings related to this topping at the time of
-			 * deActivating
+			 * deActive All product toppings related to this topping at the time of deActivating
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Topping {}", existingTopping);
@@ -165,18 +164,34 @@ public class ToppingServiceImpl implements ToppingService {
 	}
 
 	@Override
-	public Boolean isToppingExists(final ToppingDTO toppingDTO) {
+	public Boolean isToppingExistsEnglish(final ToppingDTO toppingDTO) {
 		if (toppingDTO.getId() != null) {
 			/**
-			 * At the time of update is topping with same name and vendor id exist or not
-			 * except it's own id
+			 * At the time of update is topping with same name and vendor id exist or not except it's own id
 			 */
-			return toppingRepository.findByNameIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getName(), toppingDTO.getVendorId(), toppingDTO.getId()).isPresent();
+			return toppingRepository.findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getNameEnglish(), toppingDTO.getVendorId(), toppingDTO.getId())
+					.isPresent();
 		} else {
 			/**
 			 * At the time of create is topping with same name and vendor id exist or not
 			 */
-			return toppingRepository.findByNameIgnoreCaseAndVendorId(toppingDTO.getName(), toppingDTO.getVendorId()).isPresent();
+			return toppingRepository.findByNameEnglishIgnoreCaseAndVendorId(toppingDTO.getNameEnglish(), toppingDTO.getVendorId()).isPresent();
+		}
+	}
+
+	@Override
+	public Boolean isToppingExistsArabic(final ToppingDTO toppingDTO) {
+		if (toppingDTO.getId() != null) {
+			/**
+			 * At the time of update is topping with same name and vendor id exist or not except it's own id
+			 */
+			return toppingRepository.findByNameArabicIgnoreCaseAndVendorIdAndIdNot(toppingDTO.getNameArabic(), toppingDTO.getVendorId(), toppingDTO.getId())
+					.isPresent();
+		} else {
+			/**
+			 * At the time of create is topping with same name and vendor id exist or not
+			 */
+			return toppingRepository.findByNameArabicIgnoreCaseAndVendorId(toppingDTO.getNameArabic(), toppingDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -190,9 +205,10 @@ public class ToppingServiceImpl implements ToppingService {
 			final List<ToppingImport> toppingImports = csvProcessor.convertCSVFileToListOfBean(file, ToppingImport.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(toppingImports)) {
 				final List<ToppingImport> insertListOfBean = insertListOfUoms(
-						toppingImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getName())).collect(Collectors.toList()));
-				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name", "Description", "Product Food type", "Result" };
-				Object[] toppingDetailsField = new Object[] { "name", "description", "productFoodType", "uploadMessage" };
+						toppingImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
+				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name English", "Topping Name Arabic", "Description", "Product Food type",
+						"Result" };
+				Object[] toppingDetailsField = new Object[] { "nameEnglish", "nameArabic", "description", "productFoodType", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, toppingDetailsField, toppingDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
@@ -210,12 +226,17 @@ public class ToppingServiceImpl implements ToppingService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (toppingRepository.findByNameIgnoreCaseAndVendorId(toppingImport.getName(), vendor.getId()).isPresent()) {
+				if (toppingRepository.findByNameEnglishIgnoreCaseAndVendorId(toppingImport.getNameEnglish(), vendor.getId()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
+				} else if (toppingRepository.findByNameArabicIgnoreCaseAndVendorId(toppingImport.getNameArabic(), vendor.getId()).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("topping.not.unique", null));
 				} else {
 					final ToppingDTO toppingDTO = new ToppingDTO();
-					toppingDTO.setName(toppingImport.getName());
-					toppingDTO.setDescription(toppingImport.getDescription());
+					toppingDTO.setNameEnglish(toppingImport.getNameEnglish());
+					toppingDTO.setDescriptionEnglish(toppingImport.getDescriptionEnglish());
+					toppingDTO.setNameArabic(toppingImport.getNameArabic());
+					toppingDTO.setDescriptionArabic(toppingImport.getDescriptionArabic());
+
 					toppingDTO.setProductFoodType(toppingImport.getProductFoodType());
 					toppingDTO.setActive(true);
 					toppingDTO.setVendorId(vendor.getId());
