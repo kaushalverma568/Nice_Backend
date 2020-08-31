@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.SliderImageDTO;
+import com.nice.dto.SliderImageResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.SliderImage;
@@ -42,7 +43,7 @@ public interface SliderImageService {
 	 *
 	 * @return
 	 */
-	List<SliderImageDTO> getSliderBannerList(String imageType);
+	List<SliderImageResponseDTO> getSliderBannerList(String imageType);
 
 	/**
 	 * Slider Banner DTO by id
@@ -51,7 +52,7 @@ public interface SliderImageService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	SliderImageDTO getSliderBannerDetailById(Long id) throws NotFoundException;
+	SliderImageResponseDTO getSliderBannerDetailById(Long id) throws NotFoundException;
 
 	/**
 	 * Slider Banner Entity By Id

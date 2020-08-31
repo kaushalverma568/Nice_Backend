@@ -18,13 +18,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
 import com.nice.exception.FileStorageException;
+import com.nice.service.AmazonS3ClientService;
 import com.nice.service.AssetService;
 import com.nice.service.FileStorageService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
@@ -34,8 +35,8 @@ public class AssetServiceImpl implements AssetService {
 	@Autowired
 	private FileStorageService fileStorageService;
 
-//	@Autowired
-//	private AmazonS3ClientService amazonS3ClientService;
+	@Autowired
+	private AmazonS3ClientService amazonS3ClientService;
 
 	@Value("${service.url}")
 	private String serviceUrl;
@@ -55,10 +56,9 @@ public class AssetServiceImpl implements AssetService {
 	/**
 	 * Save images for mentioned sub directory
 	 *
-	 * @param image
-	 * @param subDirectory
-	 * @param count        : if value is not 0 then it will append number to
-	 *                     imageName to avoid conflict
+	 * @param  image
+	 * @param  subDirectory
+	 * @param  count        : if value is not 0 then it will append number to imageName to avoid conflict
 	 * @return
 	 */
 	private String saveAssetLocal(final MultipartFile image, final String subDirectory, final int count) {
@@ -90,8 +90,7 @@ public class AssetServiceImpl implements AssetService {
 			} else {
 				newFileName = imageProperties.remove("newFileName");
 			}
-			// amazonS3ClientService.uploadFileToS3Bucket(image, true,
-			// subDirectory.concat("/").concat(newFileName));
+			amazonS3ClientService.uploadFileToS3Bucket(image, true, subDirectory.concat("/").concat(newFileName));
 		}
 		LOGGER.info("New file name {} ", newFileName);
 		return newFileName;
@@ -111,7 +110,7 @@ public class AssetServiceImpl implements AssetService {
 	}
 
 	private void deleteFileAws(final String fileName, final String direcotry) {
-		// amazonS3ClientService.deleteFileFromS3Bucket(direcotry.concat("/").concat(fileName));
+		amazonS3ClientService.deleteFileFromS3Bucket(direcotry.concat("/").concat(fileName));
 	}
 
 	@Override
@@ -148,8 +147,7 @@ public class AssetServiceImpl implements AssetService {
 	@Override
 	public void moveFiles(final String fileName, final String sourceDirectory, final String destinationDirctory) {
 		if (AssetConstant.IS_AWS) {
-			// amazonS3ClientService.copyFile(sourceDirectory.concat("/").concat(fileName),
-			// destinationDirctory.concat("/").concat(fileName));
+			amazonS3ClientService.copyFile(sourceDirectory.concat("/").concat(fileName), destinationDirctory.concat("/").concat(fileName));
 			deleteFileAws(fileName, sourceDirectory);
 		} else {
 

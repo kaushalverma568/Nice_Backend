@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.SliderImageDTO;
+import com.nice.dto.SliderImageResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -68,8 +69,9 @@ public class SliderImageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
 	public ResponseEntity<Object> addSliderImage(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "imageEnglish") final MultipartFile imageEnglish, @RequestParam(name = "imageArabic") final MultipartFile imageArabic,
-			@ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result) throws ValidationException {
+			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
+			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
+			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -103,8 +105,9 @@ public class SliderImageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
 	public ResponseEntity<Object> updateSliderImage(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "imageEnglish") final MultipartFile imageEnglish, @RequestParam(name = "imageArabic") final MultipartFile imageArabic,
-			@ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
+			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -127,7 +130,7 @@ public class SliderImageController {
 	 */
 	@GetMapping("/{bannerId}")
 	public ResponseEntity<Object> getSliderBanner(@PathVariable("bannerId") final Long bannerId) throws NotFoundException {
-		final SliderImageDTO sliderBannerDTO = sliderBannerService.getSliderBannerDetailById(bannerId);
+		final SliderImageResponseDTO sliderBannerDTO = sliderBannerService.getSliderBannerDetailById(bannerId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.detail.message", null))
 				.setData(sliderBannerDTO).create();
 	}
@@ -139,7 +142,7 @@ public class SliderImageController {
 	 */
 	@GetMapping("/list")
 	public ResponseEntity<Object> getSliderBannerList(@RequestParam(required = false) final String imageType) {
-		final List<SliderImageDTO> sliderBannerDTOs = sliderBannerService.getSliderBannerList(imageType);
+		final List<SliderImageResponseDTO> sliderBannerDTOs = sliderBannerService.getSliderBannerList(imageType);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.list.message", null))
 				.setData(sliderBannerDTOs).create();
 	}

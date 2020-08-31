@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.dto.SliderImageDTO;
+import com.nice.dto.SliderImageResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -18,6 +19,7 @@ import com.nice.model.SliderImage;
 import com.nice.repository.SliderImageRepository;
 import com.nice.service.AssetService;
 import com.nice.service.SliderImageService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -56,7 +58,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 	}
 
 	@Override
-	public void updateSliderImage(final SliderImageDTO sliderBannerDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
+	public void updateSliderImage(final SliderImageDTO sliderImageDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
 			throws NotFoundException, ValidationException {
 		if (sliderImageDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.id.not.null", null));
@@ -66,20 +68,28 @@ public class SliderImageServiceImpl implements SliderImageService {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.type.cannot.change", null));
 		}
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
-		if (appImage != null) {
-			assetService.deleteFile(existingSliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES);
-			sliderBanner.setAppImageName(assetService.saveAsset(appImage, AssetConstant.SLIDER_IMAGES, 0));
-			sliderBanner.setAppOriginalImageName(appImage.getOriginalFilename());
 
+		if (imageEnglish != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageEnglish.getOriginalFilename())) {
+			assetService.deleteFile(existingSliderBanner.getImageNameEnglish(), AssetConstant.SLIDER_IMAGES);
+			sliderBanner.setImageNameEnglish(assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0));
+			sliderBanner.setImageOrigionalNameEnglish(imageEnglish.getOriginalFilename());
 		} else {
-			sliderBanner.setAppImageName(existingSliderBanner.getAppImageName());
-			sliderBanner.setAppOriginalImageName(existingSliderBanner.getAppOriginalImageName());
+			sliderBanner.setImageNameEnglish(existingSliderBanner.getImageNameEnglish());
+			sliderBanner.setImageOrigionalNameEnglish(existingSliderBanner.getImageOrigionalNameEnglish());
+		}
+		if (imageArabic != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageArabic.getOriginalFilename())) {
+			assetService.deleteFile(existingSliderBanner.getImageNameArabic(), AssetConstant.SLIDER_IMAGES);
+			sliderBanner.setImageNameArabic(assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1));
+			sliderBanner.setImageOrigionalNameArabic(imageArabic.getOriginalFilename());
+		} else {
+			sliderBanner.setImageNameArabic(existingSliderBanner.getImageNameArabic());
+			sliderBanner.setImageOrigionalNameArabic(existingSliderBanner.getImageOrigionalNameArabic());
 		}
 		sliderImageRepository.save(sliderBanner);
 	}
 
 	@Override
-	public List<SliderImageDTO> getSliderBannerList(final String imageType) {
+	public List<SliderImageResponseDTO> getSliderBannerList(final String imageType) {
 		List<SliderImage> sliderBanners = null;
 		if (imageType != null) {
 			sliderBanners = sliderImageRepository.findAllByType(imageType);
@@ -96,7 +106,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 	}
 
 	@Override
-	public SliderImageDTO getSliderBannerDetailById(final Long id) throws NotFoundException {
+	public SliderImageResponseDTO getSliderBannerDetailById(final Long id) throws NotFoundException {
 		return sliderBannerMapper.toDto(getSliderBannerById(id));
 	}
 
@@ -106,8 +116,8 @@ public class SliderImageServiceImpl implements SliderImageService {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.id.not.null", null));
 		}
 		SliderImage existingSliderBanner = getSliderBannerById(id);
-
-		assetService.deleteFile(existingSliderBanner.getAppImageName(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getImageNameEnglish(), AssetConstant.SLIDER_IMAGES);
+		assetService.deleteFile(existingSliderBanner.getImageNameArabic(), AssetConstant.SLIDER_IMAGES);
 		sliderImageRepository.delete(existingSliderBanner);
 
 	}
