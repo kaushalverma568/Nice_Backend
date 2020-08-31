@@ -12,29 +12,30 @@ import com.nice.model.SliderImage;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 public interface SliderImageService {
 	/**
 	 * add Slider Banner
 	 *
-	 * @param sliderBannerDTO
-	 * @param appImage
-	 * @param userId
+	 * @param  sliderBannerDTO
+	 * @param  imageEnglish
+	 * @param  imageArabic
+	 * @param  userId
 	 * @throws ValidationException
 	 */
-	void addSliderImages(SliderImageDTO sliderBannerDTO, MultipartFile appImage) throws ValidationException;
+	void addSliderImages(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic) throws ValidationException;
 
 	/**
-	 * update Slider Banner
+	 * Update Slider Banner
 	 *
-	 * @param sliderBannerDTO
-	 * @param appImage
-	 * @param userId
+	 * @param  sliderBannerDTO
+	 * @param  imageEnglish
+	 * @param  imageArabic
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateSliderImage(SliderImageDTO sliderBannerDTO, MultipartFile appImage) throws NotFoundException, ValidationException;
+	void updateSliderImage(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic) throws NotFoundException, ValidationException;
 
 	/**
 	 * Get Slider Banner DTO List
@@ -46,7 +47,7 @@ public interface SliderImageService {
 	/**
 	 * Slider Banner DTO by id
 	 *
-	 * @param id
+	 * @param  id
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -55,14 +56,14 @@ public interface SliderImageService {
 	/**
 	 * Slider Banner Entity By Id
 	 *
-	 * @param id
+	 * @param  id
 	 * @return
 	 * @throws NotFoundException
 	 */
 	SliderImage getSliderBannerById(Long id) throws NotFoundException;
 
 	/**
-	 * @param id
+	 * @param  id
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

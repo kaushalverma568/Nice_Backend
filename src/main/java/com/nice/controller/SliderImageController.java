@@ -37,7 +37,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-April-2020
+ * @date   : 08-April-2020
  */
 @RequestMapping(path = "/slider")
 @RestController
@@ -56,11 +56,11 @@ public class SliderImageController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param appImage
-	 * @param webImage
-	 * @param sliderBannerDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  appImage
+	 * @param  webImage
+	 * @param  sliderBannerDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -68,31 +68,33 @@ public class SliderImageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
 	public ResponseEntity<Object> addSliderImage(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "appImage", required = true) final MultipartFile appImage, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
-			final BindingResult result) throws ValidationException {
-		LOGGER.info("Inside add Banner {}", sliderBannerDTO);
+			@RequestParam(name = "imageEnglish") final MultipartFile imageEnglish, @RequestParam(name = "imageArabic") final MultipartFile imageArabic,
+			@ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result) throws ValidationException {
+		LOGGER.info("Inside add slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
-			LOGGER.error("Banner validation failed");
+			LOGGER.error("slider image validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		if (appImage == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(appImage.getOriginalFilename())) {
-			throw new ValidationException(messageByLocaleService.getMessage(IMAGE_NOT_NULL, null));
+		if (imageEnglish == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageEnglish.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage("image.english.required", null));
+		} else if (imageArabic == null || !CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageArabic.getOriginalFilename())) {
+			throw new ValidationException(messageByLocaleService.getMessage("image.arabic.required", null));
 		}
 
-		sliderBannerService.addSliderImages(sliderBannerDTO, appImage);
-		LOGGER.info("Outside add Banner");
+		sliderBannerService.addSliderImages(sliderBannerDTO, imageEnglish, imageArabic);
+		LOGGER.info("Outside add slider image");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.image.create.message", null))
 				.create();
 	}
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param appImage
-	 * @param webImage
-	 * @param sliderBannerDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  appImage
+	 * @param  webImage
+	 * @param  sliderBannerDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -101,16 +103,16 @@ public class SliderImageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
 	public ResponseEntity<Object> updateSliderImage(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "appImage", required = false) final MultipartFile appImage, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside update Banner {}", sliderBannerDTO);
+			@RequestParam(name = "imageEnglish") final MultipartFile imageEnglish, @RequestParam(name = "imageArabic") final MultipartFile imageArabic,
+			@ModelAttribute @Valid final SliderImageDTO sliderBannerDTO, final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("Banner validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		sliderBannerService.updateSliderImage(sliderBannerDTO, appImage);
-		LOGGER.info("Outside update Banner");
+		sliderBannerService.updateSliderImage(sliderBannerDTO, imageEnglish, imageArabic);
+		LOGGER.info("Outside  update slider image");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.update.message", null))
 				.create();
 	}
@@ -118,7 +120,7 @@ public class SliderImageController {
 	/**
 	 * Get Slider Banner By Id
 	 *
-	 * @param bannerId
+	 * @param  bannerId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

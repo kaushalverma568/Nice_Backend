@@ -21,7 +21,7 @@ import com.nice.service.SliderImageService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service("sliderImageService")
 @Transactional(rollbackFor = Throwable.class)
@@ -40,20 +40,24 @@ public class SliderImageServiceImpl implements SliderImageService {
 	private MessageByLocaleService messageByLocaleService;
 
 	@Override
-	public void addSliderImages(final SliderImageDTO sliderImageDTO, final MultipartFile appImage) throws ValidationException {
-
+	public void addSliderImages(final SliderImageDTO sliderImageDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
+			throws ValidationException {
 		if (Constant.BANNER.equalsIgnoreCase(sliderImageDTO.getType())
 				&& sliderImageRepository.findAllByType(Constant.BANNER).size() == Constant.MAX_BANNER_IMAGES) {
 			throw new ValidationException(messageByLocaleService.getMessage("banner.slider.image.limit.exaust", new Object[] { Constant.MAX_BANNER_IMAGES }));
 		}
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
-		sliderBanner.setAppImageName(assetService.saveAsset(appImage, AssetConstant.SLIDER_IMAGES, 0));
-		sliderBanner.setAppOriginalImageName(appImage.getOriginalFilename());
+		sliderBanner.setImageNameEnglish(assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0));
+		sliderBanner.setImageOrigionalNameEnglish(imageEnglish.getOriginalFilename());
+		sliderBanner.setImageNameArabic(assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1));
+		sliderBanner.setImageOrigionalNameArabic(imageArabic.getOriginalFilename());
 		sliderImageRepository.save(sliderBanner);
+
 	}
 
 	@Override
-	public void updateSliderImage(final SliderImageDTO sliderImageDTO, final MultipartFile appImage) throws NotFoundException, ValidationException {
+	public void updateSliderImage(final SliderImageDTO sliderBannerDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
+			throws NotFoundException, ValidationException {
 		if (sliderImageDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.id.not.null", null));
 		}

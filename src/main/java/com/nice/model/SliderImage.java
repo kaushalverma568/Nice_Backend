@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -30,11 +30,20 @@ public class SliderImage extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "app_image_name")
-	private String appImageName;
+	@Column(name = "image_name_english")
+	private String imageNameEnglish;
 
-	@Column(name = "app_original_image_name")
-	private String appOriginalImageName;
+	@Column(name = "image_origional_name_english")
+	private String imageOrigionalNameEnglish;
+
+	@Column(name = "image_name_arabic")
+	private String imageNameArabic;
+
+	@Column(name = "image_origional_name_arabic")
+	private String imageOrigionalNameArabic;
+
+	@Column(name = "redirect_url")
+	private String redirectUrl;
 
 	@Column(name = "image_type", nullable = false)
 	private String type;
