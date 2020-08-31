@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Data
 public class UserOtpDto {
@@ -19,5 +19,5 @@ public class UserOtpDto {
 	private String userType;
 	private String otp;
 	private String phoneNumber;
-
+	private String sendingType;
 }

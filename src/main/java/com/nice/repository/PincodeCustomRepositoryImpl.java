@@ -31,6 +31,11 @@ import com.nice.util.CommonUtility;
 public class PincodeCustomRepositoryImpl implements PincodeCustomRepository {
 
 	/**
+	 * 
+	 */
+	private static final String CODE_VALUE = "codeValue";
+
+	/**
 	 *
 	 */
 	private static final String CITY_PARAM = "city";
@@ -72,18 +77,18 @@ public class PincodeCustomRepositoryImpl implements PincodeCustomRepository {
 		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(searchKeyword)) {
-			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(pincode.get("codeValue")), "%" + searchKeyword.toLowerCase() + "%"));
+			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(pincode.get(CODE_VALUE)), "%" + searchKeyword.toLowerCase() + "%"));
 		}
 
 		/**
 		 * Add the clauses for the query.
 		 */
-		criteriaQuery.select(pincode).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		criteriaQuery.select(pincode).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
+				.orderBy(criteriaBuilder.asc(pincode.get(CODE_VALUE)));
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Pincode> fetchGraph = entityManager.createEntityGraph(Pincode.class);
 		fetchGraph.addSubgraph(CITY_PARAM);
@@ -128,7 +133,7 @@ public class PincodeCustomRepositoryImpl implements PincodeCustomRepository {
 		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(searchKeyword)) {
-			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(pincode.get("codeValue")), "%" + searchKeyword.toLowerCase() + "%"));
+			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(pincode.get(CODE_VALUE)), "%" + searchKeyword.toLowerCase() + "%"));
 		}
 
 		/**

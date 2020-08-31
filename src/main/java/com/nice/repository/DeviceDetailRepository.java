@@ -1,5 +1,6 @@
 package com.nice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,12 +13,12 @@ import com.nice.model.UserLogin;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Repository
 public interface DeviceDetailRepository extends JpaRepository<DeviceDetail, Long> {
 
-	Optional<DeviceDetail> findByUserLogin(UserLogin userLogin);
+	Optional<List<DeviceDetail>> findAllByUserLogin(UserLogin userLogin);
 
 	Optional<DeviceDetail> findByDeviceIdAndUserTypeAndIdNot(String deviceId, String userType, Long id);
 

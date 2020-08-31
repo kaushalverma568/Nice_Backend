@@ -2,9 +2,11 @@ package com.nice.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.OrderRatingDTO;
@@ -18,7 +20,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jan-2020
+ * @date   : 08-Jan-2020
  */
 @Component
 public class OrderRatingMapper {
@@ -29,14 +31,20 @@ public class OrderRatingMapper {
 	@Autowired
 	private VendorService vendorService;
 
-
 	public OrderRatingResponseDTO toResponseDto(final OrderRating orderRating) throws NotFoundException {
+		final Locale locale = LocaleContextHolder.getLocale();
 		OrderRatingResponseDTO orderRatingResponseDTO = new OrderRatingResponseDTO();
 		BeanUtils.copyProperties(orderRating, orderRatingResponseDTO);
 		Vendor vendor = vendorService.getVendorDetail(orderRating.getVendorId());
 		orderRatingResponseDTO.setVendorName(vendor.getFirstName() + " " + vendor.getLastName());
 		DeliveryBoy boy = deliveryBoyService.getDeliveryBoyDetail(orderRating.getDeliveryBoyId());
-		orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstName().concat(" ").concat(boy.getLastName()));
+		orderRatingResponseDTO.setDeliveryBoyNameEnglish(boy.getFirstNameEnglish().concat(" ").concat(boy.getLastNameEnglish()));
+		orderRatingResponseDTO.setDeliveryBoyNameArabic(boy.getFirstNameArabic().concat(" ").concat(boy.getLastNameArabic()));
+		if (locale.getLanguage().equals("en")) {
+			orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstNameEnglish().concat(" ").concat(boy.getLastNameEnglish()));
+		} else {
+			orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstNameArabic().concat(" ").concat(boy.getLastNameArabic()));
+		}
 		return orderRatingResponseDTO;
 	}
 

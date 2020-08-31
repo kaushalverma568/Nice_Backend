@@ -1,5 +1,6 @@
 package com.nice.controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.Constant;
 import com.nice.constant.RegisterVia;
 import com.nice.constant.Role;
 import com.nice.constant.SuccessErrorType;
@@ -369,6 +371,23 @@ public class UserLoginController {
 		userLoginDto.setUserType(UserType.DELIVERY_BOY.name());
 		userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
+
+		/**
+		 * if at a time same delivery boy is login more than once then revoke all tokens other then this
+		 */
+		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID,
+				userLoginDto.getUserName().concat("!!").concat(UserType.DELIVERY_BOY.name()));
+		Collection<OAuth2AccessToken> removedTokens = new ArrayList<>();
+		for (OAuth2AccessToken token : tokens) {
+			if (!token.toString().equals(loginResponse.getAccessToken())) {
+				removedTokens.add(token);
+			}
+		}
+		for (OAuth2AccessToken token : removedTokens) {
+			deliveryBoyService.validateBeforeLogout();
+			tokenStore.removeAccessToken(token);
+		}
+
 		/**
 		 * update is login flag to true when delivery boy successfully logged in
 		 */

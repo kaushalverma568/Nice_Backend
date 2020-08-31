@@ -28,6 +28,10 @@ public class TicketResponseDTO implements Serializable {
 
 	private String name;
 
+	private String nameEnglish;
+
+	private String nameArabic;
+
 	private String phoneNumber;
 
 	private String ticketStatus;

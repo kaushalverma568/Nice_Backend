@@ -116,6 +116,7 @@ public class OtpServiceImpl implements OtpService {
 			notification
 					.setEmail(CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail().toLowerCase() : userlogin.getEmail());
 			notification.setType(NotificationQueueConstants.SEND_OTP);
+			notification.setSendingType(userOtpDto.getSendingType());
 			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 		} else if (UserOtpTypeEnum.SMS.name().equals(userOtpDto.getType())) {
 			String otpMessage = "OTP for your Nice application is : ";

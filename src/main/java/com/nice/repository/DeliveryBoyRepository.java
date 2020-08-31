@@ -80,47 +80,65 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> 
 	Optional<DeliveryBoy> findByPhoneNumberIgnoreCase(String phoneNumber);
 
 	/**
-	 * Get delivery boy page by first name or last name
+	 * Get delivery boy list by active
 	 *
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  pageable
-	 * @return
-	 */
-	Page<DeliveryBoy> findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String searchKeyword, String searchKeyword2, Pageable pageable);
-
-	/**
-	 * Get delivery boy page by active and first name or last name
-	 *
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  pageable
-	 * @return
-	 */
-	Page<DeliveryBoy> findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
-			String searchKeyword2, Pageable pageable);
-
-	/**
 	 * @param  activeRecords
 	 * @return
 	 */
 	List<DeliveryBoy> findAllByActive(Boolean activeRecords);
 
 	/**
+	 * Get delivery boy page By active and first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 *
 	 * @param  activeRecords
 	 * @param  searchKeyword
 	 * @param  searchKeyword2
+	 * @param  searchKeyword3
+	 * @param  searchKeyword4
+	 * @param  pageable
 	 * @return
 	 */
-	List<DeliveryBoy> findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
-			String searchKeyword2);
+	Page<DeliveryBoy> findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+			Boolean activeRecords, String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4, Pageable pageable);
 
 	/**
+	 * Get delivery boy page by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 *
 	 * @param  searchKeyword
 	 * @param  searchKeyword2
+	 * @param  searchKeyword3
+	 * @param  searchKeyword4
+	 * @param  pageable
 	 * @return
 	 */
-	List<DeliveryBoy> findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String searchKeyword, String searchKeyword2);
+	Page<DeliveryBoy> findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+			String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4, Pageable pageable);
+
+	/**
+	 * Get delivery boy list By active and first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 *
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  searchKeyword2
+	 * @param  searchKeyword3
+	 * @param  searchKeyword4
+	 * @param  pageable
+	 * @return
+	 */
+	List<DeliveryBoy> findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+			Boolean activeRecords, String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4);
+
+	/**
+	 * Get delivery boy list by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 *
+	 * @param  searchKeyword
+	 * @param  searchKeyword2
+	 * @param  searchKeyword3
+	 * @param  searchKeyword4
+	 * @param  pageable
+	 * @return
+	 */
+	List<DeliveryBoy> findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+			String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4);
 
 }

@@ -62,12 +62,14 @@ public interface CustomerService {
 	 * @param  pageSize
 	 * @param  activeRecords
 	 * @param  searchKeyword
+	 * @param  sortByField
+	 * @param  sortByDirection
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	Page<Customer> getCustomerList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword)
-			throws NotFoundException, ValidationException;
+	Page<Customer> getCustomerList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword, String sortByDirection,
+			String sortByField) throws NotFoundException, ValidationException;
 
 	/**
 	 * Change status of customer (active/deActive)

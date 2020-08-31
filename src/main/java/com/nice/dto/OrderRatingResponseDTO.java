@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class OrderRatingResponseDTO implements Serializable {
 	/**
-	* 
+	*
 	*/
 	private static final long serialVersionUID = 8040711294987954136L;
 
@@ -26,6 +26,10 @@ public class OrderRatingResponseDTO implements Serializable {
 	private Long deliveryBoyId;
 
 	private String deliveryBoyName;
+
+	private String deliveryBoyNameEnglish;
+
+	private String deliveryBoyNameArabic;
 
 	private Double question1Rating;
 

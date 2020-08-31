@@ -70,15 +70,6 @@ public interface TicketService {
 	void updateTicketStatus(Long ticketId, String ticketStatus, String comment) throws ValidationException, NotFoundException;
 
 	/**
-	 * get ticket reason list based on type
-	 *
-	 * @param  type
-	 * @return
-	 * @throws ValidationException
-	 */
-	List<String> getTicketReasonList(String type) throws ValidationException;
-
-	/**
 	 * get ticket count based on parameters
 	 *
 	 * @param  entityId
@@ -101,13 +92,13 @@ public interface TicketService {
 	List<Ticket> getTicketListBasedOnParams(Long entityId, String userType, String name, Integer startIndex, Integer pageSize);
 
 	/**
-	 * 
-	 * @param userType
-	 * @param name 
-	 * @param activeRecords
-	 * @param httpServletResponse
-	 * @throws NotFoundException 
-	 * @throws FileNotFoundException 
+	 *
+	 * @param  userType
+	 * @param  name
+	 * @param  activeRecords
+	 * @param  httpServletResponse
+	 * @throws NotFoundException
+	 * @throws FileNotFoundException
 	 */
 	void exportList(String userType, String name, HttpServletResponse httpServletResponse) throws NotFoundException, FileNotFoundException;
 

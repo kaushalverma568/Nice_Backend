@@ -35,6 +35,8 @@ public class OrdersResponseDTO implements Serializable {
 	private String address;
 	private Double deliveryCharge;
 	private String deliveryBoyName;
+	private String deliveryBoyNameEnglish;
+	private String deliveryBoyNameArabic;
 	private String cancelReason;
 	private Date orderDate;
 	private List<OrderItemResponseDTO> orderItemResponseDtoList;
@@ -45,6 +47,8 @@ public class OrdersResponseDTO implements Serializable {
 	private Long vendorId;
 	private List<OrderStatusDto> orderStatusDtoList;
 	private String replacementDeliveryBoyName;
+	private String replacementDeliveryBoyNameEnglish;
+	private String replacementDeliveryBoyNameArabic;
 	private String vendorImageUrl;
 	/**
 	 * city field is added for set city in email templates

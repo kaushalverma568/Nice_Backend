@@ -29,6 +29,7 @@ import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Repository;
 
 import com.nice.constant.DeliveryType;
@@ -45,7 +46,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -71,8 +72,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -91,11 +91,17 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 * Add the clauses for the query.
 		 */
 		criteriaQuery.select(vendor).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
-
+		/**
+		 * add sorting
+		 */
+		if (Direction.fromString(vendorFilterDTO.getSortByDirection()).isAscending()) {
+			criteriaQuery.orderBy(criteriaBuilder.asc(vendor.get(vendorFilterDTO.getSortByField())));
+		} else {
+			criteriaQuery.orderBy(criteriaBuilder.desc(vendor.get(vendorFilterDTO.getSortByField())));
+		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -175,8 +181,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**

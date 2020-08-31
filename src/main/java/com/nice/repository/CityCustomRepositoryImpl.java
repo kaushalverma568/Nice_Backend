@@ -76,12 +76,12 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		/**
 		 * Add the clauses for the query.
 		 */
-		criteriaQuery.select(city).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		criteriaQuery.select(city).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
+				.orderBy(criteriaBuilder.asc(city.get("name")));
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<City> fetchGraph = entityManager.createEntityGraph(City.class);
 		fetchGraph.addSubgraph(STATE_PARAM);

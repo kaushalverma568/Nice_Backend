@@ -30,8 +30,8 @@ public final class Constant {
 	public static final String CUSTOMER_ADDRESS = "Customer address";
 	public static final String USER_LOGIN = "User Login";
 	public static final long OTP_VALIDITY_TIME_IN_MIN = 30;
-	public static final String SORT_TYPE_ASC = "ASC";
-	public static final String SORT_TYPE_DESC = "DESC";
+	public static final String SORT_DIRECTION_ASC = "ASC";
+	public static final String SORT_DIRECTION_DESC = "DESC";
 	public static final String ADMIN = "Admin";
 	public static final String BANNER = "Banner";
 	public static final int MAX_BANNER_IMAGES = 3;

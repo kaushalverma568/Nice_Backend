@@ -3,7 +3,9 @@
  */
 package com.nice.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +28,8 @@ public class FCMRestHelper {
 	/**
 	 * Instance
 	 **/
-	private static FCMRestHelper instance = null;
+
+	private static Map<String, FCMRestHelper> instanceMap = new HashMap<>();
 
 	/**
 	 * Google URL to use firebase cloud messenging
@@ -46,11 +49,13 @@ public class FCMRestHelper {
 	 */
 	private static final String FCM_SERVER_KEY = "AAAAdaCL7Gg:APA91bEn8ZGna_WMN6EdFM8u9s9nIRrxRu_Wp31BiOtsuzy3hBnFFPBgUM0O_bAOHXjIQqWkOV-H1DKXI6rSfStcXnLuCT5dCyjSC4UjOe9tcxKuqsXHmI3mGMtaybthyNr_3RLFZlQo";
 
-	public static FCMRestHelper getInstance() {
-		if (instance == null) {
-			instance = new FCMRestHelper();
+	public static FCMRestHelper getInstance(final String fcmKey) {
+
+		if (instanceMap.get(fcmKey) == null) {
+			FCMRestHelper instance = new FCMRestHelper();
+			instanceMap.put(fcmKey, instance);
 		}
-		return instance;
+		return instanceMap.get(fcmKey);
 	}
 
 	private FCMRestHelper() {

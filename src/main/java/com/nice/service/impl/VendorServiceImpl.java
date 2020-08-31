@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
+ * @date   : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -262,7 +263,7 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public Page<Vendor> getVendorList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Boolean isEmailVerified)
 			throws NotFoundException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("firstName"));
 		if (isEmailVerified != null) {
 			if (activeRecords != null) {
 				return vendorRepository.findAllByActiveAndEmailVerified(activeRecords, isEmailVerified, pageable);
@@ -353,8 +354,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own
-			 * id
+			 * At the time of update is vendor with same email exist or not except it's own id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
@@ -364,9 +364,8 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending
-				 * the verification link for him again, if the email is verified then we will be
-				 * returning true.
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -380,9 +379,8 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending
-			 * the verification link for him again, if the email is verified then we will be
-			 * returning true.
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
+			 * we will be returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -404,8 +402,7 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will
-		 * verification pending
+		 * if vendor is verifying his email for first time then his old status will verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -416,8 +413,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param vendor
+	 * @param  userLogin
+	 * @param  vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -547,8 +544,7 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription
-			 * plan or not
+			 * if order service is enable by vendor then check he has active subscription plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -643,7 +639,63 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public List<Vendor> getVendorListBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorFilterDTO vendorFilterDTO)
 			throws ValidationException {
+		sortByFieldAndDirection(vendorFilterDTO.getSortByDirection(), vendorFilterDTO.getSortByField());
 		return vendorRepository.getVendorListBasedOnParams(startIndex, pageSize, vendorFilterDTO);
+	}
+
+	/**
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @return
+	 * @throws ValidationException
+	 */
+	private void sortByFieldAndDirection(String sortByDirection, String sortByField) throws ValidationException {
+		validationForSortByFieldAndDirection(sortByDirection, sortByField);
+		/**
+		 * Default Field is id
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sortByDirection = Constant.SORT_DIRECTION_ASC;
+			}
+		} else {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sortByField = "id";
+			} else {
+				sortByDirection = Constant.SORT_DIRECTION_DESC;
+				sortByField = "id";
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @throws ValidationException
+	 */
+	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			/**
+			 * Validate sortByField is valid field or not using reflection
+			 */
+			Class<Vendor> vendorClass = Vendor.class;
+			Field[] fields = vendorClass.getDeclaredFields();
+			boolean isValid = false;
+			for (Field field : fields) {
+				if (sortByField.equals(field.getName())) {
+					isValid = true;
+					break;
+				}
+			}
+			if (!isValid) {
+				throw new ValidationException(messageByLocaleService.getMessage("sort.field.invalid", null));
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)
+				&& !(Constant.SORT_DIRECTION_ASC.equals(sortByDirection) || Constant.SORT_DIRECTION_DESC.equals(sortByDirection))) {
+			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
+		}
 	}
 
 	@Override
@@ -684,8 +736,7 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's
-			 * own id
+			 * At the time of update is vendor with same contact exist or not except it's own id
 			 */
 			return vendorRepository.findByPhoneNumberAndIdNot(vendorDTO.getPhoneNumber(), vendorDTO.getId()).isPresent();
 		} else {

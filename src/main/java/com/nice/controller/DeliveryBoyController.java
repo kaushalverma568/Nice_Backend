@@ -174,25 +174,42 @@ public class DeliveryBoyController {
 	/**
 	 * Get DeliveryBoy List
 	 *
+	 * @param  accessToken
 	 * @param  pageNumber
 	 * @param  pageSize
 	 * @param  activeRecords
-	 * @param  userId
+	 * @param  searchKeyword
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveryBoyList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
+			@RequestParam(name = "sortByDirection", required = false) final String sortByDirection,
+			@RequestParam(name = "sortByField", required = false) final String sortByField) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get delivery boy List");
-		final Page<DeliveryBoy> resultDeliveryBoyPages = deliveryBoyService.getDeliveryBoyList(pageNumber, pageSize, activeRecords, searchKeyword);
+		final Page<DeliveryBoy> resultDeliveryBoyPages = deliveryBoyService.getDeliveryBoyList(pageNumber, pageSize, activeRecords, searchKeyword,
+				sortByDirection, sortByField);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.setData(deliveryBoyMapper.toDtos(resultDeliveryBoyPages.getContent())).setHasNextPage(resultDeliveryBoyPages.hasNext())
 				.setHasPreviousPage(resultDeliveryBoyPages.hasPrevious()).setTotalPages(resultDeliveryBoyPages.getTotalPages())
 				.setPageNumber(resultDeliveryBoyPages.getNumber() + 1).setTotalCount(resultDeliveryBoyPages.getTotalElements()).create();
 	}
 
+	/**
+	 * Export delivery boy
+	 *
+	 * @param  accessToken
+	 * @param  httpServletResponse
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,

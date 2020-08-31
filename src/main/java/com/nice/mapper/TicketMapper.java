@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.constant.TicketStatusEnum;
@@ -41,6 +43,7 @@ public class TicketMapper {
 	private VendorService vendorService;
 
 	public TicketResponseDTO toDto(final Ticket ticket) throws NotFoundException {
+		final Locale locale = LocaleContextHolder.getLocale();
 		TicketResponseDTO ticketResponseDTO = new TicketResponseDTO();
 		BeanUtils.copyProperties(ticket, ticketResponseDTO);
 
@@ -68,7 +71,13 @@ public class TicketMapper {
 		} else if (UserType.DELIVERY_BOY.name().equals(ticket.getUserType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(ticket.getEntityId());
 			ticketResponseDTO.setEmail(deliveryBoy.getEmail());
-			ticketResponseDTO.setName(deliveryBoy.getFirstName() + " " + deliveryBoy.getLastName());
+			ticketResponseDTO.setNameEnglish(deliveryBoy.getFirstNameEnglish() + " " + deliveryBoy.getLastNameEnglish());
+			ticketResponseDTO.setNameArabic(deliveryBoy.getFirstNameArabic() + " " + deliveryBoy.getLastNameArabic());
+			if (locale.getLanguage().equals("en")) {
+				ticketResponseDTO.setName(deliveryBoy.getFirstNameEnglish() + " " + deliveryBoy.getLastNameEnglish());
+			} else {
+				ticketResponseDTO.setName(deliveryBoy.getFirstNameArabic() + " " + deliveryBoy.getLastNameArabic());
+			}
 			ticketResponseDTO.setPhoneNumber(deliveryBoy.getPhoneNumber());
 		}
 		return ticketResponseDTO;

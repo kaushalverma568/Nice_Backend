@@ -72,7 +72,7 @@ public class CountryServiceImpl implements CountryService {
 	@Override
 	public Page<Country> getCountryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyWord)
 			throws NotFoundException, ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
 		if (activeRecords != null) {
 			if (searchKeyWord != null) {
 				return countryRepository.findAllByActiveAndNameContainingIgnoreCase(activeRecords, searchKeyWord, pageable);

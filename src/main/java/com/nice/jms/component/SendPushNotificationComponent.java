@@ -1,5 +1,7 @@
 package com.nice.jms.component;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +24,16 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendPushNotificationComponent.class);
+
+	private static final String DELIVERY_BOY_KEY = "";
+	private static final String CUSTOMER_KEY = "";
+	private static final String WEB_KEY = "";
 
 	@Autowired
 	private UserLoginService userLoginService;
@@ -46,15 +52,17 @@ public class SendPushNotificationComponent {
 			message = message.append("New Order for Delivery, OrderId : ").append(pushNotification.getOrderId());
 			for (Long deliveryBoyId : pushNotification.getDeliveryBoyIds()) {
 				UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
-				DeviceDetail deviceDetail = deviceDetailService.getDeviceDetailByUserId(userLogin.getId());
+				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
 				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotification.getOrderId());
-				sendPushNotification(message.toString(), deviceDetail.getDeviceId());
+				for (DeviceDetail deviceDetail : deviceDetailList) {
+					sendPushNotificationToDeliveryBoy(message.toString(), deviceDetail.getDeviceId());
+				}
 			}
 		}
 	}
 
-	public void sendPushNotification(final String message, final String deviceId) {
-		FCMRestHelper fcm = FCMRestHelper.getInstance();
+	public void sendPushNotificationToDeliveryBoy(final String message, final String deviceId) {
+		FCMRestHelper fcm = FCMRestHelper.getInstance(DELIVERY_BOY_KEY);
 		JsonObject dataObject = new JsonObject();
 		dataObject.addProperty("body", message);
 		dataObject.addProperty("title", applicationName);

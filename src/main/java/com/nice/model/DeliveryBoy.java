@@ -30,11 +30,17 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "first_name", nullable = false)
-	private String firstName;
+	@Column(name = "first_name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String firstNameEnglish;
 
-	@Column(name = "last_name", nullable = false)
-	private String lastName;
+	@Column(name = "last_name_english", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String lastNameEnglish;
+
+	@Column(name = "first_name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String firstNameArabic;
+
+	@Column(name = "last_name_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String lastNameArabic;
 
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
@@ -48,14 +54,23 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "gender")
 	private String gender;
 
-	@Column(name = "bank_name")
-	private String bankName;
+	@Column(name = "bank_name_english")
+	private String bankNameEnglish;
 
-	@Column(name = "branch_name")
-	private String branchName;
+	@Column(name = "bank_name_arabic")
+	private String bankNameArabic;
 
-	@Column(name = "account_name")
-	private String accountName;
+	@Column(name = "branch_name_english")
+	private String branchNameEnglish;
+
+	@Column(name = "branch_name_arabic")
+	private String branchNameArabic;
+
+	@Column(name = "account_name_english")
+	private String accountNameEnglish;
+
+	@Column(name = "account_name_arabic")
+	private String accountNameArabic;
 
 	@Column(name = "bank_account_number")
 	private String bankAccountNumber;
@@ -63,8 +78,11 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "kib_no")
 	private String kibNo;
 
-	@Column(name = "branch_city")
-	private String branchCity;
+	@Column(name = "branch_city_english")
+	private String branchCityEnglish;
+
+	@Column(name = "branch_city_arabic")
+	private String branchCityArabic;
 
 	@Column(name = "email_verified", nullable = false)
 	private Boolean emailVerified;

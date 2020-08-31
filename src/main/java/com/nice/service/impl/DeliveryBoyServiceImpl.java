@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -233,15 +235,19 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public Page<DeliveryBoy> getDeliveryBoyList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword)
-			throws NotFoundException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("firstName"));
+	public Page<DeliveryBoy> getDeliveryBoyList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
+			final String sortByDirection, final String sortByField) throws NotFoundException, ValidationException {
+		Sort sort = sortByFieldAndDirection(sortByDirection, sortByField);
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
 			if (activeRecords != null) {
-				return deliveryBoyRepository.findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(activeRecords, searchKeyword,
-						searchKeyword, pageable);
+				return deliveryBoyRepository
+						.findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+								activeRecords, searchKeyword, searchKeyword, searchKeyword, searchKeyword, pageable);
 			} else {
-				return deliveryBoyRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
+				return deliveryBoyRepository
+						.findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+								searchKeyword, searchKeyword, searchKeyword, searchKeyword, pageable);
 			}
 		} else {
 			if (activeRecords != null) {
@@ -249,6 +255,64 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			} else {
 				return deliveryBoyRepository.findAll(pageable);
 			}
+		}
+	}
+
+	/**
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @return
+	 * @throws ValidationException
+	 */
+	private Sort sortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
+		Sort sort;
+		validationForSortByFieldAndDirection(sortByDirection, sortByField);
+		/**
+		 * Default Field is id
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sort = Sort.by(Direction.fromString(sortByDirection), sortByField);
+			} else {
+				sort = Sort.by(Direction.ASC, sortByField);
+			}
+		} else {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sort = Sort.by(Direction.fromString(sortByDirection), "id");
+			} else {
+				sort = Sort.by(Direction.DESC, "id");
+			}
+		}
+		return sort;
+	}
+
+	/**
+	 *
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @throws ValidationException
+	 */
+	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			/**
+			 * Validate sortByField is valid field or not using reflection
+			 */
+			Class<DeliveryBoy> deliveryBoyClass = DeliveryBoy.class;
+			Field[] fields = deliveryBoyClass.getDeclaredFields();
+			boolean isValid = false;
+			for (Field field : fields) {
+				if (sortByField.equals(field.getName())) {
+					isValid = true;
+					break;
+				}
+			}
+			if (!isValid) {
+				throw new ValidationException(messageByLocaleService.getMessage("sort.field.invalid", null));
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)
+				&& !(Constant.SORT_DIRECTION_ASC.equals(sortByDirection) || Constant.SORT_DIRECTION_DESC.equals(sortByDirection))) {
+			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
 		}
 	}
 
@@ -265,10 +329,13 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
 			if (activeRecords != null) {
-				deliveryBoyList = deliveryBoyRepository.findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(activeRecords,
-						searchKeyword, searchKeyword);
+				deliveryBoyList = deliveryBoyRepository
+						.findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+								activeRecords, searchKeyword, searchKeyword, searchKeyword, searchKeyword);
 			} else {
-				deliveryBoyList = deliveryBoyRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchKeyword, searchKeyword);
+				deliveryBoyList = deliveryBoyRepository
+						.findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
+								searchKeyword, searchKeyword, searchKeyword, searchKeyword);
 			}
 		} else {
 			if (activeRecords != null) {
@@ -411,8 +478,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(userLogin.getEntityId()));
-			if (isAvailable.equals(deliveryBoyCurrentStatus.getIsAvailable())) {
-				if (isAvailable) {
+			if (deliveryBoyCurrentStatus.getIsAvailable().equals(isAvailable)) {
+				if (isAvailable.booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.available", null));
 				} else {
 					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.unavailable", null));

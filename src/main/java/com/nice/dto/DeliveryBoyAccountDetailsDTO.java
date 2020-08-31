@@ -10,7 +10,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Data
 public class DeliveryBoyAccountDetailsDTO implements Serializable {
@@ -23,14 +23,23 @@ public class DeliveryBoyAccountDetailsDTO implements Serializable {
 	@NotNull(message = "{id.not.null}")
 	private Long id;
 
-	@NotBlank(message = "{bank.name.not.null}")
-	private String bankName;
+	@NotBlank(message = "{bank.name.english.not.null}")
+	private String bankNameEnglish;
 
-	@NotBlank(message = "{branch.name.not.null}")
-	private String branchName;
+	@NotBlank(message = "{bank.name.arabic.not.null}")
+	private String bankNameArabic;
 
-	@NotBlank(message = "{account.name.not.null}")
-	private String accountName;
+	@NotBlank(message = "{branch.name.english.not.null}")
+	private String branchNameEnglish;
+
+	@NotBlank(message = "{branch.name.arabic.not.null}")
+	private String branchNameArabic;
+
+	@NotBlank(message = "{account.name.english.not.null}")
+	private String accountNameEnglish;
+
+	@NotBlank(message = "{account.name.arabic.not.null}")
+	private String accountNameArabic;
 
 	@NotBlank(message = "{bank.AccountNumber.not.null}")
 	private String bankAccountNumber;
@@ -38,6 +47,9 @@ public class DeliveryBoyAccountDetailsDTO implements Serializable {
 	@NotBlank(message = "{kibNo.not.null}")
 	private String kibNo;
 
-	@NotBlank(message = "{branch.city.not.null}")
-	private String branchCity;
+	@NotBlank(message = "{branch.city.english.not.null}")
+	private String branchCityEnglish;
+
+	@NotBlank(message = "{branch.city.arabic.not.null}")
+	private String branchCityArabic;
 }

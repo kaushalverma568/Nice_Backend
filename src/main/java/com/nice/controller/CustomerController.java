@@ -182,8 +182,11 @@ public class CustomerController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getCustomerList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException, ValidationException {
-		final Page<Customer> resultCustomers = customerService.getCustomerList(pageNumber, pageSize, activeRecords, searchKeyword);
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
+			@RequestParam(name = "sortByDirection", required = false) final String sortByDirection,
+			@RequestParam(name = "sortByField", required = false) final String sortByField) throws NotFoundException, ValidationException {
+		final Page<Customer> resultCustomers = customerService.getCustomerList(pageNumber, pageSize, activeRecords, searchKeyword, sortByDirection,
+				sortByField);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.list.message", null))
 				.setData(customerMapper.toDtos(resultCustomers.getContent())).setHasNextPage(resultCustomers.hasNext())
 				.setHasPreviousPage(resultCustomers.hasPrevious()).setTotalPages(resultCustomers.getTotalPages()).setPageNumber(resultCustomers.getNumber() + 1)

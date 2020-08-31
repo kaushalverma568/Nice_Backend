@@ -85,6 +85,8 @@ import com.nice.util.CommonUtility;
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
 public class UserLoginServiceImpl implements UserLoginService, UserDetailsService {
+
+	private static final String OLD_PHONE_NEW_PHONE_SAME = "old.phone.new.phone.same";
 	/**
 	 *
 	 */
@@ -435,6 +437,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else if (UserType.CUSTOMER.name().equals(userLogin.get().getEntityType())) {
 				customerService.verifyEmail(userLogin.get().getEntityId());
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
+				/**
+				 * delivery boy can only be logged in after admin activate him
+				 */
+				userLogin.get().setActive(false);
 				deliveryBoyService.verifyEmail(userLogin.get().getEntityId());
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
@@ -453,6 +459,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (Boolean.TRUE.equals(canChangePassword)) {
 			if (passwordDTO.getOldPassword() == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("old.password.not.null", null));
+			} else if (passwordDTO.getOldPassword().equals(passwordDTO.getNewPassword())) {
+				throw new ValidationException(messageByLocaleService.getMessage("old.password.new.password.same", null));
 			}
 			changePassword(passwordDTO, userLogin.getId(), userLogin);
 		} else {
@@ -770,12 +778,17 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		/**
 		 * Note : For all admin panel user(super admin,vendor) userType will come as User
 		 */
-
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp(), false);
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType())
 				&& !(userLogin.getEntityType().equals(emailUpdateDTO.getUserType()) || UserType.USER.name().equals(emailUpdateDTO.getUserType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
+		}
+		/**
+		 * if old and new email are same then throw exception
+		 */
+		else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail()) && userLogin.getEmail().equalsIgnoreCase(emailUpdateDTO.getEmail())) {
+			throw new ValidationException(messageByLocaleService.getMessage("old.email.new.email.same", null));
 		}
 		/**
 		 * if password not valid then throw exception
@@ -886,7 +899,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				&& deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(phoneNumber, userLogin.getEntityId()).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.phone.exists", null));
 		}
-		return updateUserDetail(phoneNumber, otp, userType, userLogin);
+		return updateUserDetail(phoneNumber, otp, userLogin);
 	}
 
 	/**
@@ -899,8 +912,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private String updateUserDetail(final String phoneNumber, final String otp, final String userType, final UserLogin userLogin)
-			throws NotFoundException, ValidationException {
+	private String updateUserDetail(final String phoneNumber, final String otp, final UserLogin userLogin) throws NotFoundException, ValidationException {
 
 		String userName = null;
 		/**
@@ -914,6 +926,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		}
 
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(customer.getPhoneNumber()) && customer.getPhoneNumber().equals(phoneNumber)) {
+				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
+			}
 			/**
 			 * set phone number and otp in user login of this customer
 			 */
@@ -921,12 +937,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			userLogin.setOtp(CommonUtility.generateBcrypt(otp));
 			updateUserLogin(userLogin);
 
-			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
 			customer.setPhoneVerified(true);
 			customer.setPhoneNumber(phoneNumber);
 			customerRepository.save(customer);
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getPhoneNumber()) && deliveryBoy.getPhoneNumber().equals(phoneNumber)) {
+				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
+			}
 			deliveryBoy.setPhoneVerified(true);
 			deliveryBoy.setPhoneNumber(phoneNumber);
 			deliveryBoyRepository.save(deliveryBoy);
@@ -934,6 +952,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getPhoneNumber()) && vendor.getPhoneNumber().equals(phoneNumber)) {
+				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			vendor.setPhoneVerified(true);
 			vendor.setPhoneNumber(phoneNumber);

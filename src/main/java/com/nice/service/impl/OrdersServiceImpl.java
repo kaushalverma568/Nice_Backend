@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
@@ -104,7 +105,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -438,9 +439,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -730,8 +731,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
+	 * @param  cartItemList
+	 * @param  orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -811,7 +812,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orderAmt
+	 * @param  orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -853,6 +854,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 	private OrdersResponseDTO toDto(final Orders orders, final boolean isFromAdmin, final boolean replacementOrderItems, final boolean fullDetails)
 			throws NotFoundException {
+		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
 		/**
@@ -877,11 +879,30 @@ public class OrdersServiceImpl implements OrdersService {
 		orderResponseDto.setEmail(orders.getCustomer().getEmail());
 
 		if (orders.getDeliveryBoy() != null) {
-			orderResponseDto.setDeliveryBoyName(orders.getDeliveryBoy().getFirstName().concat(" ").concat(orders.getDeliveryBoy().getLastName()));
+			orderResponseDto
+					.setDeliveryBoyNameEnglish(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getDeliveryBoy().getLastNameEnglish()));
+			orderResponseDto
+					.setDeliveryBoyNameArabic(orders.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getDeliveryBoy().getLastNameArabic()));
+			if (locale.getLanguage().equals("en")) {
+				orderResponseDto
+						.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getDeliveryBoy().getLastNameEnglish()));
+			} else {
+				orderResponseDto
+						.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getDeliveryBoy().getLastNameArabic()));
+			}
 		}
 		if (orders.getReplacementDeliveryBoy() != null) {
-			orderResponseDto.setReplacementDeliveryBoyName(
-					orders.getReplacementDeliveryBoy().getFirstName().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastName()));
+			orderResponseDto.setReplacementDeliveryBoyNameEnglish(
+					orders.getReplacementDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
+			orderResponseDto.setReplacementDeliveryBoyNameArabic(
+					orders.getReplacementDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
+			if (locale.getLanguage().equals("en")) {
+				orderResponseDto.setReplacementDeliveryBoyName(
+						orders.getReplacementDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
+			} else {
+				orderResponseDto.setReplacementDeliveryBoyName(
+						orders.getReplacementDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
+			}
 		}
 		if (replacementOrderItems) {
 			Long totalCountForOrder = /* setReplacementOrderItemInResponse(orders, orderResponseDto) */0l;
@@ -901,8 +922,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -947,8 +968,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
+		 * will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -974,8 +995,7 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =

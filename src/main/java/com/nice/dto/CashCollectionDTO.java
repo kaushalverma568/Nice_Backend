@@ -20,14 +20,14 @@ public class CashCollectionDTO implements Serializable {
 	private static final long serialVersionUID = 7947238128297093026L;
 
 	private Long id;
-	
+
 	private Double amount;
 
 	private Long orderId;
-	
-	private Long  taskId;
-	
-	private Long  deliveryboyId;
+
+	private Long taskId;
+
+	private Long deliveryboyId;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
@@ -36,6 +36,8 @@ public class CashCollectionDTO implements Serializable {
 	 * for response only
 	 */
 	private String deliveryBoyName;
-	
+	private String deliveryBoyNameEnglish;
+	private String deliveryBoyNameArabic;
+
 	private Date createdAt;
 }

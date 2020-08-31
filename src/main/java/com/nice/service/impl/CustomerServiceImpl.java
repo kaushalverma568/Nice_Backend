@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.Constant;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.RegisterVia;
@@ -52,7 +54,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -227,8 +229,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -263,9 +265,10 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public Page<Customer> getCustomerList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword)
-			throws NotFoundException, ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
+	public Page<Customer> getCustomerList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
+			final String sortByDirection, final String sortByField) throws NotFoundException, ValidationException {
+		Sort sort = sortByFieldAndDirection(sortByDirection, sortByField);
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
 				return customerRepository.findAllByActiveAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrPhoneNumberContainingIgnoreCase(
@@ -280,6 +283,64 @@ public class CustomerServiceImpl implements CustomerService {
 			} else {
 				return customerRepository.findAll(pageable);
 			}
+		}
+	}
+
+	/**
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @return
+	 * @throws ValidationException
+	 */
+	private Sort sortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
+		Sort sort;
+		validationForSortByFieldAndDirection(sortByDirection, sortByField);
+		/**
+		 * Default Field is id
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sort = Sort.by(Direction.fromString(sortByDirection), sortByField);
+			} else {
+				sort = Sort.by(Direction.ASC, sortByField);
+			}
+		} else {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
+				sort = Sort.by(Direction.fromString(sortByDirection), "id");
+			} else {
+				sort = Sort.by(Direction.DESC, "id");
+			}
+		}
+		return sort;
+	}
+
+	/**
+	 *
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @throws ValidationException
+	 */
+	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+			/**
+			 * Validate sortByField is valid field or not using reflection
+			 */
+			Class<Customer> customerClass = Customer.class;
+			Field[] fields = customerClass.getDeclaredFields();
+			boolean isValid = false;
+			for (Field field : fields) {
+				if (sortByField.equals(field.getName())) {
+					isValid = true;
+					break;
+				}
+			}
+			if (!isValid) {
+				throw new ValidationException(messageByLocaleService.getMessage("sort.field.invalid", null));
+			}
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)
+				&& !(Constant.SORT_DIRECTION_ASC.equals(sortByDirection) || Constant.SORT_DIRECTION_DESC.equals(sortByDirection))) {
+			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
 		}
 	}
 
@@ -333,8 +394,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

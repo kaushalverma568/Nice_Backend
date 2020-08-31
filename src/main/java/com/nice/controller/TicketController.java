@@ -37,8 +37,9 @@ import com.nice.service.TicketService;
 import com.nice.util.PaginationUtil;
 
 /**
- * @author Kody Technolab PVT. LTD.
- * @date   31-Jan-2020
+ *
+ * @author : Kody Technolab PVT. LTD.
+ * @date   : Aug 7, 2020
  */
 @RequestMapping(path = "/ticket")
 @RestController
@@ -141,30 +142,23 @@ public class TicketController {
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
 	}
-	
-	@GetMapping("/export/list")
-	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			 @RequestParam(name = "name", required = false) final String name,
-			@RequestParam(name = "userType", required = false) final String userType) throws FileNotFoundException, NotFoundException  {
-		ticketService.exportList(userType, name, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.list.message", null)).create();
-	}
-	
 
 	/**
-	 * Get ticket reason list
 	 *
 	 * @param  accessToken
-	 * @param  type
+	 * @param  httpServletResponse
+	 * @param  name
+	 * @param  userType
 	 * @return
-	 * @throws ValidationException
+	 * @throws FileNotFoundException
+	 * @throws NotFoundException
 	 */
-	@GetMapping("/reason/list/{type}")
-	public ResponseEntity<Object> getTicketReasonList(@RequestHeader("Authorization") final String accessToken, @PathVariable("type") final String type)
-			throws ValidationException {
-		LOGGER.info("Inside get Ticket Reason list fot type:{}", type);
-		final List<String> resultReasons = ticketService.getTicketReasonList(type);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.reason.list.message", null))
-				.setData(resultReasons).create();
+	@GetMapping("/export/list")
+	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestParam(name = "name", required = false) final String name, @RequestParam(name = "userType", required = false) final String userType)
+			throws FileNotFoundException, NotFoundException {
+		ticketService.exportList(userType, name, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.list.message", null))
+				.create();
 	}
 }

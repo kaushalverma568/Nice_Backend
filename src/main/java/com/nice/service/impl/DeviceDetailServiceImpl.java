@@ -22,7 +22,7 @@ import com.nice.service.UserLoginService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service("deviceDetailService")
 @Transactional(rollbackOn = Throwable.class)
@@ -47,8 +47,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	@Override
 	public void addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
 		/**
-		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated
-		 * with multiple users.
+		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated with multiple users.
 		 */
 		deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
 
@@ -74,16 +73,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	}
 
 	@Override
-	public Optional<DeviceDetail> getDeviceDetailByUser(final Long userId) throws NotFoundException {
-		Optional<UserLogin> userLogin = userLoginService.getUserLogin(userId);
-		if (userLogin.isPresent()) {
-			return deviceDetailRepository.findByUserLogin(userLogin.get());
-		} else {
-			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { userId }));
-		}
-	}
-
-	@Override
 	public List<DeviceDetailDTO> getAllDeviceDetailList() {
 		return deviceDetailMapper.toDtos(deviceDetailRepository.findAll());
 	}
@@ -99,10 +88,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	}
 
 	@Override
-	public DeviceDetail getDeviceDetailByUserId(final Long userId) throws NotFoundException {
+	public List<DeviceDetail> getDeviceDetailListByUserId(final Long userId) throws NotFoundException {
 		Optional<UserLogin> userLogin = userLoginService.getUserLogin(userId);
 		if (userLogin.isPresent()) {
-			return deviceDetailRepository.findByUserLogin(userLogin.get())
+			return deviceDetailRepository.findAllByUserLogin(userLogin.get())
 					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("device.detail.user.not.found", new Object[] { userId })));
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { userId }));

@@ -16,7 +16,7 @@ import com.nice.model.Ticket;
  * @date   : Aug 7, 2020
  */
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
+public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketCustomRepository {
 
 	/**
 	 * get page of ticket by userType and entityId

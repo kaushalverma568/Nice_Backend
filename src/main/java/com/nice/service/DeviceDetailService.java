@@ -1,7 +1,6 @@
 package com.nice.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -34,15 +33,6 @@ public interface DeviceDetailService {
 	DeviceDetailDTO getDeviceDetailById(Long id) throws NotFoundException;
 
 	/**
-	 * get device detail by user optional
-	 *
-	 * @param  userId
-	 * @return
-	 * @throws NotFoundException
-	 */
-	Optional<DeviceDetail> getDeviceDetailByUser(Long userId) throws NotFoundException;
-
-	/**
 	 * get all device detail list
 	 *
 	 * @return
@@ -58,11 +48,11 @@ public interface DeviceDetailService {
 	Boolean checkDeviceIdAlreadyExist(DeviceDetailDTO deviceDetailDTO);
 
 	/**
-	 * get device detail by user
+	 * get device detail list by user
 	 *
 	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	DeviceDetail getDeviceDetailByUserId(Long userId) throws NotFoundException;
+	List<DeviceDetail> getDeviceDetailListByUserId(Long userId) throws NotFoundException;
 }
