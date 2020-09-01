@@ -118,7 +118,7 @@ public class ToppingServiceImpl implements ToppingService {
 
 	@Override
 	public Page<Topping> getToppingList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
 		if (activeRecords != null) {
 			if (vendorId != null) {
 				return toppingRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);

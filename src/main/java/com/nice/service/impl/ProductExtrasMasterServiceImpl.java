@@ -174,7 +174,7 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	public Page<ProductExtrasMaster> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId)
 			throws NotFoundException {
 		LOGGER.info("Inside getList method, with productId : {} and active :{}", vendorId, activeRecords);
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
 		if (activeRecords != null) {
 			if (vendorId != null) {
 				return productExtrasMasterRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);

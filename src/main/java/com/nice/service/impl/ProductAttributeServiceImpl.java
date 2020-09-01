@@ -168,7 +168,7 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	@Override
 	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId)
 			throws ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
 
 		if (activeRecords != null) {
 			return vendorId == null ? productAttributeRepository.findAllByActive(activeRecords, pageable)
