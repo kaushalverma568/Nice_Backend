@@ -36,7 +36,14 @@ public class LoginResponse implements Serializable {
 
 	private String firstName;
 
+	private String firstNameEnglish;
+
+	private String firstNameArabic;
 	private String lastName;
+
+	private String lastNameEnglish;
+
+	private String lastNameArabic;
 
 	private String message;
 

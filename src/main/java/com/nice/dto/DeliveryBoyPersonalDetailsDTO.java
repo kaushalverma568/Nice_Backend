@@ -10,7 +10,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date :  Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Data
 public class DeliveryBoyPersonalDetailsDTO implements Serializable {
@@ -23,11 +23,17 @@ public class DeliveryBoyPersonalDetailsDTO implements Serializable {
 	@NotNull(message = "{id.not.null}")
 	private Long id;
 
-	@NotBlank(message = "{firstName.not.null}")
-	private String firstName;
+	@NotBlank(message = "{first.name.english.not.null}")
+	private String firstNameEnglish;
 
-	@NotBlank(message = "{lastName.not.null}")
-	private String lastName;
+	@NotBlank(message = "{last.name.english.not.null}")
+	private String lastNameEnglish;
+
+	@NotBlank(message = "{first.name.arabic.not.null}")
+	private String firstNameArabic;
+
+	@NotBlank(message = "{last.name.arabic.not.null}")
+	private String lastNameArabic;
 
 	@NotBlank(message = "{gender.not.null}")
 	private String gender;

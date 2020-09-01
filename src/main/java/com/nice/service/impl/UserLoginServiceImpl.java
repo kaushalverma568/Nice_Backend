@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.mail.MessagingException;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -678,6 +680,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	private LoginResponse getUserInfo(final LoginResponse loginResponse, final UserLoginDto userLoginDto) throws NotFoundException {
+		final Locale locale = LocaleContextHolder.getLocale();
 		Optional<UserLogin> userLogin;
 		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
 			userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName().toLowerCase(), userLoginDto.getUserType());
@@ -705,6 +708,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(deliveryBoy, loginResponse);
+				if (locale.getLanguage().equals("en")) {
+					loginResponse.setFirstName(deliveryBoy.getFirstNameEnglish());
+					loginResponse.setLastName(deliveryBoy.getLastNameEnglish());
+				} else {
+					loginResponse.setFirstName(deliveryBoy.getFirstNameArabic());
+					loginResponse.setLastName(deliveryBoy.getLastNameArabic());
+				}
 				loginResponse.setCanChangePassword(true);
 			}
 		} else {
