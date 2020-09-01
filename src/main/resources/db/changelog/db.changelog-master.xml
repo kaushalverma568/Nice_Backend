@@ -196,4 +196,11 @@
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 	
+	<changeSet id="28" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/customer_address_alter.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
+	
 </databaseChangeLog>
