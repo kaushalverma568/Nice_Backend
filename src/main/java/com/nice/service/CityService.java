@@ -57,7 +57,7 @@ public interface CityService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	boolean isCityExists(CityDTO cityDTO) throws NotFoundException;
+	boolean isCityExistsEnglish(CityDTO cityDTO) throws NotFoundException;
 
 	/**
 	 * Change status of city (active/deActive)
@@ -90,5 +90,12 @@ public interface CityService {
 	 * @return
 	 */
 	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword);
+
+	/**
+	 * @param cityDTO
+	 * @return
+	 * @throws NotFoundException
+	 */
+	boolean isCityExistsArabic(CityDTO cityDTO) throws NotFoundException;
 
 }

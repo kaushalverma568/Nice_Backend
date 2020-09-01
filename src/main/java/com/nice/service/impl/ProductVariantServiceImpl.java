@@ -202,14 +202,20 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		BeanUtils.copyProperties(productVariant, productVariantResponseDTO);
 		productVariantResponseDTO.setId(productVariant.getId());
 		productVariantResponseDTO.setProductId(productVariant.getProduct().getId());
+		productVariantResponseDTO.setProductNameArabic(productVariant.getProduct().getNameArabic());
+		productVariantResponseDTO.setProductNameEnglish(productVariant.getProduct().getNameEnglish());
+		productVariantResponseDTO.setUomMeasurementEnglish(productVariant.getUom().getMeasurementEnglish());
+		productVariantResponseDTO.setUomMeasurementArabic(productVariant.getUom().getMeasurementArabic());
+		productVariantResponseDTO.setUomLabelEnglish(productVariant.getUom().getUomLabelEnglish());
+		productVariantResponseDTO.setUomLabelArabic(productVariant.getUom().getUomLabelArabic());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-			productVariantResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
-			productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurementEnglish());
-			productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabelEnglish());
+			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameEnglish());
+			productVariantResponseDTO.setUomMeasurement(productVariantResponseDTO.getUomMeasurementEnglish());
+			productVariantResponseDTO.setUomLabel(productVariantResponseDTO.getUomLabelEnglish());
 		} else {
-			productVariantResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
-			productVariantResponseDTO.setUomMeasurement(productVariant.getUom().getMeasurementArabic());
-			productVariantResponseDTO.setUomLabel(productVariant.getUom().getUomLabelArabic());
+			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameArabic());
+			productVariantResponseDTO.setUomMeasurement(productVariantResponseDTO.getUomMeasurementArabic());
+			productVariantResponseDTO.setUomLabel(productVariantResponseDTO.getUomLabelArabic());
 		}
 		productVariantResponseDTO.setUomId(productVariant.getUom().getId());
 
@@ -221,8 +227,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		 */
 		productVariantResponseDTO.setAvailableQty(0);
 		/**
-		 * Set product addons, attribute values and toppings list for the product
-		 * variant
+		 * Set product addons, attribute values and toppings list for the product variant
 		 */
 		productVariantResponseDTO.setProductAddonsDtoList(productAddonsService.getDtoList(isAdmin ? null : Boolean.TRUE, productVariant.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(productVariant.getId(),
@@ -346,8 +351,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean isAdmin = false;
 		/**
-		 * if the user is a Vendor then check if the product belongs to him. For Super
-		 * Admin all products should be visible
+		 * if the user is a Vendor then check if the product belongs to him. For Super Admin all products should be visible
 		 */
 		if (userLogin != null && (userLogin.getEntityType() == null || UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
 			isAdmin = true;
@@ -369,8 +373,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	}
 
 	/**
-	 * This method will be used only for internal calls to skip the authentication
-	 * process
+	 * This method will be used only for internal calls to skip the authentication process
 	 *
 	 * @param productVariantId
 	 * @return
@@ -387,8 +390,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	public ProductVariantResponseDTO getProductVariantBySku(final String sku) throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Here is admin is taken as true as this method will only be accessed by
-		 * admin/vendor always.
+		 * Here is admin is taken as true as this method will only be accessed by admin/vendor always.
 		 */
 		ProductVariant productVariant = getProductVariantDetailBySku(sku, userLogin.getEntityId());
 		if (userLogin.getEntityId() == null || productVariant.getVendorId().equals(userLogin.getEntityId())) {

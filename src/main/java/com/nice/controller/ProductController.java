@@ -2,7 +2,6 @@ package com.nice.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CategoryWiseProductCountDTO;
+import com.nice.dto.CategoryWiseProductReponseDto;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
@@ -241,8 +241,7 @@ public class ProductController {
 	public ResponseEntity<Object> getProductListBasedOnParamsGroupedByCategory(@RequestBody final ProductParamRequestDTO productParamRequestDTO)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get Product List BasedOnParams {}", productParamRequestDTO);
-		final Map<String, Map<String, List<ProductResponseDTO>>> productList = productService
-				.getProductListBasedOnParamsAndCategoryWise(productParamRequestDTO);
+		final List<CategoryWiseProductReponseDto> productList = productService.getProductListBasedOnParamsAndCategoryWise(productParamRequestDTO);
 		LOGGER.info("After successfully Get Product List BasedOnParams");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_LIST_MESSAGE, null))
 				.setData(productList).create();

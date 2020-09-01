@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,12 +31,14 @@ import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.dto.CategoryWiseProductCountDTO;
+import com.nice.dto.CategoryWiseProductReponseDto;
 import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductImportDTO;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
+import com.nice.dto.SubCategoryWiseProductResponseDto;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
@@ -399,7 +402,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Map<String, Map<String, List<ProductResponseDTO>>> getProductListBasedOnParamsAndCategoryWise(final ProductParamRequestDTO productParamRequestDTO)
+	public List<CategoryWiseProductReponseDto> getProductListBasedOnParamsAndCategoryWise(final ProductParamRequestDTO productParamRequestDTO)
 			throws NotFoundException, ValidationException {
 
 		LOGGER.info("Inside getProductListBasedOnParamsAndCategoryWise");
@@ -435,7 +438,26 @@ public class ProductServiceImpl implements ProductService {
 			}
 		}
 		LOGGER.info("After getProductListBasedOnParamsAndCategoryWise ");
-		return productResponseDtoListCategoryWise;
+		/**
+		 * Convert Map to List of Dto
+		 */
+		List<CategoryWiseProductReponseDto> categoryWiseProductResponseDtoList = new ArrayList<>();
+		for (Entry<String, Map<String, List<ProductResponseDTO>>> categoryEntrySet : productResponseDtoListCategoryWise.entrySet()) {
+			CategoryWiseProductReponseDto categoryWiseProductResponseDto = new CategoryWiseProductReponseDto();
+			List<SubCategoryWiseProductResponseDto> subcategoryWiseProductResponseDto = new ArrayList<>();
+			for (Entry<String, List<ProductResponseDTO>> subcategoryEntry : categoryEntrySet.getValue().entrySet()) {
+				SubCategoryWiseProductResponseDto subCategoryWiseProductResponseDto = new SubCategoryWiseProductResponseDto();
+				List<ProductResponseDTO> subCateogryWiseProductResponseDtoList = subcategoryEntry.getValue();
+				subCategoryWiseProductResponseDto.setSubCategoryName(subcategoryEntry.getKey());
+				subCategoryWiseProductResponseDto.setProductResponseList(subCateogryWiseProductResponseDtoList);
+				subcategoryWiseProductResponseDto.add(subCategoryWiseProductResponseDto);
+			}
+			categoryWiseProductResponseDto.setCategoryName(categoryEntrySet.getKey());
+			categoryWiseProductResponseDto.setSubcateogryList(subcategoryWiseProductResponseDto);
+			categoryWiseProductResponseDtoList.add(categoryWiseProductResponseDto);
+		}
+		LOGGER.info("After converting to response from map to object list ");
+		return categoryWiseProductResponseDtoList;
 	}
 
 	@Override
@@ -450,8 +472,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true
-	 * means get product list for admin convert entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
 	 * @param product
 	 * @param listForAdmin
@@ -470,34 +492,43 @@ public class ProductServiceImpl implements ProductService {
 		Locale locale = LocaleContextHolder.getLocale();
 		LOGGER.info("Inside convertEntityToResponseDto");
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
+
+		Category category = categoryService.getCategoryDetail(productResponseDTO.getCategoryId());
+
+		productResponseDTO.setCategoryNameEnglish(category.getNameEnglish());
+		productResponseDTO.setCategoryNameArabic(category.getNameArabic());
+		if (productResponseDTO.getSubcategoryId() != null) {
+			SubCategory subCategory = subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId());
+			productResponseDTO.setSubcategoryNameEnglish(subCategory.getNameEnglish());
+			productResponseDTO.setSubcategoryNameArabic(subCategory.getNameArabic());
+		}
+		if (productResponseDTO.getCuisineId() != null) {
+			Cuisine cuisine = cuisineService.getCuisineDetails(productResponseDTO.getCuisineId());
+			productResponseDTO.setCuisineNameEnglish(cuisine.getNameEnglish());
+			productResponseDTO.setCuisineNameArabic(cuisine.getNameArabic());
+
+		}
+		if (productResponseDTO.getBrandId() != null) {
+			Brand brand = brandService.getBrandDetail(productResponseDTO.getBrandId());
+			productResponseDTO.setBrandNameEnglish(brand.getNameEnglish());
+			productResponseDTO.setBrandNameArabic(brand.getNameArabic());
+		}
+
 		if (locale.getLanguage().equals("en")) {
-			productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getNameEnglish());
-			if (productResponseDTO.getSubcategoryId() != null) {
-				productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getNameEnglish());
-			}
-			if (productResponseDTO.getCuisineId() != null) {
-				productResponseDTO.setCuisineName(cuisineService.getCuisineDetails(productResponseDTO.getCuisineId()).getNameEnglish());
-			}
-			if (productResponseDTO.getBrandId() != null) {
-				productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getNameEnglish());
-			}
+			productResponseDTO.setCategoryName(productResponseDTO.getCategoryNameEnglish());
+			productResponseDTO.setSubcategoryName(productResponseDTO.getSubcategoryNameEnglish());
+			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameEnglish());
+			productResponseDTO.setBrandName(productResponseDTO.getBrandNameEnglish());
 		} else {
-			productResponseDTO.setCategoryName(categoryService.getCategoryDetail(productResponseDTO.getCategoryId()).getNameArabic());
-			if (productResponseDTO.getSubcategoryId() != null) {
-				productResponseDTO.setSubcategoryName(subCategoryService.getSubCategoryDetail(productResponseDTO.getSubcategoryId()).getNameArabic());
-			}
-			if (productResponseDTO.getCuisineId() != null) {
-				productResponseDTO.setCuisineName(cuisineService.getCuisineDetails(productResponseDTO.getCuisineId()).getNameArabic());
-			}
-			if (productResponseDTO.getBrandId() != null) {
-				productResponseDTO.setBrandName(brandService.getBrandDetail(productResponseDTO.getBrandId()).getNameArabic());
-			}
+			productResponseDTO.setCategoryName(productResponseDTO.getCategoryNameArabic());
+			productResponseDTO.setSubcategoryName(productResponseDTO.getSubcategoryNameArabic());
+			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameArabic());
+			productResponseDTO.setBrandName(productResponseDTO.getBrandNameArabic());
 		}
 		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		productResponseDTO.setDetailImage(assetService.getGeneratedUrl(product.getDetailImage(), AssetConstant.PRODUCT_DIR));
 		/**
-		 * if we are fetching product list For admin then set product variants to empty
-		 * list
+		 * if we are fetching product list For admin then set product variants to empty list
 		 */
 		List<ProductVariantResponseDTO> productVariantList = new ArrayList<>();
 
@@ -511,14 +542,12 @@ public class ProductServiceImpl implements ProductService {
 		}
 		LOGGER.info("Before setting available qty");
 		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out
-		 * of stock
+		 * if product variant is null/empty or availableQty=0 then product will go out of stock
 		 */
 		// TODO
 		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced
-		 * here, as we dont need the available qty and productOutOfStock for any other
-		 * category type except grocery.
+		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
+		 * and productOutOfStock for any other category type except grocery.
 		 */
 		Integer availableQty = 0;
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
@@ -561,8 +590,7 @@ public class ProductServiceImpl implements ProductService {
 		Product product = getProductDetail(productId);
 		UserLogin userLogin = checkForUserLogin();
 		/**
-		 * Only the vendor who created the produce and the admin can deactivate the
-		 * product
+		 * Only the vendor who created the produce and the admin can deactivate the product
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
@@ -644,9 +672,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no
-		 * user login and hence if the userLogin is null or the userLogin->entityType is
-		 * customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -727,8 +754,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * This method will update the rating of the product. Just provide the rating
-	 * provided by the client and productId.
+	 * This method will update the rating of the product. Just provide the rating provided by the client and productId.
 	 */
 	@Override
 	public synchronized void updateProductRating(final Long productId, final Double ratingByClient) throws NotFoundException {
@@ -768,8 +794,8 @@ public class ProductServiceImpl implements ProductService {
 			final List<ProductImportDTO> productImportDTOs = csvProcessor.convertCSVFileToListOfBean(file, ProductImportDTO.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productImportDTOs)) {
 				final List<ProductImportDTO> insertListOfBean = insertListOfProducts(productImportDTOs);
-				Object[] brandDetailsHeadersField = new Object[] { "Product Name", "Result" };
-				Object[] brandDetailsField = new Object[] { "name", "uploadMessage" };
+				Object[] brandDetailsHeadersField = new Object[] { "Product Name English", "Product Name Arabic", "Result" };
+				Object[] brandDetailsField = new Object[] { "nameEnglish", "nameArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, brandDetailsField, brandDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

@@ -21,8 +21,7 @@ import com.nice.util.CommonUtility;
 public class CityValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CityValidator.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 
 	@Autowired
@@ -40,8 +39,7 @@ public class CityValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 	@Override
 	public void validate(final Object target, final Errors errors) {
@@ -60,10 +58,12 @@ public class CityValidator implements Validator {
 			/**
 			 * to check city duplication
 			 */
-			if (cityDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameEnglish())
-					&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameArabic()) && cityDTO.getStateId() != null
-					&& cityService.isCityExists(cityDTO)) {
-				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("city.name.not.unique", null));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameEnglish()) && cityDTO.getStateId() != null
+					&& cityService.isCityExistsEnglish(cityDTO)) {
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("city.name.english.not.unique", null));
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(cityDTO.getNameEnglish()) && cityDTO.getStateId() != null
+					&& cityService.isCityExistsArabic(cityDTO)) {
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("city.name.arabic.not.unique", null));
 			}
 		} catch (NotFoundException e) {
 			LOGGER.error("State not found for id : {} ", cityDTO.getStateId());

@@ -37,6 +37,16 @@ public class ProductVariantResponseDTO implements Serializable {
 	private Integer availableQty;
 	private Boolean active;
 
+	/**
+	 * Response only fields
+	 */
+	private String productNameEnglish;
+	private String productNameArabic;
+	private String uomMeasurementEnglish;
+	private String uomMeasurementArabic;
+	private String uomLabelEnglish;
+	private String uomLabelArabic;
+
 	private Boolean productAvailable;
 
 	private List<ProductToppingResponseDTO> productToppingsDtoList;

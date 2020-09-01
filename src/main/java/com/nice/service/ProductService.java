@@ -2,13 +2,13 @@ package com.nice.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CategoryWiseProductCountDTO;
+import com.nice.dto.CategoryWiseProductReponseDto;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
@@ -181,7 +181,7 @@ public interface ProductService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	Map<String, Map<String, List<ProductResponseDTO>>> getProductListBasedOnParamsAndCategoryWise(ProductParamRequestDTO productParamRequestDTO)
+	List<CategoryWiseProductReponseDto> getProductListBasedOnParamsAndCategoryWise(ProductParamRequestDTO productParamRequestDTO)
 			throws NotFoundException, ValidationException;
 
 	/**

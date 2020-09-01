@@ -52,10 +52,10 @@ public class AddonsValidator implements Validator {
 			try {
 				if (addonsDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(addonsDTO.getNameEnglish())
 						&& addonsService.isExistsEnglish(addonsDTO).booleanValue()) {
-					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("addons.not.unique", null));
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("addons.english.not.unique", null));
 				} else if (addonsDTO.getVendorId() != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(addonsDTO.getNameArabic())
 						&& addonsService.isExistsArabic(addonsDTO).booleanValue()) {
-					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("addons.not.unique", null));
+					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("addons.arabic.not.unique", null));
 				}
 			} catch (NotFoundException e) {
 				LOGGER.error("Addons not found for vendor id : {} ", addonsDTO.getVendorId());

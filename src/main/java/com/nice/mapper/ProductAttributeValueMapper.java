@@ -43,8 +43,8 @@ public class ProductAttributeValueMapper {
 
 	public List<ProductAttributeValueDTO> toDtos(final List<ProductAttributeValue> productAttributeValueList) {
 		List<ProductAttributeValueDTO> results = new ArrayList<>();
-		for (ProductAttributeValue ProductAttributeValue : productAttributeValueList) {
-			results.add(toDto(ProductAttributeValue));
+		for (ProductAttributeValue productAttributeValue : productAttributeValueList) {
+			results.add(toDto(productAttributeValue));
 		}
 		return results;
 	}

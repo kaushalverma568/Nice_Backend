@@ -263,9 +263,9 @@ public class AddonsServiceImpl implements AddonsService {
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 				if (addonsRepository.findByNameEnglishIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("addons.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("name.english.not.unique", null));
 				} else if (addonsRepository.findByNameArabicIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("addons.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("name.arabic.not.unique", null));
 				} else {
 					final AddonsDTO addonsDTO = new AddonsDTO();
 					addonsDTO.setNameEnglish(addonsImport.getNameEnglish());

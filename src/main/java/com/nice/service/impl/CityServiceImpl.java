@@ -82,23 +82,34 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public boolean isCityExists(final CityDTO cityDTO) throws NotFoundException {
+	public boolean isCityExistsEnglish(final CityDTO cityDTO) throws NotFoundException {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		if (cityDTO.getId() != null) {
 			/**
-			 * At the time of update is city with same english name or arabic name for same
-			 * state exist or not except it's own ID
+			 * At the time of update is city with same english name or arabic name for same state exist or not except it's own ID
 			 */
-			return cityRepository.findByNameEnglishIgnoreCaseAndStateAndIdNotOrNameArabicIgnoreCaseAndStateAndIdNot(cityDTO.getNameEnglish(), state,
-					cityDTO.getId(), cityDTO.getNameArabic(), state, cityDTO.getId()).isPresent();
+			return cityRepository.findByNameEnglishIgnoreCaseAndStateAndIdNot(cityDTO.getNameEnglish(), state, cityDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is city with same english name or arabic name for same
-			 * state exist or not
+			 * At the time of create is city with same english name or arabic name for same state exist or not
 			 */
-			return cityRepository
-					.findByNameEnglishIgnoreCaseAndStateOrNameArabicIgnoreCaseAndState(cityDTO.getNameEnglish(), state, cityDTO.getNameArabic(), state)
-					.isPresent();
+			return cityRepository.findByNameEnglishIgnoreCaseAndState(cityDTO.getNameEnglish(), state).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isCityExistsArabic(final CityDTO cityDTO) throws NotFoundException {
+		State state = stateService.getStateDetails(cityDTO.getStateId());
+		if (cityDTO.getId() != null) {
+			/**
+			 * At the time of update is city with same english name or arabic name for same state exist or not except it's own ID
+			 */
+			return cityRepository.findByNameArabicIgnoreCaseAndStateAndIdNot(cityDTO.getNameArabic(), state, cityDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is city with same english name or arabic name for same state exist or not
+			 */
+			return cityRepository.findByNameArabicIgnoreCaseAndState(cityDTO.getNameArabic(), state).isPresent();
 		}
 	}
 
@@ -120,8 +131,7 @@ public class CityServiceImpl implements CityService {
 	}
 
 	/**
-	 * Deactivate customer address and validation while activate city & validate
-	 * state while city is activate
+	 * Deactivate customer address and validation while activate city & validate state while city is activate
 	 *
 	 * @param cityId
 	 * @param active

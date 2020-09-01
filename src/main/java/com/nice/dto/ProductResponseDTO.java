@@ -19,13 +19,23 @@ public class ProductResponseDTO implements Serializable {
 	private static final long serialVersionUID = -6805990527158894688L;
 	private Long id;
 	private String name;
+	private String nameEnglish;
+	private String nameArabic;
 	private String description;
+	private String descriptionArabic;
+	private String descriptionEnglish;
 	private Long categoryId;
 	private String categoryName;
+	private String categoryNameEnglish;
+	private String categoryNameArabic;
 	private Long subcategoryId;
 	private String subcategoryName;
+	private String subcategoryNameArabic;
+	private String subcategoryNameEnglish;
 	private Long brandId;
 	private String brandName;
+	private String brandNameEnglish;
+	private String brandNameArabic;
 	private String image;
 	private String detailImage;
 	private Boolean active;
@@ -39,6 +49,8 @@ public class ProductResponseDTO implements Serializable {
 	private Integer productFoodType;
 	private Long cuisineId;
 	private String cuisineName;
+	private String cuisineNameEnglish;
+	private String cuisineNameArabic;
 	private Boolean combo;
 	/**
 	 * Set to true only if all the variant of the product are out of stock

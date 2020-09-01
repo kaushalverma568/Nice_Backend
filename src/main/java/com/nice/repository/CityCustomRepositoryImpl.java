@@ -58,8 +58,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		 */
 		CriteriaQuery<City> criteriaQuery = criteriaBuilder.createQuery(City.class);
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<City> city = criteriaQuery.from(City.class);
 		/**
@@ -89,12 +88,12 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		 * Add the clauses for the query.
 		 */
 		criteriaQuery.select(city).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
-				.orderBy(criteriaBuilder.asc(city.get("name")));
+				.orderBy(criteriaBuilder.asc(city.get(NAME_ENGLISH)));
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<City> fetchGraph = entityManager.createEntityGraph(City.class);
 		fetchGraph.addSubgraph(STATE_PARAM);
@@ -117,8 +116,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the city.It is similar to the
-		 * FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the city.It is similar to the FROM clause in a JPQL query.
 		 */
 		Root<City> city = criteriaQuery.from(City.class);
 		/**
