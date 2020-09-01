@@ -89,7 +89,7 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		 * Add the clauses for the query.
 		 */
 		criteriaQuery.select(state).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
-				.orderBy(criteriaBuilder.asc(state.get("name")));
+				.orderBy(criteriaBuilder.asc(state.get(NAME_ENGLISH)));
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>

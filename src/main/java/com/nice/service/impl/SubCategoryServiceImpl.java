@@ -309,7 +309,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 				} else {
 					final SubCategoryDTO subCategoryDTO = new SubCategoryDTO();
 					subCategoryDTO.setNameEnglish(subCategoryImport.getNameEnglish());
-					subCategoryDTO.setNameEnglish(subCategoryImport.getNameEnglish());
+					subCategoryDTO.setNameArabic(subCategoryImport.getNameArabic());
 					subCategoryDTO.setCategoryId(category.get().getId());
 					subCategoryDTO.setActive(true);
 					addSubCategory(subCategoryDTO, null);

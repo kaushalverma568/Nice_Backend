@@ -21,6 +21,7 @@ import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
+import com.nice.dto.VendorExport;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
@@ -149,5 +150,21 @@ public class VendorMapper {
 			vendorAppResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
 		}
 		return vendorAppResponseDTO;
+	}
+
+	public VendorExport toExportDTO(final Vendor vendor) {
+		Locale locale = LocaleContextHolder.getLocale();
+		VendorExport vendorExport = new VendorExport();
+		BeanUtils.copyProperties(vendor, vendorExport);
+		if (locale.getLanguage().equals("en")) {
+			vendorExport.setFirstName(vendor.getFirstNameEnglish());
+			vendorExport.setLastName(vendor.getLastNameEnglish());
+			vendorExport.setStoreName(vendor.getStoreNameEnglish());
+		} else {
+			vendorExport.setFirstName(vendor.getFirstNameArabic());
+			vendorExport.setLastName(vendor.getLastNameArabic());
+			vendorExport.setStoreName(vendor.getStoreNameArabic());
+		}
+		return vendorExport;
 	}
 }
