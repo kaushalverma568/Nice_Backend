@@ -22,16 +22,16 @@ public class DeliveryBoyDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{first.name.english.not.null}")
+	@NotBlank(message = "{deliveryboy.first.name.english.not.null}")
 	private String firstNameEnglish;
 
-	@NotBlank(message = "{last.name.english.not.null}")
+	@NotBlank(message = "{deliveryboy.last.name.english.not.null}")
 	private String lastNameEnglish;
 
-	@NotBlank(message = "{first.name.arabic.not.null}")
+	@NotBlank(message = "{deliveryboy.first.name.arabic.not.null}")
 	private String firstNameArabic;
 
-	@NotBlank(message = "{last.name.arabic.not.null}")
+	@NotBlank(message = "{deliveryboy.last.name.arabic.not.null}")
 	private String lastNameArabic;
 
 	@NotBlank(message = "{email.not.null}")

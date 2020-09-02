@@ -19,11 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +40,7 @@ import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
+import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.Notification;
@@ -86,7 +82,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -147,8 +143,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
-		 * Check if delivery boy already exists, if so then lets only send him email
-		 * again.
+		 * Check if delivery boy already exists, if so then lets only send him email again.
 		 */
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getEmailVerified().booleanValue()) {
@@ -160,6 +155,11 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				return;
 			}
 		}
+		/**
+		 * Set delivery boy preferred language to default language when delivery boy registers.
+		 */
+		deliveryBoy.setPreferredLanguage(Constant.DEFAULT_LANGUAGE);
+
 		uploadImage(profilePicture, deliveryBoy);
 		deliveryBoy.setEmailVerified(false);
 		deliveryBoy.setPhoneVerified(false);
@@ -183,8 +183,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		deliveryBoyCurrentStatus.setIsBusy(false);
 		/**
-		 * it will be true when he is able to deliver order(getting notifications for
-		 * delivery)
+		 * it will be true when he is able to deliver order(getting notifications for delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
@@ -238,74 +237,47 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("deliveryboy.not.found", new Object[] { deliveryBoyId })));
 	}
 
-	@Override
-	public Page<DeliveryBoy> getDeliveryBoyList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
-			final String sortByDirection, final String sortByField) throws NotFoundException, ValidationException {
-		Sort sort = sortByFieldAndDirection(sortByDirection, sortByField);
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
-			if (activeRecords != null) {
-				return deliveryBoyRepository
-						.findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
-								activeRecords, searchKeyword, searchKeyword, searchKeyword, searchKeyword, pageable);
-			} else {
-				return deliveryBoyRepository
-						.findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
-								searchKeyword, searchKeyword, searchKeyword, searchKeyword, pageable);
-			}
-		} else {
-			if (activeRecords != null) {
-				return deliveryBoyRepository.findAllByActive(activeRecords, pageable);
-			} else {
-				return deliveryBoyRepository.findAll(pageable);
-			}
-		}
-	}
-
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
-	private Sort sortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
-		Sort sort;
-		validationForSortByFieldAndDirection(sortByDirection, sortByField);
+	private void sortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
+		validationForSortByFieldAndDirection(deliveryBoyFilterDTO);
 		/**
 		 * Default Field is id
 		 */
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
-				sort = Sort.by(Direction.fromString(sortByDirection), sortByField);
-			} else {
-				sort = Sort.by(Direction.ASC, sortByField);
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByField())) {
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByDirection())) {
+				deliveryBoyFilterDTO.setSortByDirection(Constant.SORT_DIRECTION_ASC);
 			}
 		} else {
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)) {
-				sort = Sort.by(Direction.fromString(sortByDirection), "id");
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByDirection())) {
+				deliveryBoyFilterDTO.setSortByField("id");
 			} else {
-				sort = Sort.by(Direction.DESC, "id");
+				deliveryBoyFilterDTO.setSortByDirection(Constant.SORT_DIRECTION_DESC);
+				deliveryBoyFilterDTO.setSortByField("id");
 			}
 		}
-		return sort;
 	}
 
 	/**
 	 *
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
-	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByField)) {
+	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByField())) {
 			/**
 			 * Validate sortByField is valid field or not using reflection
 			 */
-			Class<DeliveryBoy> deliveryBoyClass = DeliveryBoy.class;
-			Field[] fields = deliveryBoyClass.getDeclaredFields();
+			Class<Vendor> vendorClass = Vendor.class;
+			Field[] fields = vendorClass.getDeclaredFields();
 			boolean isValid = false;
 			for (Field field : fields) {
-				if (sortByField.equals(field.getName())) {
+				if (deliveryBoyFilterDTO.getSortByField().equals(field.getName())) {
 					isValid = true;
 					break;
 				}
@@ -314,8 +286,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				throw new ValidationException(messageByLocaleService.getMessage("sort.field.invalid", null));
 			}
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)
-				&& !(Constant.SORT_DIRECTION_ASC.equals(sortByDirection) || Constant.SORT_DIRECTION_DESC.equals(sortByDirection))) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByDirection())
+				&& !(Constant.SORT_DIRECTION_ASC.equals(deliveryBoyFilterDTO.getSortByDirection())
+						|| Constant.SORT_DIRECTION_DESC.equals(deliveryBoyFilterDTO.getSortByDirection()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
 		}
 	}
@@ -414,8 +387,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isDeliveryBoyExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is deliveryBoy with same email exist or not except it's
-			 * own id
+			 * At the time of update is deliveryBoy with same email exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail().toLowerCase(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -425,9 +397,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be
-				 * sending the verification link for him again, if the email is verified then we
-				 * will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
+				 * verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -506,8 +477,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -547,15 +518,13 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
-		 * get all delivery boys who is logged in, not busy with any orders and has not
-		 * sended notification before
+		 * get all delivery boys who is logged in, not busy with any orders and has not sended notification before
 		 */
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who
-		 * is going for delivery of orders(not for replacement or return) and at a time
-		 * assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -596,8 +565,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Long thirdMinDeliveryBoyId = null;
 		for (Entry<Long, Double> deliveryBoyWithDistanceEntrySet : deliveryBoyWithDistanceMap.entrySet()) {
 			/**
-			 * Check if delivery boy's distance is less than first min distance, then update
-			 * first, second and third
+			 * Check if delivery boy's distance is less than first min distance, then update first, second and third
 			 */
 			if (deliveryBoyWithDistanceEntrySet.getValue() < firstMin) {
 				thirdMin = secMin;
@@ -609,8 +577,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than sec min distance then update
-			 * second and third
+			 * Check if delivery boy's distance is less than sec min distance then update second and third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < secMin) {
 				thirdMin = secMin;
@@ -620,8 +587,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than third min distance then update
-			 * third
+			 * Check if delivery boy's distance is less than third min distance then update third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < thirdMin) {
 				thirdMin = deliveryBoyWithDistanceEntrySet.getValue();
@@ -644,8 +610,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public synchronized void acceptOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException, ValidationException {
 		/**
-		 * check is order already accepted then throw exception else set delivery boy in
-		 * order
+		 * check is order already accepted then throw exception else set delivery boy in order
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
@@ -714,8 +679,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is delivery boy with same phone number exist or not
-			 * except it's own id
+			 * At the time of update is delivery boy with same phone number exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -746,8 +710,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = getVendorAddress(orders.getVendor());
 			dropAddress = orders.getAddress();
 			/**
-			 * distance will be delivery boy's distance from vendor + distance between
-			 * vendor and delivery location
+			 * distance will be delivery boy's distance from vendor + distance between vendor and delivery location
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue())
@@ -761,8 +724,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = orders.getAddress();
 			dropAddress = getVendorAddress(orders.getVendor());
 			/**
-			 * distance will be delivery boy's distance from customer + 2 times distance
-			 * between vendor and customer
+			 * distance will be delivery boy's distance from customer + 2 times distance between vendor and customer
 			 */
 			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
 					orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue())
@@ -861,4 +823,15 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		return dashBoardDetailDTO;
 	}
 
+	@Override
+	public Long getDeliveryBoyCountBasedOnParams(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) {
+		return deliveryBoyRepository.getDeliveryBoyCountBasedOnParams(deliveryBoyFilterDTO);
+	}
+
+	@Override
+	public List<DeliveryBoy> getDeliveryBoyListBasedOnParams(final Integer startIndex, final Integer pageSize, final DeliveryBoyFilterDTO deliveryBoyFilterDTO)
+			throws ValidationException {
+		sortByFieldAndDirection(deliveryBoyFilterDTO);
+		return deliveryBoyRepository.getDeliveryBoyListBasedOnParams(startIndex, pageSize, deliveryBoyFilterDTO);
+	}
 }

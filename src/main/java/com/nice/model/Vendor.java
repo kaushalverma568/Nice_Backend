@@ -23,7 +23,7 @@ import lombok.ToString;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 
 @Entity
@@ -201,4 +201,7 @@ public class Vendor extends CommonModel {
 
 	@Transient
 	private Double distance;
+
+	@Column(name = "preferred_language")
+	private String preferredLanguage;
 }

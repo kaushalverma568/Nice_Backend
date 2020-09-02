@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Data
 public class CustomerDTO implements Serializable {
@@ -45,6 +45,5 @@ public class CustomerDTO implements Serializable {
 
 	private Date birthDate;
 
-	@NotBlank(message = "{preferred.language.not.null}")
 	private String preferredLanguage;
 }

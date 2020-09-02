@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Aug 05, 2020
+ * @date   : Aug 05, 2020
  */
 @Data
 public class VendorBasicDetailDTO implements Serializable {
@@ -34,4 +34,6 @@ public class VendorBasicDetailDTO implements Serializable {
 	private String status;
 
 	private String email;
+
+	private String preferredLanguage;
 }

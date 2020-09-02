@@ -46,6 +46,8 @@ public class DeliveryBoyResponseDTO implements Serializable {
 
 	private String phoneNumber;
 
+	private String preferredLanguage;
+
 	private String bankName;
 
 	private String bankNameEnglish;

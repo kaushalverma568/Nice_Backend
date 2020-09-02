@@ -16,7 +16,7 @@ import com.nice.model.DeliveryBoy;
  * @date   : 24-Jul-2020
  */
 @Repository
-public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long> {
+public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>, DeliveryBoyCustomRepository {
 
 	/**
 	 * Get delivery boy by delivery boy email ignore case and id not equal if exist

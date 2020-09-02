@@ -10,7 +10,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @Data
 public class VendorBankDetailsDTO implements Serializable {
@@ -52,4 +52,15 @@ public class VendorBankDetailsDTO implements Serializable {
 
 	@NotBlank(message = "{branch.city.arabic.not.null}")
 	private String branchCityArabic;
+
+	/**
+	 * for language specific response
+	 */
+	private String bankName;
+
+	private String branchName;
+
+	private String accountName;
+
+	private String branchCity;
 }

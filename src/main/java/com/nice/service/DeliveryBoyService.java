@@ -6,13 +6,13 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
+import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.OrderNotificationDTO;
@@ -106,22 +106,6 @@ public interface DeliveryBoyService {
 	 * @throws NotFoundException
 	 */
 	void updateAccountDetails(DeliveryBoyAccountDetailsDTO deliveryBoyAccountDetailsDTO) throws NotFoundException;
-
-	/**
-	 * get page of delivery boy by parameters
-	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  sortByDirection
-	 * @param  sortByField
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	Page<DeliveryBoy> getDeliveryBoyList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyword, String sortByDirection,
-			String sortByField) throws NotFoundException, ValidationException;
 
 	/**
 	 * update email verified status of delivery boy
@@ -239,4 +223,24 @@ public interface DeliveryBoyService {
 	 * @throws ValidationException
 	 */
 	DashBoardDetailDTO getDashBoard(Long deliveryBoyId) throws NotFoundException, ValidationException;
+
+	/**
+	 * get delivery boy count based on param
+	 *
+	 * @param  deliveryBoyFilterDTO
+	 * @return
+	 */
+	Long getDeliveryBoyCountBasedOnParams(DeliveryBoyFilterDTO deliveryBoyFilterDTO);
+
+	/**
+	 * get list of delivery boy by parameters
+	 *
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  deliveryBoyFilterDTO
+	 * @return
+	 * @throws ValidationException
+	 */
+	List<DeliveryBoy> getDeliveryBoyListBasedOnParams(Integer startIndex, Integer pageSize, DeliveryBoyFilterDTO deliveryBoyFilterDTO)
+			throws ValidationException;
 }

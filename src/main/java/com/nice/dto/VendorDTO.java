@@ -73,4 +73,5 @@ public class VendorDTO implements Serializable {
 	@NotNull(message = "{longitude.not.null}")
 	private BigDecimal longitude;
 
+	private String preferredLanguage;
 }

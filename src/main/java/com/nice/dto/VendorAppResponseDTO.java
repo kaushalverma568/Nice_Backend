@@ -45,5 +45,5 @@ public class VendorAppResponseDTO implements Serializable {
 	private Double minimumOrderAmt;
 	private String paymentMethod;
 	private String email;
-
+	private String preferredLanguage;
 }

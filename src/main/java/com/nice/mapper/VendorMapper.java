@@ -31,7 +31,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -54,6 +54,7 @@ public class VendorMapper {
 			vendorResponseDTO.setStreet(vendor.getStreetEnglish());
 			vendorResponseDTO.setArea(vendor.getAreaEnglish());
 			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameEnglish());
+			vendorResponseDTO.setStoreName(vendor.getStoreNameEnglish());
 		} else {
 			vendorResponseDTO.setFirstName(vendor.getFirstNameArabic());
 			vendorResponseDTO.setLastName(vendor.getLastNameArabic());
@@ -62,6 +63,7 @@ public class VendorMapper {
 			vendorResponseDTO.setStreet(vendor.getStreetArabic());
 			vendorResponseDTO.setArea(vendor.getAreaArabic());
 			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameArabic());
+			vendorResponseDTO.setStoreName(vendor.getStoreNameArabic());
 		}
 		if (vendor.getSubscriptionPlan() != null) {
 			vendorResponseDTO.setSubscriptionPlanId(vendor.getSubscriptionPlan().getId());
@@ -99,8 +101,20 @@ public class VendorMapper {
 	}
 
 	public VendorBankDetailsDTO toBankDetailsDTO(final VendorBankDetails vendorBankDetails) {
+		Locale locale = LocaleContextHolder.getLocale();
 		VendorBankDetailsDTO vendorBankDetailsDTO = new VendorBankDetailsDTO();
 		BeanUtils.copyProperties(vendorBankDetails, vendorBankDetailsDTO);
+		if (locale.getLanguage().equals("en")) {
+			vendorBankDetailsDTO.setBankName(vendorBankDetails.getBankNameEnglish());
+			vendorBankDetailsDTO.setBranchName(vendorBankDetails.getBranchNameEnglish());
+			vendorBankDetailsDTO.setAccountName(vendorBankDetails.getAccountNameEnglish());
+			vendorBankDetailsDTO.setBranchCity(vendorBankDetails.getBranchCityEnglish());
+		} else {
+			vendorBankDetailsDTO.setBankName(vendorBankDetails.getBankNameArabic());
+			vendorBankDetailsDTO.setBranchName(vendorBankDetails.getBranchNameArabic());
+			vendorBankDetailsDTO.setAccountName(vendorBankDetails.getAccountNameArabic());
+			vendorBankDetailsDTO.setBranchCity(vendorBankDetails.getBranchCityArabic());
+		}
 		vendorBankDetailsDTO.setVendorId(vendorBankDetails.getVendor().getId());
 		return vendorBankDetailsDTO;
 	}

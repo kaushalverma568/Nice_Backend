@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -38,9 +37,11 @@ import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
+import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.OrderNotificationDTO;
+import com.nice.dto.PaginationUtilDto;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -50,6 +51,7 @@ import com.nice.model.DeliveryBoy;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.DeliveryBoyService;
 import com.nice.util.CommonUtility;
+import com.nice.util.PaginationUtil;
 import com.nice.validator.DeliveryBoyValidator;
 
 /**
@@ -185,19 +187,18 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PostMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveryBoyList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
-			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
-			@RequestParam(name = "sortByDirection", required = false) final String sortByDirection,
-			@RequestParam(name = "sortByField", required = false) final String sortByField) throws NotFoundException, ValidationException {
+			@PathVariable final Integer pageSize, @RequestBody final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get delivery boy List");
-		final Page<DeliveryBoy> resultDeliveryBoyPages = deliveryBoyService.getDeliveryBoyList(pageNumber, pageSize, activeRecords, searchKeyword,
-				sortByDirection, sortByField);
+		Long totalCount = deliveryBoyService.getDeliveryBoyCountBasedOnParams(deliveryBoyFilterDTO);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		List<DeliveryBoy> deliveryBoyList = deliveryBoyService.getDeliveryBoyListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize,
+				deliveryBoyFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
-				.setData(deliveryBoyMapper.toDtos(resultDeliveryBoyPages.getContent())).setHasNextPage(resultDeliveryBoyPages.hasNext())
-				.setHasPreviousPage(resultDeliveryBoyPages.hasPrevious()).setTotalPages(resultDeliveryBoyPages.getTotalPages())
-				.setPageNumber(resultDeliveryBoyPages.getNumber() + 1).setTotalCount(resultDeliveryBoyPages.getTotalElements()).create();
+				.setData(deliveryBoyMapper.toDtos(deliveryBoyList)).setHasNextPage(paginationUtilDto.getHasNextPage())
+				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
+				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
 	}
 
 	/**

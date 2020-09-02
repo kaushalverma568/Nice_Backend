@@ -38,4 +38,6 @@ public class DeliveryBoyPersonalDetailsDTO implements Serializable {
 	@NotBlank(message = "{gender.not.null}")
 	private String gender;
 
+	@NotBlank(message = "{preferred.language.not.null}")
+	private String preferredLanguage;
 }

@@ -97,6 +97,10 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 
 		Customer customer = customerMapper.toEntity(customerDTO, 1L);
+		/**
+		 * Set customer preferred language to default language when customer registers.
+		 */
+		customer.setPreferredLanguage(Constant.DEFAULT_LANGUAGE);
 
 		Optional<Customer> optCustomer = Optional.empty();
 
@@ -395,8 +399,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

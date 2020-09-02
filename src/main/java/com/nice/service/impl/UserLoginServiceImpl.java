@@ -698,11 +698,25 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			} else if (UserType.USER.name().equals(userLogin.get().getEntityType())) {
 				Users users = usersService.getUsersDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(users, loginResponse);
+				if (locale.getLanguage().equals("en")) {
+					loginResponse.setFirstName(users.getFirstNameEnglish());
+					loginResponse.setLastName(users.getLastNameEnglish());
+				} else {
+					loginResponse.setFirstName(users.getFirstNameArabic());
+					loginResponse.setLastName(users.getLastNameArabic());
+				}
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
 			} else if (UserType.VENDOR.name().equals(userLogin.get().getEntityType())) {
 				Vendor vendor = vendorService.getVendorDetail(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(vendor, loginResponse);
+				if (locale.getLanguage().equals("en")) {
+					loginResponse.setFirstName(vendor.getFirstNameEnglish());
+					loginResponse.setLastName(vendor.getLastNameEnglish());
+				} else {
+					loginResponse.setFirstName(vendor.getFirstNameArabic());
+					loginResponse.setLastName(vendor.getLastNameArabic());
+				}
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
 						&& (userLogin.get().getFacebookKey() != null || userLogin.get().getGoogleKey() != null || userLogin.get().getOtp() != null)));
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
@@ -937,7 +951,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(customer.getPhoneNumber()) && customer.getPhoneNumber().equals(phoneNumber)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(customer.getPhoneNumber()) && customer.getPhoneVerified().booleanValue()
+					&& customer.getPhoneNumber().equals(phoneNumber)) {
 				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			/**

@@ -101,4 +101,8 @@ public class DeliveryBoy extends CommonModel {
 
 	@Column(name = "profile_picture_original_name")
 	private String profilePictureOriginalName;
+
+	@Column(name = "preferred_language")
+	private String preferredLanguage;
+
 }
