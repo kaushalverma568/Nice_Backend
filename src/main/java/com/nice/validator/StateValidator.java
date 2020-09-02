@@ -15,14 +15,13 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Component
 public class StateValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(StateValidator.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 
 	@Autowired
@@ -40,8 +39,7 @@ public class StateValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 	@Override
 	public void validate(final Object target, final Errors errors) {
@@ -54,10 +52,13 @@ public class StateValidator implements Validator {
 			/**
 			 * to check State duplication
 			 */
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(stateDTO.getNameEnglish())
-					&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(stateDTO.getNameArabic()) && stateDTO.getCountryId() != null
-					&& stateService.isStateExists(stateDTO)) {
-				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("state.name.not.unique", null));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(stateDTO.getNameEnglish()) && stateDTO.getCountryId() != null
+					&& stateService.isStateExistsEnglish(stateDTO)) {
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("state.name.english.not.unique", null));
+			}
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(stateDTO.getNameArabic()) && stateDTO.getCountryId() != null
+					&& stateService.isStateExistsArabic(stateDTO)) {
+				errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("state.name.arabic.not.unique", null));
 			}
 		} catch (NotFoundException e) {
 			LOGGER.error("Country not found for id : {} ", stateDTO.getCountryId());

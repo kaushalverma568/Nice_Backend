@@ -1,5 +1,7 @@
 package com.nice.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.BeanUtils;
@@ -11,7 +13,7 @@ import com.nice.model.Country;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Component
 public class CountryMapper {
@@ -32,5 +34,13 @@ public class CountryMapper {
 			countryDTO.setName(country.getNameArabic());
 		}
 		return countryDTO;
+	}
+
+	public List<CountryDTO> toDtos(final List<Country> countries) {
+		List<CountryDTO> countryDTOs = new ArrayList<>();
+		for (Country country : countries) {
+			countryDTOs.add(toDto(country));
+		}
+		return countryDTOs;
 	}
 }

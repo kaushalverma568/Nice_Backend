@@ -25,7 +25,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Service(value = "countryService")
 @Transactional(rollbackFor = Throwable.class)
@@ -105,8 +105,8 @@ public class CountryServiceImpl implements CountryService {
 	}
 
 	/**
-	 * @param countryId
-	 * @param active
+	 * @param  countryId
+	 * @param  active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -121,21 +121,34 @@ public class CountryServiceImpl implements CountryService {
 	}
 
 	@Override
-	public boolean isCountryExists(final CountryDTO countryDTO) {
+	public boolean isCountryExistsEnglish(final CountryDTO countryDTO) {
 
 		if (countryDTO.getId() != null) {
 			/**
-			 * At the time of update is country with same english or arabic name exist or
-			 * not except it's own id
+			 * At the time of update is country with same English exist or not except it's own id
 			 */
-			return countryRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(countryDTO.getNameEnglish(), countryDTO.getId(),
-					countryDTO.getNameArabic(), countryDTO.getId()).isPresent();
+			return countryRepository.findByNameEnglishIgnoreCaseAndIdNot(countryDTO.getNameEnglish(), countryDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is country with same english or arabic name exist or
-			 * not
+			 * At the time of create is country with same english or arabic name exist or not
 			 */
-			return countryRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(countryDTO.getNameEnglish(), countryDTO.getNameArabic()).isPresent();
+			return countryRepository.findByNameEnglishIgnoreCase(countryDTO.getNameEnglish()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isCountryExistsArabic(final CountryDTO countryDTO) {
+
+		if (countryDTO.getId() != null) {
+			/**
+			 * At the time of update is country with same arabic name exist or not except it's own id
+			 */
+			return countryRepository.findByNameArabicIgnoreCaseAndIdNot(countryDTO.getNameArabic(), countryDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is country with same arabic name exist or not
+			 */
+			return countryRepository.findByNameArabicIgnoreCase(countryDTO.getNameArabic()).isPresent();
 		}
 	}
 

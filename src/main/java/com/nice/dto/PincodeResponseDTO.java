@@ -24,6 +24,10 @@ public class PincodeResponseDTO implements Serializable {
 
 	private String cityName;
 
+	private String cityNameEnglish;
+
+	private String cityNameArabic;
+
 	private Boolean active;
 
 }

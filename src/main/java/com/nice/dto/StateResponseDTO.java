@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Data
 public class StateResponseDTO implements Serializable {
@@ -23,13 +23,17 @@ public class StateResponseDTO implements Serializable {
 
 	private String name;
 
+	private String nameEnglish;
+
+	private String nameArabic;
+
 	private Long countryId;
 
 	private String countryName;
 
+	private String countryNameEnglish;
+
+	private String countryNameArabic;
+
 	private Boolean active;
-
-	private String nameEnglish;
-
-	private String nameArabic;
 }

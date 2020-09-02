@@ -24,7 +24,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Service(value = "stateService")
 @Transactional(rollbackFor = Throwable.class)
@@ -83,23 +83,36 @@ public class StateServiceImpl implements StateService {
 	}
 
 	@Override
-	public boolean isStateExists(final StateDTO stateDTO) throws NotFoundException {
+	public boolean isStateExistsEnglish(final StateDTO stateDTO) throws NotFoundException {
 		Country country = countryService.getCountryDetails(stateDTO.getCountryId());
 
 		if (stateDTO.getId() != null) {
 			/**
-			 * At the time of update is state with same english name or arabic name for same
-			 * country exist or not except it's own ID
+			 * At the time of update is state with same English name for same country exist or not except it's own ID
 			 */
-			return stateRepository.findByNameEnglishIgnoreCaseAndCountryAndIdNotOrNameArabicIgnoreCaseAndCountryAndIdNot(stateDTO.getNameEnglish(), country,
-					stateDTO.getId(), stateDTO.getNameArabic(), country, stateDTO.getId()).isPresent();
+			return stateRepository.findByNameEnglishIgnoreCaseAndCountryAndIdNot(stateDTO.getNameEnglish(), country, stateDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is state with same english name or arabic name for same
-			 * country exist or not
+			 * At the time of create is state with same English name for same country exist or not
 			 */
-			return stateRepository.findByNameEnglishIgnoreCaseAndCountryOrNameArabicIgnoreCaseAndCountry(stateDTO.getNameEnglish(), country,
-					stateDTO.getNameArabic(), country).isPresent();
+			return stateRepository.findByNameEnglishIgnoreCaseAndCountry(stateDTO.getNameEnglish(), country).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isStateExistsArabic(final StateDTO stateDTO) throws NotFoundException {
+		Country country = countryService.getCountryDetails(stateDTO.getCountryId());
+
+		if (stateDTO.getId() != null) {
+			/**
+			 * At the time of update is state with same Arabic name for same country exist or not except it's own ID
+			 */
+			return stateRepository.findByNameArabicIgnoreCaseAndCountryAndIdNot(stateDTO.getNameArabic(), country, stateDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is state with same Arabic name for same country exist or not
+			 */
+			return stateRepository.findByNameArabicIgnoreCaseAndCountry(stateDTO.getNameArabic(), country).isPresent();
 		}
 	}
 
@@ -125,13 +138,12 @@ public class StateServiceImpl implements StateService {
 	}
 
 	/**
-	 * Deactivate city and customer address and validation while activate state &
-	 * validate country while state is activate
+	 * Deactivate city and customer address and validation while activate state & validate country while state is activate
 	 *
-	 * @param stateId
-	 * @param active
-	 * @param userId
-	 * @param existingState
+	 * @param  stateId
+	 * @param  active
+	 * @param  userId
+	 * @param  existingState
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */

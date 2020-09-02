@@ -14,13 +14,13 @@ import com.nice.model.Pincode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 23-Jun-2020
+ * @date   : 23-Jun-2020
  */
 @Component
 public class PincodeMapper {
 
 	public PincodeResponseDTO toDto(final Pincode pincode) {
-		Locale locale = LocaleContextHolder.getLocale();
+		final Locale locale = LocaleContextHolder.getLocale();
 		PincodeResponseDTO pincodeResponseDTO = new PincodeResponseDTO();
 		BeanUtils.copyProperties(pincode, pincodeResponseDTO);
 		pincodeResponseDTO.setCityId(pincode.getCity().getId());
@@ -29,6 +29,8 @@ public class PincodeMapper {
 		} else {
 			pincodeResponseDTO.setCityName(pincode.getCity().getNameArabic());
 		}
+		pincodeResponseDTO.setCityNameEnglish(pincode.getCity().getNameEnglish());
+		pincodeResponseDTO.setCityNameArabic(pincode.getCity().getNameArabic());
 		return pincodeResponseDTO;
 	}
 

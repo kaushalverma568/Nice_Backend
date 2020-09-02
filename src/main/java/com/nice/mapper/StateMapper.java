@@ -14,7 +14,7 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Component
 public class StateMapper {
@@ -37,6 +37,8 @@ public class StateMapper {
 			stateResponseDTO.setCountryName(state.getCountry().getNameArabic());
 		}
 		stateResponseDTO.setCountryId(state.getCountry().getId());
+		stateResponseDTO.setCountryNameEnglish(state.getCountry().getNameEnglish());
+		stateResponseDTO.setCountryNameArabic(state.getCountry().getNameArabic());
 		return stateResponseDTO;
 	}
 

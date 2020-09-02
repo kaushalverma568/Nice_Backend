@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +38,7 @@ import com.nice.validator.CountryValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @RequestMapping(path = "/country")
 @RestController
@@ -56,6 +57,9 @@ public class CountryController {
 	@Autowired
 	private CountryValidator countryValidator;
 
+	@Autowired
+	private CountryMapper countryMapper;
+
 	/**
 	 * Bind validator with object using 'BindingResult' in method
 	 *
@@ -69,15 +73,12 @@ public class CountryController {
 	@Autowired
 	private CountryService countryService;
 
-	@Autowired
-	private CountryMapper countryMapper;
-
 	/**
 	 * Add Country
 	 *
-	 * @param accessToken
-	 * @param countryDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  countryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -100,9 +101,9 @@ public class CountryController {
 	/**
 	 * Update Country
 	 *
-	 * @param accessToken
-	 * @param countryDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  countryDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -126,7 +127,7 @@ public class CountryController {
 	/**
 	 * Get Country Details based on id
 	 *
-	 * @param countryId
+	 * @param  countryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -138,11 +139,32 @@ public class CountryController {
 	}
 
 	/**
+	 * Get Country list
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getCountryList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) throws NotFoundException, ValidationException {
+		final Page<Country> resultCountries = countryService.getCountryList(pageNumber, pageSize, activeRecords, searchKeyWord);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("country.list.message", null))
+				.setData(countryMapper.toDtos(resultCountries.getContent())).setHasNextPage(resultCountries.hasNext())
+				.setHasPreviousPage(resultCountries.hasPrevious()).setTotalPages(resultCountries.getTotalPages()).setPageNumber(resultCountries.getNumber() + 1)
+				.setTotalCount(resultCountries.getTotalElements()).create();
+
+	}
+
+	/**
 	 * Change status of country (active/deActive)
 	 *
-	 * @param accessToken
-	 * @param countryId
-	 * @param active
+	 * @param  accessToken
+	 * @param  countryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

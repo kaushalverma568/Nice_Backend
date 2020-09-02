@@ -10,13 +10,13 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 public interface StateService {
 	/**
 	 * Add State for Country
 	 *
-	 * @param stateDTO
+	 * @param  stateDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -26,7 +26,7 @@ public interface StateService {
 	/**
 	 * Update state for country
 	 *
-	 * @param state
+	 * @param  state
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -36,7 +36,7 @@ public interface StateService {
 	/**
 	 * Get State Details based on id
 	 *
-	 * @param stateId
+	 * @param  stateId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -45,17 +45,26 @@ public interface StateService {
 	/**
 	 * to check state duplication and returning Boolean value.
 	 *
-	 * @param stateDTO
+	 * @param  stateDTO
 	 * @return
 	 * @throws NotFoundException
 	 */
-	boolean isStateExists(final StateDTO stateDTO) throws NotFoundException;
+	boolean isStateExistsEnglish(final StateDTO stateDTO) throws NotFoundException;
+
+	/**
+	 * to check state duplication and returning Boolean value.
+	 *
+	 * @param  stateDTO
+	 * @return
+	 * @throws NotFoundException
+	 */
+	boolean isStateExistsArabic(final StateDTO stateDTO) throws NotFoundException;
 
 	/**
 	 * Change status of state (active/deActive)
 	 *
-	 * @param stateId
-	 * @param active
+	 * @param  stateId
+	 * @param  active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -64,7 +73,7 @@ public interface StateService {
 	/**
 	 * Get State details based on Id : Specially for internally calls
 	 *
-	 * @param stateId
+	 * @param  stateId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -73,11 +82,11 @@ public interface StateService {
 	/**
 	 * Get state list based on parameters
 	 *
-	 * @param startIndex
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -87,9 +96,9 @@ public interface StateService {
 	/**
 	 * Get state count based on parameters
 	 *
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 */
 	Long getStateCountBasedOnParams(Boolean activeRecords, Long countryId, String searchKeyword);
