@@ -54,7 +54,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -128,7 +128,9 @@ public class CustomerServiceImpl implements CustomerService {
 				throw new ValidationException(messageByLocaleService.getMessage("customer.exist.same.email.same.phone", null));
 			}
 		} else {
-			optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
+			if (customerDTO.getPhoneNumber() != null) {
+				optCustomer = customerRepository.findByPhoneNumberIgnoreCase(customerDTO.getPhoneNumber());
+			}
 			if (optCustomer.isPresent()) {
 				if (optCustomer.get().getEmail() != null) {
 					if (optCustomer.get().getEmail().equalsIgnoreCase(customerDTO.getEmail())) {
@@ -229,8 +231,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -287,8 +289,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -315,9 +317,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 *
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
