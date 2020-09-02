@@ -135,7 +135,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Override
 	public Page<BusinessCategory> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
 		if (activeRecords != null) {
 			return businessCategoryRepository.findAllByActive(activeRecords, pageable);
 		} else {
