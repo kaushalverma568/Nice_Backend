@@ -11,7 +11,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : Aug 5, 2020
+ * @date : Aug 5, 2020
  */
 @Data
 public class CustomerPersonalDetailsDTO implements Serializable {
@@ -32,4 +32,7 @@ public class CustomerPersonalDetailsDTO implements Serializable {
 
 	@NotNull(message = "{birthDate.not.null}")
 	private Date birthDate;
+
+	@NotNull(message = "{preferred.language.not.null}")
+	private String preferredLanguage;
 }

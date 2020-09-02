@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Entity
 @Table(name = "customer")
@@ -61,5 +61,8 @@ public class Customer extends CommonModel {
 	@Temporal(TemporalType.DATE)
 	@Column(name = "birth_date")
 	private Date birthDate;
+
+	@Column(name = "preferred_language")
+	private String preferredLanguage;
 
 }

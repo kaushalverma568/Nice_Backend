@@ -27,21 +27,30 @@ public interface BusinessCategoryRepository extends JpaRepository<BusinessCatego
 	 * Get BusinessCategory by BusinessCategory english name or arabic name if exist
 	 *
 	 * @param nameEnglish
-	 * @param nameArabic
 	 * @return
 	 */
-	Optional<BusinessCategory> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
+	Optional<BusinessCategory> findByNameEnglishIgnoreCase(String nameEnglish);
 
 	/**
-	 * Get BusinessCategory by BusinessCategory english name or arabic name and
-	 * BusinessCategory Id not equal if exist
+	 * Get BusinessCategory by BusinessCategory english name or arabic name and BusinessCategory Id not equal if exist
 	 *
 	 * @param nameEnglish
 	 * @param id
-	 * @param nameArabic
-	 * @param id2
 	 * @return
 	 */
-	Optional<BusinessCategory> findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(String nameEnglish, Long id, String nameArabic, Long id2);
+	Optional<BusinessCategory> findByNameEnglishIgnoreCaseAndIdNot(String nameEnglish, Long id);
+
+	/**
+	 * @param nameArabic
+	 * @param id
+	 * @return
+	 */
+	Optional<BusinessCategory> findByNameArabicIgnoreCaseAndIdNot(String nameArabic, Long id);
+
+	/**
+	 * @param nameArabic
+	 * @return
+	 */
+	Optional<BusinessCategory> findByNameArabicIgnoreCase(String nameArabic);
 
 }

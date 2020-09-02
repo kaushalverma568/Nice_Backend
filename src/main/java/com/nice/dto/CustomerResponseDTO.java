@@ -33,4 +33,5 @@ public class CustomerResponseDTO implements Serializable {
 	private Date birthDate;
 	private List<CustomerAddressResponseDTO> addressList;
 	private Long userId;
+	private String preferredLanguage;
 }

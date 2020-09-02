@@ -144,13 +144,21 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	}
 
 	@Override
-	public boolean isExists(final BusinessCategoryDTO businessCategoryDTO) {
+	public boolean isExistsEnglish(final BusinessCategoryDTO businessCategoryDTO) {
 		if (businessCategoryDTO.getId() != null) {
-			return !(businessCategoryRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(businessCategoryDTO.getNameEnglish(),
-					businessCategoryDTO.getId(), businessCategoryDTO.getNameArabic(), businessCategoryDTO.getId()).isEmpty());
+			return !(businessCategoryRepository.findByNameEnglishIgnoreCaseAndIdNot(businessCategoryDTO.getNameEnglish(), businessCategoryDTO.getId())
+					.isEmpty());
 		} else {
-			return !(businessCategoryRepository
-					.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(businessCategoryDTO.getNameEnglish(), businessCategoryDTO.getNameArabic()).isEmpty());
+			return !(businessCategoryRepository.findByNameEnglishIgnoreCase(businessCategoryDTO.getNameEnglish()).isEmpty());
+		}
+	}
+
+	@Override
+	public boolean isExistsArabic(final BusinessCategoryDTO businessCategoryDTO) {
+		if (businessCategoryDTO.getId() != null) {
+			return !(businessCategoryRepository.findByNameArabicIgnoreCaseAndIdNot(businessCategoryDTO.getNameArabic(), businessCategoryDTO.getId()).isEmpty());
+		} else {
+			return !(businessCategoryRepository.findByNameArabicIgnoreCase(businessCategoryDTO.getNameArabic()).isEmpty());
 		}
 	}
 

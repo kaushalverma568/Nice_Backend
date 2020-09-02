@@ -13,6 +13,7 @@ import com.nice.dto.ProductRequestDTO;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.ProductService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -41,18 +42,19 @@ public class ProductValidator implements Validator {
 			 */
 			if (productRequestDto.getCuisineId() == null && productRequestDto.getBrandId() == null) {
 				errors.rejectValue("brandId", "409", messageByLocaleService.getMessage("brand.cuisine.required", null));
-			} else if (productRequestDto.getCuisineId() != null && productRequestDto.getBrandId() != null) {
-				errors.rejectValue("brandId", "409", messageByLocaleService.getMessage("one.of.brand.cuisine.required", null));
 			}
 
 			/**
 			 * Check for the already existing product
 			 */
 			try {
-				if (productService.isProductExistsEnglish(productRequestDto)) {
-					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("product.already.exists", null));
-				} else if (productService.isProductExistsArabic(productRequestDto)) {
-					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("product.already.exists", null));
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(productRequestDto.getNameEnglish())
+						&& productService.isProductExistsEnglish(productRequestDto)) {
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("english.product.already.exists", null));
+				}
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(productRequestDto.getNameArabic())
+						&& productService.isProductExistsArabic(productRequestDto)) {
+					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("arabic.product.already.exists", null));
 				}
 			} catch (ValidationException e) {
 				errors.rejectValue("nameEnglish", "409", e.getMessage());

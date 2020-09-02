@@ -8,6 +8,7 @@ import org.springframework.validation.Validator;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.BusinessCategoryService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -17,8 +18,7 @@ import com.nice.service.BusinessCategoryService;
 public class BusinessCategoryValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en.properties
+	 * Locale message service - to display response messages from messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -40,8 +40,12 @@ public class BusinessCategoryValidator implements Validator {
 
 		final BusinessCategoryDTO businessCategoryDTO = (BusinessCategoryDTO) target;
 
-		if (businessCategoryService.isExists(businessCategoryDTO)) {
-			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("business.category.name.not.unique", null));
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(businessCategoryDTO.getNameEnglish())
+				&& businessCategoryService.isExistsEnglish(businessCategoryDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("english.name.not.unique", null));
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(businessCategoryDTO.getNameArabic()) && businessCategoryService.isExistsEnglish(businessCategoryDTO)) {
+			errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("arabic.name.not.unique", null));
 		}
 	}
 }

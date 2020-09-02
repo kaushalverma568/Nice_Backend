@@ -921,9 +921,11 @@ public class ProductServiceImpl implements ProductService {
 				productRequestDTO.setBrandId(brandId);
 			}
 		}
-		if (productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameEnglish(), brandId, vendor.getId()).isPresent()
-				|| productRepository.findByNameArabicIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameArabic(), brandId, vendor.getId()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.already.exists", null));
+		if (productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameEnglish(), brandId, vendor.getId()).isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("english.product.already.exists", null));
+		}
+		if (productRepository.findByNameArabicIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameArabic(), brandId, vendor.getId()).isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("arabic.product.already.exists", null));
 		}
 	}
 

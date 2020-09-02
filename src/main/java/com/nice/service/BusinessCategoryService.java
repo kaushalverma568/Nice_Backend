@@ -13,13 +13,6 @@ public interface BusinessCategoryService {
 	/**
 	 *
 	 * @param businessCategoryDto
-	 * @return
-	 */
-	boolean isExists(BusinessCategoryDTO businessCategoryDto);
-
-	/**
-	 *
-	 * @param businessCategoryDto
 	 * @param image
 	 * @return
 	 * @throws NotFoundException
@@ -78,5 +71,17 @@ public interface BusinessCategoryService {
 	 * @throws ValidationException
 	 */
 	void updateManageInventory(Long businessCategoryId, Boolean manageInventory) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param businessCategoryDTO
+	 * @return
+	 */
+	boolean isExistsArabic(BusinessCategoryDTO businessCategoryDTO);
+
+	/**
+	 * @param businessCategoryDTO
+	 * @return
+	 */
+	boolean isExistsEnglish(BusinessCategoryDTO businessCategoryDTO);
 
 }

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.dto.BusinessCategoryDTO;
-import com.nice.locale.MessageByLocaleService;
 import com.nice.model.BusinessCategory;
 import com.nice.service.AssetService;
 
@@ -25,9 +24,6 @@ public class BusinessCategoryMapper {
 
 	@Autowired
 	private AssetService assetService;
-
-	@Autowired
-	private MessageByLocaleService messageByLocaleService;
 
 	public BusinessCategoryDTO toDto(final BusinessCategory businessCategory) {
 		final Locale locale = LocaleContextHolder.getLocale();
