@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Data
 public class UsersDTO implements Serializable {
@@ -21,16 +21,16 @@ public class UsersDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{first.name.english.not.null}")
+	@NotBlank(message = "{users.first.name.english.not.null}")
 	private String firstNameEnglish;
 
-	@NotBlank(message = "{last.name.english.not.null}")
+	@NotBlank(message = "{users.last.name.english.not.null}")
 	private String lastNameEnglish;
 
-	@NotBlank(message = "{first.name.arabic.not.null}")
+	@NotBlank(message = "{users.first.name.arabic.not.null}")
 	private String firstNameArabic;
 
-	@NotBlank(message = "{last.name.arabic.not.null}")
+	@NotBlank(message = "{users.last.name.arabic.not.null}")
 	private String lastNameArabic;
 
 	@NotBlank(message = "{email.not.null}")
@@ -48,4 +48,6 @@ public class UsersDTO implements Serializable {
 	 * For response purpose only
 	 */
 	private Long userLoginId;
+	private String firstName;
+	private String lastName;
 }
