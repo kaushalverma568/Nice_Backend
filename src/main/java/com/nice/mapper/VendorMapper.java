@@ -31,7 +31,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -151,6 +151,11 @@ public class VendorMapper {
 	public VendorAppResponseDTO toAppDto(final Vendor vendor, final boolean isDetailResponse) {
 		VendorAppResponseDTO vendorAppResponseDTO = new VendorAppResponseDTO();
 		BeanUtils.copyProperties(vendor, vendorAppResponseDTO);
+		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+			vendorAppResponseDTO.setStoreName(vendor.getStoreNameEnglish());
+		} else {
+			vendorAppResponseDTO.setStoreName(vendor.getStoreNameArabic());
+		}
 		if (isDetailResponse) {
 			vendorAppResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreDetailImageName())) {

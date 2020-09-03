@@ -231,7 +231,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
 			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true");
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue()
+				+ "' and v.is_order_service_enable = true and v.profile_completed = true");
 		paramMap.put("customerLatitude", vendorListFilterDTO.getLatitude());
 		paramMap.put("customerLongitude", vendorListFilterDTO.getLongitude());
 
