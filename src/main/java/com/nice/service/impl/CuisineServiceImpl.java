@@ -167,18 +167,32 @@ public class CuisineServiceImpl implements CuisineService {
 	}
 
 	@Override
-	public boolean isCuisineExists(final CuisineDTO cuisineDTO) {
+	public boolean isCuisineExistsEnglish(final CuisineDTO cuisineDTO) {
 		if (cuisineDTO.getId() != null) {
 			/**
-			 * At the time of update is cuisine with same name exist or not
+			 * At the time of update is cuisine with same name (English) exist or not
 			 */
-			return cuisineRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(cuisineDTO.getNameEnglish(), cuisineDTO.getId(),
-					cuisineDTO.getNameArabic(), cuisineDTO.getId()).isPresent();
+			return cuisineRepository.findByNameEnglishIgnoreCaseAndIdNot(cuisineDTO.getNameEnglish(), cuisineDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is cuisine with same name exist or not
+			 * At the time of create is cuisine with same name (English) exist or not
 			 */
-			return cuisineRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(cuisineDTO.getNameEnglish(), cuisineDTO.getNameArabic()).isPresent();
+			return cuisineRepository.findByNameEnglishIgnoreCase(cuisineDTO.getNameEnglish()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isCuisineExistsArabic(final CuisineDTO cuisineDTO) {
+		if (cuisineDTO.getId() != null) {
+			/**
+			 * At the time of update is cuisine with same name (Arabic) exist or not
+			 */
+			return cuisineRepository.findByNameArabicIgnoreCaseAndIdNot(cuisineDTO.getNameArabic(), cuisineDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is cuisine with same name (Arabic) exist or not
+			 */
+			return cuisineRepository.findByNameArabicIgnoreCase(cuisineDTO.getNameArabic()).isPresent();
 		}
 	}
 

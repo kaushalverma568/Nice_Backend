@@ -10,17 +10,16 @@ import com.nice.exception.ValidationException;
 import com.nice.model.Cuisine;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 public interface CuisineService {
 	/**
 	 * Add cuisine
 	 *
-	 * @param cuisineDTO
-	 * @param image
-	 * @param userId
+	 * @param  cuisineDTO
+	 * @param  image
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -29,10 +28,9 @@ public interface CuisineService {
 	/**
 	 * Update cuisine
 	 *
-	 * @param image
-	 *
-	 * @param cuisine
-	 * @param userId
+	 * @param  image
+	 * @param  cuisine
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -42,7 +40,7 @@ public interface CuisineService {
 	/**
 	 * Get details of cuisine
 	 *
-	 * @param cuisineId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -51,8 +49,8 @@ public interface CuisineService {
 	/**
 	 * Change status of cuisine (active/deActive)
 	 *
-	 * @param cuisineId
-	 * @param active
+	 * @param  cuisineId
+	 * @param  active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -61,19 +59,28 @@ public interface CuisineService {
 	/**
 	 * to check cuisine duplication and returning Boolean value.
 	 *
-	 * @param cuisine
+	 * @param  cuisine
 	 * @return
 	 * @throws ValidationException
 	 */
-	boolean isCuisineExists(CuisineDTO cuisineDTO);
+	boolean isCuisineExistsEnglish(CuisineDTO cuisineDTO);
+
+	/**
+	 * to check cuisine duplication and returning Boolean value.
+	 *
+	 * @param  cuisine
+	 * @return
+	 * @throws ValidationException
+	 */
+	boolean isCuisineExistsArabic(CuisineDTO cuisineDTO);
 
 	/**
 	 * Get List of cuisine based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param searchKeyWord
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyWord
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -84,14 +91,14 @@ public interface CuisineService {
 	/**
 	 * Get Cuisine details based on Id : Specially for internally calls
 	 *
-	 * @param cuisineId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Cuisine getCuisineDetails(Long cuisineId) throws NotFoundException;
 
 	/**
-	 * @param cuisineId
+	 * @param  cuisineId
 	 * @throws NotFoundException
 	 */
 	void deleteImage(Long cuisineId) throws NotFoundException;

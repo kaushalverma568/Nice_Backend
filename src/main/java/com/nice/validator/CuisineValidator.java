@@ -12,14 +12,13 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 31-Dec-2019
+ * @date   : 31-Dec-2019
  */
 @Component
 public class CuisineValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -36,8 +35,7 @@ public class CuisineValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override
@@ -47,8 +45,12 @@ public class CuisineValidator implements Validator {
 		 * Check cuisine duplication based on name
 		 */
 		if (cuisineDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameEnglish())
-				&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameArabic()) && cuisineService.isCuisineExists(cuisineDTO)) {
-			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.not.unique", null));
+				&& cuisineService.isCuisineExistsEnglish(cuisineDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.english.not.unique", null));
+		}
+
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameArabic()) && cuisineService.isCuisineExistsArabic(cuisineDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.arabic.not.unique", null));
 		}
 
 	}

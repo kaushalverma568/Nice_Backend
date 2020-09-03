@@ -10,60 +10,61 @@ import org.springframework.stereotype.Repository;
 import com.nice.model.Cuisine;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Repository
 public interface CuisineRepository extends JpaRepository<Cuisine, Long> {
 
 	/**
-	 *
-	 * @param activeRecords
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Cuisine> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
-	 *
-	 * @param searchKeyWord
-	 * @param searchKeyWord2
-	 * @param pageable
+	 * @param  searchKeyWord
+	 * @param  searchKeyWord2
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Cuisine> findAllByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String searchKeyWord, String searchKeyWord2, Pageable pageable);
 
 	/**
-	 *
-	 * @param activeRecords
-	 * @param searchKeyWord
-	 * @param activeRecords2
-	 * @param searchKeyWord2
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyWord
+	 * @param  activeRecords2
+	 * @param  searchKeyWord2
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Cuisine> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyWord,
 			Boolean activeRecords2, String searchKeyWord2, Pageable pageable);
 
 	/**
-	 * Get Cuisine by Cuisine english name or arabic name if exist
-	 *
-	 * @param nameEnglish
-	 * @param nameArabic
+	 * @param  nameEnglish
+	 * @param  id
 	 * @return
 	 */
-	Optional<Cuisine> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String nameEnglish, String nameArabic);
+	Optional<Cuisine> findByNameEnglishIgnoreCaseAndIdNot(String nameEnglish, Long id);
 
 	/**
-	 * Get Cuisine by Cuisine english name or arabic name and Cuisine Id not equal
-	 * if exist
-	 *
-	 * @param nameEnglish
-	 * @param id
-	 * @param nameArabic
-	 * @param id2
+	 * @param  nameEnglish
 	 * @return
 	 */
-	Optional<Cuisine> findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(String nameEnglish, Long id, String nameArabic, Long id2);
+	Optional<Cuisine> findByNameEnglishIgnoreCase(String nameEnglish);
+
+	/**
+	 * @param  nameArabic
+	 * @param  id
+	 * @return
+	 */
+	Optional<Cuisine> findByNameArabicIgnoreCaseAndIdNot(String nameArabic, Long id);
+
+	/**
+	 * @param  nameArabic
+	 * @return
+	 */
+	Optional<Cuisine> findByNameArabicIgnoreCase(String nameArabic);
 }
