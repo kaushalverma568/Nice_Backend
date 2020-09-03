@@ -29,6 +29,7 @@ import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Repository;
 
@@ -46,7 +47,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -72,7 +73,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -104,8 +106,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -156,10 +158,19 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorFilterDTO.getIsFeatured()));
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {
-			Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstName")), " ");
-			Expression<String> fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastName")));
-			Predicate predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeName")),
-					"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			Expression<String> fullName;
+			Predicate predicateForStoreName;
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameEnglish")), " ");
+				fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastNameEnglish")));
+				predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameEnglish")),
+						"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			} else {
+				Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameArabic")), " ");
+				fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastNameArabic")));
+				predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameArabic")),
+						"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			}
 			predicates.add(
 					criteriaBuilder.or(criteriaBuilder.like(fullName, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"), predicateForStoreName));
 		}
@@ -185,7 +196,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -226,7 +238,11 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
 		sqlQuery.append(" group by (v.id) ");
 		if (vendorListFilterDTO.getIsNameSorting() != null && vendorListFilterDTO.getIsNameSorting().booleanValue()) {
-			sqlQuery.append(" order by v.store_name asc");
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				sqlQuery.append(" order by v.store_name_english asc");
+			} else {
+				sqlQuery.append(" order by v.store_name_arabic asc");
+			}
 		} else {
 			sqlQuery.append(" order by distance asc");
 		}
