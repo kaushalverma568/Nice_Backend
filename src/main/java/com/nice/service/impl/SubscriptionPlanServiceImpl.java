@@ -24,7 +24,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -111,14 +111,23 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 	}
 
 	@Override
-	public boolean isExists(final SubscriptionPlanDTO subscriptionPlanDTO) {
+	public boolean isExistsEnglish(final SubscriptionPlanDTO subscriptionPlanDTO) {
 		if (subscriptionPlanDTO.getId() != null) {
-			return subscriptionPlanRepository.findByNameEnglishIgnoreCaseAndIdNotOrNameArabicIgnoreCaseAndIdNot(subscriptionPlanDTO.getNameEnglish(),
-					subscriptionPlanDTO.getId(), subscriptionPlanDTO.getNameArabic(), subscriptionPlanDTO.getId()).isPresent();
+			return subscriptionPlanRepository.findByNameEnglishIgnoreCaseAndIdNot(subscriptionPlanDTO.getNameEnglish(), subscriptionPlanDTO.getId())
+					.isPresent();
 
 		} else {
-			return subscriptionPlanRepository
-					.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(subscriptionPlanDTO.getNameEnglish(), subscriptionPlanDTO.getNameArabic()).isPresent();
+			return subscriptionPlanRepository.findByNameEnglishIgnoreCase(subscriptionPlanDTO.getNameEnglish()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isExistsArabic(final SubscriptionPlanDTO subscriptionPlanDTO) {
+		if (subscriptionPlanDTO.getId() != null) {
+			return subscriptionPlanRepository.findByNameArabicIgnoreCaseAndIdNot(subscriptionPlanDTO.getNameArabic(), subscriptionPlanDTO.getId()).isPresent();
+
+		} else {
+			return subscriptionPlanRepository.findByNameArabicIgnoreCase(subscriptionPlanDTO.getNameArabic()).isPresent();
 		}
 	}
 

@@ -209,22 +209,36 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	@Override
-	public Boolean isSubCategoryExists(final SubCategoryDTO subCategoryDTO) throws NotFoundException {
+	public Boolean isSubCategoryExistsEnglish(final SubCategoryDTO subCategoryDTO) throws NotFoundException {
 		Category category = categoryService.getCategoryDetail(subCategoryDTO.getCategoryId());
 		if (subCategoryDTO.getId() != null) {
 			/**
 			 * At the time of update is subCategory with same name exist or not
 			 */
-			return subCategoryRepository
-					.findByNameEnglishIgnoreCaseAndCategoryAndIdNotOrNameArabicIgnoreCaseAndCategoryAndIdNot(subCategoryDTO.getNameEnglish(), category,
-							subCategoryDTO.getId(), subCategoryDTO.getNameArabic(), category, subCategoryDTO.getId())
+			return subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryAndIdNot(subCategoryDTO.getNameEnglish(), category, subCategoryDTO.getId())
 					.isPresent();
 		} else {
 			/**
 			 * At the time of create is subCategory with same name exist or not
 			 */
-			return subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(subCategoryDTO.getNameEnglish(), category,
-					subCategoryDTO.getNameArabic(), category).isPresent();
+			return subCategoryRepository.findByNameEnglishIgnoreCaseAndCategory(subCategoryDTO.getNameEnglish(), category).isPresent();
+		}
+	}
+
+	@Override
+	public Boolean isSubCategoryExistsArabic(final SubCategoryDTO subCategoryDTO) throws NotFoundException {
+		Category category = categoryService.getCategoryDetail(subCategoryDTO.getCategoryId());
+		if (subCategoryDTO.getId() != null) {
+			/**
+			 * At the time of update is subCategory with same name exist or not
+			 */
+			return subCategoryRepository.findByNameArabicIgnoreCaseAndCategoryAndIdNot(subCategoryDTO.getNameArabic(), category, subCategoryDTO.getId())
+					.isPresent();
+		} else {
+			/**
+			 * At the time of create is subCategory with same name exist or not
+			 */
+			return subCategoryRepository.findByNameArabicIgnoreCaseAndCategory(subCategoryDTO.getNameArabic(), category).isPresent();
 		}
 	}
 

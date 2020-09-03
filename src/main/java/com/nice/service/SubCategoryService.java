@@ -82,7 +82,17 @@ public interface SubCategoryService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Boolean isSubCategoryExists(SubCategoryDTO subCategoryDTO) throws NotFoundException;
+	Boolean isSubCategoryExistsEnglish(SubCategoryDTO subCategoryDTO) throws NotFoundException;
+
+	/**
+	 * check sub category duplication and returning Boolean value.
+	 *
+	 * @param  subCategoryDTO
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	Boolean isSubCategoryExistsArabic(SubCategoryDTO subCategoryDTO) throws NotFoundException;
 
 	/**
 	 * get list of sub categories by category and active

@@ -235,20 +235,34 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public Boolean isCategoryExists(final CategoryDTO categoryDTO) throws NotFoundException {
+	public Boolean isCategoryExistsEnglish(final CategoryDTO categoryDTO) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name exist or not except it's own id
+			 * At the time of update is category with same name(English) exist or not except it's own id
 			 */
-			return categoryRepository.findByNameEnglishIgnoreCaseAndVendorAndIdNotOrNameArabicIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameEnglish(), vendor,
-					categoryDTO.getId(), categoryDTO.getNameArabic(), vendor, categoryDTO.getId()).isPresent();
+			return categoryRepository.findByNameEnglishIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameEnglish(), vendor, categoryDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of create is category with same name exist or not
+			 * At the time of create is category with same name(English) exist or not
 			 */
-			return categoryRepository.findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(categoryDTO.getNameEnglish(), vendor,
-					categoryDTO.getNameArabic(), vendor).isPresent();
+			return categoryRepository.findByNameEnglishIgnoreCaseAndVendor(categoryDTO.getNameEnglish(), vendor).isPresent();
+		}
+	}
+
+	@Override
+	public Boolean isCategoryExistsArabic(final CategoryDTO categoryDTO) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
+		if (categoryDTO.getId() != null) {
+			/**
+			 * At the time of update is category with same name(Arabic) exist or not except it's own id
+			 */
+			return categoryRepository.findByNameArabicIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameArabic(), vendor, categoryDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is category with same name(Arabic) exist or not
+			 */
+			return categoryRepository.findByNameArabicIgnoreCaseAndVendor(categoryDTO.getNameArabic(), vendor).isPresent();
 		}
 	}
 

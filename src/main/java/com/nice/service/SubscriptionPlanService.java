@@ -17,7 +17,13 @@ public interface SubscriptionPlanService {
 	 * @param  subscriptionPlanDto
 	 * @return
 	 */
-	boolean isExists(SubscriptionPlanDTO subscriptionPlanDto);
+	boolean isExistsEnglish(SubscriptionPlanDTO subscriptionPlanDto);
+
+	/**
+	 * @param  subscriptionPlanDto
+	 * @return
+	 */
+	boolean isExistsArabic(SubscriptionPlanDTO subscriptionPlanDto);
 
 	/**
 	 * @param  subscriptionPlanDto
@@ -67,7 +73,7 @@ public interface SubscriptionPlanService {
 
 	/**
 	 * check for same days subscription plan exist or not
-	 * 
+	 *
 	 * @param  subscriptionPlanDto
 	 * @return
 	 */

@@ -8,17 +8,17 @@ import org.springframework.validation.Validator;
 import com.nice.dto.SubscriptionPlanDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.SubscriptionPlanService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Component
 public class SubscriptionPlanValidator implements Validator {
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en.properties
+	 * Locale message service - to display response messages from messages_en.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -40,11 +40,16 @@ public class SubscriptionPlanValidator implements Validator {
 
 		final SubscriptionPlanDTO subscriptionPlanDTO = (SubscriptionPlanDTO) target;
 
-		if (subscriptionPlanService.isExists(subscriptionPlanDTO)) {
-			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("subscription.plan.name.not.unique", null));
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subscriptionPlanDTO.getNameEnglish())
+				&& subscriptionPlanService.isExistsEnglish(subscriptionPlanDTO)) {
+			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("subscription.plan.name.english.not.unique", null));
 		}
 
-		if (subscriptionPlanService.isDaysExist(subscriptionPlanDTO)) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subscriptionPlanDTO.getNameEnglish()) && subscriptionPlanService.isExistsArabic(subscriptionPlanDTO)) {
+			errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("subscription.plan.name.arabic.not.unique", null));
+		}
+
+		if (subscriptionPlanDTO.getDays() != null && subscriptionPlanService.isDaysExist(subscriptionPlanDTO)) {
 			errors.rejectValue("days", "409", messageByLocaleService.getMessage("subscription.plan.days.not.unique", null));
 		}
 	}

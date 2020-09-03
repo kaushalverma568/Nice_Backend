@@ -15,7 +15,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Component
 public class SubCategoryValidator implements Validator {
@@ -25,8 +25,7 @@ public class SubCategoryValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SubCategoryValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -43,8 +42,7 @@ public class SubCategoryValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override
@@ -53,10 +51,14 @@ public class SubCategoryValidator implements Validator {
 			final SubCategoryDTO subCategoryDTO = (SubCategoryDTO) target;
 			try {
 				// to check SubCategory duplication
-				if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subCategoryDTO.getNameEnglish())
-						&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subCategoryDTO.getNameArabic()) && subCategoryDTO.getCategoryId() != null
-						&& subCategoryService.isSubCategoryExists(subCategoryDTO).booleanValue()) {
-					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("subcategory.name.not.unique", null));
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subCategoryDTO.getNameEnglish()) && subCategoryDTO.getCategoryId() != null
+						&& subCategoryService.isSubCategoryExistsEnglish(subCategoryDTO).booleanValue()) {
+					errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("subcategory.name.english.not.unique", null));
+				}
+
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(subCategoryDTO.getNameArabic()) && subCategoryDTO.getCategoryId() != null
+						&& subCategoryService.isSubCategoryExistsArabic(subCategoryDTO).booleanValue()) {
+					errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("subcategory.name.arabic.not.unique", null));
 				}
 			} catch (NotFoundException e) {
 				LOGGER.error("Category not found for id : {} ", subCategoryDTO.getCategoryId());

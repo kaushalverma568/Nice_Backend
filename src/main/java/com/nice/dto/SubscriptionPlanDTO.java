@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : Apr 9, 2020
+ * @date   : Apr 9, 2020
  */
 @Data
 public class SubscriptionPlanDTO implements Serializable {
@@ -26,8 +26,10 @@ public class SubscriptionPlanDTO implements Serializable {
 	@NotBlank(message = "{name.arabic.not.null}")
 	private String nameArabic;
 
+	@NotBlank(message = "{description.english.not.null}")
 	private String descriptionEnglish;
 
+	@NotBlank(message = "{description.arabic.not.null}")
 	private String descriptionArabic;
 
 	@NotNull(message = "{active.not.null}")

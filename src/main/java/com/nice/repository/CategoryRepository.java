@@ -12,9 +12,8 @@ import com.nice.model.Category;
 import com.nice.model.Vendor;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -22,8 +21,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	/**
 	 * Get category Page by active
 	 *
-	 * @param pageable
-	 * @param active
+	 * @param  pageable
+	 * @param  active
 	 * @return
 	 */
 	Page<Category> findAllByActive(Boolean active, Pageable pageable);
@@ -31,8 +30,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	/**
 	 * get category page name containing search keyword
 	 *
-	 * @param searchKeyword
-	 * @param pageable
+	 * @param  searchKeyword
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2, Pageable pageable);
@@ -40,9 +39,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	/**
 	 * get category page name containing search keyword andactive
 	 *
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
@@ -51,67 +50,80 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	/**
 	 * get category list by vendor
 	 *
-	 * @param vendor
+	 * @param  vendor
 	 * @return
 	 */
 	List<Category> findAllByVendor(Vendor vendor);
 
 	/**
-	 * @param searchKeyword
-	 * @param vendor
-	 * @param pageable
+	 * @param  searchKeyword
+	 * @param  vendor
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(String searchKeyword, Vendor vendor,
 			String searchKeyword2, Vendor vendor2, Pageable pageable);
 
 	/**
-	 * @param vendor
-	 * @param pageable
+	 * @param  vendor
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByVendor(Vendor vendor, Pageable pageable);
 
 	/**
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param vendor
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  vendor
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(Boolean activeRecords,
 			String searchKeyword, Vendor vendor, Boolean activeRecords2, String searchKeyword2, Vendor vendor2, Pageable pageable);
 
 	/**
-	 * @param activeRecords
-	 * @param vendor
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  vendor
+	 * @param  pageable
 	 * @return
 	 */
 	Page<Category> findAllByActiveAndVendor(Boolean activeRecords, Vendor vendor, Pageable pageable);
 
 	/**
-	 * Get Category based on english name or arabic name ,vendor and for not given
-	 * id
-	 *
-	 * @param nameEnglish
-	 * @param vendor
-	 * @param id
-	 * @param nameArabic
-	 * @param vendor2
-	 * @param id2
+	 * @param  nameEnglish
+	 * @param  vendor
+	 * @param  id
 	 * @return
 	 */
-	Optional<Category> findByNameEnglishIgnoreCaseAndVendorAndIdNotOrNameArabicIgnoreCaseAndVendorAndIdNot(String nameEnglish, Vendor vendor, Long id,
-			String nameArabic, Vendor vendor2, Long id2);
+	Optional<Category> findByNameEnglishIgnoreCaseAndVendorAndIdNot(String nameEnglish, Vendor vendor, Long id);
 
 	/**
-	 * Get Category based on english name or arabic name and vendor
-	 *
-	 * @param nameEnglish
-	 * @param vendor
-	 * @param nameArabic
-	 * @param vendor2
+	 * @param  nameEnglish
+	 * @param  vendor
+	 * @return
+	 */
+	Optional<Category> findByNameEnglishIgnoreCaseAndVendor(String nameEnglish, Vendor vendor);
+
+	/**
+	 * @param  nameArabic
+	 * @param  vendor
+	 * @param  id
+	 * @return
+	 */
+	Optional<Category> findByNameArabicIgnoreCaseAndVendorAndIdNot(String nameArabic, Vendor vendor, Long id);
+
+	/**
+	 * @param  nameArabic
+	 * @param  vendor
+	 * @return
+	 */
+	Optional<Category> findByNameArabicIgnoreCaseAndVendor(String nameArabic, Vendor vendor);
+
+	/**
+	 * @param  nameEnglish
+	 * @param  vendor
+	 * @param  nameArabic
+	 * @param  vendor2
 	 * @return
 	 */
 	Optional<Category> findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(String nameEnglish, Vendor vendor, String nameArabic,

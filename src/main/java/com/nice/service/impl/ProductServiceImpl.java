@@ -80,7 +80,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -363,7 +363,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param productRequestDTO
+	 * @param  productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -475,10 +475,10 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param product
-	 * @param listForAdmin
-	 * @param productParamRequestDTO
-	 * @param pincodeId
+	 * @param  product
+	 * @param  listForAdmin
+	 * @param  productParamRequestDTO
+	 * @param  pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -610,9 +610,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param active
-	 * @param existingProduct
-	 * @param productId
+	 * @param  active
+	 * @param  existingProduct
+	 * @param  productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -642,7 +642,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param existingProduct
+	 * @param  existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -804,8 +804,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTOs
-	 * @param userId
+	 * @param  productImportDTOs
+	 * @param  userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -846,9 +846,9 @@ public class ProductServiceImpl implements ProductService {
 				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryNameArabic())) {
 			throw new ValidationException(messageByLocaleService.getMessage("category.name.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionEnglish())) {
-			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
+			throw new ValidationException(messageByLocaleService.getMessage("description.english.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionArabic())) {
-			throw new ValidationException(messageByLocaleService.getMessage("description.not.null", null));
+			throw new ValidationException(messageByLocaleService.getMessage("description.arabic.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getProductFoodType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.null", null));
 		} else if (productImportDTO.getVendorId() == null) {
@@ -875,10 +875,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTO
-	 * @param brandId
-	 * @param vendor
-	 * @param productRequestDTO
+	 * @param  productImportDTO
+	 * @param  brandId
+	 * @param  vendor
+	 * @param  productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, Long brandId, final Vendor vendor,
