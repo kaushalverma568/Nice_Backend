@@ -67,4 +67,11 @@ public interface CuisineRepository extends JpaRepository<Cuisine, Long> {
 	 * @return
 	 */
 	Optional<Cuisine> findByNameArabicIgnoreCase(String nameArabic);
+
+	/**
+	 * @param  cuisineName
+	 * @param  cuisineName2
+	 * @return
+	 */
+	Optional<Cuisine> findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(String cuisineName, String cuisineName2);
 }

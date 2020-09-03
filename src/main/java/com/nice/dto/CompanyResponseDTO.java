@@ -23,6 +23,10 @@ public class CompanyResponseDTO implements Serializable {
 
 	private String name;
 
+	private String nameEnglish;
+
+	private String nameArabic;
+
 	private String gstin;
 
 	private String companyEmail;
@@ -30,6 +34,10 @@ public class CompanyResponseDTO implements Serializable {
 	private String customerCareEmail;
 
 	private String companyAddress;
+
+	private String companyAddressEnglish;
+
+	private String companyAddressArabic;
 
 	private String phoneNumber;
 

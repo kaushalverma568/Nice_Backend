@@ -2,6 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -19,13 +20,21 @@ public class RatingQuestionDTO implements Serializable {
 
 	private Long id;
 
-	@NotNull(message = "{question.not.null}")
-	private String question;
+	@NotBlank(message = "{question.not.null}")
+	private String questionEnglish;
+
+	@NotBlank(message = "{question.not.null}")
+	private String questionArabic;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
 	@NotNull(message = "{type.not.null}")
 	private String type;
+
+	/**
+	 * For response purpose only
+	 */
+	private String question;
 
 }

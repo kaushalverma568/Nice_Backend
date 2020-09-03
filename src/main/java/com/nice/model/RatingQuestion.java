@@ -33,7 +33,10 @@ public class RatingQuestion extends CommonModel {
 	@Column(name = "type", nullable = false)
 	private String type;
 
-	@Column(name = "question", nullable = false)
-	private String question;
+	@Column(name = "question_english", nullable = false)
+	private String questionEnglish;
+
+	@Column(name = "question_arabic", nullable = false)
+	private String questionArabic;
 
 }

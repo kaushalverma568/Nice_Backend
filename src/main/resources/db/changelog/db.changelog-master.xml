@@ -215,4 +215,10 @@
 				path="sql-files/1.0/vendor_dboy_preferred_language.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
+	<changeSet id="31" author="jigar.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/rating_question_alter.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
 </databaseChangeLog>

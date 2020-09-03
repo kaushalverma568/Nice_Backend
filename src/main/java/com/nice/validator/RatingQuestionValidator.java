@@ -39,8 +39,12 @@ public class RatingQuestionValidator implements Validator {
 
 		final RatingQuestionDTO ratingQuestionDTO = (RatingQuestionDTO) target;
 
-		if (ratingQuestionService.isExists(ratingQuestionDTO)) {
-			errors.rejectValue("question", "409", messageByLocaleService.getMessage("rating.question.not.unique", null));
+		if (ratingQuestionService.isExistsEnglish(ratingQuestionDTO)) {
+			errors.rejectValue("questionEnglish", "409", messageByLocaleService.getMessage("rating.question.english.not.unique", null));
+		}
+
+		if (ratingQuestionService.isExistsArabic(ratingQuestionDTO)) {
+			errors.rejectValue("questionArabic", "409", messageByLocaleService.getMessage("rating.question.arabic.not.unique", null));
 		}
 	}
 }

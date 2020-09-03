@@ -28,7 +28,7 @@ import com.nice.service.RatingQuestionService;
 public class RatingQuestionServiceImpl implements RatingQuestionService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RatingQuestionServiceImpl.class);
-	
+
 	@Autowired
 	private RatingQuestionRepository ratingQuestionRepository;
 
@@ -37,7 +37,7 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-	
+
 	@Override
 	public RatingQuestionDTO addRatingQuestion(final RatingQuestionDTO ratingQuestionDTO) throws NotFoundException {
 		return ratingQuestionMapper.toDto(ratingQuestionRepository.save(ratingQuestionMapper.toEntity(ratingQuestionDTO)));
@@ -53,7 +53,7 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 
 	@Override
 	public RatingQuestionDTO getRatingQuestion(final Long ratingQuestionId) throws NotFoundException {
-	  	return ratingQuestionMapper.toDto(getRatingQuestionDetail(ratingQuestionId));
+		return ratingQuestionMapper.toDto(getRatingQuestionDetail(ratingQuestionId));
 	}
 
 	@Override
@@ -63,7 +63,8 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingRatingQuestion.getActive().equals(active)) {
-			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "rating.question.active" : "rating.question.deactive", null));
+			throw new ValidationException(
+					messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "rating.question.active" : "rating.question.deactive", null));
 		} else {
 			existingRatingQuestion.setActive(active);
 			ratingQuestionRepository.save(existingRatingQuestion);
@@ -75,26 +76,38 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (activeRecords != null) {
 			return ratingQuestionRepository.findAllByActive(activeRecords, pageable);
-		
+
 		} else {
 			return ratingQuestionRepository.findAll(pageable);
 		}
 	}
 
 	@Override
-	public boolean isExists(final RatingQuestionDTO ratingQuestionDTO) {
+	public boolean isExistsEnglish(final RatingQuestionDTO ratingQuestionDTO) {
 		if (ratingQuestionDTO.getId() != null) {
-			return !(ratingQuestionRepository.findByQuestionIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestion(), ratingQuestionDTO.getId()).isEmpty());
+			return !(ratingQuestionRepository.findByQuestionEnglishIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionEnglish(), ratingQuestionDTO.getId())
+					.isPresent());
 
 		} else {
-			return !(ratingQuestionRepository.findByQuestionIgnoreCase(ratingQuestionDTO.getQuestion()).isEmpty());
+			return !(ratingQuestionRepository.findByQuestionEnglishIgnoreCase(ratingQuestionDTO.getQuestionEnglish()).isPresent());
+		}
+	}
+
+	@Override
+	public boolean isExistsArabic(final RatingQuestionDTO ratingQuestionDTO) {
+		if (ratingQuestionDTO.getId() != null) {
+			return !(ratingQuestionRepository.findByQuestionArabicIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionArabic(), ratingQuestionDTO.getId())
+					.isPresent());
+
+		} else {
+			return !(ratingQuestionRepository.findByQuestionArabicIgnoreCase(ratingQuestionDTO.getQuestionArabic()).isPresent());
 		}
 	}
 
 	@Override
 	public RatingQuestion getRatingQuestionDetail(final Long RatingQuestionId) throws NotFoundException {
 		return ratingQuestionRepository.findById(RatingQuestionId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("rating.question.not.found", new Object[] {  RatingQuestionId })));
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("rating.question.not.found", new Object[] { RatingQuestionId })));
 	}
 
 }
