@@ -225,7 +225,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	public List<Vendor> getVendorListForCustomerBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
 		StringBuilder sqlQuery = new StringBuilder(
-				"SELECT v.id,v.email,v.first_name_english,v.last_name_english,v.store_name_english,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number,,v.first_name_arabic,v.last_name_arabic,v.store_name_arabic, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
+				"SELECT v.id,v.email,v.first_name_english,v.last_name_english,v.store_name_english,v.store_image_name,v.store_detail_image_name,v.featured_image_name,v.latitude,v.longitude,v.rating,v.no_of_rating,v.is_featured,v.accepts,v.phone_number,v.opening_hours_from,v.opening_hours_to,v.delivery_type,v.payment_method,v.minimum_order_amt,v.store_phone_number,v.first_name_arabic,v.last_name_arabic,v.store_name_arabic, (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
 						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
 						+ "FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
