@@ -45,7 +45,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 	public void addSliderImages(final SliderImageDTO sliderImageDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
 			throws ValidationException {
 		if (Constant.BANNER.equalsIgnoreCase(sliderImageDTO.getType())
-				&& sliderImageRepository.findAllByTypeByOrderByIdAsc(Constant.BANNER).size() == Constant.MAX_BANNER_IMAGES) {
+				&& sliderImageRepository.findAllByType(Constant.BANNER).size() == Constant.MAX_BANNER_IMAGES) {
 			throw new ValidationException(messageByLocaleService.getMessage("banner.slider.image.limit.exaust", new Object[] { Constant.MAX_BANNER_IMAGES }));
 		}
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
@@ -92,7 +92,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 	public List<SliderImageResponseDTO> getSliderBannerList(final String imageType) {
 		List<SliderImage> sliderBanners = null;
 		if (imageType != null) {
-			sliderBanners = sliderImageRepository.findAllByTypeByOrderByIdAsc(imageType);
+			sliderBanners = sliderImageRepository.findAllByType(imageType);
 		} else {
 			sliderBanners = sliderImageRepository.findAllByOrderByIdAsc();
 		}

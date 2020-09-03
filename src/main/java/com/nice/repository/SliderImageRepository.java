@@ -9,16 +9,16 @@ import com.nice.model.SliderImage;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Repository
 public interface SliderImageRepository extends JpaRepository<SliderImage, Long> {
 
 	/**
-	 * @param  imageType
+	 * @param imageType
 	 * @return
 	 */
-	List<SliderImage> findAllByTypeByOrderByIdAsc(String imageType);
+	List<SliderImage> findAllByType(String imageType);
 
 	/**
 	 * @return
