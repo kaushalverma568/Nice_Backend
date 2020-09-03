@@ -26,34 +26,34 @@ public class VendorDTO implements Serializable {
 
 	private String password;
 
-	@NotBlank(message = "{vendor.firstName.arabic.not.null}")
+	@NotBlank(message = "{vendor.first.name.arabic.not.null}")
 	private String firstNameArabic;
-	@NotBlank(message = "{vendor.lastName.arabic.not.null}")
+	@NotBlank(message = "{vendor.last.name.arabic.not.null}")
 	private String lastNameArabic;
-	@NotBlank(message = "{storeName.arabic.not.null}")
+	@NotBlank(message = "{vendor.store.name.arabic.not.null}")
 	private String storeNameArabic;
-	@NotBlank(message = "{building.arabic.not.null}")
+	@NotBlank(message = "{vendor.building.arabic.not.null}")
 	private String buildingArabic;
-	@NotBlank(message = "{block.arabic.not.null}")
+	@NotBlank(message = "{vendor.block.arabic.not.null}")
 	private String blockArabic;
-	@NotBlank(message = "{street.arabic.not.null}")
+	@NotBlank(message = "{vendor.street.arabic.not.null}")
 	private String streetArabic;
-	@NotBlank(message = "{area.arabic.not.null}")
+	@NotBlank(message = "{vendor.area.arabic.not.null}")
 	private String areaArabic;
 
-	@NotBlank(message = "{vendor.firstName.english.not.null}")
+	@NotBlank(message = "{vendor.first.name.english.not.null}")
 	private String firstNameEnglish;
-	@NotBlank(message = "{vendor.lastName.english.not.null}")
+	@NotBlank(message = "{vendor.last.name.english.not.null}")
 	private String lastNameEnglish;
-	@NotBlank(message = "{storeName.english.not.null}")
+	@NotBlank(message = "{vendor.store.name.english.not.null}")
 	private String storeNameEnglish;
-	@NotBlank(message = "{building.english.not.null}")
+	@NotBlank(message = "{vendor.building.english.not.null}")
 	private String buildingEnglish;
-	@NotBlank(message = "{block.english.not.null}")
+	@NotBlank(message = "{vendor.block.english.not.null}")
 	private String blockEnglish;
-	@NotBlank(message = "{street.english.not.null}")
+	@NotBlank(message = "{vendor.street.english.not.null}")
 	private String streetEnglish;
-	@NotBlank(message = "{area.english.not.null}")
+	@NotBlank(message = "{vendor.area.english.not.null}")
 	private String areaEnglish;
 
 	@NotBlank(message = "{phone.number.not.null}")

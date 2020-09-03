@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -80,7 +81,8 @@ public class TicketReasonServiceImpl implements TicketReasonService {
 	@Override
 	public Page<TicketReason> getTicketReasonList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String type)
 			throws NotFoundException, ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("reason"));
+		Sort sort = LocaleContextHolder.getLocale().getLanguage().equals("en") ? Sort.by("reasonEnglish") : Sort.by("reasonArabic");
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(type)) {
 			if (TicketReasonType.getByValue(type) == null) {
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_TICKET_REASON_TYPE, null));
