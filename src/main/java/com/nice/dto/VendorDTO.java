@@ -26,9 +26,9 @@ public class VendorDTO implements Serializable {
 
 	private String password;
 
-	@NotBlank(message = "{firstName.arabic.not.null}")
+	@NotBlank(message = "{vendor.firstName.arabic.not.null}")
 	private String firstNameArabic;
-	@NotBlank(message = "{lastName.arabic.not.null}")
+	@NotBlank(message = "{vendor.lastName.arabic.not.null}")
 	private String lastNameArabic;
 	@NotBlank(message = "{storeName.arabic.not.null}")
 	private String storeNameArabic;
@@ -41,9 +41,9 @@ public class VendorDTO implements Serializable {
 	@NotBlank(message = "{area.arabic.not.null}")
 	private String areaArabic;
 
-	@NotBlank(message = "{firstName.english.not.null}")
+	@NotBlank(message = "{vendor.firstName.english.not.null}")
 	private String firstNameEnglish;
-	@NotBlank(message = "{lastName.english.not.null}")
+	@NotBlank(message = "{vendor.lastName.english.not.null}")
 	private String lastNameEnglish;
 	@NotBlank(message = "{storeName.english.not.null}")
 	private String storeNameEnglish;

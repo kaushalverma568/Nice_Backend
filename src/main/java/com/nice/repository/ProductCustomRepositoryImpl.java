@@ -6,6 +6,7 @@ package com.nice.repository;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import com.nice.dto.ProductParamRequestDTO;
@@ -20,9 +22,8 @@ import com.nice.model.Product;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Repository(value = "niceProductCustomRepository")
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
@@ -43,6 +44,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
 		sqlQuery.append(" group by (p.id)");
 
+		Locale locale = LocaleContextHolder.getLocale();
+		if (locale.getLanguage().equals("en")) {
+			sqlQuery.append(" ORDER BY p.name_english ");
+		} else {
+			sqlQuery.append(" ORDER BY p.name_arabic ");
+		}
 		if (startIndex != null && pageSize != null) {
 			sqlQuery.append(" offset :startIndex  limit :pageSize ");
 			paramMap.put("startIndex", startIndex);
@@ -73,9 +80,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 	}
 
 	/**
-	 * @param productParamRequestDTO
-	 * @param sqlQuery
-	 * @param paramMap
+	 * @param  productParamRequestDTO
+	 * @param  sqlQuery
+	 * @param  paramMap
 	 * @return
 	 */
 	private StringBuilder addConditions(final ProductParamRequestDTO productParamRequestDTO, final StringBuilder sqlQuery, final Map<String, Object> paramMap) {

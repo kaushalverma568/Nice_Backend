@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,7 +56,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -142,7 +144,13 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public Page<Category> getCategoryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
 			final Long vendorId) throws NotFoundException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable;
+		Locale locale = LocaleContextHolder.getLocale();
+		if (locale.getLanguage().equals("en")) {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		} else {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
+		}
 		if (vendorId != null) {
 			Vendor vendor = vendorService.getVendorDetail(vendorId);
 			if (activeRecords != null) {
@@ -166,9 +174,9 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  pageable
 	 * @return
 	 */
 	private Page<Category> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
@@ -199,8 +207,7 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "category.active" : "category.deactive", null));
 		} else {
 			/**
-			 * deActive All subCategories related to this category at the time of
-			 * deActivating Category
+			 * deActive All subCategories related to this category at the time of deActivating Category
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Category {}", existingCategory);
@@ -210,8 +217,7 @@ public class CategoryServiceImpl implements CategoryService {
 				}
 
 				/**
-				 * deActive All discount related to this category at the time of deActivating
-				 * Brand
+				 * deActive All discount related to this category at the time of deActivating Brand
 				 */
 				List<Discount> discountList = discountRepository.findAllByCategoryIdAndStatusIn(categoryId,
 						Arrays.asList(DiscountStatusEnum.ACTIVE.getStatusValue(), DiscountStatusEnum.UPCOMING.getStatusValue()));
@@ -233,8 +239,7 @@ public class CategoryServiceImpl implements CategoryService {
 		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name exist or not except it's own
-			 * id
+			 * At the time of update is category with same name exist or not except it's own id
 			 */
 			return categoryRepository.findByNameEnglishIgnoreCaseAndVendorAndIdNotOrNameArabicIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameEnglish(), vendor,
 					categoryDTO.getId(), categoryDTO.getNameArabic(), vendor, categoryDTO.getId()).isPresent();
@@ -308,8 +313,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param categoryImports
-	 * @param userId
+	 * @param  categoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {

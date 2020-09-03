@@ -16,12 +16,11 @@ import com.nice.model.OrdersProductAttributeValue;
 import com.nice.repository.OrderProductAttributeValueRepository;
 import com.nice.service.OrderItemService;
 import com.nice.service.OrderProductAttributeValueService;
-import com.nice.service.ProductAttributeService;
 import com.nice.service.ProductAttributeValueService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("orderAttributeValueService")
@@ -32,9 +31,6 @@ public class OrderProductAttributeValueServiceImpl implements OrderProductAttrib
 
 	@Autowired
 	private OrderProductAttributeValueRepository orderAttributeValueRepository;
-
-	@Autowired
-	private ProductAttributeService productAttributeService;
 
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
@@ -48,7 +44,7 @@ public class OrderProductAttributeValueServiceImpl implements OrderProductAttrib
 	}
 
 	/**
-	 * @param tempOrderAttributeValueList
+	 * @param  tempOrderAttributeValueList
 	 * @throws NotFoundException
 	 */
 	private List<OrderProductAttributeValueDTO> convertEntityToDtos(final List<OrdersProductAttributeValue> tempOrderAttributeValueList)

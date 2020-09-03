@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,9 +50,8 @@ import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -168,8 +169,13 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 	@Override
 	public Page<ProductAttribute> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long vendorId)
 			throws ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
-
+		Pageable pageable;
+		Locale locale = LocaleContextHolder.getLocale();
+		if (locale.getLanguage().equals("en")) {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		} else {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
+		}
 		if (activeRecords != null) {
 			return vendorId == null ? productAttributeRepository.findAllByActive(activeRecords, pageable)
 					: productAttributeRepository.findAllByActiveAndVendorId(activeRecords, vendorId, pageable);

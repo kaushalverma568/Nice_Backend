@@ -1,10 +1,12 @@
 package com.nice.service.impl;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +74,13 @@ public class CountryServiceImpl implements CountryService {
 	@Override
 	public Page<Country> getCountryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyWord)
 			throws NotFoundException, ValidationException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable;
+		Locale locale = LocaleContextHolder.getLocale();
+		if (locale.getLanguage().equals("en")) {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		} else {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
+		}
 		if (activeRecords != null) {
 			if (searchKeyWord != null) {
 				return countryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,

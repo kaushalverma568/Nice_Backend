@@ -1,8 +1,11 @@
 package com.nice.service.impl;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +31,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -135,7 +138,13 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Override
 	public Page<BusinessCategory> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		Pageable pageable;
+		Locale locale = LocaleContextHolder.getLocale();
+		if (locale.getLanguage().equals("en")) {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		} else {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
+		}
 		if (activeRecords != null) {
 			return businessCategoryRepository.findAllByActive(activeRecords, pageable);
 		} else {

@@ -5,6 +5,7 @@ package com.nice.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
@@ -17,6 +18,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.City;
@@ -49,7 +51,8 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
 			final String searchKeyword) {
-		/**
+		Locale locale = LocaleContextHolder.getLocale();
+			/**
 		 * Create Criteria builder instance using entity manager
 		 */
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -87,9 +90,15 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		/**
 		 * Add the clauses for the query.
 		 */
-		criteriaQuery.select(city).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
-				.orderBy(criteriaBuilder.asc(city.get(NAME_ENGLISH)));
-
+		criteriaQuery.select(city).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		/**
+		 * order by name
+		 */
+		if (locale.getLanguage().equals("en")) {
+			criteriaQuery.orderBy(criteriaBuilder.asc(city.get(NAME_ENGLISH)));
+		} else {
+			criteriaQuery.orderBy(criteriaBuilder.asc(city.get(NAME_ARABIC)));
+		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
 		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose

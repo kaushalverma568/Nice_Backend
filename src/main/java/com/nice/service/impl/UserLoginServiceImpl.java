@@ -967,7 +967,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			customerRepository.save(customer);
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getPhoneNumber()) && deliveryBoy.getPhoneNumber().equals(phoneNumber)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getPhoneNumber()) && deliveryBoy.getPhoneVerified().booleanValue() && deliveryBoy.getPhoneNumber().equals(phoneNumber)) {
 				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			deliveryBoy.setPhoneVerified(true);
@@ -977,7 +977,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
-			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getPhoneNumber()) && vendor.getPhoneNumber().equals(phoneNumber)) {
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getPhoneNumber())  && vendor.getPhoneVerified().booleanValue()&& vendor.getPhoneNumber().equals(phoneNumber)) {
 				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			vendor.setPhoneVerified(true);

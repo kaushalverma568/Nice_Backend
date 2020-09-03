@@ -139,8 +139,13 @@ public class AddonsServiceImpl implements AddonsService {
 	@Override
 	public Page<Addons> getAddonsList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final String searchKeyword,
 			final Long vendorId) throws NotFoundException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		Pageable pageable;
 		String langauge = LocaleContextHolder.getLocale().getLanguage();
+		if (langauge.equals("en")) {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameEnglish"));
+		} else {
+			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
+		}
 		if (vendorId != null) {
 			Vendor vendor = vendorService.getVendorDetail(vendorId);
 			if (activeRecords != null) {

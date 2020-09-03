@@ -8,17 +8,21 @@ import org.springframework.stereotype.Repository;
 import com.nice.model.SliderImage;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Repository
 public interface SliderImageRepository extends JpaRepository<SliderImage, Long> {
 
 	/**
-	 * @param banner
+	 * @param  imageType
 	 * @return
 	 */
-	List<SliderImage> findAllByType(String imageType);
+	List<SliderImage> findAllByTypeByOrderByIdAsc(String imageType);
+
+	/**
+	 * @return
+	 */
+	List<SliderImage> findAllByOrderByIdAsc();
 
 }

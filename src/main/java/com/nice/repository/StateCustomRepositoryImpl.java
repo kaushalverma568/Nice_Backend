@@ -5,6 +5,7 @@ package com.nice.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
@@ -17,6 +18,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.Country;
@@ -49,6 +51,7 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 	@Override
 	public List<State> getStateList(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long countryId,
 			final String searchKeyword) {
+		final Locale locale = LocaleContextHolder.getLocale();
 		/**
 		 * Create Criteria builder instance using entity manager
 		 */
@@ -88,8 +91,15 @@ public class StateCustomRepositoryImpl implements StateCustomRepository {
 		/**
 		 * Add the clauses for the query.
 		 */
-		criteriaQuery.select(state).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])))
-				.orderBy(criteriaBuilder.asc(state.get(NAME_ENGLISH)));
+		criteriaQuery.select(state).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		/**
+		 * order by name
+		 */
+		if (locale.getLanguage().equals("en")) {
+			criteriaQuery.orderBy(criteriaBuilder.asc(state.get(NAME_ENGLISH)));
+		} else {
+			criteriaQuery.orderBy(criteriaBuilder.asc(state.get(NAME_ARABIC)));
+		}
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
