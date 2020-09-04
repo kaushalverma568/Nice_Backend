@@ -310,7 +310,7 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 			Double orderAmt = calculatedOrderAmt * 100;
 			onlineRequest.setAmount(orderAmt.intValue());
-			onlineRequest.setCurrencyCode(settingsService.getSettingsDetailsByFieldName("CURRENCY").getFieldValue());
+			onlineRequest.setCurrencyCode("KWD");
 			try {
 				String onlineOrderId = onlineService.generateOrder(onlineRequest);
 				for (CartItem cartItem : cartItemList) {
