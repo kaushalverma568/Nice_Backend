@@ -29,6 +29,7 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
+import com.nice.dto.BusinessCategoryDTO;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.dto.CategoryWiseProductCountDTO;
 import com.nice.dto.CategoryWiseProductReponseDto;
@@ -39,6 +40,7 @@ import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.SubCategoryWiseProductResponseDto;
+import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
@@ -62,6 +64,7 @@ import com.nice.repository.ProductRepository;
 import com.nice.repository.SubCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.BrandService;
+import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartItemService;
 import com.nice.service.CategoryService;
 import com.nice.service.CuisineService;
@@ -155,6 +158,9 @@ public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private FileStorageService fileStorageService;
 
+	@Autowired
+	private BusinessCategoryService businessCategoryService;
+
 	@Value("${default.product}")
 	private String defaultProduct;
 
@@ -213,6 +219,8 @@ public class ProductServiceImpl implements ProductService {
 	public void addProduct(final ProductRequestDTO productRequestDTO, final MultipartFile image, final MultipartFile detailImage)
 			throws NotFoundException, ValidationException {
 
+		VendorResponseDTO vendorDto = vendorService.getVendor(productRequestDTO.getVendorId());
+
 		LOGGER.info("Inside addProduct method, with productReqDto : {}", productRequestDTO);
 		validationForProduct(productRequestDTO);
 		Product product = productMapper.toEntity(productRequestDTO);
@@ -221,6 +229,7 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		product.setRating(0.0);
 		product.setNoOfRating(0L);
+		product.setBusinessCategoryId(vendorDto.getBusinessCategoryId());
 		if (image != null) {
 			uploadImage(image, product);
 		}
@@ -245,6 +254,7 @@ public class ProductServiceImpl implements ProductService {
 		Product product = productMapper.toEntity(productRequestDTO);
 		product.setRating(existingProduct.getRating());
 		product.setNoOfRating(existingProduct.getNoOfRating());
+		product.setBusinessCategoryId(existingProduct.getBusinessCategoryId());
 		updateImages(image, existingProduct, product);
 		updateDetailImage(detailImage, existingProduct, product);
 		productRepository.save(product);
@@ -354,7 +364,9 @@ public class ProductServiceImpl implements ProductService {
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, startIndex, pageSize);
 		for (Product product : products) {
 			final ProductResponseDTO responseDTO = convertEntityToResponseDto(product, listForAdmin, cartMap);
-			responseDTOs.add(responseDTO);
+			if (listForAdmin || responseDTO.getProductAvailable()) {
+				responseDTOs.add(responseDTO);
+			}
 		}
 		LOGGER.info("After getProductListBasedOnParams ");
 		return responseDTOs;
@@ -493,6 +505,9 @@ public class ProductServiceImpl implements ProductService {
 		LOGGER.info("Inside convertEntityToResponseDto");
 		ProductResponseDTO productResponseDTO = productMapper.toResponseDto(product);
 
+		BusinessCategoryDTO businessCategoryDto = businessCategoryService.getBusinessCategory(product.getBusinessCategoryId());
+		productResponseDTO.setBusinessCategoryNameEnglish(businessCategoryDto.getNameEnglish());
+		productResponseDTO.setBusinessCategoryNameArabic(businessCategoryDto.getNameArabic());
 		Category category = categoryService.getCategoryDetail(productResponseDTO.getCategoryId());
 
 		productResponseDTO.setCategoryNameEnglish(category.getNameEnglish());
@@ -519,11 +534,13 @@ public class ProductServiceImpl implements ProductService {
 			productResponseDTO.setSubcategoryName(productResponseDTO.getSubcategoryNameEnglish());
 			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameEnglish());
 			productResponseDTO.setBrandName(productResponseDTO.getBrandNameEnglish());
+			productResponseDTO.setBusinessCategoryName(productResponseDTO.getBusinessCategoryNameEnglish());
 		} else {
 			productResponseDTO.setCategoryName(productResponseDTO.getCategoryNameArabic());
 			productResponseDTO.setSubcategoryName(productResponseDTO.getSubcategoryNameArabic());
 			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameArabic());
 			productResponseDTO.setBrandName(productResponseDTO.getBrandNameArabic());
+			productResponseDTO.setBusinessCategoryName(productResponseDTO.getBusinessCategoryNameArabic());
 		}
 		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		productResponseDTO.setDetailImage(assetService.getGeneratedUrl(product.getDetailImage(), AssetConstant.PRODUCT_DIR));
@@ -541,17 +558,16 @@ public class ProductServiceImpl implements ProductService {
 			productVariantList = productVariantService.getProductVariantDetailByProduct(product, true, listForAdmin);
 		}
 		LOGGER.info("Before setting available qty");
-		/**
-		 * if product variant is null/empty or availableQty=0 then product will go out of stock
-		 */
-		// TODO
-		/**
-		 * Grocery needs to be a hardcoded category here and its Id should be replaced here, as we dont need the available qty
-		 * and productOutOfStock for any other category type except grocery.
-		 */
+
 		Integer availableQty = 0;
+		/**
+		 * This variable will be used only to decide if the product will be visible on front end.
+		 */
+		boolean makeProductVisible = false;
+
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
 			availableQty += productVariantResponseDTO.getAvailableQty();
+			makeProductVisible = true;
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartMap)) {
 				List<? extends Object> obj = cartMap.get(productVariantResponseDTO.getId());
 				if (obj != null && !obj.isEmpty()) {
@@ -571,8 +587,15 @@ public class ProductServiceImpl implements ProductService {
 				}
 			}
 		}
-		if (false /* here condition for gorcerry should be placed */) {
+
+		/**
+		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is
+		 * true then product should be made visible else that product should be shown as out of stock
+		 */
+		if (businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_GROCERY)) {
 			productResponseDTO.setProductAvailable(availableQty > 0);
+		} else {
+			productResponseDTO.setProductAvailable(makeProductVisible);
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
@@ -594,13 +617,13 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		if (!((UserType.VENDOR.name().equals(userLogin.getEntityType()) && product.getVendorId().equals(userLogin.getEntityId()))
 				|| userLogin.getEntityType() == null)) {
-			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (product.getActive().equals(active)) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("product.active.deactive", new Object[] { (Boolean.TRUE.equals(active) ? "active" : "deActive") }));
+			throw new ValidationException(messageByLocaleService.getMessage("product.active.deactive", new Object[] {
+					(Boolean.TRUE.equals(active) ? messageByLocaleService.getMessage("active", null) : messageByLocaleService.getMessage("deActive", null)) }));
 		} else {
 			changeStatusForDependentEntity(active, product);
 			product.setActive(active);
@@ -855,7 +878,8 @@ public class ProductServiceImpl implements ProductService {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.id.not.null", null));
 		} else if (!(VEG.equalsIgnoreCase(productImportDTO.getProductFoodType()) || NON_VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())
 				|| EGG.equalsIgnoreCase(productImportDTO.getProductFoodType()))) {
-			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.proper", new Object[] { VEG, NON_VEG, EGG }));
+			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.proper", new Object[] { messageByLocaleService.getMessage(VEG, null),
+					messageByLocaleService.getMessage(NON_VEG, null), messageByLocaleService.getMessage(EGG, null) }));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())
 				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
 			throw new ValidationException(messageByLocaleService.getMessage("brand.cuisine.required", null));

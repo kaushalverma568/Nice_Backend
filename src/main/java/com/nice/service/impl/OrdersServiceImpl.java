@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.BasicStatus;
 import com.nice.constant.CartItemStatus;
 import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
@@ -64,7 +65,6 @@ import com.nice.model.OrdersItem;
 import com.nice.model.OrdersProductAttributeValue;
 import com.nice.model.OrdersToppings;
 import com.nice.model.Pincode;
-import com.nice.model.ProductAttributeValue;
 import com.nice.model.ProductVariant;
 import com.nice.model.State;
 import com.nice.model.UserLogin;
@@ -229,38 +229,28 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check if the vendor servicable and customer delivery belong to same city
 		 */
+		if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
+		} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
+				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
+			throw new ValidationException(
+					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
+		} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
+				&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
+		}
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-			if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
-			} else if (!vendor.getCity().getId().equals(city.getId())) {
+			if (!vendor.getCity().getId().equals(city.getId())) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameEnglish() }));
-			} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
-					&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
-			} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
-					&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
 			}
 		} else {
-			// TODO : change the validation errors to arabic
-			if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
-			} else if (!vendor.getCity().getId().equals(city.getId())) {
+			if (!vendor.getCity().getId().equals(city.getId())) {
 				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameArabic() }));
-			} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
-					&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
-			} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
-					&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
 			}
 		}
 
 		/**
-		 * check if the products in cart are active or not active then throw error also
-		 * check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -501,8 +491,7 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in
-		 * orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -526,8 +515,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 		// TODO
 		/**
-		 * Check for respective payment gateway and implement based on same, currently
-		 * is for razorpay
+		 * Check for respective payment gateway and implement based on same, currently is for razorpay
 		 */
 		/**
 		 * Set Online Payment details for Order
@@ -642,8 +630,6 @@ public class OrdersServiceImpl implements OrdersService {
 			 */
 			List<OrdersProductAttributeValue> orderProductAttributeValuesList = new ArrayList<>();
 			for (CartProductAttributeValue cartProductAttribute : cartProductAttributeValueList) {
-				ProductAttributeValue productAttributeValue = productAttributeValueService
-						.getProductAttributeValueDetail(cartProductAttribute.getProductAttributeValue().getId());
 				OrdersProductAttributeValue orderProductAttributeValue = new OrdersProductAttributeValue();
 				orderProductAttributeValue.setActive(true);
 				orderProductAttributeValue.setProductAttributeValue(cartProductAttribute.getProductAttributeValue());
@@ -767,8 +753,7 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for
-			 * calculation
+			 * Add the addons , extras, product attribute values, toppings amount for calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -887,8 +872,18 @@ public class OrdersServiceImpl implements OrdersService {
 
 		if (!isFromAdmin) {
 			orderResponseDto.setCustomerName(orders.getFirstName().concat(" ").concat(orders.getLastName()));
-			orderResponseDto.setPhoneNumber(orders.getCustomer().getPhoneNumber());
+			orderResponseDto.setPhoneNumber(orders.getPhoneNumber());
 		} else {
+
+			List<OrdersItem> ordersItemList = orderItemService.getOrderItemForOrderId(orders.getId());
+			/**
+			 * Set the total item count for the order to display it in admin panel
+			 */
+			Long itemCount = 0l;
+			for (OrdersItem ordersItem : ordersItemList) {
+				itemCount += ordersItem.getQuantity();
+			}
+			orderResponseDto.setItemCount(itemCount);
 			Customer customer = orders.getCustomer();
 			orderResponseDto.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			orderResponseDto.setPhoneNumber(customer.getPhoneNumber());
@@ -979,17 +974,15 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All
-		 * the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer
-		 * the inventory, that will be a typical case of replacement of orders that will
-		 * be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -1015,8 +1008,8 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a
-		 * order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -1066,8 +1059,7 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = ordersRepository.findById(orderId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to
-		 * him.
+		 * If the user is Vendor or customer, check if the order actually belongs to him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
@@ -1180,8 +1172,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the replacement request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the replacement request has come after a maximum days for which vendor can accepts then throw error.
 			 */
 			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDate.now())) {
@@ -1218,8 +1209,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the return request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the return request has come after a maximum days for which vendor can accepts then throw error.
 			 */
 			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDate.now())) {
@@ -1237,5 +1227,44 @@ public class OrdersServiceImpl implements OrdersService {
 	public void changeStatus(final Long ordersId, final String status) throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(ordersId);
 		changeStatus(status, orders);
+		VendorResponseDTO vendorResponseDto = vendorService.getVendor(orders.getVendor().getId());
+
+		/**
+		 * If the order is a food delivery order, then if the restaurant confirms the order immediately change the state of the
+		 * order to in process.
+		 */
+		if (Constant.CONFIRMED.equals(status) && Constant.BUSINESS_CATEGORY_FOOD_DELIVERY.equalsIgnoreCase(vendorResponseDto.getBusinessCategoryName())) {
+			changeStatus(OrderStatusEnum.IN_PROCESS.getStatusValue(), orders);
+		}
+	}
+
+	@Override
+	public void rejectOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+
+		Orders order = getOrderById(replaceCancelOrderDto.getOrderId());
+		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		if (!existingOrderStatus.contains(Constant.REJECTED)) {
+			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
+			String existingOrderStatusForMessage = messageByLocaleService.getMessage(order.getOrderStatus(), null);
+			throw new ValidationException(
+					messageByLocaleService.getMessage("status.not.allowed", new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
+		}
+		order.setOrderStatus(Constant.REJECTED);
+		order.setCancelReason(replaceCancelOrderDto.getReason());
+		order.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
+		ordersRepository.save(order);
+		saveOrderStatusHistory(order);
+	}
+
+	@Override
+	public List<String> getNextStatus(final Long orderId) throws NotFoundException {
+		Orders order = getOrderById(orderId);
+		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		BasicStatus<OrderStatusEnum>[] nextOrderStatus = existingOrderStatus.nextStatus();
+		List<String> nextStatus = new ArrayList<>();
+		for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
+			nextStatus.add(status.getStatusValue());
+		}
+		return nextStatus;
 	}
 }

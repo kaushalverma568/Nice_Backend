@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Data
 public class CustomerAddressDTO implements Serializable {
@@ -63,10 +64,10 @@ public class CustomerAddressDTO implements Serializable {
 	private boolean defaultAddress;
 
 	@NotNull(message = "{latitude.not.null}")
-	private Double latitude;
+	private BigDecimal latitude;
 
 	@NotNull(message = "{longitude.not.null}")
-	private Double longitude;
+	private BigDecimal longitude;
 
 	/**
 	 * it could be either Home or Work

@@ -56,6 +56,10 @@ import com.nice.validator.ProductValidator;
 @RestController(value = "productController")
 public class ProductController {
 	/**
+	 * 
+	 */
+	private static final String PRODUCT_CREATE_MESSAGE = "product.create.message";
+	/**
 	 *
 	 */
 	private static final String PRODUCT_LIST_MESSAGE = "product.list.message";
@@ -115,7 +119,7 @@ public class ProductController {
 		}
 		productService.addProduct(productRequestDTO, image, detailImage);
 		LOGGER.info("Outside add Product");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_CREATE_MESSAGE, null))
 				.create();
 	}
 
@@ -308,7 +312,7 @@ public class ProductController {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}
 		productService.uploadFile(file, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_CREATE_MESSAGE, null))
 				.create();
 	}
 
@@ -327,7 +331,7 @@ public class ProductController {
 			@RequestParam(name = "imageType") final String imageType, @PathVariable("productId") final Long productId)
 			throws ValidationException, NotFoundException {
 		productService.deleteImage(imageType, productId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.create.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(PRODUCT_CREATE_MESSAGE, null))
 				.create();
 	}
 

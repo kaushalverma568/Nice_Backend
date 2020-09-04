@@ -57,4 +57,8 @@ public class ProductResponseDTO implements Serializable {
 	 */
 	private Boolean productAvailable;
 	private Long cartQty = 0L;
+	private String businessCategoryName;
+	private String businessCategoryNameArabic;
+	private String businessCategoryNameEnglish;
+	private Long businessCategoryId;
 }

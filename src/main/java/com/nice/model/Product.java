@@ -33,7 +33,7 @@ import lombok.EqualsAndHashCode;
 		@FieldResult(name = "combo", column = "combo"), @FieldResult(name = "rating", column = "rating"),
 		@FieldResult(name = "noOfRating", column = "no_of_rating"), @FieldResult(name = "detailImage", column = "detail_image"),
 		@FieldResult(name = "detailImageOriginalName", column = "detail_image_original_name"),
-		@FieldResult(name = "productFoodType", column = "product_food_type") }) })
+		@FieldResult(name = "productFoodType", column = "product_food_type"), @FieldResult(name = "businessCategoryId", column = "business_category_id") }) })
 
 @Data
 @Entity(name = "product")
@@ -106,4 +106,7 @@ public class Product extends CommonModel {
 
 	@Column(name = "product_food_type")
 	private Integer productFoodType;
+
+	@Column(name = "business_category_id")
+	private Long businessCategoryId;
 }

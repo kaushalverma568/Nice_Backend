@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class OrdersResponseDTO implements Serializable {
@@ -25,6 +25,10 @@ public class OrdersResponseDTO implements Serializable {
 	private String customerName;
 	private String phoneNumber;
 	private Double totalOrderAmount;
+	/**
+	 * This field contains the amount of order after discount, not including delivery charge
+	 */
+	private Double grossOrderAmount;
 	private String paymentMode;
 	private String orderStatus;
 	private Date createdAt;
@@ -50,6 +54,15 @@ public class OrdersResponseDTO implements Serializable {
 	private String replacementDeliveryBoyNameEnglish;
 	private String replacementDeliveryBoyNameArabic;
 	private String vendorImageUrl;
+
+	private String businessCategoryId;
+	private String businessCategoryName;
+	private String businessCategoryNameArabic;
+	private String businessCategoryNameEnglish;
+
+	private String deliveryBoyPhoneNumber;
+
+	private String cancelReturnReplaceDescription;
 	/**
 	 * city field is added for set city in email templates
 	 */
@@ -58,5 +71,11 @@ public class OrdersResponseDTO implements Serializable {
 	 * pincode field is added for set pincode in email and push notification templates
 	 */
 	private String pincode;
+
+	/**
+	 * This field will contain the count of items in the order for list display, this will include all the main product
+	 * variants, excluding extras, addons, product attributes, toppings
+	 */
+	private Long itemCount;
 
 }

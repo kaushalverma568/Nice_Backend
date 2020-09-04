@@ -221,4 +221,11 @@
 				path="sql-files/1.0/rating_question_alter.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
+	<changeSet id="32" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/product_business_category_add.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
+	
 </databaseChangeLog>

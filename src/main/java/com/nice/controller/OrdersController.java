@@ -103,7 +103,7 @@ public class OrdersController {
 		} /**
 			 * send email ends here
 			 */
-		return new GenericResponseHandlers.Builder().setData(orderId).setMessage("Order Placed Successfully").setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setData(orderId).setMessage("order.create.successful").setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -132,6 +132,17 @@ public class OrdersController {
 				.create();
 	}
 
+	@PostMapping("/customer/list")
+	public ResponseEntity<Object> getCustomerOrderList(@RequestHeader("Authorization") final String token,
+			@RequestBody final OrderListFilterDto orderListFilterDto) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside get order list method");
+
+		final List<OrdersResponseDTO> orderList = orderService.getOrderListBasedOnParams(null, null, orderListFilterDto);
+
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null))
+				.setData(orderList).create();
+	}
+
 	/**
 	 *
 	 * @param accessToken
@@ -141,11 +152,12 @@ public class OrdersController {
 	 * @throws IOException
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportOrderList(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse) throws  NotFoundException, FileNotFoundException {
+			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse)
+			throws NotFoundException, FileNotFoundException {
 		orderService.exportOrderList(httpServletResponse, orderListFilterDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null)).create();
 	}
@@ -203,7 +215,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/replace")
-	public ResponseEntity<Object> replaceOrder(@RequestHeader("Authorization") final String token, 
+	public ResponseEntity<Object> replaceOrder(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -263,4 +275,26 @@ public class OrdersController {
 				.create();
 
 	}
+
+	@PutMapping("/reject")
+	public ResponseEntity<Object> rejectOrderByVendor(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside reject order for id {}", replaceCancelOrderDto.getOrderId());
+		orderService.rejectOrder(replaceCancelOrderDto);
+		LOGGER.info("After rejected order");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.rejected", null)).create();
+
+	}
+
+	@PutMapping("/next/status/{orderId}")
+	public ResponseEntity<Object> getNextStatusForOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId)
+			throws NotFoundException {
+		LOGGER.info("Inside get next status for id {}", orderId);
+		List<String> nextStatus = orderService.getNextStatus(orderId);
+		LOGGER.info("After get next status for id {}", orderId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("next.status.displayed.successfully", null)).setData(nextStatus).create();
+
+	}
+
 }

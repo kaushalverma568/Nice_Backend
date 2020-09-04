@@ -150,7 +150,7 @@ public interface OrdersService {
 	 * @param httpServletResponse
 	 * @param orderListFilterDto
 	 * @throws NotFoundException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws NotFoundException, FileNotFoundException;
 
@@ -191,6 +191,19 @@ public interface OrdersService {
 	 * @throws ValidationException
 	 */
 	void changeStatus(Long ordersId, String status) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param replaceCancelOrderDto
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void rejectOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	List<String> getNextStatus(Long orderId) throws NotFoundException;
 
 	/**
 	 * get all information for app payment
