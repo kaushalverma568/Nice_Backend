@@ -55,4 +55,8 @@ public class VendorListFilterDTO implements Serializable {
 
 	private Long cityId;
 
+	private Boolean isPopular;
+
+	private Boolean isNew;
+
 }

@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -34,10 +35,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.nice.constant.Constant;
+import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorStatus;
+import com.nice.dto.HesabeDecryptPaymentDTO;
+import com.nice.dto.HesabePaymentResponseDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
@@ -55,13 +61,14 @@ import com.nice.mapper.VendorMapper;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.HesabePaymentService;
 import com.nice.service.VendorService;
 import com.nice.util.PaginationUtil;
 import com.nice.validator.VendorValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 25, 2020
+ * @date : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
@@ -78,12 +85,18 @@ public class VendorController {
 	 *
 	 */
 	private static final String VENDOR_UPDATE_MESSAGE = "vendor.update.message";
+
+	private static final String REDIRECT = "redirect:";
+
+	@Value("${admin.url}")
+	private String adminUrl;
 	/*
 	 * by logging, display operation detail in console
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -93,6 +106,9 @@ public class VendorController {
 	 */
 	@Autowired
 	private VendorValidator vendorValidator;
+
+	@Autowired
+	private HesabePaymentService hesabePaymentService;
 
 	/**
 	 * to bind validator with object using 'BindingResult' in method
@@ -116,8 +132,8 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -141,8 +157,8 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -166,8 +182,8 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -190,8 +206,8 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -220,9 +236,9 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param  accessToken
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -232,18 +248,18 @@ public class VendorController {
 			@PathVariable("vendorId") final Long vendorId, @PathVariable("subscriptionPlanId") final Long subscriptionPlanId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update subscription plan for vendor:{} and planId:{}", vendorId, subscriptionPlanId);
-		vendorService.addUpdateSubscriptionPlan(vendorId, subscriptionPlanId);
-		LOGGER.info("Outside update subscription plan ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
-				.create();
+		String url = vendorService.updateSubscriptionPlanForVendor(vendorId, subscriptionPlanId);
+		LOGGER.info("Outside update subscription plan with url :{}", url);
+		return new GenericResponseHandlers.Builder().setData(url).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null)).create();
 	}
 
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param  accessToken
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -262,7 +278,7 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -277,7 +293,7 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -293,11 +309,11 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  countryId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param countryId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -317,8 +333,8 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param  vendorId
-	 * @param  active
+	 * @param vendorId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -352,7 +368,7 @@ public class VendorController {
 	/**
 	 * Get vendor list for customer app
 	 *
-	 * @param  vendorListFilterDTO
+	 * @param vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -380,9 +396,9 @@ public class VendorController {
 	/**
 	 * Change status of vendor
 	 *
-	 * @param  accessToken
-	 * @param  vendorId
-	 * @param  newStatus
+	 * @param accessToken
+	 * @param vendorId
+	 * @param newStatus
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -401,9 +417,9 @@ public class VendorController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  httpServletResponse
-	 * @param  vendorFilterDTO
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param vendorFilterDTO
 	 * @return
 	 * @throws IOException
 	 * @throws FileNotFoundException
@@ -418,9 +434,9 @@ public class VendorController {
 	/**
 	 * update vendor is featured
 	 *
-	 * @param  accessToken
-	 * @param  productId
-	 * @param  active
+	 * @param accessToken
+	 * @param productId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -438,9 +454,9 @@ public class VendorController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param  accessToken
-	 * @param  imageType
-	 * @param  productId
+	 * @param accessToken
+	 * @param imageType
+	 * @param productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -457,8 +473,8 @@ public class VendorController {
 	/**
 	 * get vendor basic details
 	 *
-	 * @param  accessToken
-	 * @param  vendorId
+	 * @param accessToken
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -470,6 +486,37 @@ public class VendorController {
 		final VendorBasicDetailDTO vendorBasicDetailDTO = vendorService.getVendorBasicDetailById(vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.detail.message", null))
 				.setData(vendorBasicDetailDTO).create();
+	}
+
+	/**
+	 * redirect api from hesabe for vendor subscription. data is response from
+	 * hesabe in encrypted form
+	 *
+	 * @param data
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping(path = "/subscription/hesabe")
+	public ModelAndView checkSubscriptionPaymentHesabe(@RequestParam(name = "data") final String data) {
+		String result = hesabePaymentService.decrypt(data);
+		LOGGER.info("hesabe response {} ", result);
+		Gson gson = new Gson();
+		HesabePaymentResponseDTO hesabePaymentResponseDTO = gson.fromJson(result, HesabePaymentResponseDTO.class);
+		HesabeDecryptPaymentDTO decryptPaymentDTO = gson.fromJson(hesabePaymentResponseDTO.getResponse().get("data"), HesabeDecryptPaymentDTO.class);
+		boolean response;
+		String msg;
+		try {
+			response = vendorService.checkPaymentTransactionHesabe(decryptPaymentDTO.getResponse());
+			msg = messageByLocaleService.getMessage("payment.success", null);
+		} catch (NotFoundException | ValidationException e) {
+			response = false;
+			msg = e.getMessage();
+		}
+		if (response) {
+			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
+		} else {
+			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
+		}
 	}
 
 }

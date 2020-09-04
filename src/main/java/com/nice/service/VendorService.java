@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.dto.HesabePaymentDTO;
 import com.nice.dto.VendorAppResponseDTO;
 import com.nice.dto.VendorBankDetailsDTO;
 import com.nice.dto.VendorBasicDetailDTO;
@@ -139,15 +140,15 @@ public interface VendorService {
 	void updatePersonalDetails(VendorDTO vendorDTO) throws NotFoundException, ValidationException;
 
 	/**
-	 * add update subscription plan
+	 * generates hesabe paymentLink
 	 *
 	 * @param vendorId
 	 * @param subscriptionPlanId
-	 * @param userId
+	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addUpdateSubscriptionPlan(Long vendorId, Long subscriptionPlanId) throws NotFoundException, ValidationException;
+	String updateSubscriptionPlanForVendor(Long vendorId, Long subscriptionPlanId) throws NotFoundException, ValidationException;
 
 	/**
 	 * update restaurant details
@@ -289,5 +290,23 @@ public interface VendorService {
 	 */
 	void sendEmailForChangeVendorStatus(Long vendorId);
 
-	Long getVendorCountForCustomerBasedOnParams(VendorListFilterDTO S) throws ValidationException, NotFoundException;
+	/**
+	 * vendor count for app list
+	 *
+	 * @param vendorListFilterDTO
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	Long getVendorCountForCustomerBasedOnParams(VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
+
+	/**
+	 * hesabe payment response for add vendor subscription
+	 *
+	 * @param response
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	boolean checkPaymentTransactionHesabe(HesabePaymentDTO response) throws NotFoundException, ValidationException;
 }

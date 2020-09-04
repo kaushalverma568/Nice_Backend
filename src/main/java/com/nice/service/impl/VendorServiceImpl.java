@@ -32,12 +32,14 @@ import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.PaymentMethod;
+import com.nice.constant.PaymentStatus;
 import com.nice.constant.Role;
 import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
+import com.nice.dto.HesabePaymentDTO;
 import com.nice.dto.Notification;
 import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.UserOtpDto;
@@ -49,6 +51,7 @@ import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorExport;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
+import com.nice.dto.VendorPaymentDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
@@ -71,6 +74,7 @@ import com.nice.model.UserOtp;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.model.VendorCuisine;
+import com.nice.model.VendorPayment;
 import com.nice.repository.VendorBankDetailsRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.AddonsService;
@@ -80,19 +84,21 @@ import com.nice.service.CategoryService;
 import com.nice.service.CityService;
 import com.nice.service.CountryService;
 import com.nice.service.CustomerAddressService;
+import com.nice.service.HesabePaymentService;
 import com.nice.service.OtpService;
 import com.nice.service.PincodeService;
 import com.nice.service.ProductService;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorCuisineService;
+import com.nice.service.VendorPaymentService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -113,6 +119,9 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private CountryService countryService;
+
+	@Autowired
+	private VendorPaymentService vendorPaymentService;
 
 	@Autowired
 	private CityService cityService;
@@ -161,6 +170,9 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private CategoryService categoryService;
+
+	@Autowired
+	private HesabePaymentService hesabePaymentService;
 
 	@Override
 	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
@@ -359,7 +371,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
@@ -369,8 +382,9 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
-				 * then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending
+				 * the verification link for him again, if the email is verified then we will be
+				 * returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -384,8 +398,9 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
-			 * we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending
+			 * the verification link for him again, if the email is verified then we will be
+			 * returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -407,7 +422,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -418,8 +434,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -518,20 +534,22 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void addUpdateSubscriptionPlan(final Long vendorId, final Long subscriptionPlanId) throws NotFoundException, ValidationException {
+	public String updateSubscriptionPlanForVendor(final Long vendorId, final Long subscriptionPlanId) throws NotFoundException, ValidationException {
 		Vendor vendor = getVendorDetail(vendorId);
 		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus()) || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
 			SubscriptionPlan subscriptionPlan = subscriptionPlanService.getSubscriptionPlanDetail(subscriptionPlanId);
-			vendor.setSubscriptionPlanStartDate(new Date(System.currentTimeMillis()));
-			vendor.setSubscriptionPlan(subscriptionPlan);
-			/**
-			 * add subscription duration days from subscription start date
-			 */
-			vendor.setSubscriptionPlanEndDate(Date.from(CommonUtility.convetUtilDatetoLocalDate(vendor.getSubscriptionPlanStartDate())
-					.plusDays(subscriptionPlan.getDays()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-			vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
-			// to do add payment this to payment history table for record
-			vendorRepository.save(vendor);
+			VendorPaymentDTO vendorPaymentDTO = new VendorPaymentDTO();
+			vendorPaymentDTO.setStatus(PaymentStatus.PENDING.name());
+			vendorPaymentDTO.setAmount(subscriptionPlan.getAmount());
+			vendorPaymentDTO.setVendorOrderId(System.currentTimeMillis() + "_vendor_" + vendorId);
+			vendorPaymentDTO.setSubscriptionPlanId(subscriptionPlanId);
+			vendorPaymentDTO.setVendorId(vendorId);
+			vendorPaymentDTO.setActive(true);
+			LOGGER.info("inside hesabe gateway for generate url");
+			String url = hesabePaymentService.createPaymentGatewayVendor(vendorPaymentDTO);
+			LOGGER.info("outside hesabe gateway for generate url");
+			vendorPaymentService.addVendorPayment(vendorPaymentDTO);
+			return url;
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.subscription.plan.not", null));
 		}
@@ -551,7 +569,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription plan or not
+			 * if order service is enable by vendor then check he has active subscription
+			 * plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -651,8 +670,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -677,8 +696,8 @@ public class VendorServiceImpl implements VendorService {
 
 	/**
 	 *
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final VendorFilterDTO vendorFilterDTO) throws ValidationException {
@@ -744,7 +763,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByPhoneNumberAndIdNot(vendorDTO.getPhoneNumber(), vendorDTO.getId()).isPresent();
 		} else {
@@ -896,5 +916,66 @@ public class VendorServiceImpl implements VendorService {
 		notification.setVendorId(vendorId);
 		notification.setType(NotificationQueueConstants.VENDOR_STATUS_CHANGE);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+	}
+
+	/**
+	 * for failed transaction
+	 *
+	 * @param vendorOrderId
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	private void failedTransaction(final String vendorOrderId) throws NotFoundException, ValidationException {
+		LOGGER.info("inside failed transaction");
+		VendorPayment vendorPayment = vendorPaymentService.getVendorPaymentByVendorOrderIdAndStatus(vendorOrderId, PaymentStatus.PENDING.name());
+		vendorPayment.setStatus(PaymentStatus.PAYMENT_FAIL.name());
+		vendorPaymentService.updateVendorPayment(vendorPayment);
+		LOGGER.info("outside failed transaction");
+	}
+
+	@Override
+	public boolean checkPaymentTransactionHesabe(final HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException {
+
+		boolean result = false;
+		VendorPayment vendorPayment;
+		vendorPayment = vendorPaymentService.getVendorPaymentByVendorOrderIdAndStatus(hesabePaymentDTO.getVariable1(), PaymentStatus.PENDING.name());
+
+		if (!hesabePaymentDTO.getResultCode().equals(Constant.HESABE_CAPTURE)) {
+			failedTransaction(hesabePaymentDTO.getVariable1());
+			return result;
+		}
+		vendorPayment.setVendorOrderId(hesabePaymentDTO.getVariable1());
+		vendorPayment.setPaymentToken(hesabePaymentDTO.getPaymentToken());
+		vendorPayment.setPaymentId(hesabePaymentDTO.getPaymentId());
+		vendorPayment.setAdministrativeCharge(hesabePaymentDTO.getAdministrativeCharge());
+		Vendor vendor = vendorPayment.getVendor();
+		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus()) || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
+			addSubscriptionPlan(vendorPayment);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.subscription.plan.not", null));
+		}
+		result = true;
+		vendorPayment.setStatus(PaymentStatus.PAYMENT_SUCCESS.name());
+		vendorPaymentService.updateVendorPayment(vendorPayment);
+		return result;
+	}
+
+	/**
+	 * for add vendor subscription
+	 *
+	 * @param vendorPayment
+	 */
+	private void addSubscriptionPlan(final VendorPayment vendorPayment) {
+		Vendor vendor = vendorPayment.getVendor();
+		SubscriptionPlan subscriptionPlan = vendorPayment.getSubscriptionPlan();
+		vendor.setSubscriptionPlanStartDate(new Date(System.currentTimeMillis()));
+		vendor.setSubscriptionPlan(subscriptionPlan);
+		/**
+		 * add subscription duration days from subscription start date
+		 */
+		vendor.setSubscriptionPlanEndDate(Date.from(CommonUtility.convetUtilDatetoLocalDate(vendor.getSubscriptionPlanStartDate())
+				.plusDays(subscriptionPlan.getDays()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+		vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
+		vendorRepository.save(vendor);
 	}
 }
