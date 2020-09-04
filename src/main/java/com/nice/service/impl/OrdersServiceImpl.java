@@ -4,6 +4,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderStatusHistoryMapper;
+import com.nice.model.BusinessCategory;
 import com.nice.model.CartAddons;
 import com.nice.model.CartExtras;
 import com.nice.model.CartItem;
@@ -100,6 +102,7 @@ import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SettingsService;
 import com.nice.service.StateService;
+import com.nice.service.StockDetailsService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
@@ -107,7 +110,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -216,6 +219,9 @@ public class OrdersServiceImpl implements OrdersService {
 	@Autowired
 	private DeliveryBoySendNotificationHistoryRepository deliveryBoySendNotificationHistoryRepository;
 
+	@Autowired
+	private StockDetailsService stockDetailsService;
+
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
 
@@ -269,26 +275,23 @@ public class OrdersServiceImpl implements OrdersService {
 				}
 
 			} else {
-				// TODO
-				// Stock check here for grocery related orders.
-				if (false /* place condition check here for grocery related order */) {
-					// Long availableQty =
-					// stockDetailsService.getCountForVariantForStore(productVariant, store);
-					// if (availableQty < cartItem.getQuantity()) {
-					// throw new
-					// ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
-					// new Object[] { productVariant.getProduct().getName() + "-" +
-					// productVariant.getUom().getUomLabel(), availableQty }));
-					// }
-				} else if (!productVariant.getProductAvailable().booleanValue()) {
-					if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-						throw new ValidationException(messageByLocaleService.getMessage("product.not.available",
-								new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabelEnglish() }));
-					} else {
-						throw new ValidationException(messageByLocaleService.getMessage("product.not.available",
-								new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabelArabic() }));
-					}
+				/**
+				 * Stock related check for product while placing order by customer for Grocery business category in which the inventory
+				 * is managed
+				 */
+				BusinessCategory businessCategory = vendor.getBusinessCategory();
+				if (businessCategory.getManageInventory().booleanValue()) {
+					Long availableQty = stockDetailsService.getCountForVariantForVendor(productVariant);
+					if (availableQty < cartItem.getQuantity()) {
+						if ("en".equalsIgnoreCase(LocaleContextHolder.getLocale().getLanguage())) {
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty", new Object[] {
+									productVariant.getProduct().getNameEnglish() + "-" + productVariant.getUom().getUomLabelEnglish(), availableQty }));
+						} else {
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty", new Object[] {
+									productVariant.getProduct().getNameArabic() + "-" + productVariant.getUom().getUomLabelArabic(), availableQty }));
+						}
 
+					}
 				}
 
 			}
@@ -327,7 +330,8 @@ public class OrdersServiceImpl implements OrdersService {
 					onlineCart.setCityId(customerAddress.getCity().getId());
 					onlineCart.setStateId(customerAddress.getState().getId());
 					onlineCart.setPincodeId(customerAddress.getPincode().getId());
-					onlineCart.setAddress(makeCustomerAddress(customerAddress));
+					onlineCart.setAddressEnglish(makeCustomerAddressEnglish(customerAddress));
+					onlineCart.setAddressArabic(makeCustomerAddressArabic(customerAddress));
 					onlineCart.setLatitude(customerAddress.getLatitude());
 					onlineCart.setLongitude(customerAddress.getLongitude());
 					onlineCart.setFirstName(customerAddress.getFirstName());
@@ -423,17 +427,16 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 	}
 
-	private String makeCustomerAddress(final CustomerAddress customerAddress) {
-		Locale locale = LocaleContextHolder.getLocale();
-		if (locale.getLanguage().equals("en")) {
-			return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
-					.concat(customerAddress.getCity().getNameEnglish()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
-					.concat(customerAddress.getState().getNameEnglish());
-		} else {
-			return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
-					.concat(customerAddress.getCity().getNameArabic()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
-					.concat(customerAddress.getState().getNameArabic());
-		}
+	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
+		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
+				.concat(customerAddress.getCity().getNameEnglish()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
+				.concat(customerAddress.getState().getNameEnglish());
+	}
+
+	private String makeCustomerAddressArabic(final CustomerAddress customerAddress) {
+		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
+				.concat(customerAddress.getCity().getNameArabic()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
+				.concat(customerAddress.getState().getNameArabic());
 	}
 
 	@Override
@@ -446,9 +449,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -470,7 +473,6 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setDescription(orderRequestDto.getDescription());
 		Long vendorId = cartItemList.get(0).getProductVariant().getVendorId();
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
-
 		/**
 		 * If order is COD order then we will get customerShipping addressId
 		 */
@@ -481,7 +483,8 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * Set Address for customer in order
 			 */
-			order.setAddress(makeCustomerAddress(customerAddress));
+			order.setAddressEnglish(makeCustomerAddressEnglish(customerAddress));
+			order.setAddressArabic(makeCustomerAddressArabic(customerAddress));
 			order.setLatitude(customerAddress.getLatitude());
 			order.setLongitude(customerAddress.getLongitude());
 			order.setFirstName(customerAddress.getFirstName());
@@ -503,7 +506,8 @@ public class OrdersServiceImpl implements OrdersService {
 			State state = stateService.getStateDetails(orderRequestDto.getStateId());
 			City city = cityService.getCityDetails(orderRequestDto.getCityId());
 
-			order.setAddress(orderRequestDto.getAddress());
+			order.setAddressEnglish(orderRequestDto.getAddressEnglish());
+			order.setAddressArabic(orderRequestDto.getAddressArabic());
 			order.setLatitude(orderRequestDto.getLatitude());
 			order.setLongitude(orderRequestDto.getLongitude());
 			order.setFirstName(orderRequestDto.getFirstName());
@@ -515,6 +519,14 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 
 		}
+		BigDecimal pickUpLatitude = vendor.getLatitude();
+		BigDecimal pickupLongitude = vendor.getLongitude();
+		BigDecimal dropLatitude = order.getLatitude();
+		BigDecimal dropLongitude = order.getLongitude();
+
+		Double distance = CommonUtility.distance(pickUpLatitude.doubleValue(), pickupLongitude.doubleValue(), dropLatitude.doubleValue(),
+				dropLongitude.doubleValue());
+		order.setDistance(distance);
 		order.setOrderStatus(OrderStatusEnum.PENDING.getStatusValue());
 		order.setTotalOrderAmount(calculatedOrderAmt);
 
@@ -734,8 +746,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
+	 * @param cartItemList
+	 * @param orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -815,7 +827,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orderAmt
+	 * @param orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -940,8 +952,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -986,8 +998,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
-		 * will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -1013,7 +1025,8 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -1232,13 +1245,6 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders orders = getOrderById(ordersId);
 		changeStatus(status, orders);
 		VendorResponseDTO vendorResponseDto = vendorService.getVendor(orders.getVendor().getId());
-
-		/**
-		 * If the order is a food delivery order, then if the restaurant confirms the order immediately change the state of the order to in process.
-		 */
-		if (Constant.CONFIRMED.equals(status) && Constant.BUSINESS_CATEGORY_FOOD_DELIVERY.equalsIgnoreCase(vendorResponseDto.getBusinessCategoryName())) {
-			changeStatus(OrderStatusEnum.IN_PROCESS.getStatusValue(), orders);
-		}
 	}
 
 	@Override

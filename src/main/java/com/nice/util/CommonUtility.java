@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 19-Jun-2020
+ * @date : 19-Jun-2020
  */
 @Component
 public class CommonUtility {
@@ -44,7 +44,7 @@ public class CommonUtility {
 	/**
 	 * Encoding String in BCryptPasswordEncoder Used for Oauth
 	 *
-	 * @param  string
+	 * @param string
 	 * @return
 	 */
 	public static String generateBcrypt(final String string) {
@@ -64,7 +64,7 @@ public class CommonUtility {
 	/**
 	 * Return Map with new DistinctFileName,fileNameWithOutExtension,extension
 	 *
-	 * @param  file
+	 * @param file
 	 * @return
 	 */
 	public static Map<String, String> getDistinctFileProperties(final MultipartFile file) {
@@ -153,8 +153,18 @@ public class CommonUtility {
 			dist = Math.acos(dist);
 			dist = Math.toDegrees(dist);
 			dist *= 60 * 1.1515 * 1.609344;
-			return dist;
+			return round(dist);
 		}
 	}
 
+	/**
+	 * This method returns the 2 decimal value of any given double value
+	 *
+	 * @param doubleValue
+	 * @return
+	 */
+	public static Double round(final Double doubleValue) {
+		Long orderAmtLong = Math.round(doubleValue * 100);
+		return orderAmtLong.doubleValue() / 100;
+	}
 }

@@ -12,7 +12,7 @@ import com.nice.model.Task;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Component
 public class TaskMapper {
@@ -24,13 +24,20 @@ public class TaskMapper {
 	}
 
 	public TaskResponseDto toResponseDto(final Task task) {
+
+		String deliveryBoyPreferredLanguage = task.getDeliveryBoy().getPreferredLanguage();
 		TaskResponseDto taskResponseDto = new TaskResponseDto();
 		BeanUtils.copyProperties(task, taskResponseDto);
 		taskResponseDto.setOrderAmount(task.getOrder().getTotalOrderAmount());
 		taskResponseDto.setPaymentMode(task.getOrder().getPaymentMode());
 		taskResponseDto.setOrderAmtWithoutDeliveryCharge(task.getOrder().getTotalOrderAmount() - task.getOrder().getDeliveryCharge());
 		taskResponseDto.setOrderId(task.getOrder().getId());
-		taskResponseDto.setCustomerAddress(task.getOrder().getAddress());
+		if (deliveryBoyPreferredLanguage.equals("en")) {
+			taskResponseDto.setCustomerAddress(task.getOrder().getAddressEnglish());
+		} else {
+			taskResponseDto.setCustomerAddress(task.getOrder().getAddressArabic());
+		}
+
 		taskResponseDto.setCustomerName(task.getOrder().getFirstName().concat(" ").concat(task.getOrder().getLastName()));
 		taskResponseDto.setCustomerPhoneNumber(task.getOrder().getPhoneNumber());
 		return taskResponseDto;

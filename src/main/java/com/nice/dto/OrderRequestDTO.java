@@ -48,7 +48,9 @@ public class OrderRequestDTO implements Serializable {
 
 	private String lastName;
 
-	private String address;
+	private String addressEnglish;
+
+	private String addressArabic;
 
 	private BigDecimal latitude;
 

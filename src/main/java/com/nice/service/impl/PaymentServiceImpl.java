@@ -78,7 +78,8 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setCityId(onlineCart.getCityId());
 			orderRequestDTO.setStateId(onlineCart.getStateId());
 			orderRequestDTO.setPincodeId(onlineCart.getPincodeId());
-			orderRequestDTO.setAddress(onlineCart.getAddress());
+			orderRequestDTO.setAddressEnglish(onlineCart.getAddressEnglish());
+			orderRequestDTO.setAddressArabic(onlineCart.getAddressArabic());
 			orderRequestDTO.setLatitude(onlineCart.getLatitude());
 			orderRequestDTO.setLongitude(onlineCart.getLongitude());
 			orderRequestDTO.setPhoneNumber(onlineCart.getPhoneNumber());

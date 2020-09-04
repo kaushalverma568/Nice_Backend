@@ -53,8 +53,11 @@ public class Orders extends CommonModel {
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
 
-	@Column(name = "address", nullable = false)
-	private String address;
+	@Column(name = "address_english", nullable = false)
+	private String addressEnglish;
+
+	@Column(name = "address_arabic", nullable = false)
+	private String addressArabic;
 
 	@Column(name = "latitude", nullable = false)
 	private BigDecimal latitude;
@@ -143,4 +146,6 @@ public class Orders extends CommonModel {
 	@Column(name = "notification_timer", columnDefinition = "TIME WITH TIME ZONE default CURRENT_TIME")
 	private Date notificationTimer;
 
+	@Column(name = "distance", nullable = false)
+	private Double distance;
 }

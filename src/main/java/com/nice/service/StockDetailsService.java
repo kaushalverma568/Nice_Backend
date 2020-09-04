@@ -148,7 +148,7 @@ public interface StockDetailsService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	List<StockDetails> getStockDetailsForProductVarient(ProductVariant productvariant, Long vendorId) throws NotFoundException, ValidationException;
+	List<StockDetails> getStockDetailsForProductVariant(ProductVariant productvariant, Long vendorId) throws NotFoundException, ValidationException;
 
 	/**
 	 * stock detail from lot no 
