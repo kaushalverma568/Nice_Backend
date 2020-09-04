@@ -56,7 +56,7 @@ import com.nice.validator.ProductValidator;
 @RestController(value = "productController")
 public class ProductController {
 	/**
-	 * 
+	 *
 	 */
 	private static final String PRODUCT_CREATE_MESSAGE = "product.create.message";
 	/**
@@ -108,8 +108,8 @@ public class ProductController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "image", required = false) final MultipartFile image,
-			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
+			@RequestParam(name = "image", required = true) final MultipartFile image,
+			@RequestParam(name = "detailImage", required = true) final MultipartFile detailImage,
 			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();

@@ -25,8 +25,7 @@ public class UOMValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UOMValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -43,8 +42,7 @@ public class UOMValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override
@@ -52,10 +50,13 @@ public class UOMValidator implements Validator {
 		if (target instanceof UOMDTO) {
 			final UOMDTO uomDTO = (UOMDTO) target;
 			// to check uom duplication
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementEnglish())
-					&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementArabic()) && uomDTO.getQuantity() != null
-					&& uomService.isUOMExists(uomDTO).booleanValue()) {
-				errors.rejectValue("measurementEnglish", "409", messageByLocaleService.getMessage("measurement.not.unique", null));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementEnglish()) && uomDTO.getQuantity() != null
+					&& uomService.isUOMExistsEnglish(uomDTO).booleanValue()) {
+				errors.rejectValue("measurementEnglish", "409", messageByLocaleService.getMessage("english.measurement.not.unique", null));
+			}
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementArabic()) && uomDTO.getQuantity() != null
+					&& uomService.isUOMExistsArabic(uomDTO).booleanValue()) {
+				errors.rejectValue("measurementArabic", "409", messageByLocaleService.getMessage("arabic.measurement.not.unique", null));
 			}
 		} else {
 			LOGGER.info("target is not instance of UOMDTO");

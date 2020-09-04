@@ -62,16 +62,6 @@ public interface UOMService {
 	void changeStatus(Long uomId, Boolean isActive) throws NotFoundException, ValidationException;
 
 	/**
-	 * check uom duplication and returning Boolean value.
-	 *
-	 * @param uomDTO
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	Boolean isUOMExists(UOMDTO uomDTO);
-
-	/**
 	 * get detail object of uom
 	 *
 	 * @param uomId
@@ -86,28 +76,40 @@ public interface UOMService {
 	 * @param pageNumber
 	 * @param pageSize
 	 * @param activeRecords
-	 * @param vendorId 
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Page<UOM> getUOMList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Long vendorId) throws NotFoundException;
 
 	/**
-	 * 
-	 * @param vendorId 
+	 *
+	 * @param vendorId
 	 * @param activeRecords
 	 * @param httpServletResponse
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
-	void exportList(Long vendorId, Boolean activeRecords, HttpServletResponse httpServletResponse) throws  FileNotFoundException;
+	void exportList(Long vendorId, Boolean activeRecords, HttpServletResponse httpServletResponse) throws FileNotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param file
 	 * @param httpServletResponse
-	 * @throws FileOperationException 
+	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile file, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * @param uomDTO
+	 * @return
+	 */
+	Boolean isUOMExistsEnglish(UOMDTO uomDTO);
+
+	/**
+	 * @param uomDTO
+	 * @return
+	 */
+	Boolean isUOMExistsArabic(UOMDTO uomDTO);
 
 }

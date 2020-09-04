@@ -193,22 +193,34 @@ public class UOMServiceImpl implements UOMService {
 	}
 
 	@Override
-	public Boolean isUOMExists(final UOMDTO uomDTO) {
+	public Boolean isUOMExistsEnglish(final UOMDTO uomDTO) {
 		if (uomDTO.getId() != null) {
 			/**
-			 * At the time of update is uom with same measurement exist or not except it's
-			 * own id
+			 * At the time of update is uom with same measurement exist or not except it's own id
 			 */
-			return uomRepository
-					.findByMeasurementEnglishIgnoreCaseAndQuantityAndIdNotOrMeasurementArabicIgnoreCaseAndQuantityAndIdNot(uomDTO.getMeasurementEnglish(),
-							uomDTO.getQuantity(), uomDTO.getId(), uomDTO.getMeasurementArabic(), uomDTO.getQuantity(), uomDTO.getId())
+			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityAndIdNot(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(), uomDTO.getId())
 					.isPresent();
 		} else {
 			/**
 			 * At the time of create is uom with same measurement exist or not
 			 */
-			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityOrMeasurementArabicIgnoreCaseAndQuantity(uomDTO.getMeasurementEnglish(),
-					uomDTO.getQuantity(), uomDTO.getMeasurementArabic(), uomDTO.getQuantity()).isPresent();
+			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantity(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity()).isPresent();
+		}
+	}
+
+	@Override
+	public Boolean isUOMExistsArabic(final UOMDTO uomDTO) {
+		if (uomDTO.getId() != null) {
+			/**
+			 * At the time of update is uom with same measurement exist or not except it's own id
+			 */
+			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantityAndIdNot(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(), uomDTO.getId())
+					.isPresent();
+		} else {
+			/**
+			 * At the time of create is uom with same measurement exist or not
+			 */
+			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantity(uomDTO.getMeasurementArabic(), uomDTO.getQuantity()).isPresent();
 		}
 	}
 
