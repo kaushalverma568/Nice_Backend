@@ -878,9 +878,11 @@ public class OrdersServiceImpl implements OrdersService {
 		if (locale.getLanguage().equals("en")) {
 			orderResponseDto.setCity(orders.getCity().getNameEnglish());
 			orderResponseDto.setVendorName(orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish());
+			orderResponseDto.setAddress(orders.getAddressEnglish());
 		} else {
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
 			orderResponseDto.setVendorName(orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic());
+			orderResponseDto.setAddress(orders.getAddressArabic());
 		}
 		/**
 		 * set pincode field for email and push notification

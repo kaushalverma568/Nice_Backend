@@ -268,7 +268,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public List<StockDetails> getStockDetailsForProductVarient(final ProductVariant productvariant, final Long vendorId)
+	public List<StockDetails> getStockDetailsForProductVariant(final ProductVariant productvariant, final Long vendorId)
 			throws NotFoundException, ValidationException {
 		return stockDetailsRepository.findByProductVariantAndVendorId(productvariant, vendorId);
 	}
@@ -384,7 +384,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		if (vendorId == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("stock.detail.id.not.null", null));
 		} else {
-			stockDetailsList = getStockDetailsForProductVarient(productVariant, vendorId);
+			stockDetailsList = getStockDetailsForProductVariant(productVariant, vendorId);
 		}
 		if (!stockDetailsList.isEmpty()) {
 			Double available = 0.0;
