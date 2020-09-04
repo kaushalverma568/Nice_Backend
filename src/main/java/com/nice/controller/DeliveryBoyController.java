@@ -283,8 +283,8 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/accept/order/{orderId}")
-	public ResponseEntity<Object> acceptOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("deliveryBoyId") final Long deliveryBoyId,
-			@PathVariable("orderId") final Long orderId) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> acceptOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("orderId") final Long orderId)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order where order id {}", orderId);
 		deliveryBoyService.acceptOrder(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("accept.order.success", null))
@@ -455,12 +455,14 @@ public class DeliveryBoyController {
 	@GetMapping("/{deliveryBoyId}/list/order/assigned/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getAssignedOrdersList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(value = "orderDate", required = false) final Date orderDate) throws NotFoundException, ValidationException {
+			@RequestParam(value = "orderDate", required = false) final Date orderDate,
+			@RequestParam(value = "taskType", required = false) final String taskType) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get assigned orders list for delivery boy id:{}", deliveryBoyId);
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setOrderDate(orderDate);
 		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		taskFilterDTO.setTaskType(taskType);
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,
@@ -484,13 +486,14 @@ public class DeliveryBoyController {
 	 */
 	@GetMapping("/{deliveryBoyId}/list/order/delivered/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveredOrdersList(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize)
-			throws ValidationException, NotFoundException {
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestParam(value = "taskType", required = false) final String taskType) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside get delivered orders list for delivery boy id:{}", deliveryBoyId);
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveredDate(new Date());
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		taskFilterDTO.setTaskType(taskType);
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,

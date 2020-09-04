@@ -44,7 +44,7 @@ import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.Notification;
-import com.nice.dto.OrderItemDTOForDeliveryBoy;
+import com.nice.dto.OrderItemResponseDTO;
 import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
 import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.TaskDto;
@@ -87,7 +87,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -249,8 +249,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -275,8 +275,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	/**
 	 *
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -408,8 +408,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
-				 * again, if the email is verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
+				 * verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -496,8 +496,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -542,8 +542,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for
-		 * replacement or return) and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -856,29 +856,25 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		ordersDetailDTOForDeliveryBoy.setOrderRequest("New Order");
 		ordersDetailDTOForDeliveryBoy.setDropLatitude(orders.getLatitude());
 		ordersDetailDTOForDeliveryBoy.setDropLongitude(orders.getLongitude());
-		if (locale.getLanguage().equals("en")) {
-			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressEnglish());
-		} else {
-			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressArabic());
-		}
-
 		ordersDetailDTOForDeliveryBoy.setDropContactNo(orders.getPhoneNumber());
 		ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getFirstName() + " " + orders.getLastName());
 		ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getVendor().getLatitude());
 		ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getVendor().getLongitude());
 		ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getVendor().getStorePhoneNumber());
 		ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
-		// ordersDetailDTOForDeliveryBoy.setDistance(orders.getDistance());
 		if (locale.getLanguage().equals("en")) {
+			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressEnglish());
 			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameEnglish());
 		} else {
+			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressArabic());
 			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameArabic());
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(orders.getVendor().getStoreImageName())) {
 			ordersDetailDTOForDeliveryBoy.setStoreImageUrl(assetService.getGeneratedUrl(orders.getVendor().getStoreImageName(), AssetConstant.VENDOR));
 		}
-		List<OrderItemDTOForDeliveryBoy> orderItemDTOListForDeliveryBoy = orderItemService.getOrderItemDeliveryBoyDTOListForOrderId(orders.getId());
-		ordersDetailDTOForDeliveryBoy.setOrderItemDTOListForDeliveryBoy(orderItemDTOListForDeliveryBoy);
+
+		List<OrderItemResponseDTO> orderItemResponseDTOList = orderItemService.getOrderItemResponseDTOForOrderId(orders.getId());
+		ordersDetailDTOForDeliveryBoy.setOrderItemResponseDTOList(orderItemResponseDTOList);
 		return ordersDetailDTOForDeliveryBoy;
 	}
 

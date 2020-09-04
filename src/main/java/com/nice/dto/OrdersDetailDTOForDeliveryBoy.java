@@ -59,7 +59,7 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	private Date deliveryDate;
 
-	private List<OrderItemDTOForDeliveryBoy> orderItemDTOListForDeliveryBoy;
+	private List<OrderItemResponseDTO> orderItemResponseDTOList;
 
 	private String orderRequest;
 
@@ -82,5 +82,7 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 	private String dropContactName;
 
 	private String dropContactNo;
+
+	private Double distance;
 
 }

@@ -18,11 +18,11 @@ import com.nice.constant.AssetConstant;
 import com.nice.dto.CategoryResponseDTO;
 import com.nice.dto.OrderAddonsDTO;
 import com.nice.dto.OrderExtrasDto;
-import com.nice.dto.OrderItemDTOForDeliveryBoy;
 import com.nice.dto.OrderItemResponseDTO;
 import com.nice.dto.OrderProductAttributeValueDTO;
 import com.nice.dto.OrderToppingsDto;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.OrdersItem;
 import com.nice.model.ProductVariant;
@@ -98,9 +98,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	@Override
-	public List<OrderItemDTOForDeliveryBoy> getOrderItemDeliveryBoyDTOListForOrderId(final Long orderId) throws NotFoundException {
-		List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderId(orderId);
-		return convertToOrderItemDtoForDeliveryBoy(orderItemList);
+	public List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(final Long orderId) throws NotFoundException {
+		return toOrderItemResponseDto(orderItemRepository.findAllByOrderId(orderId));
 	}
 
 	// @Override
@@ -125,20 +124,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 		return orderItemResponseDtoList;
 	}
 
-	@Override
-	public List<OrderItemDTOForDeliveryBoy> convertToOrderItemDtoForDeliveryBoy(final List<OrdersItem> orderItemList) throws NotFoundException {
-		List<OrderItemDTOForDeliveryBoy> orderItemDTOForDeliveryBoyList = new ArrayList<>();
-		for (OrdersItem orderItem : orderItemList) {
-			OrderItemDTOForDeliveryBoy orderItemDTOForDeliveryBoy = new OrderItemDTOForDeliveryBoy();
-			BeanUtils.copyProperties(toOrderItemResponseDto(orderItem), orderItemDTOForDeliveryBoy);
-			orderItemDTOForDeliveryBoyList.add(orderItemDTOForDeliveryBoy);
-		}
-		return orderItemDTOForDeliveryBoyList;
-	}
-
 	/**
 	 * @param  orderItem
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {
 		OrderItemResponseDTO orderItemResponseDTO = new OrderItemResponseDTO();
@@ -188,4 +177,5 @@ public class OrderItemServiceImpl implements OrderItemService {
 		orderItemResponseDTO.setTotalOrderItemAmount(totalOrderItemAmount);
 		return orderItemResponseDTO;
 	}
+
 }
