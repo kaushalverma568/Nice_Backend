@@ -279,7 +279,7 @@ public class DeliveryBoyController {
 			@PathVariable("orderId") final Long orderId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order by delivery boy {} and order {}", deliveryBoyId, orderId);
 		deliveryBoyService.acceptOrder(deliveryBoyId, orderId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("accept.order.success", null))
 				.create();
 	}
 

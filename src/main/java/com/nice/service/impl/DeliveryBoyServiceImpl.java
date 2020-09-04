@@ -59,6 +59,7 @@ import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
 import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.DeliveryBoySendNotificationHistory;
+import com.nice.model.DeviceDetail;
 import com.nice.model.Orders;
 import com.nice.model.Task;
 import com.nice.model.UserLogin;
@@ -72,6 +73,7 @@ import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyActiveTimeService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
+import com.nice.service.DeviceDetailService;
 import com.nice.service.OrdersService;
 import com.nice.service.OtpService;
 import com.nice.service.TaskService;
@@ -137,6 +139,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Autowired
 	private DeliveryBoyActiveTimeService deliveryBoyActiveTimeService;
+
+	@Autowired
+	private DeviceDetailService deviceDetailService;
 
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
@@ -446,14 +451,22 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
-			/**
-			 * can not active if delivery boy location is not present
-			 */
-			List<DeliveryBoyLocation> deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationList(userLogin.getEntityId(), true);
-			if (Boolean.TRUE.equals(isAvailable) && deliveryBoyLocation.isEmpty()) {
-				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.location.required.active", null));
+			if (Boolean.TRUE.equals(isAvailable)) {
+				/**
+				 * can not active if delivery boy location is not present
+				 */
+				List<DeliveryBoyLocation> deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationList(userLogin.getEntityId(), true);
+				if (deliveryBoyLocation.isEmpty()) {
+					throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.location.required.active", null));
+				}
+				/**
+				 * if delivery boy's device detail is not present then can not be available for accept order
+				 */
+				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
+				if (deviceDetailList.isEmpty()) {
+					throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.device.detail.required.active", null));
+				}
 			}
-
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(userLogin.getEntityId()));
 			if (deliveryBoyCurrentStatus.getIsAvailable().equals(isAvailable)) {
 				if (isAvailable.booleanValue()) {
@@ -704,18 +717,15 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Orders orders = ordersService.getOrderById(orderId);
 		OrderNotificationDTO orderNotificationDTO = new OrderNotificationDTO();
 		BeanUtils.copyProperties(orders, orderNotificationDTO);
-		DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLatestLocation(deliveryBoyId);
 		if (OrderStatusEnum.CONFIRMED.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())
 				|| OrderStatusEnum.IN_PROCESS.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())) {
 			pickUpAddress = getVendorAddress(orders.getVendor());
 			dropAddress = orders.getAddress();
 			/**
-			 * distance will be delivery boy's distance from vendor + distance between vendor and delivery location
+			 * distance will be distance between vendor and delivery location
 			 */
-			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
-					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue())
-					+ CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
-							orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
+			distance = CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
+					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
 			orderNotificationDTO.setDistance(distance);
 		} else if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())) {
 			/**
@@ -724,12 +734,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			pickUpAddress = orders.getAddress();
 			dropAddress = getVendorAddress(orders.getVendor());
 			/**
-			 * distance will be delivery boy's distance from customer + 2 times distance between vendor and customer
+			 * distance will be 2 times distance between vendor and customer
 			 */
-			distance = CommonUtility.distance(deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue(),
-					orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue())
-					+ 2 * CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
-							orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
+			distance = 2 * CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
+					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
 
 		}
 		orderNotificationDTO.setPickUpAddress(pickUpAddress);

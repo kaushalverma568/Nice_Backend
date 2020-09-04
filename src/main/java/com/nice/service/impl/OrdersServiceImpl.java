@@ -51,6 +51,7 @@ import com.nice.model.CartToppings;
 import com.nice.model.City;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
+import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.OnlineAddons;
 import com.nice.model.OnlineCart;
 import com.nice.model.OnlineExtras;
@@ -70,6 +71,7 @@ import com.nice.model.State;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.CartItemRepository;
+import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.repository.OnlineAddonsRepository;
 import com.nice.repository.OnlineCartRepository;
 import com.nice.repository.OnlineExtrasRepository;
@@ -105,7 +107,7 @@ import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -210,6 +212,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private ExportCSV exportCSV;
+
+	@Autowired
+	private DeliveryBoySendNotificationHistoryRepository deliveryBoySendNotificationHistoryRepository;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -441,9 +446,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -729,8 +734,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
+	 * @param  cartItemList
+	 * @param  orderRequestDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -810,7 +815,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orderAmt
+	 * @param  orderAmt
 	 * @return
 	 */
 	private Double round(final Double orderAmt) {
@@ -935,8 +940,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -981,8 +986,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
+		 * will be handled in a different way
 		 */
 		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 		// &&
@@ -1008,8 +1013,7 @@ public class OrdersServiceImpl implements OrdersService {
 		// }
 		// }
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
 		 */
 		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 		// List<StockAllocation> stockAllocationList =
@@ -1230,8 +1234,7 @@ public class OrdersServiceImpl implements OrdersService {
 		VendorResponseDTO vendorResponseDto = vendorService.getVendor(orders.getVendor().getId());
 
 		/**
-		 * If the order is a food delivery order, then if the restaurant confirms the order immediately change the state of the
-		 * order to in process.
+		 * If the order is a food delivery order, then if the restaurant confirms the order immediately change the state of the order to in process.
 		 */
 		if (Constant.CONFIRMED.equals(status) && Constant.BUSINESS_CATEGORY_FOOD_DELIVERY.equalsIgnoreCase(vendorResponseDto.getBusinessCategoryName())) {
 			changeStatus(OrderStatusEnum.IN_PROCESS.getStatusValue(), orders);
@@ -1266,5 +1269,24 @@ public class OrdersServiceImpl implements OrdersService {
 			nextStatus.add(status.getStatusValue());
 		}
 		return nextStatus;
+	}
+
+	@Override
+	public void retryForSearchingDeliveryBoys(final Long orderId) throws ValidationException, NotFoundException {
+		Orders orders = getOrderById(orderId);
+		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
+		} else {
+			orders.setAssignmentTryCount(0);
+			ordersRepository.save(orders);
+			/**
+			 * remove delivery boy notification history for this order
+			 */
+			List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
+					.findAllByOrderId(orderId);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
+				deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
+			}
+		}
 	}
 }

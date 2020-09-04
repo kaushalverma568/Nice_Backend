@@ -45,7 +45,7 @@ import com.nice.util.PaginationUtil;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -69,9 +69,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param orderRequestDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  orderRequestDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -108,10 +108,10 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param orderListFilterDto
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -145,9 +145,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param orderListFilterDto
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  orderListFilterDto
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -164,8 +164,8 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param orderId
+	 * @param  token
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -182,9 +182,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -206,10 +206,10 @@ public class OrdersController {
 	/**
 	 * replace order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -231,10 +231,10 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -257,10 +257,10 @@ public class OrdersController {
 	 * Change status of order </br>
 	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param orderId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  orderId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -297,4 +297,21 @@ public class OrdersController {
 
 	}
 
+	/**
+	 * Retry for searching delivery boys for assignment of order
+	 *
+	 * @param  accessToken
+	 * @param  orderId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/retry/{orderId}")
+	public ResponseEntity<Object> retryForSearchingDeliveryBoys(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("retry for searching delivery boys, orderId:{} ", orderId);
+		orderService.retryForSearchingDeliveryBoys(orderId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
+				.create();
+	}
 }
