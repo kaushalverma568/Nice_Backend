@@ -897,8 +897,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			} else {
 				ordersListDTOForDeliveryBoy.setStoreName(task.getOrder().getVendor().getStoreNameArabic());
 			}
-			ordersListDTOForDeliveryBoy.setStoreNameEnglish(task.getOrder().getVendor().getStoreNameEnglish());
-			ordersListDTOForDeliveryBoy.setStoreNameArabic(task.getOrder().getVendor().getStoreNameArabic());
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(task.getOrder().getVendor().getStoreImageName())) {
 				ordersListDTOForDeliveryBoy
 						.setStoreImageUrl(assetService.getGeneratedUrl(task.getOrder().getVendor().getStoreImageName(), AssetConstant.VENDOR));

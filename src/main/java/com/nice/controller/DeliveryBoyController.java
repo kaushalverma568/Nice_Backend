@@ -452,7 +452,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping("/list/order/assigned/{deliveryBoyId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@GetMapping("/{deliveryBoyId}/list/order/assigned/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getAssignedOrdersList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(value = "orderDate", required = false) final Date orderDate) throws NotFoundException, ValidationException {
@@ -482,7 +482,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@GetMapping("/list/order/delivered/{deliveryBoyId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@GetMapping("/{deliveryBoyId}/list/order/delivered/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveredOrdersList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize)
 			throws ValidationException, NotFoundException {

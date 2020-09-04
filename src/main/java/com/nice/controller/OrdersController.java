@@ -306,7 +306,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@PutMapping("/retry/{orderId}")
+	@PutMapping("/{orderId}/retry")
 	public ResponseEntity<Object> retryForSearchingDeliveryBoys(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("retry for searching delivery boys, orderId:{} ", orderId);

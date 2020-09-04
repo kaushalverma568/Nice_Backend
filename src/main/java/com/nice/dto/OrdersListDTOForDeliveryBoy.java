@@ -24,10 +24,6 @@ public class OrdersListDTOForDeliveryBoy implements Serializable {
 
 	private String storeName;
 
-	private String storeNameEnglish;
-
-	private String storeNameArabic;
-
 	private String taskStatus;
 
 	private Long taskId;
