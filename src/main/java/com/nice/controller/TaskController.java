@@ -14,20 +14,16 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.constant.TaskStatusEnum;
-import com.nice.dto.TaskDto;
 import com.nice.dto.TaskResponseDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
-import com.nice.model.Task;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.TaskService;
 import com.nice.validator.TaskValidator;
@@ -38,14 +34,13 @@ import com.nice.validator.TaskValidator;
  * @date : 15-Jul-2020
  */
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/order")
 public class TaskController {
 
 	/**
 	 *
 	 */
 	private static final String TASK_UPDATE_MESSAGE = "task.update.message";
-	private static final String TASK_CREATE_MESSAGE = "task.create.message";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -62,24 +57,6 @@ public class TaskController {
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
-
-	/**
-	 *
-	 * @param token
-	 * @param taskDto
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PostMapping("/accept")
-	public ResponseEntity<Object> acceptTask(@RequestHeader("Authorization") final String token, @RequestBody final TaskDto taskDto)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside accept task method for order Id: {}", taskDto.getOrderId());
-		Task task = taskService.createTask(taskDto);
-		LOGGER.info("Successfully accepted task method for order Id : {} and generated task Id :{}", taskDto.getOrderId(), task.getId());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_CREATE_MESSAGE, null)).setData(task)
-				.setStatus(HttpStatus.OK).create();
-	}
 
 	/**
 	 * complete task:(Used for deliver order)
