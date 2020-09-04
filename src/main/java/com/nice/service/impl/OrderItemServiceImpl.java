@@ -39,7 +39,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 @Service(value = "orderItemService")
 @Transactional(rollbackFor = Throwable.class)
@@ -97,6 +97,12 @@ public class OrderItemServiceImpl implements OrderItemService {
 		return orderItemList;
 	}
 
+	@Override
+	public List<OrderItemDTOForDeliveryBoy> getOrderItemDeliveryBoyDTOListForOrderId(final Long orderId) throws NotFoundException {
+		List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderId(orderId);
+		return convertToOrderItemDtoForDeliveryBoy(orderItemList);
+	}
+
 	// @Override
 	// public List<OrderItem> getOrderItemForReplacementOrderId(final Long orderId)
 	// throws NotFoundException {
@@ -131,7 +137,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	/**
-	 * @param orderItem
+	 * @param  orderItem
 	 * @throws NotFoundException
 	 */
 	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {

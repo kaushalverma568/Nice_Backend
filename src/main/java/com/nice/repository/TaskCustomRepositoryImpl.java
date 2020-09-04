@@ -28,7 +28,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 13-Apr-2020
+ * @date   : 13-Apr-2020
  */
 @Repository
 public class TaskCustomRepositoryImpl implements TaskCustomRepository {
@@ -89,6 +89,9 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		if (parameterObject.getDeliveredDate() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), parameterObject.getDeliveredDate()));
 		}
+		if (parameterObject.getOrderDate() != null) {
+			predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), parameterObject.getOrderDate()));
+		}
 		if (parameterObject.getDeliveryBoyId() != null) {
 			Join<Task, DeliveryBoy> deliveryBoy = task.join(DELIVERY_BOY, JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(deliveryBoy.get("id"), parameterObject.getDeliveryBoyId()));
@@ -131,8 +134,7 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);

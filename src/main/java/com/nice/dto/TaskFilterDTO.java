@@ -14,7 +14,7 @@ import lombok.Data;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 @Data
 public class TaskFilterDTO implements Serializable {
@@ -40,5 +40,7 @@ public class TaskFilterDTO implements Serializable {
 	private String searchKeyWord;
 
 	private Date deliveredDate;
+
+	private Date orderDate;
 
 }

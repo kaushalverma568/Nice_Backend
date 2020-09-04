@@ -15,7 +15,9 @@ import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
-import com.nice.dto.OrderNotificationDTO;
+import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
+import com.nice.dto.OrdersListDTOForDeliveryBoy;
+import com.nice.dto.TaskFilterDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -118,12 +120,11 @@ public interface DeliveryBoyService {
 	/**
 	 * accept order
 	 *
-	 * @param  deliveryBoyId
 	 * @param  orderId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void acceptOrder(Long deliveryBoyId, Long orderId) throws NotFoundException, ValidationException;
+	void acceptOrder(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
 	 * validate is log out possible or not
@@ -197,12 +198,14 @@ public interface DeliveryBoyService {
 	void updateIsAvailable(Boolean isAvailable) throws NotFoundException, ValidationException;
 
 	/**
+	 * Get Order detail in delivery boy accept notification
+	 *
 	 * @param  orderId
-	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	OrderNotificationDTO getOrderDetailInDeliveryBoyAcceptNotification(Long orderId, Long deliveryBoyId) throws NotFoundException;
+	OrdersDetailDTOForDeliveryBoy getOrderDetailInDeliveryBoyAcceptNotification(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
 	 * get assigned ordres count(regular orders ,return orders,replace orders separate counts)
@@ -243,4 +246,27 @@ public interface DeliveryBoyService {
 	 */
 	List<DeliveryBoy> getDeliveryBoyListBasedOnParams(Integer startIndex, Integer pageSize, DeliveryBoyFilterDTO deliveryBoyFilterDTO)
 			throws ValidationException;
+
+	/**
+	 * @param  deliveryBoyId
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  taskFilterDTO
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<OrdersListDTOForDeliveryBoy> getOrdersList(Long deliveryBoyId, Integer startIndex, Integer pageSize, TaskFilterDTO taskFilterDTO)
+			throws NotFoundException;
+
+	/**
+	 * Get order details for delivery boy
+	 *
+	 * @param  taskId
+	 * @param  orderId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	OrdersDetailDTOForDeliveryBoy getOrderDetails(Long taskId, Long orderId) throws NotFoundException, ValidationException;
+
 }

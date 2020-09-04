@@ -4,14 +4,16 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
 
 /**
+ *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 04-Apr-2020
+ * @date   : Sep 4, 2020
  */
 @Data
 public class OrdersDetailDTOForDeliveryBoy implements Serializable {
@@ -23,24 +25,62 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	private Long id;
 
+	private Long taskId;
+
 	private String customerName;
 
-	private String customerPhoneNumber;
+	private String customerEmail;
+
+	private String phoneNumber;
 
 	private String paymentMode;
 
-	private String deliveryAddress;
+	private String taskStatus;
+
+	private String address;
+
+	private Double deliveryCharge;
 
 	private Double totalOrderAmount;
 
-	private String taskStatus;
+	private Double grossOrderAmount;
 
-	private List<Date> attemptedAt;
+	private String deliveryBoyName;
 
-	private List<OrderItemDTOForDeliveryBoy> orderItemDTOForDeliveryBoyList;
+	private String deliveryBoyPhoneNumber;
 
-	/**
-	 * added for delivery log
-	 */
-	private String products;
+	private String deliveryBoyEmail;
+
+	private String storeName;
+
+	private String storeImageUrl;
+
+	private Date createdAt;
+
+	private Date deliveryDate;
+
+	private List<OrderItemDTOForDeliveryBoy> orderItemDTOListForDeliveryBoy;
+
+	private String orderRequest;
+
+	private String pickUpAddress;
+
+	private String dropAddress;
+
+	private BigDecimal pickupLatitude;
+
+	private BigDecimal pickupLongitude;
+
+	private BigDecimal dropLatitude;
+
+	private BigDecimal dropLongitude;
+
+	private String pickupContactName;
+
+	private String pickupContactNo;
+
+	private String dropContactName;
+
+	private String dropContactNo;
+
 }

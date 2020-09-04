@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -17,25 +18,25 @@ public class OrdersListDTOForDeliveryBoy implements Serializable {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 9586571908058744L;
+	private static final long serialVersionUID = 3671337851055556338L;
 
 	private Long id;
 
-	private String customerName;
+	private String storeName;
 
-	private String paymentMode;
+	private String storeNameEnglish;
+
+	private String storeNameArabic;
 
 	private String taskStatus;
 
 	private Long taskId;
 
-	private String taskType;
+	private Date orderDate;
 
-	private String deliveryAddress;
+	private Date deliveredDate;
 
-	private Integer totalQty;
-	/**
-	 * this is for collection list in delivery boy app
-	 */
+	private String storeImageUrl;
+
 	private Double orderAmount;
 }

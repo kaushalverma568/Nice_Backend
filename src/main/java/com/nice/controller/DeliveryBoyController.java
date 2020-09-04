@@ -1,6 +1,8 @@
 package com.nice.controller;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.Constant;
+import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
@@ -40,8 +43,10 @@ import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
-import com.nice.dto.OrderNotificationDTO;
+import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
+import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.TaskFilterDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -50,6 +55,7 @@ import com.nice.mapper.DeliveryBoyMapper;
 import com.nice.model.DeliveryBoy;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.DeliveryBoyService;
+import com.nice.service.TaskService;
 import com.nice.util.CommonUtility;
 import com.nice.util.PaginationUtil;
 import com.nice.validator.DeliveryBoyValidator;
@@ -92,6 +98,9 @@ public class DeliveryBoyController {
 
 	@Autowired
 	private DeliveryBoyService deliveryBoyService;
+
+	@Autowired
+	private TaskService taskService;
 
 	@Autowired
 	private TokenStore tokenStore;
@@ -189,7 +198,7 @@ public class DeliveryBoyController {
 	 */
 	@PostMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveryBoyList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
-			@PathVariable final Integer pageSize, @RequestBody final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws NotFoundException, ValidationException {
+			@PathVariable final Integer pageSize, @RequestBody final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
 		LOGGER.info("Inside get delivery boy List");
 		Long totalCount = deliveryBoyService.getDeliveryBoyCountBasedOnParams(deliveryBoyFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
@@ -268,17 +277,16 @@ public class DeliveryBoyController {
 	 * Accept order
 	 *
 	 * @param  accessToken
-	 * @param  deliveryBoyId
 	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@PutMapping("/accept/order/{deliveryBoyId}/{orderId}")
+	@PutMapping("/accept/order/{orderId}")
 	public ResponseEntity<Object> acceptOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("deliveryBoyId") final Long deliveryBoyId,
 			@PathVariable("orderId") final Long orderId) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside accept order by delivery boy {} and order {}", deliveryBoyId, orderId);
-		deliveryBoyService.acceptOrder(deliveryBoyId, orderId);
+		LOGGER.info("Inside accept order where order id {}", orderId);
+		deliveryBoyService.acceptOrder(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("accept.order.success", null))
 				.create();
 	}
@@ -402,13 +410,94 @@ public class DeliveryBoyController {
 	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	@GetMapping("/notification/order/{deliveryBoyId}/{orderId}")
+	@GetMapping("/notification/order/{orderId}")
 	public ResponseEntity<Object> getOrderDetailInDeliveryBoyAcceptNotification(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId) throws NotFoundException {
-		LOGGER.info("Inside get order detail in delivery boy accept notification for id:{} and orderId:{}", deliveryBoyId, orderId);
-		final OrderNotificationDTO orderNotificationDTO = deliveryBoyService.getOrderDetailInDeliveryBoyAcceptNotification(orderId, deliveryBoyId);
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get order detail in delivery boy accept notification for orderId:{}", orderId);
+		final OrdersDetailDTOForDeliveryBoy orderNotificationDTO = deliveryBoyService.getOrderDetailInDeliveryBoyAcceptNotification(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
 				.setData(orderNotificationDTO).create();
+	}
+
+	/**
+	 * Get order detail for delivery boy (This is used for all the order detail screens except (accept/reject notification screen) )
+	 *
+	 * @param  accessToken
+	 * @param  taskId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/order/details/task/{taskId}")
+	public ResponseEntity<Object> getOrderDetail(@RequestHeader("Authorization") final String accessToken, @PathVariable("taskId") final Long taskId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get order detail for taskId:{}", taskId);
+		final OrdersDetailDTOForDeliveryBoy orderDetailsDTO = deliveryBoyService.getOrderDetails(taskId, null);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))
+				.setData(orderDetailsDTO).create();
+	}
+
+	/**
+	 * Get assigned order list for delivery boy
+	 *
+	 * @param  accessToken
+	 * @param  deliveryBoyId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  orderDate
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/list/order/assigned/{deliveryBoyId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getAssignedOrdersList(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestParam(value = "orderDate", required = false) final Date orderDate) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get assigned orders list for delivery boy id:{}", deliveryBoyId);
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setOrderDate(orderDate);
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,
+				taskFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.list.message", null))
+				.setData(orderList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
+				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
+				.create();
+	}
+
+	/**
+	 * Get today's delivered order list for delivery boy
+	 *
+	 * @param  accessToken
+	 * @param  deliveryBoyId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/list/order/delivered/{deliveryBoyId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getDeliveredOrdersList(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside get delivered orders list for delivery boy id:{}", deliveryBoyId);
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setDeliveredDate(new Date());
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,
+				taskFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.list.message", null))
+				.setData(orderList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
+				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
+				.create();
 	}
 }

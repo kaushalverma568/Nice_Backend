@@ -44,7 +44,9 @@ import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.Notification;
-import com.nice.dto.OrderNotificationDTO;
+import com.nice.dto.OrderItemDTOForDeliveryBoy;
+import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
+import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.UserOtpDto;
@@ -74,6 +76,7 @@ import com.nice.service.DeliveryBoyActiveTimeService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
+import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
 import com.nice.service.OtpService;
 import com.nice.service.TaskService;
@@ -142,6 +145,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Autowired
 	private DeviceDetailService deviceDetailService;
+
+	@Autowired
+	private OrderItemService orderItemService;
 
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
@@ -621,44 +627,49 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public synchronized void acceptOrder(final Long deliveryBoyId, final Long orderId) throws NotFoundException, ValidationException {
-		/**
-		 * check is order already accepted then throw exception else set delivery boy in order
-		 */
-		Orders orders = ordersService.getOrderById(orderId);
-		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
-			throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
-		}
-		/**
-		 * update delivery boy's current status to is busy
-		 */
-		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
-		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
-		deliveryBoyCurrentStatus.setIsBusy(true);
-		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
-		/**
-		 * change order status
-		 */
-		orders.setDeliveryBoy(deliveryBoy);
-		ordersService.changeStatus(Constant.IN_PROCESS, orders);
+	public synchronized void acceptOrder(final Long orderId) throws NotFoundException, ValidationException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
+			/**
+			 * check is order already accepted then throw exception else set delivery boy in order
+			 */
+			Orders orders = ordersService.getOrderById(orderId);
+			if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+				throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
+			}
+			/**
+			 * update delivery boy's current status to is busy
+			 */
+			DeliveryBoy deliveryBoy = getDeliveryBoyDetail(userLogin.getEntityId());
+			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
+			deliveryBoyCurrentStatus.setIsBusy(true);
+			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+			/**
+			 * change order status
+			 */
+			orders.setDeliveryBoy(deliveryBoy);
+			ordersService.changeStatus(Constant.IN_PROCESS, orders);
 
-		/**
-		 * create a delivery task for delivery boy
-		 */
-		TaskDto taskDto = new TaskDto();
-		taskDto.setDeliveryBoyId(deliveryBoyId);
-		taskDto.setOrderId(orders.getId());
-		taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+			/**
+			 * create a delivery task for delivery boy
+			 */
+			TaskDto taskDto = new TaskDto();
+			taskDto.setDeliveryBoyId(deliveryBoy.getId());
+			taskDto.setOrderId(orders.getId());
+			taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
 
-		taskService.createTask(taskDto);
+			taskService.createTask(taskDto);
 
-		/**
-		 * remove delivery boy notification history for this order
-		 */
-		List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
-				.findAllByOrderId(orderId);
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
-			deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
+			/**
+			 * remove delivery boy notification history for this order
+			 */
+			List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
+					.findAllByOrderId(orderId);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
+				deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
+			}
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 	}
 
@@ -706,44 +717,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				return false;
 			}
 		}
-	}
-
-	@Override
-	public OrderNotificationDTO getOrderDetailInDeliveryBoyAcceptNotification(final Long orderId, final Long deliveryBoyId) throws NotFoundException {
-		Double distance = null;
-		String pickUpAddress = null;
-		String dropAddress = null;
-
-		Orders orders = ordersService.getOrderById(orderId);
-		OrderNotificationDTO orderNotificationDTO = new OrderNotificationDTO();
-		BeanUtils.copyProperties(orders, orderNotificationDTO);
-		if (OrderStatusEnum.CONFIRMED.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())
-				|| OrderStatusEnum.IN_PROCESS.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())) {
-			pickUpAddress = getVendorAddress(orders.getVendor());
-			dropAddress = orders.getAddress();
-			/**
-			 * distance will be distance between vendor and delivery location
-			 */
-			distance = CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
-					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
-			orderNotificationDTO.setDistance(distance);
-		} else if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equalsIgnoreCase(orders.getOrderStatus())) {
-			/**
-			 * at the time of replacement delivery boy goes to customer's location first
-			 */
-			pickUpAddress = orders.getAddress();
-			dropAddress = getVendorAddress(orders.getVendor());
-			/**
-			 * distance will be 2 times distance between vendor and customer
-			 */
-			distance = 2 * CommonUtility.distance(orders.getLatitude().doubleValue(), orders.getLongitude().doubleValue(),
-					orders.getVendor().getLatitude().doubleValue(), orders.getVendor().getLongitude().doubleValue());
-
-		}
-		orderNotificationDTO.setPickUpAddress(pickUpAddress);
-		orderNotificationDTO.setDropAddress(dropAddress);
-		orderNotificationDTO.setDistance(distance);
-		return orderNotificationDTO;
 	}
 
 	protected String getVendorAddress(final Vendor vendor) {
@@ -818,6 +791,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 		for (Task task : taskList) {
 			dashBoardDetailDTO.setOnGoingOrderId(task.getOrder().getId());
+			dashBoardDetailDTO.setOnGoingTaskId(task.getId());
 		}
 		/**
 		 * for today's total cash collection
@@ -842,4 +816,96 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		sortByFieldAndDirection(deliveryBoyFilterDTO);
 		return deliveryBoyRepository.getDeliveryBoyListBasedOnParams(startIndex, pageSize, deliveryBoyFilterDTO);
 	}
+
+	@Override
+	public OrdersDetailDTOForDeliveryBoy getOrderDetailInDeliveryBoyAcceptNotification(final Long orderId) throws NotFoundException, ValidationException {
+		return getOrderDetails(null, orderId);
+	}
+
+	@Override
+	public OrdersDetailDTOForDeliveryBoy getOrderDetails(final Long taskId, final Long orderId) throws NotFoundException, ValidationException {
+		if ((orderId == null && taskId == null) || (orderId != null && taskId != null)) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.id.task.id.not.null", null));
+		}
+		Locale locale = LocaleContextHolder.getLocale();
+		Orders orders;
+		OrdersDetailDTOForDeliveryBoy ordersDetailDTOForDeliveryBoy = new OrdersDetailDTOForDeliveryBoy();
+		if (taskId != null) {
+			Task task = taskService.getTaskDetail(taskId);
+			orders = task.getOrder();
+			ordersDetailDTOForDeliveryBoy.setTaskId(taskId);
+			ordersDetailDTOForDeliveryBoy.setTaskStatus(task.getStatus());
+			ordersDetailDTOForDeliveryBoy.setDeliveryDate(task.getDeliveredDate());
+			if (locale.getLanguage().equals("en")) {
+				ordersDetailDTOForDeliveryBoy.setStoreName(orders.getVendor().getStoreNameEnglish());
+				ordersDetailDTOForDeliveryBoy
+						.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameEnglish() + " " + task.getDeliveryBoy().getLastNameEnglish());
+			} else {
+				ordersDetailDTOForDeliveryBoy.setStoreName(orders.getVendor().getStoreNameArabic());
+				ordersDetailDTOForDeliveryBoy.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameArabic() + " " + task.getDeliveryBoy().getLastNameArabic());
+			}
+			ordersDetailDTOForDeliveryBoy.setDeliveryBoyPhoneNumber(task.getDeliveryBoy().getPhoneNumber());
+			ordersDetailDTOForDeliveryBoy.setDeliveryBoyEmail(task.getDeliveryBoy().getEmail());
+
+		} else {
+			orders = ordersService.getOrderById(orderId);
+		}
+		BeanUtils.copyProperties(orders, ordersDetailDTOForDeliveryBoy);
+		ordersDetailDTOForDeliveryBoy.setCustomerEmail(orders.getCustomer().getEmail());
+		ordersDetailDTOForDeliveryBoy.setCustomerName(orders.getFirstName() + " " + orders.getLastName());
+		ordersDetailDTOForDeliveryBoy.setOrderRequest("New Order");
+		ordersDetailDTOForDeliveryBoy.setDropLatitude(orders.getLatitude());
+		ordersDetailDTOForDeliveryBoy.setDropLongitude(orders.getLongitude());
+		ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddress());
+		ordersDetailDTOForDeliveryBoy.setDropContactNo(orders.getPhoneNumber());
+		ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getFirstName() + " " + orders.getLastName());
+		ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getVendor().getLatitude());
+		ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getVendor().getLongitude());
+		ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getVendor().getStorePhoneNumber());
+		ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
+		// ordersDetailDTOForDeliveryBoy.setDistance(orders.getDistance());
+		if (locale.getLanguage().equals("en")) {
+			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameEnglish());
+		} else {
+			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameArabic());
+		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(orders.getVendor().getStoreImageName())) {
+			ordersDetailDTOForDeliveryBoy.setStoreImageUrl(assetService.getGeneratedUrl(orders.getVendor().getStoreImageName(), AssetConstant.VENDOR));
+		}
+		List<OrderItemDTOForDeliveryBoy> orderItemDTOListForDeliveryBoy = orderItemService.getOrderItemDeliveryBoyDTOListForOrderId(orders.getId());
+		ordersDetailDTOForDeliveryBoy.setOrderItemDTOListForDeliveryBoy(orderItemDTOListForDeliveryBoy);
+		return ordersDetailDTOForDeliveryBoy;
+	}
+
+	@Override
+	public List<OrdersListDTOForDeliveryBoy> getOrdersList(final Long deliveryBoyId, final Integer startIndex, final Integer pageSize,
+			final TaskFilterDTO taskFilterDTO) throws NotFoundException {
+		Locale locale = LocaleContextHolder.getLocale();
+		getDeliveryBoyDetail(deliveryBoyId);
+		List<Task> taskList = taskService.getTaskListBasedOnParams(taskFilterDTO, startIndex, pageSize);
+		List<OrdersListDTOForDeliveryBoy> ordersListDTOsForDeliveryBoy = new ArrayList<>();
+		for (Task task : taskList) {
+			OrdersListDTOForDeliveryBoy ordersListDTOForDeliveryBoy = new OrdersListDTOForDeliveryBoy();
+			ordersListDTOForDeliveryBoy.setId(task.getOrder().getId());
+			ordersListDTOForDeliveryBoy.setTaskId(task.getId());
+			ordersListDTOForDeliveryBoy.setTaskStatus(task.getStatus());
+			ordersListDTOForDeliveryBoy.setOrderDate(task.getOrder().getCreatedAt());
+			ordersListDTOForDeliveryBoy.setDeliveredDate(task.getDeliveredDate());
+			ordersListDTOForDeliveryBoy.setOrderAmount(task.getOrder().getTotalOrderAmount());
+			if (locale.getLanguage().equals("en")) {
+				ordersListDTOForDeliveryBoy.setStoreName(task.getOrder().getVendor().getStoreNameEnglish());
+			} else {
+				ordersListDTOForDeliveryBoy.setStoreName(task.getOrder().getVendor().getStoreNameArabic());
+			}
+			ordersListDTOForDeliveryBoy.setStoreNameEnglish(task.getOrder().getVendor().getStoreNameEnglish());
+			ordersListDTOForDeliveryBoy.setStoreNameArabic(task.getOrder().getVendor().getStoreNameArabic());
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(task.getOrder().getVendor().getStoreImageName())) {
+				ordersListDTOForDeliveryBoy
+						.setStoreImageUrl(assetService.getGeneratedUrl(task.getOrder().getVendor().getStoreImageName(), AssetConstant.VENDOR));
+			}
+			ordersListDTOsForDeliveryBoy.add(ordersListDTOForDeliveryBoy);
+		}
+		return ordersListDTOsForDeliveryBoy;
+	}
+
 }

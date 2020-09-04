@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 17-07-2020
+ * @date   : 17-07-2020
  */
 @Data
 public class DashBoardDetailDTO implements Serializable {
@@ -33,4 +33,6 @@ public class DashBoardDetailDTO implements Serializable {
 	private Boolean isAvailable;
 
 	private Long onGoingOrderId;
+
+	private Long onGoingTaskId;
 }

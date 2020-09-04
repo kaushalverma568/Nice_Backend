@@ -13,12 +13,12 @@ import com.nice.model.OrdersItem;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 public interface OrderItemService {
 
 	/**
-	 * @param orderItemId
+	 * @param  orderItemId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -26,21 +26,21 @@ public interface OrderItemService {
 
 	/**
 	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<OrdersItem> getOrderItemForOrderId(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param orderItemList
+	 * @param  orderItemList
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<OrderItemResponseDTO> toOrderItemResponseDto(List<OrdersItem> orderItemList) throws NotFoundException;
 
 	/**
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -48,10 +48,19 @@ public interface OrderItemService {
 
 	/**
 	 *
-	 * @param orderItemList
+	 * @param  orderItemList
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<OrderItemDTOForDeliveryBoy> convertToOrderItemDtoForDeliveryBoy(List<OrdersItem> orderItemList) throws NotFoundException;
+
+	/**
+	 * get order item list for delivery boy
+	 *
+	 * @param  orderId
+	 * @return
+	 * @throws NotFoundException
+	 */
+	List<OrderItemDTOForDeliveryBoy> getOrderItemDeliveryBoyDTOListForOrderId(Long orderId) throws NotFoundException;
 
 }

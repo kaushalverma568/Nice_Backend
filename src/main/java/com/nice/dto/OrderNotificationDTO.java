@@ -1,6 +1,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import lombok.Data;
 
@@ -21,14 +22,32 @@ public class OrderNotificationDTO implements Serializable {
 
 	private String orderStatus;
 
+	private String orderRequest;
+
 	private String pickUpAddress;
 
 	private String dropAddress;
+
+	private BigDecimal pickupLatitude;
+
+	private BigDecimal pickupLongitude;
+
+	private BigDecimal dropLatitude;
+
+	private BigDecimal dropLongitude;
 
 	private String paymentMode;
 
 	private Double totalOrderAmount;
 
 	private Double distance;
+
+	private String pickupContactName;
+
+	private String pickupContactNo;
+
+	private String dropContactName;
+
+	private String dropContactNo;
 
 }
