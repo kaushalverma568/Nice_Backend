@@ -17,11 +17,17 @@ public class VendorBasicDetailDTO implements Serializable {
 
 	private Long id;
 
-	private String firstName;
+	private String firstNameEnglish;
 
-	private String lastName;
+	private String lastNameEnglish;
 
-	private String storeName;
+	private String firstNameArabic;
+
+	private String lastNameArabic;
+
+	private String storeNameEnglish;
+
+	private String storeNameArabic;
 
 	private Boolean profileCompleted;
 

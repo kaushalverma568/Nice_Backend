@@ -29,6 +29,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Customer;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
@@ -42,7 +43,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -94,8 +95,11 @@ public class SendEmailNotificationComponent {
 	@Autowired
 	private VendorService vendorService;
 
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -166,8 +170,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -209,8 +212,7 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -236,7 +238,7 @@ public class SendEmailNotificationComponent {
 	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
 		Map<String, String> paramMap = new HashMap<>();
 		String sendOtpSubject = applicationName + " Subscription Expire Reminder";
-		paramMap.put("message", "Your subscription will expired in 7 days.Renew Your subscription.");
+		paramMap.put("message", messageByLocaleService.getMessage("subscription.plan.reminder.message", null));
 		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name());
 	}
 
@@ -245,19 +247,21 @@ public class SendEmailNotificationComponent {
 		VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
 		String message = null;
 		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
-			message = "Your account is Approved by admin Kindly Login to procced.";
+			message = messageByLocaleService.getMessage("vendor.approve.message", null);
 		} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
-			message = "Your account is Suspended by admin Kindly contact admin for further process.";
+			message = messageByLocaleService.getMessage("vendor.suspend.message", null);
 		} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
-			message = "Your account is Rejected by admin Kindly contact admin for further process.";
+			message = messageByLocaleService.getMessage("vendor.reject.messag", null);
 		} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
-			message = "Your account subscription is expired.Kindly purchase one to coutinue with us.";
+			message = messageByLocaleService.getMessage("vendor.expire.message", null);
 		} else {
 			return;
 		}
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		String subject = applicationName + " vendor update";
-		emailParameterMap.put("vendorName", vendor.getFirstName().concat(" ").concat(vendor.getLastName()));
+		emailParameterMap.put("vendorName",
+				vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
+						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 		emailParameterMap.put("message", message);
 		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name());
 	}
