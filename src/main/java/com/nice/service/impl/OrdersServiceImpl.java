@@ -29,6 +29,7 @@ import com.nice.constant.DeliveryType;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMethod;
 import com.nice.constant.PaymentMode;
+import com.nice.constant.SettingsConstant;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
@@ -98,9 +99,7 @@ import com.nice.service.OnlineService;
 import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
 import com.nice.service.PincodeService;
-import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductVariantService;
-import com.nice.service.SettingsService;
 import com.nice.service.StateService;
 import com.nice.service.StockDetailsService;
 import com.nice.service.VendorService;
@@ -169,9 +168,6 @@ public class OrdersServiceImpl implements OrdersService {
 	private CityService cityService;
 
 	@Autowired
-	private SettingsService settingsService;
-
-	@Autowired
 	private StateService stateService;
 
 	@Autowired
@@ -197,9 +193,6 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private CartToppingsService cartToppingsService;
-
-	@Autowired
-	private ProductAttributeValueService productAttributeValueService;
 
 	@Autowired
 	private OrderToppingsRepository orderToppingsRepository;
@@ -229,7 +222,7 @@ public class OrdersServiceImpl implements OrdersService {
 		orderRequestDto.setCustomerId(customerId);
 		CustomerAddress customerAddress = customerAddressService.getAddressDetails(orderRequestDto.getShippingAddressId());
 		City city = customerAddress.getCity();
-
+		Customer customer = customerService.getCustomerDetails(customerId);
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(orderRequestDto.getCustomerId());
 		if (cartItemList.isEmpty()) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.unavailable", null));
@@ -297,12 +290,35 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 
-		Double calculatedOrderAmt = validateOrderAmount(cartItemList, orderRequestDto);
+		/**
+		 * This amount includes amount with delivery charge, the wallet contribution would be calculated after that and
+		 * subtracted from the actual order amount.
+		 */
+		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList);
+
+		Double amountAfterWalletDeduction = calculatedOrderAmt;
+		/**
+		 * Check for wallet amount if the wallet amount is to be utilized
+		 */
+		if (orderRequestDto.getUseWallet().booleanValue()) {
+			amountAfterWalletDeduction = Double.sum(amountAfterWalletDeduction, customer.getWalletAmt() * -1);
+			orderRequestDto.setWalletContribution(customer.getWalletAmt());
+		} else {
+			orderRequestDto.setWalletContribution(0.0d);
+		}
+
+		/**
+		 * Validate order amount
+		 */
+		if (!amountAfterWalletDeduction.equals(CommonUtility.round(orderRequestDto.getTotalOrderAmount()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.amount.mismatch", new Object[] { amountAfterWalletDeduction }));
+		}
+
 		/**
 		 * Validate and prepare order object
 		 */
 		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
-			Orders order = createOrder(cartItemList, orderRequestDto, calculatedOrderAmt);
+			Orders order = createOrder(cartItemList, orderRequestDto, amountAfterWalletDeduction);
 
 			/**
 			 * remove items from cart
@@ -529,6 +545,8 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setDistance(distance);
 		order.setOrderStatus(OrderStatusEnum.PENDING.getStatusValue());
 		order.setTotalOrderAmount(calculatedOrderAmt);
+		order.setGrossOrderAmount(Double.sum(calculatedOrderAmt, orderRequestDto.getWalletContribution()));
+		order.setWalletContribution(orderRequestDto.getWalletContribution());
 
 		// TODO
 		/**
@@ -677,28 +695,20 @@ public class OrdersServiceImpl implements OrdersService {
 			orderItem.setOrderToppingsList(orderToppingsList);
 		}
 
-		// TODO
-		/**
-		 * Remove the coupon code related code if not required.
-		 */
-		/**
-		 * Check for coupon code.
-		 */
-		// List<OrderItem> orderItemList =
-		// couponService.applyDiscountOnOrderItemBasedOnCouponCode(new
-		// ArrayList<>(orderItemSet), orderRequestDto.getCouponCode());
-
-		// TODO
 		/**
 		 * Check if delivery charge is applicable
 		 */
-		// DeliveryChargeDTO deliveryCharegeDto =
-		// deliveryChargeService.getDeliveryCharge(Constant.DELIVERY_CHARGE_ID);
-		// if (orderItemTotal < deliveryCharegeDto.getOrdersBelow()) {
-		// order.setDeliveryCharge(deliveryCharegeDto.getDeliveryChargeValue());
-		// } else {
-		// order.setDeliveryCharge(0d);
-		// }
+		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
+		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
+		/**
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
+		 */
+		if (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery) {
+			order.setDeliveryCharge(deliveryCharge);
+		} else {
+			order.setDeliveryCharge(0d);
+		}
 		order.setReplaced(false);
 		ordersRepository.save(order);
 		for (OrdersItem orderItem : orderItemList) {
@@ -743,22 +753,6 @@ public class OrdersServiceImpl implements OrdersService {
 		orderStatus.setStatus(order.getOrderStatus());
 		orderStatus.setActive(true);
 		orderStatusRepository.save(orderStatus);
-	}
-
-	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	private Double validateOrderAmount(final List<CartItem> cartItemList, final OrderRequestDTO orderRequestDto) throws NotFoundException, ValidationException {
-		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList);
-
-		if (!calculatedOrderAmt.equals(round(orderRequestDto.getTotalOrderAmount()))) {
-			throw new ValidationException(messageByLocaleService.getMessage("order.amount.mismatch", new Object[] { calculatedOrderAmt }));
-		}
-		return calculatedOrderAmt;
 	}
 
 	private Double calculateTotalOrderAmt(final List<CartItem> cartItemList) throws NotFoundException {
@@ -813,26 +807,19 @@ public class OrdersServiceImpl implements OrdersService {
 					+ totalAddonsAmount;
 		}
 
-		// TODO
-
 		/**
-		 * Add delivery charge if applicable
+		 * Check if delivery charge is applicable
 		 */
-		// DeliveryChargeDTO deliveryCharegeDto =
-		// deliveryChargeService.getDeliveryCharge(Constant.DELIVERY_CHARGE_ID);
-		// if (orderAmt < deliveryCharegeDto.getOrdersBelow()) {
-		// orderAmt = orderAmt + deliveryCharegeDto.getDeliveryChargeValue();
-		// }
-		return round(orderAmt);
-	}
-
-	/**
-	 * @param orderAmt
-	 * @return
-	 */
-	private Double round(final Double orderAmt) {
-		Long orderAmtLong = Math.round(orderAmt * 100);
-		return orderAmtLong.doubleValue() / 100;
+		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
+		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
+		/**
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
+		 */
+		if (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery) {
+			orderAmt += Double.sum(orderAmt, deliveryCharge);
+		}
+		return CommonUtility.round(orderAmt);
 	}
 
 	/**
@@ -1246,7 +1233,6 @@ public class OrdersServiceImpl implements OrdersService {
 	public void changeStatus(final Long ordersId, final String status) throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(ordersId);
 		changeStatus(status, orders);
-		VendorResponseDTO vendorResponseDto = vendorService.getVendor(orders.getVendor().getId());
 	}
 
 	@Override

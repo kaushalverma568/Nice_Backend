@@ -95,4 +95,19 @@ public final class Constant {
 
 	public static final String BUSINESS_CATEGORY_GROCERY = "Grocery";
 	public static final String BUSINESS_CATEGORY_FOOD_DELIVERY = "Food Delivery";
+
+	/**
+	 * Image dimensions in pixels
+	 */
+	public static final int IMAGE_WIDTH = 150;
+	public static final int IMAGE_HEIGHT = 150;
+
+	/**
+	 * Delivery Charge
+	 */
+	public static final String ORDER_DELIVERY_CHARGE = "ORDER_DELIVERY_CHARGE";
+	public static final String ORDER_AMOUNT_FOR_FREE_DELIVERY = "ORDER_AMOUNT_FOR_FREE_DELIVERY";
+	public static final String DAY_MIN_ORDER_DELIVERED = "DAY_MIN_ORDER_DELIVERED";
+	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_THRESHOLD = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
+	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_THRESHOLD = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
 }

@@ -13,7 +13,7 @@ import com.nice.service.SettingsService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class StaticData implements CommandLineRunner {
@@ -29,6 +29,17 @@ public class StaticData implements CommandLineRunner {
 			SettingsConstant.setSettingsValue("SEND_SMS", settingsService.getSettingsDetailsByNameForNonEncryptedFields("SEND_SMS").getFieldValue());
 			SettingsConstant.setSettingsValue("SEND_EMAIL", settingsService.getSettingsDetailsByNameForNonEncryptedFields("SEND_EMAIL").getFieldValue());
 			SettingsConstant.setSettingsValue("SMS_API_KEY", settingsService.getSettingsDetailsByNameForNonEncryptedFields("SMS_API_KEY").getFieldValue());
+			SettingsConstant.setSettingsValue("ORDER_DELIVERY_CHARGE",
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields("ORDER_DELIVERY_CHARGE").getFieldValue());
+			SettingsConstant.setSettingsValue("ORDER_AMOUNT_FOR_FREE_DELIVERY",
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields("ORDER_AMOUNT_FOR_FREE_DELIVERY").getFieldValue());
+			SettingsConstant.setSettingsValue("DAY_MIN_ORDER_DELIVERED",
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DAY_MIN_ORDER_DELIVERED").getFieldValue());
+			SettingsConstant.setSettingsValue("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS",
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS").getFieldValue());
+			SettingsConstant.setSettingsValue("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS",
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS").getFieldValue());
+
 		} catch (ValidationException e) {
 			logger.error("Error in load static data method");
 		}

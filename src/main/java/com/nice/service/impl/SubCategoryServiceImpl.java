@@ -53,7 +53,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
@@ -306,8 +306,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param  subCategoryImports
-	 * @param  userId
+	 * @param subCategoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {
@@ -320,14 +320,15 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				Optional<Category> category = categoryRepository.findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(
-						subCategoryImport.getCategoryNameEnglish(), vendor, subCategoryImport.getCategoryNameArabic(), vendor);
+				Optional<Category> category = categoryRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(
+						subCategoryImport.getCategoryNameEnglish(), subCategoryImport.getCategoryNameArabic(), vendor);
 				if (!category.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("category.not.present",
 							new Object[] { subCategoryImport.getCategoryNameEnglish().concat(" , ").concat(subCategoryImport.getCategoryNameArabic()) }));
-				} else if (subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(subCategoryImport.getNameEnglish(),
-						category.get(), subCategoryImport.getCategoryNameArabic(), category.get()).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("subcategory.name.not.unique", null));
+				} else if (subCategoryRepository.findByNameEnglishIgnoreCaseAndCategory(subCategoryImport.getNameEnglish(), category.get()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("subcategory.name.english.not.unique", null));
+				} else if (subCategoryRepository.findByNameArabicIgnoreCaseAndCategory(subCategoryImport.getNameArabic(), category.get()).isPresent()) {
+					throw new ValidationException(messageByLocaleService.getMessage("subcategory.name.arabic.not.unique", null));
 				} else {
 					final SubCategoryDTO subCategoryDTO = new SubCategoryDTO();
 					subCategoryDTO.setNameEnglish(subCategoryImport.getNameEnglish());

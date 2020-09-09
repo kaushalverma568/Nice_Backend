@@ -97,4 +97,11 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 	 * @return
 	 */
 	Page<Brand> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2, Pageable pageable);
+
+	/**
+	 * @param brandNameEnglish
+	 * @param brandNameArabic
+	 * @return
+	 */
+	Optional<Brand> findByNameEnglishIgnoreCaseAndNameArabicIgnoreCase(String brandNameEnglish, String brandNameArabic);
 }

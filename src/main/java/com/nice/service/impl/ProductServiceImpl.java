@@ -83,7 +83,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -375,7 +375,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -487,10 +487,10 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -633,9 +633,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -665,7 +665,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -827,8 +827,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTOs
-	 * @param  userId
+	 * @param productImportDTOs
+	 * @param userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -862,12 +862,13 @@ public class ProductServiceImpl implements ProductService {
 		productRequestDTO.setActive(true);
 
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getNameEnglish())) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.name.not.null", null));
+			throw new ValidationException(messageByLocaleService.getMessage("product.name.english.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getNameArabic())) {
-			throw new ValidationException(messageByLocaleService.getMessage("product.name.not.null", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryNameEnglish())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryNameArabic())) {
-			throw new ValidationException(messageByLocaleService.getMessage("category.name.not.null", null));
+			throw new ValidationException(messageByLocaleService.getMessage("product.name.arabic.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryNameEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("category.name.english.not.null", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCategoryNameArabic())) {
+			throw new ValidationException(messageByLocaleService.getMessage("category.name.arabic.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionEnglish())) {
 			throw new ValidationException(messageByLocaleService.getMessage("description.english.not.null", null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getDescriptionArabic())) {
@@ -880,12 +881,12 @@ public class ProductServiceImpl implements ProductService {
 				|| EGG.equalsIgnoreCase(productImportDTO.getProductFoodType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.proper", new Object[] { messageByLocaleService.getMessage(VEG, null),
 					messageByLocaleService.getMessage(NON_VEG, null), messageByLocaleService.getMessage(EGG, null) }));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
-			throw new ValidationException(messageByLocaleService.getMessage("brand.cuisine.required", null));
-		} else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())
-				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
-			throw new ValidationException(messageByLocaleService.getMessage("one.of.brand.cuisine.required", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameEnglish())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("brand.or.cuisine.english.required", null));
+		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameArabic())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameArabic())) {
+			throw new ValidationException(messageByLocaleService.getMessage("brand.or.cuisine.arabic.required", null));
 		}
 		if (VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())) {
 			productRequestDTO.setProductFoodType(1);
@@ -899,50 +900,53 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTO
-	 * @param  brandId
-	 * @param  vendor
-	 * @param  productRequestDTO
+	 * @param productImportDTO
+	 * @param brandId
+	 * @param vendor
+	 * @param productRequestDTO
 	 * @throws ValidationException
 	 */
-	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, Long brandId, final Vendor vendor,
+	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, final Long brandId, final Vendor vendor,
 			final ProductRequestDTO productRequestDTO) throws ValidationException {
-		Optional<Category> category = categoryRepository.findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(
-				productImportDTO.getCategoryNameEnglish(), vendor, productImportDTO.getCategoryNameArabic(), vendor);
+		Optional<Category> category = categoryRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(productImportDTO.getCategoryNameEnglish(),
+				productImportDTO.getCategoryNameArabic(), vendor);
 		if (!category.isPresent()) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("category.not.found.name", new Object[] { productImportDTO.getCategoryNameEnglish() }));
+			throw new ValidationException(messageByLocaleService.getMessage("category.name.english.arabic.not.found",
+					new Object[] { productImportDTO.getCategoryNameEnglish(), productImportDTO.getCategoryNameArabic() }));
 		} else {
 			productRequestDTO.setCategoryId(category.get().getId());
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getSubcategoryNameEnglish())
 				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getSubcategoryNameArabic())) {
-			Optional<SubCategory> subCategory = subCategoryRepository.findByNameEnglishIgnoreCaseAndCategoryOrNameArabicIgnoreCaseAndCategory(
-					productImportDTO.getSubcategoryNameEnglish(), category.get(), productImportDTO.getSubcategoryNameArabic(), category.get());
+			Optional<SubCategory> subCategory = subCategoryRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndCategory(
+					productImportDTO.getSubcategoryNameEnglish(), productImportDTO.getSubcategoryNameArabic(), category.get());
 			if (!subCategory.isPresent()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("subcategory.not.found.name", new Object[] { productImportDTO.getSubcategoryNameEnglish() }));
+				throw new ValidationException(messageByLocaleService.getMessage("subcategory.name.english.arabic.not.found",
+						new Object[] { productImportDTO.getSubcategoryNameEnglish(), productImportDTO.getSubcategoryNameArabic() }));
 			} else {
 				productRequestDTO.setSubcategoryId(subCategory.get().getId());
 			}
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineName())) {
-			Optional<Cuisine> cuisine = cuisineRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(productImportDTO.getCuisineName(),
-					productImportDTO.getCuisineName());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameEnglish())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameArabic())) {
+			Optional<Cuisine> cuisine = cuisineRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCase(productImportDTO.getCuisineNameEnglish(),
+					productImportDTO.getCuisineNameArabic());
 			if (!cuisine.isPresent()) {
-				throw new ValidationException(messageByLocaleService.getMessage("cuisine.not.found.name", new Object[] { productImportDTO.getCuisineName() }));
+				throw new ValidationException(messageByLocaleService.getMessage("cuisine.name.english.arabic.not.found",
+						new Object[] { productImportDTO.getCuisineNameEnglish(), productImportDTO.getCuisineNameArabic() }));
 			} else {
 				productRequestDTO.setCuisineId(cuisine.get().getId());
 			}
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandName())) {
-			Optional<Brand> brand = brandRepository.findByNameEnglishIgnoreCaseOrNameArabicIgnoreCase(productImportDTO.getBrandName(),
-					productImportDTO.getBrandName());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameEnglish())
+				&& CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameArabic())) {
+			Optional<Brand> brand = brandRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCase(productImportDTO.getBrandNameEnglish(),
+					productImportDTO.getBrandNameArabic());
 			if (!brand.isPresent()) {
-				throw new ValidationException(messageByLocaleService.getMessage("brand.not.found.name", new Object[] { productImportDTO.getBrandName() }));
+				throw new ValidationException(messageByLocaleService.getMessage("brand.name.english.arabic.not.found",
+						new Object[] { productImportDTO.getBrandNameEnglish(), productImportDTO.getBrandNameArabic() }));
 			} else {
-				brandId = brand.get().getId();
-				productRequestDTO.setBrandId(brandId);
+				productRequestDTO.setBrandId(brand.get().getId());
 			}
 		}
 		if (productRepository.findByNameEnglishIgnoreCaseAndBrandIdAndVendorId(productImportDTO.getNameEnglish(), brandId, vendor.getId()).isPresent()) {

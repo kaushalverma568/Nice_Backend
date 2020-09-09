@@ -1,12 +1,15 @@
 package com.nice.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.http.MediaType;
 
 /**
  * Determine file's content type
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 public class MediaFileUtil {
 	private static final String PNG_EXT = ".png";
@@ -39,5 +42,9 @@ public class MediaFileUtil {
 		default:
 			return MediaType.APPLICATION_OCTET_STREAM;
 		}
+	}
+
+	public static List<String> getSupportedImageFileExtensions() {
+		return Arrays.asList(PNG_EXT, JPG_EXT, JPEG_EXT, GIF_EXT);
 	}
 }

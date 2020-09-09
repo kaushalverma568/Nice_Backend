@@ -22,13 +22,20 @@ import com.nice.service.AmazonS3ClientService;
 import com.nice.service.AssetService;
 import com.nice.service.FileStorageService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ImageUtility;
+import com.nice.util.MediaFileUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
+
+	/**
+	 * 
+	 */
+	private static final String EXTENSION = "extension";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AssetServiceImpl.class);
 
@@ -44,6 +51,9 @@ public class AssetServiceImpl implements AssetService {
 	@Value("${s3.url}")
 	private String s3Url;
 
+	@Autowired
+	private ImageUtility imageUtility;
+
 	@Override
 	public String saveAsset(final MultipartFile image, final String subDirectory, final int count) {
 		if (AssetConstant.IS_AWS) {
@@ -56,18 +66,27 @@ public class AssetServiceImpl implements AssetService {
 	/**
 	 * Save images for mentioned sub directory
 	 *
-	 * @param  image
-	 * @param  subDirectory
-	 * @param  count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param image
+	 * @param subDirectory
+	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
 	 * @return
 	 */
 	private String saveAssetLocal(final MultipartFile image, final String subDirectory, final int count) {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
+			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
+				// TODO
+				/**
+				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the
+				 * exceptions thrown in method signature for the functionality, currently as there is issue with git it is commented as
+				 * there are not conflicts in files due to this.
+				 */
+				// image = imageUtility.resizeImage(image);
+			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");
-				String extension = imageProperties.remove("extension");
+				String extension = imageProperties.remove(EXTENSION);
 				newFileName = newfileNameWithOutExtension.concat("_").concat(String.valueOf(count)).concat(".").concat(extension);
 			} else {
 				newFileName = imageProperties.remove("newFileName");
@@ -83,9 +102,19 @@ public class AssetServiceImpl implements AssetService {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
+			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
+				// TODO
+				/**
+				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the
+				 * exceptions thrown in method signature for the functionality, currently as there is issue with git it is commented as
+				 * there are not conflicts in files due to this.
+				 */
+
+				// image = imageUtility.resizeImage(image);
+			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");
-				String extension = imageProperties.remove("extension");
+				String extension = imageProperties.remove(EXTENSION);
 				newFileName = newfileNameWithOutExtension.concat("_").concat(String.valueOf(count)).concat(".").concat(extension);
 			} else {
 				newFileName = imageProperties.remove("newFileName");

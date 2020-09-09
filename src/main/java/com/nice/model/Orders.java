@@ -148,4 +148,8 @@ public class Orders extends CommonModel {
 
 	@Column(name = "distance", nullable = false)
 	private Double distance;
+
+	@Column(name = "wallet_contribution", nullable = true)
+	private Double walletContribution;
+
 }

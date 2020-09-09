@@ -19,34 +19,38 @@ public class ProductImportDTO implements Serializable {
 
 	private String nameEnglish;
 
-	private String descriptionEnglish;
-
 	private String nameArabic;
+
+	private String descriptionEnglish;
 
 	private String descriptionArabic;
 
 	private String categoryNameEnglish;
 
-	private String subcategoryNameEnglish;
-
 	private String categoryNameArabic;
+
+	private String subcategoryNameEnglish;
 
 	private String subcategoryNameArabic;
 
-	private String brandName;
+	private Boolean combo;
 
-	private Long vendorId;
+	private String brandNameEnglish;
 
-	private String cuisineName;
+	private String brandNameArabic;
 
 	private Boolean productAvailable;
 
-	private Boolean combo;
+	private String cuisineNameEnglish;
+
+	private String cuisineNameArabic;
 
 	/**
 	 * this need to be either Veg , Non_veg or egg (case in-sensitive)
 	 */
 	private String productFoodType;
+
+	private Long vendorId;
 
 	private String uploadMessage;
 }

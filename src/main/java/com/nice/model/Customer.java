@@ -65,4 +65,6 @@ public class Customer extends CommonModel {
 	@Column(name = "preferred_language")
 	private String preferredLanguage;
 
+	@Column(name = "wallet_amt")
+	private Double walletAmt;
 }

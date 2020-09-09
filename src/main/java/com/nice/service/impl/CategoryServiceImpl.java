@@ -340,8 +340,8 @@ public class CategoryServiceImpl implements CategoryService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (categoryRepository.findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(categoryImport.getNameEnglish(), vendor,
-						categoryImport.getNameArabic(), vendor).isPresent()) {
+				if (categoryRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(categoryImport.getNameEnglish(), categoryImport.getNameArabic(),
+						vendor).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("category.name.not.unique", null));
 				} else {
 					final CategoryDTO categoryDTO = new CategoryDTO();

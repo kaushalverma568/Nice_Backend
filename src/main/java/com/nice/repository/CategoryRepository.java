@@ -121,11 +121,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
 	/**
 	 * @param  nameEnglish
-	 * @param  vendor
 	 * @param  nameArabic
-	 * @param  vendor2
+	 * @param  vendor
 	 * @return
 	 */
-	Optional<Category> findByNameEnglishIgnoreCaseAndVendorOrNameArabicIgnoreCaseAndVendor(String nameEnglish, Vendor vendor, String nameArabic,
-			Vendor vendor2);
+	Optional<Category> findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(String nameEnglish, String nameArabic, Vendor vendor);
 }
