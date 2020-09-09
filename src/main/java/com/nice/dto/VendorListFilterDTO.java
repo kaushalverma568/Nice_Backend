@@ -57,6 +57,6 @@ public class VendorListFilterDTO implements Serializable {
 
 	private Boolean isPopular;
 
-	private Boolean isNew;
+	private Boolean isNewArrival;
 
 }

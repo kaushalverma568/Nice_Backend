@@ -23,7 +23,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.google.gson.Gson;
 import com.nice.dto.DecryptResponseDTO;
 import com.nice.dto.EncryptResponseDTO;
-import com.nice.dto.VendorPaymentDTO;
 import com.nice.service.HesabePaymentService;
 
 /**
@@ -54,10 +53,10 @@ public class HesabePaymentServiceImpl implements HesabePaymentService {
 	private String serviceUrl;
 
 	@Override
-	public String createPaymentGatewayVendor(final VendorPaymentDTO vendorPaymentDTO) {
-		LOGGER.info("inside create hesabe payment url with orderId :{}", vendorPaymentDTO.getVendorOrderId());
+	public String createPaymentGateway(final String orderId, final Double amount) {
+		LOGGER.info("inside create hesabe payment url with orderId :{}", orderId);
 		String redirectUrl = serviceUrl + "vendor/subscription/hesabe";
-		String encryptedResponse = encryptData(vendorPaymentDTO.getAmount(), vendorPaymentDTO.getVendorOrderId(), redirectUrl);
+		String encryptedResponse = encryptData(amount, orderId, redirectUrl);
 		String checkOutResponse = checkOut(encryptedResponse);
 		String decryptedResponse = decrypt(checkOutResponse);
 		DecryptResponseDTO decryptResponseDTO = convertToDecryptedResponseDTO(decryptedResponse);
@@ -127,12 +126,12 @@ public class HesabePaymentServiceImpl implements HesabePaymentService {
 		return result.getBody();
 	}
 
-	EncryptResponseDTO convertToEncryptedResponseDTO(final String encryptResponse) {
+	private EncryptResponseDTO convertToEncryptedResponseDTO(final String encryptResponse) {
 		Gson gson = new Gson();
 		return gson.fromJson(encryptResponse, EncryptResponseDTO.class);
 	}
 
-	DecryptResponseDTO convertToDecryptedResponseDTO(final String decryptResponse) {
+	private DecryptResponseDTO convertToDecryptedResponseDTO(final String decryptResponse) {
 		Gson gson = new Gson();
 		return gson.fromJson(decryptResponse, DecryptResponseDTO.class);
 	}

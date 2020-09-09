@@ -238,7 +238,11 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
 		sqlQuery.append(" group by (v.id) ");
-		if (vendorListFilterDTO.getIsNameSorting() != null && vendorListFilterDTO.getIsNameSorting().booleanValue()) {
+		if (vendorListFilterDTO.getIsPopular() != null && vendorListFilterDTO.getIsPopular().booleanValue()) {
+			sqlQuery.append(" order by v.rating desc");
+		} else if (vendorListFilterDTO.getIsNewArrival() != null && vendorListFilterDTO.getIsNewArrival().booleanValue()) {
+			sqlQuery.append(" order by v.created_at desc");
+		} else if (vendorListFilterDTO.getIsNameSorting() != null && vendorListFilterDTO.getIsNameSorting().booleanValue()) {
 			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 				sqlQuery.append(" order by v.store_name_english asc");
 			} else {

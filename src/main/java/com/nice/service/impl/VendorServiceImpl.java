@@ -546,7 +546,7 @@ public class VendorServiceImpl implements VendorService {
 			vendorPaymentDTO.setVendorId(vendorId);
 			vendorPaymentDTO.setActive(true);
 			LOGGER.info("inside hesabe gateway for generate url");
-			String url = hesabePaymentService.createPaymentGatewayVendor(vendorPaymentDTO);
+			String url = hesabePaymentService.createPaymentGateway(vendorPaymentDTO.getVendorOrderId(), vendorPaymentDTO.getAmount());
 			LOGGER.info("outside hesabe gateway for generate url");
 			vendorPaymentService.addVendorPayment(vendorPaymentDTO);
 			return url;
@@ -728,6 +728,10 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO, final Integer startIndex, final Integer pageSize)
 			throws ValidationException, NotFoundException {
+		/**
+		 * if customer address is not there then lat long should be there for
+		 * calculating distance.
+		 */
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
@@ -736,6 +740,14 @@ public class VendorServiceImpl implements VendorService {
 			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
 			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+		}
+		/**
+		 * for sorting for popular and new arrival only one of them is allowed at time
+		 * if both then will throw exception.
+		 */
+		if (vendorListFilterDTO.getIsPopular() != null && vendorListFilterDTO.getIsPopular().booleanValue() && vendorListFilterDTO.getIsNewArrival() != null
+				&& vendorListFilterDTO.getIsNewArrival().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("only.one.sorting.allowed", null));
 		}
 		List<VendorAppResponseDTO> responseDTOs = new ArrayList<>();
 		List<Vendor> vendors = vendorRepository.getVendorListForCustomerBasedOnParams(startIndex, pageSize, vendorListFilterDTO);

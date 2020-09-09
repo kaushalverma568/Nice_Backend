@@ -3,20 +3,19 @@
  */
 package com.nice.service;
 
-import com.nice.dto.VendorPaymentDTO;
-
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date : 22-Aug-2020
  */
 public interface HesabePaymentService {
 	/**
-	 * for vendor subscription plan purchase and generate url
+	 * for Hesabe to generate payment url
 	 *
-	 * @param vendorPaymentDTO
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
-	String createPaymentGatewayVendor(VendorPaymentDTO vendorPaymentDTO);
+	String createPaymentGateway(String orderId, Double amount);
 
 	/**
 	 * for decrypt hesabe encrypted string
