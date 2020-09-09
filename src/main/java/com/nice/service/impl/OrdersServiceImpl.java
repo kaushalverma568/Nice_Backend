@@ -545,7 +545,6 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setDistance(distance);
 		order.setOrderStatus(OrderStatusEnum.PENDING.getStatusValue());
 		order.setTotalOrderAmount(calculatedOrderAmt);
-		order.setGrossOrderAmount(Double.sum(calculatedOrderAmt, orderRequestDto.getWalletContribution()));
 		order.setWalletContribution(orderRequestDto.getWalletContribution());
 
 		// TODO
@@ -639,6 +638,7 @@ public class OrdersServiceImpl implements OrdersService {
 					orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
 				}
 				orderAddonsList.add(orderAddons);
+				orderItemTotal += orderAddons.getAmount();
 			}
 			orderItem.setOrderAddonsList(orderAddonsList);
 
@@ -655,7 +655,7 @@ public class OrdersServiceImpl implements OrdersService {
 				if (cartExtras.getProductExtras().getDiscountedRate() != null) {
 					orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
 				}
-
+				orderItemTotal += orderExtras.getAmount();
 				orderExtrasList.add(orderExtras);
 			}
 			orderItem.setOrderExtrasList(orderExtrasList);
@@ -674,6 +674,7 @@ public class OrdersServiceImpl implements OrdersService {
 					orderProductAttributeValue
 							.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate() * cartProductAttribute.getQuantity());
 				}
+				orderItemTotal += orderProductAttributeValue.getAmount();
 				orderProductAttributeValuesList.add(orderProductAttributeValue);
 			}
 			orderItem.setOrderProductAttributeValuesList(orderProductAttributeValuesList);
@@ -690,6 +691,7 @@ public class OrdersServiceImpl implements OrdersService {
 				if (cartToppings.getProductToppings().getDiscountedRate() != null) {
 					orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
 				}
+				orderItemTotal += orderToppings.getAmount();
 				orderToppingsList.add(orderToppings);
 			}
 			orderItem.setOrderToppingsList(orderToppingsList);
@@ -709,6 +711,7 @@ public class OrdersServiceImpl implements OrdersService {
 		} else {
 			order.setDeliveryCharge(0d);
 		}
+		order.setGrossOrderAmount(orderItemTotal);
 		order.setReplaced(false);
 		ordersRepository.save(order);
 		for (OrdersItem orderItem : orderItemList) {
@@ -817,7 +820,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * charge is to be taken for all order set the value to any negative value
 		 */
 		if (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery) {
-			orderAmt += Double.sum(orderAmt, deliveryCharge);
+			orderAmt = Double.sum(orderAmt, deliveryCharge);
 		}
 		return CommonUtility.round(orderAmt);
 	}

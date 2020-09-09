@@ -19,11 +19,14 @@ public final class SettingsConstant {
 	private static String sendSMS = "false";
 	private static String sendEmail = "false";
 	private static String smsApiKey = "default";
-	private static Double orderDeliveryChargeCustomer = 0.0d;
-	private static Double orderDeliveryChargeDeliveryBoy = 0.0d;
-	private static Double fixedDeliveryChargeCustomer = 0.0d;
-	private static Double fixedDeliveryChargeDeliveryBoy = 0.0d;
-	private static Double minimumKMForDeliveryCharge = 0.0d;
+	private static Double orderDeliveryCharge = 0.0d;
+	private static Double deliveryChargeDeliveryBoyBelowMinOrders = 0.0d;
+	private static Double deliveryChargeDeliveryBoyAboveMinOrders = 0.0d;
+	/**
+	 * This contains the minimum orders to be delivered per day to be eligible for increased delivery charge
+	 */
+	private static Double dayMinOrderDelivered = 0.0d;
+	private static Double orderAmountForFreeDelivery = 0.0d;
 
 	/**
 	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
@@ -39,15 +42,15 @@ public final class SettingsConstant {
 		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
 			smsApiKey = value;
 		} else if ("ORDER_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
-			orderDeliveryChargeCustomer = Double.valueOf(String.valueOf(value));
-		} else if ("ORDER_DELIVERY_CHARGE_DELIVERY_BOY".equalsIgnoreCase(key)) {
-			orderDeliveryChargeDeliveryBoy = Double.valueOf(String.valueOf(value));
-		} else if ("FIXED_DELIVERY_CHARGE_CUSTOMER".equalsIgnoreCase(key)) {
-			fixedDeliveryChargeCustomer = Double.valueOf(String.valueOf(value));
-		} else if ("FIXED_DELIVERY_CHARGE_DELIVERY_BOY".equalsIgnoreCase(key)) {
-			fixedDeliveryChargeDeliveryBoy = Double.valueOf(String.valueOf(value));
-		} else if ("MINIMUM_KM_FOR_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
-			minimumKMForDeliveryCharge = Double.valueOf(String.valueOf(value));
+			orderDeliveryCharge = Double.valueOf(String.valueOf(value));
+		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS".equalsIgnoreCase(key)) {
+			deliveryChargeDeliveryBoyBelowMinOrders = Double.valueOf(String.valueOf(value));
+		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
+			deliveryChargeDeliveryBoyAboveMinOrders = Double.valueOf(String.valueOf(value));
+		} else if ("DAY_MIN_ORDER_DELIVERED".equalsIgnoreCase(key)) {
+			dayMinOrderDelivered = Double.valueOf(String.valueOf(value));
+		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
+			orderAmountForFreeDelivery = Double.valueOf(String.valueOf(value));
 		}
 	}
 
@@ -63,15 +66,15 @@ public final class SettingsConstant {
 		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
 			return smsApiKey;
 		} else if ("ORDER_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
-			return orderDeliveryChargeCustomer;
-		} else if ("ORDER_DELIVERY_CHARGE_DELIVERY_BOY".equalsIgnoreCase(key)) {
-			return orderDeliveryChargeDeliveryBoy;
-		} else if ("FIXED_DELIVERY_CHARGE_CUSTOMER".equalsIgnoreCase(key)) {
-			return fixedDeliveryChargeCustomer;
-		} else if ("FIXED_DELIVERY_CHARGE_DELIVERY_BOY".equalsIgnoreCase(key)) {
-			return fixedDeliveryChargeDeliveryBoy;
-		} else if ("MINIMUM_KM_FOR_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
-			return minimumKMForDeliveryCharge;
+			return orderDeliveryCharge;
+		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS".equalsIgnoreCase(key)) {
+			return deliveryChargeDeliveryBoyBelowMinOrders;
+		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
+			return deliveryChargeDeliveryBoyAboveMinOrders;
+		} else if ("DAY_MIN_ORDER_DELIVERED".equalsIgnoreCase(key)) {
+			return dayMinOrderDelivered;
+		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
+			return orderAmountForFreeDelivery;
 		}
 		return null;
 	}

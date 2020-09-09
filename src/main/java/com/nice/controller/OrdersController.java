@@ -45,7 +45,7 @@ import com.nice.util.PaginationUtil;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -69,9 +69,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  orderRequestDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param orderRequestDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -103,15 +103,16 @@ public class OrdersController {
 		} /**
 			 * send email ends here
 			 */
-		return new GenericResponseHandlers.Builder().setData(orderId).setMessage("order.create.successful").setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setData(orderId).setMessage(messageByLocaleService.getMessage("order.create.successful", null))
+				.setStatus(HttpStatus.OK).create();
 	}
 
 	/**
 	 *
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  orderListFilterDto
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -145,9 +146,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  accessToken
-	 * @param  orderListFilterDto
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param orderListFilterDto
+	 * @param httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -164,8 +165,8 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  orderId
+	 * @param token
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -182,9 +183,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -206,10 +207,10 @@ public class OrdersController {
 	/**
 	 * replace order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -231,10 +232,10 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -257,10 +258,10 @@ public class OrdersController {
 	 * Change status of order </br>
 	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  orderId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param orderId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -300,8 +301,8 @@ public class OrdersController {
 	/**
 	 * Retry for searching delivery boys for assignment of order
 	 *
-	 * @param  accessToken
-	 * @param  orderId
+	 * @param accessToken
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
