@@ -23,14 +23,14 @@ import com.nice.model.Vendor;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Dec-2019
+ * @date : 30-Dec-2019
  */
 public interface StockDetailsService {
 
 	/**
-	 * Get details of Stock Dto by id 
+	 * Get details of Stock Dto by id
 	 *
-	 * @param  countryId
+	 * @param countryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -39,7 +39,7 @@ public interface StockDetailsService {
 	/**
 	 * Get Stock details based on Id : Specially for internally calls
 	 *
-	 * @param  countryId
+	 * @param countryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -47,9 +47,9 @@ public interface StockDetailsService {
 
 	/**
 	 * used for stock transfer
-	 * 
-	 * @param  stockTransferDto
-	 * @param  userId
+	 *
+	 * @param stockTransferDto
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -58,19 +58,19 @@ public interface StockDetailsService {
 
 	/**
 	 * entity to DTO
-	 * 
-	 * @param  stockDetails
+	 *
+	 * @param stockDetails
 	 * @return
 	 * @throws NotFoundException
 	 */
 	StockDetailsDTO fetchStockInfo(StockDetails stockDetails) throws NotFoundException;
 
 	/**
-	 * get available from product id and uom id 
-	 * 
-	 * @param  productId
-	 * @param  uomId
-	 * @param  vendorId
+	 * get available from product id and uom id
+	 *
+	 * @param productId
+	 * @param uomId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -79,22 +79,22 @@ public interface StockDetailsService {
 
 	/**
 	 * export filtered list
-	 * 
-	 * @param  httpServletResponse
-	 * @param  stockDetailFilterDTO
+	 *
+	 * @param httpServletResponse
+	 * @param stockDetailFilterDTO
 	 * @throws NotFoundException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	void exportStockDetailsList(HttpServletResponse httpServletResponse, StockDetailFilterDTO stockDetailFilterDTO) throws NotFoundException, FileNotFoundException;
-
+	void exportStockDetailsList(HttpServletResponse httpServletResponse, StockDetailFilterDTO stockDetailFilterDTO)
+			throws NotFoundException, FileNotFoundException;
 
 	/**
 	 * get List by pagination
-	 * 
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  stockDetailFilterDTO
+	 *
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param stockDetailFilterDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -102,11 +102,10 @@ public interface StockDetailsService {
 	Page<StockDetailsDTO> getStockDetailsList(Integer pageNumber, Integer pageSize, StockDetailFilterDTO stockDetailFilterDTO)
 			throws NotFoundException, ValidationException;
 
-	
 	/**
 	 * get stock detail from sku
-	 * 
-	 * @param  sku
+	 *
+	 * @param sku
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -115,8 +114,8 @@ public interface StockDetailsService {
 	/**
 	 * get lot no list by vendor and product variant
 	 *
-	 * @param  vendorId
-	 * @param  productVariantId
+	 * @param vendorId
+	 * @param productVariantId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -125,23 +124,23 @@ public interface StockDetailsService {
 
 	/**
 	 * get lot no list by product variant
-	 * 
-	 * @param  vendorId
-	 * @param  productVariantId
+	 *
+	 * @param vendorId
+	 * @param productVariantId
 	 * @return
 	 */
 	List<Long> getLotNosWithAvailableQtyFromProductVariant(Long vendorId, Long productVariantId);
 
 	/**
 	 * for expire schedular run
-	 * 
+	 *
 	 * @param runDate
 	 */
 	void moveQtyToExpiredState(Date runDate);
 
 	/**
-	 * stock details from product variant and vendor 
-	 * 
+	 * stock details from product variant and vendor
+	 *
 	 * @param productvariant
 	 * @param vendorId
 	 * @return
@@ -151,8 +150,8 @@ public interface StockDetailsService {
 	List<StockDetails> getStockDetailsForProductVariant(ProductVariant productvariant, Long vendorId) throws NotFoundException, ValidationException;
 
 	/**
-	 * stock detail from lot no 
-	 * 
+	 * stock detail from lot no
+	 *
 	 * @param productvariant
 	 * @param vendorId
 	 * @param lotNo
@@ -164,7 +163,7 @@ public interface StockDetailsService {
 
 	/**
 	 * add Stock
-	 * 
+	 *
 	 * @param addStockDto
 	 * @return
 	 * @throws ValidationException
@@ -173,35 +172,35 @@ public interface StockDetailsService {
 	StockDetailsDTO addStockDetails(AddStockDto addStockDto) throws ValidationException, NotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param productVariant
 	 * @param vendorId
 	 * @param lotNo
 	 * @return
 	 * @throws NotFoundException
 	 */
-	StockDetails getStockDetailsForProductVarientAndLotAndVendor(ProductVariant productVariant, Long vendorId,Long lotNo) throws NotFoundException;
+	StockDetails getStockDetailsForProductVarientAndLotAndVendor(ProductVariant productVariant, Long vendorId, Long lotNo) throws NotFoundException;
 
 	/**
-	 * Available count from product variant  
-	 * 
+	 * Available count from product variant
+	 *
 	 * @param productVariant
 	 * @return
 	 */
 	Long getCountForVariantForVendor(ProductVariant productVariant);
 
 	/**
-	 *  AddStockRequestDTO details  to add stock
-	 * 
+	 * AddStockRequestDTO details to add stock
+	 *
 	 * @param addStockRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void addStockDetails(AddStockRequestDTO addStockRequestDTO)	throws NotFoundException, ValidationException;
+	void addStockDetails(AddStockRequestDTO addStockRequestDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * delete stock
-	 * 
+	 *
 	 * @param productId
 	 * @param uomId
 	 * @param vendorId
@@ -212,8 +211,8 @@ public interface StockDetailsService {
 	void deleteStock(Long productId, Long uomId, Long vendorId, Long lotNo) throws NotFoundException, ValidationException;
 
 	/**
-	 * get variant from product Id and Uom Id 
-	 * 
+	 * get variant from product Id and Uom Id
+	 *
 	 * @param productId
 	 * @param uomId
 	 * @return
@@ -223,7 +222,7 @@ public interface StockDetailsService {
 
 	/**
 	 * validation method required from validator
-	 * 
+	 *
 	 * @param stockRequestDTOs
 	 * @param vendor
 	 * @param productVariant
@@ -231,5 +230,13 @@ public interface StockDetailsService {
 	 * @throws ValidationException
 	 */
 	boolean validateAddStockDetails(List<LotwiseStockRequestDTO> stockRequestDTOs, Vendor vendor, ProductVariant productVariant) throws ValidationException;
+
+	/**
+	 * @param key
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	StockDetails getStockDetailsByProductVariantAndLotNo(Long productVariantId, Long lotNo) throws NotFoundException, ValidationException;
 
 }

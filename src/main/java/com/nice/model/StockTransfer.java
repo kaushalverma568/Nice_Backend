@@ -53,11 +53,7 @@ public class StockTransfer extends CommonModel {
 	@Column(name = "is_manual")
 	private Boolean isManual;
 
-	
 	@Column(name = "order_id")
 	private Long orderId;
-
-	@Column(name = "order_from")
-	private String orderFrom;
 
 }

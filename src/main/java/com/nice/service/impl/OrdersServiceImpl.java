@@ -8,9 +8,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,14 +32,18 @@ import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMethod;
 import com.nice.constant.PaymentMode;
 import com.nice.constant.SettingsConstant;
+import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
+import com.nice.dto.BusinessCategoryDTO;
+import com.nice.dto.CustomerResponseDTO;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrderStatusDto;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
+import com.nice.dto.StockTransferDto;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.AuthorizationException;
 import com.nice.exception.FileNotFoundException;
@@ -71,6 +77,7 @@ import com.nice.model.OrdersToppings;
 import com.nice.model.Pincode;
 import com.nice.model.ProductVariant;
 import com.nice.model.State;
+import com.nice.model.StockAllocation;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.CartItemRepository;
@@ -87,6 +94,7 @@ import com.nice.repository.OrderProductAttributeValueRepository;
 import com.nice.repository.OrderStatusHistoryRepository;
 import com.nice.repository.OrderToppingsRepository;
 import com.nice.repository.OrdersRepository;
+import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartAddonsService;
 import com.nice.service.CartExtrasService;
 import com.nice.service.CartItemService;
@@ -101,7 +109,10 @@ import com.nice.service.OrdersService;
 import com.nice.service.PincodeService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.StateService;
+import com.nice.service.StockAllocationService;
 import com.nice.service.StockDetailsService;
+import com.nice.service.StockTransferService;
+import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
@@ -214,6 +225,18 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private StockDetailsService stockDetailsService;
+
+	@Autowired
+	private StockAllocationService stockAllocationService;
+
+	@Autowired
+	private StockTransferService stockTransferService;
+
+	@Autowired
+	private UserLoginService userLoginService;
+
+	@Autowired
+	private BusinessCategoryService businessCategoryService;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -940,6 +963,9 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		VendorResponseDTO vendorDto = vendorService.getVendor(orders.getVendor().getId());
 		orderResponseDto.setVendorImageUrl(vendorDto.getStoreImageUrl());
+		BusinessCategoryDTO businessCategory = businessCategoryService.getBusinessCategory(vendorDto.getBusinessCategoryId());
+		orderResponseDto.setManageInventory(businessCategory.getManageInventory());
+		orderResponseDto.setVendorContactNumber(vendorDto.getPhoneNumber());
 		return orderResponseDto;
 	}
 
@@ -973,7 +999,9 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.change.status", null));
 		}
 
+		String allocatedFor = TaskTypeEnum.DELIVERY.name();
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		final String existingStockStatus = existingOrderStatus.getStockValue();
 		if (!existingOrderStatus.contains(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
 		}
@@ -981,6 +1009,14 @@ public class OrdersServiceImpl implements OrdersService {
 		ordersRepository.save(order);
 
 		saveOrderStatusHistory(order);
+
+		/**
+		 * If the order status is related to replacement then set allocatedFor as Replacement
+		 */
+		if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
+				|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+			allocatedFor = TaskTypeEnum.REPLACEMENT.name();
+		}
 
 		/**
 		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
@@ -993,58 +1029,48 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
 		 * case of replacement of orders that will be handled in a different way
 		 */
-		// if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
-		// &&
-		// !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue()))
-		// {
-		// /**
-		// * Fetch list of all allocated stock based on lot and move one by one for the
-		// order.
-		// */
-		// List<StockAllocation> stockAllocationList =
-		// stockAllocationService.getAllocatedStockForOrder(order.getId(),
-		// allocatedFor);
-		// for (StockAllocation stockAllocation : stockAllocationList) {
-		// StockTransferDto stockTransferDto = new StockTransferDto();
-		// stockTransferDto.setTransferedFrom(existingStockStatus);
-		// stockTransferDto.setTransferedTo(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue());
-		// stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
-		// stockTransferDto.setQuantity(stockAllocation.getQuantity());
-		// stockTransferDto.setOrderId(order.getId());
-		// stockTransferDto.setStoreId(stockAllocation.getStoreId());
-		// stockTransferDto.setOrderFrom(OrderFromEnum.WEBSITE.name());
-		// internalStockTransferService.transferStock(stockTransferDto, userId);
-		// }
-		// }
+		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
+				&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+			/**
+			 * Fetch list of all allocated stock based on lot and move one by one for the order.
+			 */
+			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
+			for (StockAllocation stockAllocation : stockAllocationList) {
+				StockTransferDto stockTransferDto = new StockTransferDto();
+				stockTransferDto.setTransferedFrom(existingStockStatus);
+				stockTransferDto.setTransferedTo(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue());
+				stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
+				stockTransferDto.setQuantity(stockAllocation.getQuantity());
+				stockTransferDto.setOrderId(order.getId());
+				stockTransferDto.setVendorId(stockAllocation.getVendorId());
+				stockTransferService.transferStock(stockTransferDto);
+			}
+		}
 		/**
 		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
 		 * replaced status
 		 */
-		// if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
-		// List<StockAllocation> stockAllocationList =
-		// stockAllocationService.getAllocatedStockForOrder(order.getId(),
-		// TaskTypeEnum.REPLACEMENT.name());
-		// Set<Long> orderItemIdSet = new HashSet<>();
-		// for (StockAllocation stockAllocation : stockAllocationList) {
-		// orderItemIdSet.add(stockAllocation.getOrderItem().getId());
-		// }
-		// for (Long orderItem : orderItemIdSet) {
-		// List<StockAllocation> replacementStockAllocationList =
-		// stockAllocationService.getAllocatedStockForOrderItem(orderItem,
-		// TaskTypeEnum.DELIVERY.name());
-		// for (StockAllocation stockAllocation : replacementStockAllocationList) {
-		// StockTransferDto stockTransferDto = new StockTransferDto();
-		// stockTransferDto.setTransferedFrom(Constant.DELIVERED);
-		// stockTransferDto.setTransferedTo(Constant.REPLACED);
-		// stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
-		// stockTransferDto.setQuantity(stockAllocation.getQuantity());
-		// stockTransferDto.setOrderId(order.getId());
-		// stockTransferDto.setStoreId(stockAllocation.getStoreId());
-		// stockTransferDto.setOrderFrom(OrderFromEnum.WEBSITE.name());
-		// internalStockTransferService.transferStock(stockTransferDto, userId);
-		// }
-		// }
-		// }
+		if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
+			Set<Long> orderItemIdSet = new HashSet<>();
+			for (StockAllocation stockAllocation : stockAllocationList) {
+				orderItemIdSet.add(stockAllocation.getOrderItem().getId());
+			}
+			for (Long orderItem : orderItemIdSet) {
+				List<StockAllocation> replacementStockAllocationList = stockAllocationService.getAllocatedStockForOrderItem(orderItem,
+						TaskTypeEnum.DELIVERY.name());
+				for (StockAllocation stockAllocation : replacementStockAllocationList) {
+					StockTransferDto stockTransferDto = new StockTransferDto();
+					stockTransferDto.setTransferedFrom(Constant.DELIVERED);
+					stockTransferDto.setTransferedTo(Constant.REPLACED);
+					stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
+					stockTransferDto.setQuantity(stockAllocation.getQuantity());
+					stockTransferDto.setOrderId(order.getId());
+					stockTransferDto.setVendorId(stockAllocation.getVendorId());
+					stockTransferService.transferStock(stockTransferDto);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -1084,6 +1110,22 @@ public class OrdersServiceImpl implements OrdersService {
 		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusRepository.findAllByOrderId(orderId));
 		ordersResponseDTO.setOrderStatusDtoList(orderStatusDtoList);
 		ordersResponseDTO.setOrderDate(order.getCreatedAt());
+		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(ordersResponseDTO.getOrderStatus())) {
+			for (OrderStatusDto orderStatusDto : orderStatusDtoList) {
+				if (OrderStatusEnum.CANCELLED.getStatusValue().equals(orderStatusDto.getStatus())) {
+					ordersResponseDTO.setCancelDate(orderStatusDto.getCreatedAt());
+					UserLogin userLoginTemp = userLoginService.getUserLoginDetail(orderStatusDto.getCreatedBy());
+					if (userLoginTemp.getEntityType().equalsIgnoreCase(UserType.CUSTOMER.name())) {
+						CustomerResponseDTO customerResponseDto = customerService.getCustomer(userLoginTemp.getEntityId());
+						ordersResponseDTO.setCancelledBy(customerResponseDto.getName());
+					} else {
+						ordersResponseDTO.setCancelledBy(messageByLocaleService.getMessage("nice", null));
+					}
+				}
+			}
+		}
+
+		
 		return ordersResponseDTO;
 	}
 

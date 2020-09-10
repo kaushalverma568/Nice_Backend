@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 28-Jan-2020
+ * @date : 28-Jan-2020
  */
 
 @Data
@@ -38,6 +38,6 @@ public class StockTransferDto implements Serializable {
 	private Long uomId;
 
 	private Long orderId;
-	private String orderFrom;
 
+	private Long stockDetailsId;
 }

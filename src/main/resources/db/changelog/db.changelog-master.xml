@@ -241,7 +241,7 @@
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 	
-	<changeSet id="35" author="het.shah"
+	<changeSet id="34" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/wallet.sql" relativeToChangelogFile="true"
@@ -259,6 +259,13 @@
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/order_add_wallet_column.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
+	
+	<changeSet id="38" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/stock_transfer_remove_order_from.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 </databaseChangeLog>

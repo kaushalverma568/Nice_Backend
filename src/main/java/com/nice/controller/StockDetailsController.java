@@ -46,6 +46,10 @@ import com.nice.validator.AddStockValidator;
 @RestController
 public class StockDetailsController {
 
+	/**
+	 * 
+	 */
+	private static final String STOCK_DETAIL_LIST_MESSAGE = "stock.detail.list.message";
 	private static final Logger LOGGER = LoggerFactory.getLogger(StockDetailsController.class);
 	/**
 	 * Locale message service - to display response messages from Property file
@@ -113,7 +117,7 @@ public class StockDetailsController {
 			throws NotFoundException, ValidationException {
 		Page<StockDetailsDTO> stockDetailsList = stockDetailsService.getStockDetailsList(pageNumber, pageSize, stockDetailFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message", null)).setData(stockDetailsList.getContent())
+				.setMessage(messageByLocaleService.getMessage(STOCK_DETAIL_LIST_MESSAGE, null)).setData(stockDetailsList.getContent())
 				.setHasNextPage(stockDetailsList.hasNext()).setHasPreviousPage(stockDetailsList.hasPrevious()).setTotalPages(stockDetailsList.getTotalPages())
 				.setPageNumber(stockDetailsList.getNumber() + 1).setTotalCount(stockDetailsList.getTotalElements()).create();
 	}
@@ -178,7 +182,7 @@ public class StockDetailsController {
 			throws NotFoundException,  FileNotFoundException {
 		stockDetailsService.exportStockDetailsList(httpServletResponse, stockDetailFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message", null)).create();
+				.setMessage(messageByLocaleService.getMessage(STOCK_DETAIL_LIST_MESSAGE, null)).create();
 	}
 
 	/**
@@ -194,7 +198,7 @@ public class StockDetailsController {
 			throws NotFoundException {
 		List<Long> lotNoList = stockDetailsService.getStockDetailsForSku(sku);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message", null)).setData(lotNoList)
+				.setMessage(messageByLocaleService.getMessage(STOCK_DETAIL_LIST_MESSAGE, null)).setData(lotNoList)
 				.setStatus(HttpStatus.OK).create();
 	}
 
@@ -214,7 +218,7 @@ public class StockDetailsController {
 			throws NotFoundException, ValidationException {
 		List<Long> lotNoList = stockDetailsService.getLotNoListByVendorAndProductVariant(vendorId, productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message",null)).setData(lotNoList)
+				.setMessage(messageByLocaleService.getMessage(STOCK_DETAIL_LIST_MESSAGE,null)).setData(lotNoList)
 				.setStatus(HttpStatus.OK).create();
 	}
 
@@ -231,7 +235,7 @@ public class StockDetailsController {
 			@PathVariable(name = "vendorId") final Long vendorId, @PathVariable(name = "productVariantId") final Long productVariantId) {
 		List<Long> lotNoList = stockDetailsService.getLotNosWithAvailableQtyFromProductVariant(vendorId, productVariantId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("stock.detail.list.message",null)).setData(lotNoList)
+				.setMessage(messageByLocaleService.getMessage(STOCK_DETAIL_LIST_MESSAGE,null)).setData(lotNoList)
 				.setStatus(HttpStatus.OK).create();
 	}
 	

@@ -84,6 +84,7 @@ public final class Constant {
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
+	public static final String STOCK_ALLOCATED = "Stock Allocated";
 	public static final String BUSINESS_CATEGORY_FOOD_ENGLISH = "Food Delivery";
 	public static final String BUSINESS_CATEGORY_FOOD_ARABIC = "توصيل طلبات الطعام";
 	public static final String VENDOR_STORE_IMAGE = "VENDOR_STORE_IMAGE";
@@ -110,4 +111,5 @@ public final class Constant {
 	public static final String DAY_MIN_ORDER_DELIVERED = "DAY_MIN_ORDER_DELIVERED";
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_THRESHOLD = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_THRESHOLD = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
+
 }

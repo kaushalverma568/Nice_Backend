@@ -112,8 +112,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		LOGGER.info("StockDetail Object to save :{}", stockDetails);
 		stockDetails = stockDetailsRepository.save(stockDetails);
 		/**
-		 * Make an entry in the manual transaction table related to addition of new
-		 * stock. Here direct repository call of manual stock transfer is made
+		 * Make an entry in the manual transaction table related to addition of new stock. Here direct repository call of manual
+		 * stock transfer is made
 		 */
 		StockTransfer stockTransfer = new StockTransfer();
 		stockTransfer.setActive(true);
@@ -463,8 +463,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 			return stockDetails.get();
 		}
 		/**
-		 * Create a new object and insert it into database and return it back with
-		 * default values of qty in all status as 0
+		 * Create a new object and insert it into database and return it back with default values of qty in all status as 0
 		 */
 		else {
 			StockDetails stockDetail = createDefaultStockDetailObject(productvariant, lotNo, vendorId);
@@ -535,6 +534,14 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		stockTransfer.setIsManual(true);
 		LOGGER.info("ManualStockTransfer Object to save :{}", stockTransfer);
 		stockTransferRepository.save(stockTransfer);
+	}
+
+	@Override
+	public StockDetails getStockDetailsByProductVariantAndLotNo(final Long productVariantId, final Long lotNo) throws NotFoundException, ValidationException {
+		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
+		ProductVariantResponseDTO productVariantResponse = productVariantService.getProductVariant(productVariantId);
+		return stockDetailsRepository.findByProductVariantAndLotNo(productVariant, lotNo).orElseThrow(() -> new NotFoundException(messageByLocaleService
+				.getMessage("stock.not.avaliable", new Object[] { productVariantResponse.getProductName(), productVariantResponse.getUomLabel(), lotNo })));
 	}
 
 }
