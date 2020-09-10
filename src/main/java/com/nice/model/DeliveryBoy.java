@@ -90,10 +90,10 @@ public class DeliveryBoy extends CommonModel {
 	@Column(name = "phone_verified", nullable = false)
 	private Boolean phoneVerified;
 
-	@Column(name = "rating", nullable = false)
+	@Column(name = "rating", nullable = false, columnDefinition = "numeric(10,2) DEFAULT 0")
 	private Double rating;
 
-	@Column(name = "no_of_rating", nullable = false)
+	@Column(name = "no_of_rating", nullable = false, columnDefinition = "bigint DEFAULT 0")
 	private Long noOfRating;
 
 	@Column(name = "profile_picture_name")

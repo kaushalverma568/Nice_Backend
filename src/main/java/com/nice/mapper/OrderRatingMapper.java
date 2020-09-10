@@ -14,8 +14,10 @@ import com.nice.dto.OrderRatingResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.OrderRating;
+import com.nice.model.Orders;
 import com.nice.model.Vendor;
 import com.nice.service.DeliveryBoyService;
+import com.nice.service.OrdersService;
 import com.nice.service.VendorService;
 
 /**
@@ -30,6 +32,9 @@ public class OrderRatingMapper {
 
 	@Autowired
 	private VendorService vendorService;
+	
+	@Autowired
+	private OrdersService ordersService;
 
 	public OrderRatingResponseDTO toResponseDto(final OrderRating orderRating) throws NotFoundException {
 		final Locale locale = LocaleContextHolder.getLocale();
@@ -39,6 +44,8 @@ public class OrderRatingMapper {
 		DeliveryBoy boy = deliveryBoyService.getDeliveryBoyDetail(orderRating.getDeliveryBoyId());
 		orderRatingResponseDTO.setDeliveryBoyNameEnglish(boy.getFirstNameEnglish().concat(" ").concat(boy.getLastNameEnglish()));
 		orderRatingResponseDTO.setDeliveryBoyNameArabic(boy.getFirstNameArabic().concat(" ").concat(boy.getLastNameArabic()));
+		Orders order = ordersService.getOrderById(orderRating.getOrderId());
+		orderRatingResponseDTO.setCustomerName(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
 		if (locale.getLanguage().equals("en")) {
 			orderRatingResponseDTO.setVendorName(vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
 			orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstNameEnglish().concat(" ").concat(boy.getLastNameEnglish()));

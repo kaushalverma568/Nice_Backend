@@ -145,22 +145,24 @@ public class OrderRatingController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@GetMapping(value = "/vendor/{vendorId}")
-	public ResponseEntity<Object> getByVendorId(@RequestHeader("Authorization") final String accessToken, 
+	@GetMapping(value = "/pageNumber/{pageNumber}/pageSize/{pageSize}/vendor/{vendorId}")
+	public ResponseEntity<Object> getByVendorId(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("vendorId") final Long vendorId)
 			throws NotFoundException {
-		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(vendorId);
+		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(pageNumber, pageSize, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
 				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();
 	}
 
 	
-	@GetMapping(value = "/deliveryBoy/{deliveryBoyId}")
-	public ResponseEntity<Object> getBydeliveryBoyId(@RequestHeader("Authorization") final String accessToken, 
+	@GetMapping(value = "/pageNumber/{pageNumber}/pageSize/{pageSize}/deliveryBoy/{deliveryBoyId}")
+	public ResponseEntity<Object> getBydeliveryBoyId(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId)
 			throws NotFoundException {
-		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(deliveryBoyId);
+		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(pageNumber, pageSize, deliveryBoyId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
 				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();

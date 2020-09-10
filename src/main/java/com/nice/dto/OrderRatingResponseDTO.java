@@ -48,4 +48,6 @@ public class OrderRatingResponseDTO implements Serializable {
 	private Double avgOrderRating;
 
 	private String review;
+	
+	private String customerName;
 }

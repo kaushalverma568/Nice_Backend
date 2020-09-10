@@ -61,16 +61,20 @@ public interface OrderRatingService {
 	OrderRating getOrderRatingDetail(Long orderRatingId) throws NotFoundException;
 
 	/**
+	 * @param pageSize 
+	 * @param pageNumber 
 	 * @param  deliveryBoyId
 	 * @return
 	 */
-	List<OrderRating> getOrderRatingByDeliveryBoyId(Long deliveryBoyId);
+	List<OrderRating> getOrderRatingByDeliveryBoyId(Integer pageNumber, Integer pageSize, Long deliveryBoyId);
 
 	/**
+	 * @param pageSize 
+	 * @param pageNumber 
 	 * @param  vendorId
 	 * @return
 	 */
-	List<OrderRating> getOrderRatingByVendorId(Long vendorId);
+	List<OrderRating> getOrderRatingByVendorId(Integer pageNumber, Integer pageSize, Long vendorId);
 
 	/**
 	 * @throws NotFoundException

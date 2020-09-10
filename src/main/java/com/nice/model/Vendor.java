@@ -158,10 +158,10 @@ public class Vendor extends CommonModel {
 	@Column(name = "longitude")
 	private BigDecimal longitude;
 
-	@Column(name = "rating")
+	@Column(name = "rating",  columnDefinition = "numeric(10,2) DEFAULT 0")
 	private Double rating;
 
-	@Column(name = "no_of_rating")
+	@Column(name = "no_of_rating",  columnDefinition = "bigint DEFAULT 0")
 	private Long noOfRating;
 	/**
 	 * it will accepts either replacement or return
