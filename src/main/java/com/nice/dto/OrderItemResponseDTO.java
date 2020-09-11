@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 07-Jul-2020
+ * @date : 07-Jul-2020
  */
 @Data
 public class OrderItemResponseDTO implements Serializable {
@@ -31,6 +31,9 @@ public class OrderItemResponseDTO implements Serializable {
 	private Double totalDiscountAmt;
 	private String productImageUrl;
 	private Long productVariantId;
+	private String sku;
+	private String productLabel;
+
 	/**
 	 * The below field is just for display on front end, it contains the amount(all added) of order item, extras, addons,
 	 * toppings and productAttributeValues

@@ -39,7 +39,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @Service(value = "orderItemService")
 @Transactional(rollbackFor = Throwable.class)
@@ -125,7 +125,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	/**
-	 * @param  orderItem
+	 * @param orderItem
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -175,6 +175,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 			totalOrderItemAmount += orderItemResponseDTO.getOrderToppingsDtoList().stream().collect(Collectors.summingDouble(OrderToppingsDto::getAmount));
 		}
 		orderItemResponseDTO.setTotalOrderItemAmount(totalOrderItemAmount);
+		orderItemResponseDTO.setSku(productVariant.getSku());
+		orderItemResponseDTO.setProductLabel(orderItemResponseDTO.getProductName().concat("-").concat(orderItemResponseDTO.getUomLabel()));
 		return orderItemResponseDTO;
 	}
 
