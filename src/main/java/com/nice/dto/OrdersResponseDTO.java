@@ -81,6 +81,6 @@ public class OrdersResponseDTO implements Serializable {
 	private Boolean manageInventory;
 	private Date cancelDate;
 	private String cancelledBy;
-	private String vendorContactNumber;
+	private String vendorPhoneNumber;
 
 }

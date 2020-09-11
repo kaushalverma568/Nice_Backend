@@ -966,7 +966,7 @@ public class OrdersServiceImpl implements OrdersService {
 		orderResponseDto.setVendorImageUrl(vendorDto.getStoreImageUrl());
 		BusinessCategoryDTO businessCategory = businessCategoryService.getBusinessCategory(vendorDto.getBusinessCategoryId());
 		orderResponseDto.setManageInventory(businessCategory.getManageInventory());
-		orderResponseDto.setVendorContactNumber(vendorDto.getPhoneNumber());
+		orderResponseDto.setVendorPhoneNumber(vendorDto.getPhoneNumber());
 		return orderResponseDto;
 	}
 
@@ -1073,7 +1073,7 @@ public class OrdersServiceImpl implements OrdersService {
 					stockTransferDto.setQuantity(stockAllocation.getQuantity());
 					stockTransferDto.setOrderId(order.getId());
 					stockTransferDto.setVendorId(stockAllocation.getVendorId());
-					
+
 					ProductVariantResponseDTO productVariant = productVariantService
 							.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
 					stockTransferDto.setProductId(productVariant.getProductId());
