@@ -42,6 +42,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrderStatusDto;
 import com.nice.dto.OrdersResponseDTO;
+import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.StockTransferDto;
 import com.nice.dto.VendorResponseDTO;
@@ -298,13 +299,13 @@ public class OrdersServiceImpl implements OrdersService {
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
 				if (businessCategory.getManageInventory().booleanValue()) {
 					Long availableQty = stockDetailsService.getCountForVariantForVendor(productVariant);
-					if (availableQty < cartItem.getQuantity()) {
+					if (availableQty == null || availableQty < cartItem.getQuantity()) {
 						if ("en".equalsIgnoreCase(LocaleContextHolder.getLocale().getLanguage())) {
-							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty", new Object[] {
-									productVariant.getProduct().getNameEnglish() + "-" + productVariant.getUom().getUomLabelEnglish(), availableQty }));
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
+									new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabelEnglish(), availableQty }));
 						} else {
-							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty", new Object[] {
-									productVariant.getProduct().getNameArabic() + "-" + productVariant.getUom().getUomLabelArabic(), availableQty }));
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
+									new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabelArabic(), availableQty }));
 						}
 
 					}
@@ -1043,6 +1044,11 @@ public class OrdersServiceImpl implements OrdersService {
 				stockTransferDto.setQuantity(stockAllocation.getQuantity());
 				stockTransferDto.setOrderId(order.getId());
 				stockTransferDto.setVendorId(stockAllocation.getVendorId());
+				ProductVariantResponseDTO productVariant = productVariantService
+						.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
+				stockTransferDto.setProductId(productVariant.getProductId());
+				stockTransferDto.setUomId(productVariant.getUomId());
+				stockTransferDto.setLotNo(stockAllocation.getStockDetails().getLotNo());
 				stockTransferService.transferStock(stockTransferDto);
 			}
 		}
@@ -1067,6 +1073,12 @@ public class OrdersServiceImpl implements OrdersService {
 					stockTransferDto.setQuantity(stockAllocation.getQuantity());
 					stockTransferDto.setOrderId(order.getId());
 					stockTransferDto.setVendorId(stockAllocation.getVendorId());
+					
+					ProductVariantResponseDTO productVariant = productVariantService
+							.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
+					stockTransferDto.setProductId(productVariant.getProductId());
+					stockTransferDto.setUomId(productVariant.getUomId());
+					stockTransferDto.setLotNo(stockAllocation.getStockDetails().getLotNo());
 					stockTransferService.transferStock(stockTransferDto);
 				}
 			}
@@ -1125,7 +1137,6 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 
-		
 		return ordersResponseDTO;
 	}
 

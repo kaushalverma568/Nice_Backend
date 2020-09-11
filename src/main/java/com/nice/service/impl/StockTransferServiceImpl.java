@@ -21,7 +21,7 @@ import com.nice.service.StockTransferService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service("stockTransferService")
 @Transactional(rollbackFor = Throwable.class)

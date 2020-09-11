@@ -62,12 +62,12 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { IN_PROCESS };
 			break;
 		case IN_PROCESS:
-			nextStatus = new OrderStatusEnum[] { STOCK_ALLOCATED, ORDER_IS_READY };
-			break;
-		case STOCK_ALLOCATED:
 			nextStatus = new OrderStatusEnum[] { ORDER_IS_READY };
 			break;
 		case ORDER_IS_READY:
+			nextStatus = new OrderStatusEnum[] { STOCK_ALLOCATED, ORDER_PICKED_UP };
+			break;
+		case STOCK_ALLOCATED:
 			nextStatus = new OrderStatusEnum[] { ORDER_PICKED_UP };
 			break;
 		case ORDER_PICKED_UP:

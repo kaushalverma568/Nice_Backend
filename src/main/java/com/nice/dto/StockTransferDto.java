@@ -40,4 +40,5 @@ public class StockTransferDto implements Serializable {
 	private Long orderId;
 
 	private Long stockDetailsId;
+
 }
