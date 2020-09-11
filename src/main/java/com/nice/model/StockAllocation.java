@@ -18,10 +18,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
+ *
  * @author : Kody Technolab PVT. LTD.
- * @date : 09-Apr-2020
+ * @date : 11-Sep-2020
  */
-
 @Entity
 @Table(name = "stock_allocation")
 @Data
@@ -42,7 +42,7 @@ public class StockAllocation extends CommonModel {
 	private StockDetails stockDetails;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "delivery_boy_id", nullable = false)
+	@JoinColumn(name = "delivery_boy_id", nullable = true)
 	private DeliveryBoy deliveryBoy;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -53,7 +53,7 @@ public class StockAllocation extends CommonModel {
 	private Long orderId;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "task_id", nullable = false)
+	@JoinColumn(name = "task_id", nullable = true)
 	private Task task;
 	/**
 	 * This would contain if the stock is allocated for delivery or replacement.

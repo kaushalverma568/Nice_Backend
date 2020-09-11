@@ -173,32 +173,32 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	private StockDetails substractQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails) throws ValidationException {
 		if (Constant.AVAILABLE.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getAvailable() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage(INSUFFICIENT_STOCK_FOR_PRODUCT,
-						new Object[] { stockTransferDto.getQuantity(), stockDetails.getAvailable() }));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.available.for.product",
+						null));
 			}
 			stockDetails.setAvailable(stockDetails.getAvailable() - stockTransferDto.getQuantity());
 		} else if (Constant.RESERVED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReserved() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage(INSUFFICIENT_STOCK_FOR_PRODUCT,
-						new Object[] { stockTransferDto.getQuantity(), stockDetails.getReserved() }));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.reserved.for.product",
+						null));
 			}
 			stockDetails.setReserved(stockDetails.getReserved() - stockTransferDto.getQuantity());
 		} else if (Constant.DELIVERED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getDelivered() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage(INSUFFICIENT_STOCK_FOR_PRODUCT,
-						new Object[] { stockTransferDto.getQuantity(), stockDetails.getDelivered() }));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.delivered.for.product",
+						null));
 			}
 			stockDetails.setDelivered(stockDetails.getDelivered() - stockTransferDto.getQuantity());
 		} else if (Constant.REPLACED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReplaced() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage(INSUFFICIENT_STOCK_FOR_PRODUCT,
-						new Object[] { stockTransferDto.getQuantity(), stockDetails.getReplaced() }));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.replaced.for.product",
+						null));
 			}
 			stockDetails.setReplaced(stockDetails.getReplaced() - stockTransferDto.getQuantity());
 		} else if (Constant.RETURNED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReturned() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage(INSUFFICIENT_STOCK_FOR_PRODUCT,
-						new Object[] { stockTransferDto.getQuantity(), stockDetails.getReturned() }));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.returned.for.product",
+						null));
 			}
 			stockDetails.setReturned(stockDetails.getReturned() - stockTransferDto.getQuantity());
 		} else {

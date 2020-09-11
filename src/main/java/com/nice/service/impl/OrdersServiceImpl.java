@@ -253,7 +253,10 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		Long vendorId = cartItemList.get(0).getProductVariant().getVendorId();
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
-
+		boolean applyDeliveryCharge = true;
+		if (DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())) {
+			applyDeliveryCharge = false;
+		}
 		/**
 		 * Check if the vendor servicable and customer delivery belong to same city
 		 */
@@ -318,7 +321,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * This amount includes amount with delivery charge, the wallet contribution would be calculated after that and
 		 * subtracted from the actual order amount.
 		 */
-		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList);
+		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList, applyDeliveryCharge);
 
 		Double amountAfterWalletDeduction = calculatedOrderAmt;
 		/**
@@ -559,13 +562,18 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 
 		}
-		BigDecimal pickUpLatitude = vendor.getLatitude();
-		BigDecimal pickupLongitude = vendor.getLongitude();
-		BigDecimal dropLatitude = order.getLatitude();
-		BigDecimal dropLongitude = order.getLongitude();
 
-		Double distance = CommonUtility.distance(pickUpLatitude.doubleValue(), pickupLongitude.doubleValue(), dropLatitude.doubleValue(),
-				dropLongitude.doubleValue());
+		Double distance = 0.0d;
+		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())) {
+			BigDecimal pickUpLatitude = vendor.getLatitude();
+			BigDecimal pickupLongitude = vendor.getLongitude();
+			BigDecimal dropLatitude = order.getLatitude();
+			BigDecimal dropLongitude = order.getLongitude();
+
+			distance = CommonUtility.distance(pickUpLatitude.doubleValue(), pickupLongitude.doubleValue(), dropLatitude.doubleValue(),
+					dropLongitude.doubleValue());
+		}
+
 		order.setDistance(distance);
 		order.setOrderStatus(OrderStatusEnum.PENDING.getStatusValue());
 		order.setTotalOrderAmount(calculatedOrderAmt);
@@ -730,7 +738,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
 		 * charge is to be taken for all order set the value to any negative value
 		 */
-		if (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery) {
+		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
+				&& (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery)) {
 			order.setDeliveryCharge(deliveryCharge);
 		} else {
 			order.setDeliveryCharge(0d);
@@ -782,7 +791,7 @@ public class OrdersServiceImpl implements OrdersService {
 		orderStatusRepository.save(orderStatus);
 	}
 
-	private Double calculateTotalOrderAmt(final List<CartItem> cartItemList) throws NotFoundException {
+	private Double calculateTotalOrderAmt(final List<CartItem> cartItemList, final boolean applyDeliveryCharge) throws NotFoundException {
 
 		Double orderAmt = 0.0d;
 
@@ -843,7 +852,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
 		 * charge is to be taken for all order set the value to any negative value
 		 */
-		if (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery) {
+		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
 			orderAmt = Double.sum(orderAmt, deliveryCharge);
 		}
 		return CommonUtility.round(orderAmt);
@@ -936,6 +945,7 @@ public class OrdersServiceImpl implements OrdersService {
 				orderResponseDto
 						.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getDeliveryBoy().getLastNameArabic()));
 			}
+			orderResponseDto.setDeliveryBoyId(orders.getDeliveryBoy().getId());
 		}
 		if (orders.getReplacementDeliveryBoy() != null) {
 			orderResponseDto.setReplacementDeliveryBoyNameEnglish(
@@ -949,6 +959,7 @@ public class OrdersServiceImpl implements OrdersService {
 				orderResponseDto.setReplacementDeliveryBoyName(
 						orders.getReplacementDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
 			}
+			orderResponseDto.setReplacementDeliveryBoyId(orders.getReplacementDeliveryBoy().getId());
 		}
 		if (replacementOrderItems) {
 			Long totalCountForOrder = /* setReplacementOrderItemInResponse(orders, orderResponseDto) */0l;
@@ -995,7 +1006,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void changeStatus(final String newStatus, final Orders order) throws NotFoundException, ValidationException {
+	public void changeStatus(String newStatus, final Orders order) throws NotFoundException, ValidationException {
 		if (order == null || order.getId() == 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.change.status", null));
 		}
@@ -1005,6 +1016,36 @@ public class OrdersServiceImpl implements OrdersService {
 		final String existingStockStatus = existingOrderStatus.getStockValue();
 		if (!existingOrderStatus.contains(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
+		}
+		/**
+		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
+		 * Ready" status it is not directly moved to Order Pickup before allocating stock
+		 */
+		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
+		if (ordersResponseDto.getManageInventory().booleanValue()
+				&& (OrderStatusEnum.ORDER_IS_READY.getStatusValue().equals(existingOrderStatus.getStatusValue())
+						&& !OrderStatusEnum.STOCK_ALLOCATED.getStatusValue().equals(newStatus))) {
+			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
+		}
+
+		/**
+		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
+		 * order. </br>
+		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
+		 */
+		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
+			if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
+				order.setOrderStatus(newStatus);
+				ordersRepository.save(order);
+				saveOrderStatusHistory(order);
+				newStatus = OrderStatusEnum.IN_PROCESS.getStatusValue();
+			} else if (OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equals(newStatus)) {
+				order.setOrderStatus(newStatus);
+				ordersRepository.save(order);
+				saveOrderStatusHistory(order);
+				newStatus = OrderStatusEnum.DELIVERED.getStatusValue();
+			}
+
 		}
 		order.setOrderStatus(newStatus);
 		ordersRepository.save(order);
@@ -1146,8 +1187,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public boolean validateUser(final Long userId, final Long entityId, final List<String> userType) throws NotFoundException, AuthorizationException {
-		UserLogin userLogin = getUserLoginFromToken();
+	public boolean validateUser(final Long userId, final Long entityId, final List<String> userType)
+			throws NotFoundException, AuthorizationException, ValidationException {
+		UserLogin userLogin = checkForUserLogin();
 
 		if ("SUPER_ADMIN".equalsIgnoreCase(userLogin.getRole())) {
 			return true;

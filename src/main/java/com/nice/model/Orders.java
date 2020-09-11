@@ -59,10 +59,10 @@ public class Orders extends CommonModel {
 	@Column(name = "address_arabic", nullable = false)
 	private String addressArabic;
 
-	@Column(name = "latitude", nullable = false)
+	@Column(name = "latitude", nullable = true)
 	private BigDecimal latitude;
 
-	@Column(name = "longitude", nullable = false)
+	@Column(name = "longitude", nullable = true)
 	private BigDecimal longitude;
 
 	@JoinColumn(name = "state_id", nullable = false)

@@ -41,6 +41,7 @@ public class OrdersResponseDTO implements Serializable {
 	private String deliveryBoyName;
 	private String deliveryBoyNameEnglish;
 	private String deliveryBoyNameArabic;
+	private Long deliveryBoyId;
 	private String cancelReason;
 	private Date orderDate;
 	private List<OrderItemResponseDTO> orderItemResponseDtoList;
@@ -53,6 +54,7 @@ public class OrdersResponseDTO implements Serializable {
 	private String replacementDeliveryBoyName;
 	private String replacementDeliveryBoyNameEnglish;
 	private String replacementDeliveryBoyNameArabic;
+	private Long replacementDeliveryBoyId;
 	private String vendorImageUrl;
 
 	private String businessCategoryId;

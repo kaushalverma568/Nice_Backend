@@ -268,4 +268,10 @@
 				path="sql-files/1.0/stock_transfer_remove_order_from.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
+	<changeSet id="39" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/drop_not_null_from_order_and_stock_allocation.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
 </databaseChangeLog>

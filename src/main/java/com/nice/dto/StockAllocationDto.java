@@ -28,7 +28,6 @@ public class StockAllocationDto implements Serializable {
 
 	private Long id;
 
-	@NotNull(message = "{delivery.boy.not.null}")
 	private Long deliveryBoyId;
 
 	@NotNull(message = "{order.id.not.null}")

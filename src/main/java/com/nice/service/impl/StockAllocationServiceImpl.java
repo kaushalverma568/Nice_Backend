@@ -11,9 +11,12 @@ import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.DeliveryType;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.TaskTypeEnum;
 import com.nice.dto.ProductVariantResponseDTO;
@@ -31,6 +34,7 @@ import com.nice.model.ProductVariant;
 import com.nice.model.StockAllocation;
 import com.nice.model.StockDetails;
 import com.nice.model.Task;
+import com.nice.model.UserLogin;
 import com.nice.repository.StockAllocationRepository;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrderItemService;
@@ -79,8 +83,9 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 	private JMSQueuerService jmsQueuerService;
 
 	@Override
-	public Long allocateStock(final StockAllocationDto stockAllocationDto, final Long userId) throws NotFoundException, ValidationException {
+	public Long allocateStock(final StockAllocationDto stockAllocationDto) throws NotFoundException, ValidationException {
 
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		/**
 		 * Call the basic validation method here, like validating not null, non zero qty etc.
 		 */
@@ -102,8 +107,13 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		/**
 		 *
 		 */
+		DeliveryBoy deliveryBoy = null;
+		Task task = null;
+		if (DeliveryType.DELIVERY.getStatusValue().equals(orders.getDeliveryType())) {
+			deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(stockAllocationDto.getDeliveryBoyId());
 
-		DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(stockAllocationDto.getDeliveryBoyId());
+			task = taskService.getTaskForOrderIdAndAllocatedFor(orders, stockAllocationDto.getAllocatedFor());
+		}
 
 		List<OrdersItem> orderItemList = null;
 		/**
@@ -132,7 +142,6 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		 * stock allocation
 		 *
 		 */
-		Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, stockAllocationDto.getAllocatedFor());
 
 		/**
 		 * Save allocated Stock
@@ -158,7 +167,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.product.stock.combination", null));
 			}
 
-			StockAllocation stockAllocation = stockAllocationMapper.toEntity(stockAllocationDto, userId);
+			StockAllocation stockAllocation = stockAllocationMapper.toEntity(stockAllocationDto, userLogin.getId());
 			stockAllocation.setTask(task);
 			stockAllocation.setDeliveryBoy(deliveryBoy);
 			stockAllocation.setOrderItem(orderItem);

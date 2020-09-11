@@ -19,12 +19,11 @@ public interface StockAllocationService {
 
 	/**
 	 * @param stockAllocationDto
-	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	Long allocateStock(StockAllocationDto stockAllocationDto, Long userId) throws NotFoundException, ValidationException;
+	Long allocateStock(StockAllocationDto stockAllocationDto) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param orderId

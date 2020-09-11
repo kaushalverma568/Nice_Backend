@@ -54,13 +54,13 @@ public class StockAllocationController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Object> allocateStock(@RequestHeader("Authorization") final String token, @RequestHeader("userId") final Long userId,
+	public ResponseEntity<Object> allocateStock(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final StockAllocationDto stockAllocationDto, final BindingResult bindingResult) throws NotFoundException, ValidationException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Long orderId = stockAllocationService.allocateStock(stockAllocationDto, userId);
+		Long orderId = stockAllocationService.allocateStock(stockAllocationDto);
 		/**
 		 * send email code start here
 		 */
