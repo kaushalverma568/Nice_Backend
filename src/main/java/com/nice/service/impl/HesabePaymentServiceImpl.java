@@ -49,13 +49,10 @@ public class HesabePaymentServiceImpl implements HesabePaymentService {
 	private String version;
 	@Value("${hesabe.paymentType}")
 	private String paymentType;
-	@Value("${service.url}")
-	private String serviceUrl;
 
 	@Override
-	public String createPaymentGateway(final String orderId, final Double amount) {
+	public String createPaymentGateway(final String orderId, final Double amount, final String redirectUrl) {
 		LOGGER.info("inside create hesabe payment url with orderId :{}", orderId);
-		String redirectUrl = serviceUrl + "vendor/subscription/hesabe";
 		String encryptedResponse = encryptData(amount, orderId, redirectUrl);
 		String checkOutResponse = checkOut(encryptedResponse);
 		String decryptedResponse = decrypt(checkOutResponse);

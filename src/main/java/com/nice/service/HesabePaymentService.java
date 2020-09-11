@@ -15,7 +15,7 @@ public interface HesabePaymentService {
 	 * @param amount
 	 * @return
 	 */
-	String createPaymentGateway(String orderId, Double amount);
+	String createPaymentGateway(String orderId, Double amount, String redirectUrl);
 
 	/**
 	 * for decrypt hesabe encrypted string

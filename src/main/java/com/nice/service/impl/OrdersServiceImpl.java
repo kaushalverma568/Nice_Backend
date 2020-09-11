@@ -16,8 +16,11 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,7 +69,6 @@ import com.nice.model.OnlineAddons;
 import com.nice.model.OnlineCart;
 import com.nice.model.OnlineExtras;
 import com.nice.model.OnlineProductAttributeValue;
-import com.nice.model.OnlineRequest;
 import com.nice.model.OnlineToppings;
 import com.nice.model.OrderStatusHistory;
 import com.nice.model.Orders;
@@ -104,7 +106,7 @@ import com.nice.service.CartToppingsService;
 import com.nice.service.CityService;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
-import com.nice.service.OnlineService;
+import com.nice.service.HesabePaymentService;
 import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
 import com.nice.service.PincodeService;
@@ -117,7 +119,6 @@ import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
-import com.razorpay.RazorpayException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -131,6 +132,8 @@ public class OrdersServiceImpl implements OrdersService {
 	 *
 	 */
 	private static final String NOT_FOUND = "order.not.found";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrdersServiceImpl.class);
 
 	@Autowired
 	private CartItemService cartItemService;
@@ -189,9 +192,6 @@ public class OrdersServiceImpl implements OrdersService {
 	private VendorService vendorService;
 
 	@Autowired
-	private OnlineService onlineService;
-
-	@Autowired
 	private CartItemRepository cartItemRepository;
 
 	@Autowired
@@ -239,6 +239,12 @@ public class OrdersServiceImpl implements OrdersService {
 	@Autowired
 	private BusinessCategoryService businessCategoryService;
 
+	@Autowired
+	private HesabePaymentService hesabePaymentService;
+
+	@Value("${service.url}")
+	private String serviceUrl;
+
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
 
@@ -281,7 +287,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check if the products in cart are active or not active then throw error also check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also
+		 * check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -296,8 +303,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 			} else {
 				/**
-				 * Stock related check for product while placing order by customer for Grocery business category in which the inventory
-				 * is managed
+				 * Stock related check for product while placing order by customer for Grocery
+				 * business category in which the inventory is managed
 				 */
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
 				if (businessCategory.getManageInventory().booleanValue()) {
@@ -318,8 +325,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * This amount includes amount with delivery charge, the wallet contribution would be calculated after that and
-		 * subtracted from the actual order amount.
+		 * This amount includes amount with delivery charge, the wallet contribution
+		 * would be calculated after that and subtracted from the actual order amount.
 		 */
 		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList, applyDeliveryCharge);
 
@@ -354,119 +361,115 @@ public class OrdersServiceImpl implements OrdersService {
 
 			return String.valueOf(order.getId());
 		} else {
-			OnlineRequest onlineRequest = new OnlineRequest();
-
 			if (calculatedOrderAmt.equals(0D)) {
 				throw new ValidationException(messageByLocaleService.getMessage("order.amt.non.zero", null));
 			}
-			Double orderAmt = calculatedOrderAmt * 100;
-			onlineRequest.setAmount(orderAmt.intValue());
-			onlineRequest.setCurrencyCode("KWD");
-			try {
-				String onlineOrderId = onlineService.generateOrder(onlineRequest);
-				for (CartItem cartItem : cartItemList) {
-					OnlineCart onlineCart = new OnlineCart();
-					onlineCart.setCustomer(cartItem.getCustomer());
-					onlineCart.setProductVariant(cartItem.getProductVariant());
-					onlineCart.setQuantity(cartItem.getQuantity());
 
-					onlineCart.setCityId(customerAddress.getCity().getId());
-					onlineCart.setStateId(customerAddress.getState().getId());
-					onlineCart.setPincodeId(customerAddress.getPincode().getId());
-					onlineCart.setAddressEnglish(makeCustomerAddressEnglish(customerAddress));
-					onlineCart.setAddressArabic(makeCustomerAddressArabic(customerAddress));
-					onlineCart.setLatitude(customerAddress.getLatitude());
-					onlineCart.setLongitude(customerAddress.getLongitude());
-					onlineCart.setFirstName(customerAddress.getFirstName());
-					onlineCart.setLastName(customerAddress.getLastName());
-					onlineCart.setPhoneNumber(customerAddress.getPhoneNumber());
-					onlineCart.setDeliveryType(orderRequestDto.getDeliveryType());
-					onlineCart.setDescription(orderRequestDto.getDescription());
-					onlineCart.setStatus(CartItemStatus.PAYMENT_WAITING.getStatusValue());
-					onlineCart.setPaymentAmount(calculatedOrderAmt);
-					cartItem.setOnlineOrderId(onlineOrderId);
-					onlineCart.setOnlineOrderId(onlineOrderId);
-					onlineCart.setActive(true);
-					cartItemRepository.save(cartItem);
-					onlineCart = onlineCartRepository.save(onlineCart);
+			String onlineOrderId = System.currentTimeMillis() + "_order_" + customerId;
+			for (CartItem cartItem : cartItemList) {
+				OnlineCart onlineCart = new OnlineCart();
+				onlineCart.setCustomer(cartItem.getCustomer());
+				onlineCart.setProductVariant(cartItem.getProductVariant());
+				onlineCart.setQuantity(cartItem.getQuantity());
 
-					/**
-					 * Create online extras list for this cart item
-					 */
-					List<CartExtras> cartExtrasList = cartExtrasService.getCartExtrasListForCartItem(cartItem.getId());
-					List<OnlineExtras> onlineExtrasList = new ArrayList<>();
+				onlineCart.setCityId(customerAddress.getCity().getId());
+				onlineCart.setStateId(customerAddress.getState().getId());
+				onlineCart.setPincodeId(customerAddress.getPincode().getId());
+				onlineCart.setAddressEnglish(makeCustomerAddressEnglish(customerAddress));
+				onlineCart.setAddressArabic(makeCustomerAddressArabic(customerAddress));
+				onlineCart.setLatitude(customerAddress.getLatitude());
+				onlineCart.setLongitude(customerAddress.getLongitude());
+				onlineCart.setFirstName(customerAddress.getFirstName());
+				onlineCart.setLastName(customerAddress.getLastName());
+				onlineCart.setPhoneNumber(customerAddress.getPhoneNumber());
+				onlineCart.setDeliveryType(orderRequestDto.getDeliveryType());
+				onlineCart.setDescription(orderRequestDto.getDescription());
+				onlineCart.setStatus(CartItemStatus.PAYMENT_WAITING.getStatusValue());
+				onlineCart.setPaymentAmount(calculatedOrderAmt);
+				cartItem.setOnlineOrderId(onlineOrderId);
+				onlineCart.setOnlineOrderId(onlineOrderId);
+				onlineCart.setActive(true);
+				cartItemRepository.save(cartItem);
+				onlineCart = onlineCartRepository.save(onlineCart);
 
-					for (CartExtras cartExtras : cartExtrasList) {
-						OnlineExtras onlineExtras = new OnlineExtras();
-						onlineExtras.setOnlineCartId(onlineCart.getId());
-						onlineExtras.setProductExtras(cartExtras.getProductExtras());
-						onlineExtras.setQuantity(cartExtras.getQuantity());
-						onlineExtras.setActive(true);
-						onlineExtras.setCreatedAt(new Date());
-						onlineExtras.setUpdatedAt(new Date());
-						onlineExtrasList.add(onlineExtras);
-					}
-					onlineExtrasRepository.saveAll(onlineExtrasList);
+				/**
+				 * Create online extras list for this cart item
+				 */
+				List<CartExtras> cartExtrasList = cartExtrasService.getCartExtrasListForCartItem(cartItem.getId());
+				List<OnlineExtras> onlineExtrasList = new ArrayList<>();
 
-					/**
-					 * Create online addons list for this cart item
-					 */
-					List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
-					List<OnlineAddons> onlineAddonsList = new ArrayList<>();
-
-					for (CartAddons cartAddons : cartAddonsList) {
-						OnlineAddons onlineAddons = new OnlineAddons();
-						onlineAddons.setOnlineCartId(onlineCart.getId());
-						onlineAddons.setProductAddons(cartAddons.getProductAddons());
-						onlineAddons.setQuantity(cartAddons.getQuantity());
-						onlineAddons.setActive(true);
-						onlineAddons.setCreatedAt(new Date());
-						onlineAddons.setUpdatedAt(new Date());
-						onlineAddonsList.add(onlineAddons);
-					}
-					onlineAddonsRepository.saveAll(onlineAddonsList);
-
-					/**
-					 * Create online toppings list for this cart item
-					 */
-					List<CartToppings> cartToppingsList = cartToppingsService.getCartToppingsListForCartItem(cartItem.getId());
-					List<OnlineToppings> onlineToppingsList = new ArrayList<>();
-
-					for (CartToppings cartToppings : cartToppingsList) {
-						OnlineToppings onlineToppings = new OnlineToppings();
-						onlineToppings.setOnlineCartId(onlineCart.getId());
-						onlineToppings.setProductToppings(cartToppings.getProductToppings());
-						onlineToppings.setQuantity(cartToppings.getQuantity());
-						onlineToppings.setActive(true);
-						onlineToppings.setCreatedAt(new Date());
-						onlineToppings.setUpdatedAt(new Date());
-						onlineToppingsList.add(onlineToppings);
-					}
-					onlineToppingsRepository.saveAll(onlineToppingsList);
-
-					/**
-					 * Create online product attribute value list for this cart item
-					 */
-					List<CartProductAttributeValue> cartProductAttributeValueList = cartProductAttributeValueService
-							.getCartProductAttributeValueListForCartItem(cartItem.getId());
-					List<OnlineProductAttributeValue> onlineProductAttributeValueList = new ArrayList<>();
-
-					for (CartProductAttributeValue cartProductAttributeValue : cartProductAttributeValueList) {
-						OnlineProductAttributeValue onlineProductAttributeValue = new OnlineProductAttributeValue();
-						onlineProductAttributeValue.setOnlineCartId(onlineCart.getId());
-						onlineProductAttributeValue.setProductAttributeValue(cartProductAttributeValue.getProductAttributeValue());
-						onlineProductAttributeValue.setQuantity(cartProductAttributeValue.getQuantity());
-						onlineProductAttributeValue.setActive(true);
-						onlineProductAttributeValue.setCreatedAt(new Date());
-						onlineProductAttributeValue.setUpdatedAt(new Date());
-						onlineProductAttributeValueList.add(onlineProductAttributeValue);
-					}
-					onlineProductAttributeValueRepository.saveAll(onlineProductAttributeValueList);
+				for (CartExtras cartExtras : cartExtrasList) {
+					OnlineExtras onlineExtras = new OnlineExtras();
+					onlineExtras.setOnlineCartId(onlineCart.getId());
+					onlineExtras.setProductExtras(cartExtras.getProductExtras());
+					onlineExtras.setQuantity(cartExtras.getQuantity());
+					onlineExtras.setActive(true);
+					onlineExtras.setCreatedAt(new Date());
+					onlineExtras.setUpdatedAt(new Date());
+					onlineExtrasList.add(onlineExtras);
 				}
-				return onlineOrderId;
-			} catch (final RazorpayException e) {
-				throw new ValidationException(e.getMessage());
+				onlineExtrasRepository.saveAll(onlineExtrasList);
+
+				/**
+				 * Create online addons list for this cart item
+				 */
+				List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
+				List<OnlineAddons> onlineAddonsList = new ArrayList<>();
+
+				for (CartAddons cartAddons : cartAddonsList) {
+					OnlineAddons onlineAddons = new OnlineAddons();
+					onlineAddons.setOnlineCartId(onlineCart.getId());
+					onlineAddons.setProductAddons(cartAddons.getProductAddons());
+					onlineAddons.setQuantity(cartAddons.getQuantity());
+					onlineAddons.setActive(true);
+					onlineAddons.setCreatedAt(new Date());
+					onlineAddons.setUpdatedAt(new Date());
+					onlineAddonsList.add(onlineAddons);
+				}
+				onlineAddonsRepository.saveAll(onlineAddonsList);
+
+				/**
+				 * Create online toppings list for this cart item
+				 */
+				List<CartToppings> cartToppingsList = cartToppingsService.getCartToppingsListForCartItem(cartItem.getId());
+				List<OnlineToppings> onlineToppingsList = new ArrayList<>();
+
+				for (CartToppings cartToppings : cartToppingsList) {
+					OnlineToppings onlineToppings = new OnlineToppings();
+					onlineToppings.setOnlineCartId(onlineCart.getId());
+					onlineToppings.setProductToppings(cartToppings.getProductToppings());
+					onlineToppings.setQuantity(cartToppings.getQuantity());
+					onlineToppings.setActive(true);
+					onlineToppings.setCreatedAt(new Date());
+					onlineToppings.setUpdatedAt(new Date());
+					onlineToppingsList.add(onlineToppings);
+				}
+				onlineToppingsRepository.saveAll(onlineToppingsList);
+
+				/**
+				 * Create online product attribute value list for this cart item
+				 */
+				List<CartProductAttributeValue> cartProductAttributeValueList = cartProductAttributeValueService
+						.getCartProductAttributeValueListForCartItem(cartItem.getId());
+				List<OnlineProductAttributeValue> onlineProductAttributeValueList = new ArrayList<>();
+
+				for (CartProductAttributeValue cartProductAttributeValue : cartProductAttributeValueList) {
+					OnlineProductAttributeValue onlineProductAttributeValue = new OnlineProductAttributeValue();
+					onlineProductAttributeValue.setOnlineCartId(onlineCart.getId());
+					onlineProductAttributeValue.setProductAttributeValue(cartProductAttributeValue.getProductAttributeValue());
+					onlineProductAttributeValue.setQuantity(cartProductAttributeValue.getQuantity());
+					onlineProductAttributeValue.setActive(true);
+					onlineProductAttributeValue.setCreatedAt(new Date());
+					onlineProductAttributeValue.setUpdatedAt(new Date());
+					onlineProductAttributeValueList.add(onlineProductAttributeValue);
+				}
+				onlineProductAttributeValueRepository.saveAll(onlineProductAttributeValueList);
 			}
+			String redirectUrl = serviceUrl.concat("payment/check");
+			LOGGER.info("inside hesabe gateway for generate url");
+			String url = hesabePaymentService.createPaymentGateway(onlineOrderId, calculatedOrderAmt, redirectUrl);
+			LOGGER.info("outside hesabe gateway for generate url");
+			return url;
 		}
 	}
 
@@ -542,7 +545,8 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in
+		 * orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -581,15 +585,17 @@ public class OrdersServiceImpl implements OrdersService {
 
 		// TODO
 		/**
-		 * Check for respective payment gateway and implement based on same, currently is for razorpay
+		 * Check for respective payment gateway and implement based on same, currently
+		 * is for razorpay
 		 */
 		/**
 		 * Set Online Payment details for Order
 		 */
 		if (orderRequestDto.getOnlineOrderId() != null && !orderRequestDto.getOnlineOrderId().isBlank()) {
 			order.setOnlineOrderId(orderRequestDto.getOnlineOrderId());
-			order.setOnlinePaymentSignature(orderRequestDto.getOnlineSignature());
-			order.setTransactionId(orderRequestDto.getTransactionId());
+			order.setOnlinePaymentToken(orderRequestDto.getPaymentToken());
+			order.setPaymentId(orderRequestDto.getPaymentId());
+			order.setAdministrativeCharge(orderRequestDto.getAdministrativeCharge());
 		}
 
 		List<OrdersItem> orderItemList = new ArrayList<>();
@@ -735,8 +741,9 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
-		 * charge is to be taken for all order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the
+		 * configuration for the same. If delivery charge is to be taken for all order
+		 * set the value to any negative value
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
 				&& (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery)) {
@@ -800,7 +807,8 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for calculation
+			 * Add the addons , extras, product attribute values, toppings amount for
+			 * calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -849,8 +857,9 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
-		 * charge is to be taken for all order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the
+		 * configuration for the same. If delivery charge is to be taken for all order
+		 * set the value to any negative value
 		 */
 		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
 			orderAmt = Double.sum(orderAmt, deliveryCharge);
@@ -1018,8 +1027,9 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
-		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
-		 * Ready" status it is not directly moved to Order Pickup before allocating stock
+		 * Check manage inventory flag for order, if its true then need to place a check
+		 * that once the order is in "Order Is Ready" status it is not directly moved to
+		 * Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1029,9 +1039,10 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
-		 * order. </br>
-		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
+		 * Check if the vendor confirms the order and its delivery type is Pick Up, then
+		 * make the status as in Process for the order. </br>
+		 * if the order is pickuped in case of Pickup orders, it will be marked as
+		 * delivered
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 			if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
@@ -1053,7 +1064,8 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * If the order status is related to replacement then set allocatedFor as Replacement
+		 * If the order status is related to replacement then set allocatedFor as
+		 * Replacement
 		 */
 		if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
 				|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
@@ -1061,20 +1073,23 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All
+		 * the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer
+		 * the inventory, that will be a typical case of replacement of orders that will
+		 * be handled in a different way
 		 */
 		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 				&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
 			/**
-			 * Fetch list of all allocated stock based on lot and move one by one for the order.
+			 * Fetch list of all allocated stock based on lot and move one by one for the
+			 * order.
 			 */
 			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
 			for (StockAllocation stockAllocation : stockAllocationList) {
@@ -1094,8 +1109,8 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a
+		 * order will be moved from delivered to replaced status
 		 */
 		if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
@@ -1147,7 +1162,8 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = ordersRepository.findById(orderId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to him.
+		 * If the user is Vendor or customer, check if the order actually belongs to
+		 * him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
@@ -1276,7 +1292,8 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the replacement request has come after a maximum days for which vendor can accepts then throw error.
+			 * If the replacement request has come after a maximum days for which vendor can
+			 * accepts then throw error.
 			 */
 			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDate.now())) {
@@ -1313,7 +1330,8 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the return request has come after a maximum days for which vendor can accepts then throw error.
+			 * If the return request has come after a maximum days for which vendor can
+			 * accepts then throw error.
 			 */
 			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDate.now())) {

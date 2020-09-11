@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.CartItemStatus;
+import com.nice.constant.Constant;
 import com.nice.constant.PaymentMode;
+import com.nice.dto.HesabePaymentDTO;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -37,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private OrdersService orderService;
 
 	@Autowired
-	private OnlineCartRepository razorPayCartRepository;
+	private OnlineCartRepository onlineCartRepository;
 
 	@Autowired
 	private CartItemService cartItemService;
@@ -45,19 +47,15 @@ public class PaymentServiceImpl implements PaymentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
 	@Override
-	public Boolean checkPaymentTransaction(final String onlineOrderId, final String razorPayPaymentId, final String razorPaySignature) {
+	public Boolean checkPaymentTransaction(final HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException {
 		boolean result = false;
-		List<OnlineCart> onlineCartList = null;
-		onlineCartList = razorPayCartRepository.findAllByOnlineOrderIdAndStatus(onlineOrderId, CartItemStatus.PAYMENT_WAITING.getStatusValue());
-		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(onlineCartList)) {
+		List<OnlineCart> onlineCartList = onlineCartRepository.findAllByOnlineOrderIdAndStatus(hesabePaymentDTO.getVariable1(),
+				CartItemStatus.PAYMENT_WAITING.getStatusValue());
+		if (!hesabePaymentDTO.getResultCode().equals(Constant.HESABE_CAPTURE)) {
+			failedTransaction(hesabePaymentDTO.getVariable1());
 			return result;
 		}
-
-		if (onlineOrderId == null || razorPayPaymentId == null || razorPaySignature == null) {
-			for (OnlineCart razorPayCart : onlineCartList) {
-				razorPayCart.setStatus(CartItemStatus.PAYMENT_FAIL.getStatusValue());
-				razorPayCartRepository.save(razorPayCart);
-			}
+		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(onlineCartList)) {
 			return result;
 		}
 
@@ -70,7 +68,6 @@ public class PaymentServiceImpl implements PaymentService {
 			 * This id will be used for getting addon,extras and topping's online list
 			 */
 			cartItem.setOnlineCartId(onlineCart.getId());
-
 			cartItem.setCustomer(onlineCart.getCustomer());
 			cartItem.setProductVariant(onlineCart.getProductVariant());
 			cartItem.setQuantity(onlineCart.getQuantity());
@@ -89,43 +86,36 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setDeliveryType(onlineCart.getDeliveryType());
 			orderRequestDTO.setPaymentMode(PaymentMode.ONLINE.name());
 			orderRequestDTO.setDescription(onlineCart.getDescription());
-			calculatedOrderAmt = onlineCart.getPaymentAmount();
+			calculatedOrderAmt += onlineCart.getPaymentAmount();
 		}
-		orderRequestDTO.setOnlineOrderId(onlineOrderId);
-		orderRequestDTO.setOnlineSignature(razorPaySignature);
-		orderRequestDTO.setTransactionId(razorPayPaymentId);
-		try {
-			orderService.createOrder(cartItemList, orderRequestDTO, calculatedOrderAmt);
-			result = true;
-		} catch (NotFoundException e) {
-			LOGGER.info("Issue in add order {}", e.getMessage());
-		} catch (ValidationException e) {
-			LOGGER.info("Issue in add order {}", e.getMessage());
-		}
-		for (OnlineCart razorPayCart : onlineCartList) {
-			razorPayCart.setStatus(CartItemStatus.PAYMENT_SUCCESS.getStatusValue());
-			razorPayCartRepository.save(razorPayCart);
+		orderRequestDTO.setOnlineOrderId(hesabePaymentDTO.getVariable1());
+		orderRequestDTO.setPaymentToken(hesabePaymentDTO.getPaymentToken());
+		orderRequestDTO.setPaymentId(hesabePaymentDTO.getPaymentId());
+		orderRequestDTO.setAdministrativeCharge(hesabePaymentDTO.getAdministrativeCharge());
+		orderService.createOrder(cartItemList, orderRequestDTO, calculatedOrderAmt);
+		result = true;
+		for (OnlineCart onlineCart : onlineCartList) {
+			onlineCart.setPaymentId(hesabePaymentDTO.getPaymentId());
+			onlineCart.setPaymentToken(hesabePaymentDTO.getPaymentToken());
+			onlineCart.setAdministrativeCharge(hesabePaymentDTO.getAdministrativeCharge());
+			onlineCart.setStatus(CartItemStatus.PAYMENT_SUCCESS.getStatusValue());
+			onlineCartRepository.save(onlineCart);
 		}
 		/**
 		 * Delete the entry from cart for the successful orders
 		 */
-		try {
-			cartItemService.deleteCartItemForOnlineOrderId(onlineOrderId);
-		} catch (NotFoundException e) {
-			LOGGER.error("Error while deleting items for cart using razorpay orderId : {}", e.getMessage());
-		}
-
+		cartItemService.deleteCartItemForOnlineOrderId(hesabePaymentDTO.getVariable1());
 		return result;
 	}
 
 	@Override
 	public void failedTransaction(final String razorPayOrderId) {
 		LOGGER.info("Inside Failed Payment transaction for razorPayOrderId {} :", razorPayOrderId);
-		List<OnlineCart> razorPayCartList = razorPayCartRepository.findAllByOnlineOrderIdAndStatus(razorPayOrderId,
+		List<OnlineCart> razorPayCartList = onlineCartRepository.findAllByOnlineOrderIdAndStatus(razorPayOrderId,
 				CartItemStatus.PAYMENT_WAITING.getStatusValue());
 		for (OnlineCart razorPayCart : razorPayCartList) {
 			razorPayCart.setStatus(CartItemStatus.PAYMENT_FAIL.getStatusValue());
-			razorPayCartRepository.save(razorPayCart);
+			onlineCartRepository.save(razorPayCart);
 		}
 	}
 

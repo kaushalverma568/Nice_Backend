@@ -221,12 +221,12 @@
 				path="sql-files/1.0/rating_question_alter.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
-	<changeSet id="32" author="het.shah"
+	<!-- <changeSet id="32" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/product_business_category_add.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
-	</changeSet>
+	</changeSet> -->
 	<changeSet id="33" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -272,6 +272,12 @@
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/drop_not_null_from_order_and_stock_allocation.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet> 
+	<changeSet id="40" author="ronit.macwan"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/order_hesabe.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 </databaseChangeLog>

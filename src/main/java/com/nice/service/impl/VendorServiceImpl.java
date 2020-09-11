@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -173,6 +174,9 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private HesabePaymentService hesabePaymentService;
+
+	@Value("${service.url}")
+	private String serviceUrl;
 
 	@Override
 	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
@@ -371,7 +375,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
@@ -381,8 +386,9 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending
+				 * the verification link for him again, if the email is verified then we will be
+				 * returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -396,8 +402,9 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending
+			 * the verification link for him again, if the email is verified then we will be
+			 * returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -419,7 +426,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -541,8 +549,9 @@ public class VendorServiceImpl implements VendorService {
 			vendorPaymentDTO.setSubscriptionPlanId(subscriptionPlanId);
 			vendorPaymentDTO.setVendorId(vendorId);
 			vendorPaymentDTO.setActive(true);
+			String redirectUrl = serviceUrl + "vendor/subscription/hesabe";
 			LOGGER.info("inside hesabe gateway for generate url");
-			String url = hesabePaymentService.createPaymentGateway(vendorPaymentDTO.getVendorOrderId(), vendorPaymentDTO.getAmount());
+			String url = hesabePaymentService.createPaymentGateway(vendorPaymentDTO.getVendorOrderId(), vendorPaymentDTO.getAmount(), redirectUrl);
 			LOGGER.info("outside hesabe gateway for generate url");
 			vendorPaymentService.addVendorPayment(vendorPaymentDTO);
 			return url;
@@ -565,7 +574,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription plan or not
+			 * if order service is enable by vendor then check he has active subscription
+			 * plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -724,7 +734,8 @@ public class VendorServiceImpl implements VendorService {
 	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO, final Integer startIndex, final Integer pageSize)
 			throws ValidationException, NotFoundException {
 		/**
-		 * if customer address is not there then lat long should be there for calculating distance.
+		 * if customer address is not there then lat long should be there for
+		 * calculating distance.
 		 */
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
@@ -736,7 +747,8 @@ public class VendorServiceImpl implements VendorService {
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
 		}
 		/**
-		 * for sorting for popular and new arrival only one of them is allowed at time if both then will throw exception.
+		 * for sorting for popular and new arrival only one of them is allowed at time
+		 * if both then will throw exception.
 		 */
 		if (vendorListFilterDTO.getIsPopular() != null && vendorListFilterDTO.getIsPopular().booleanValue() && vendorListFilterDTO.getIsNewArrival() != null
 				&& vendorListFilterDTO.getIsNewArrival().booleanValue()) {
@@ -768,7 +780,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByPhoneNumberAndIdNot(vendorDTO.getPhoneNumber(), vendorDTO.getId()).isPresent();
 		} else {

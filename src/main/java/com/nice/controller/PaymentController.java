@@ -3,22 +3,24 @@
  */
 package com.nice.controller;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.nice.constant.SuccessErrorType;
+import com.nice.dto.HesabeDecryptPaymentDTO;
+import com.nice.dto.HesabePaymentResponseDTO;
 import com.nice.exception.NotFoundException;
-import com.nice.model.Orders;
-import com.nice.service.OrdersService;
+import com.nice.exception.ValidationException;
+import com.nice.locale.MessageByLocaleService;
+import com.nice.service.HesabePaymentService;
 import com.nice.service.PaymentService;
 
 /**
@@ -34,53 +36,40 @@ public class PaymentController {
 	@Autowired
 	private PaymentService paymentService;
 
-	@Autowired
-	private OrdersService ordersService;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentController.class);
 
-	@Value("${customer.url}")
-	private String customerUrl;
+	@Value("${admin.url}")
+	private String adminUrl;
+
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
+	@Autowired
+	private HesabePaymentService hesabePaymentService;
 
 	private static final String REDIRECT = "redirect:";
 
-	@PostMapping(path = "/check")
-	public ModelAndView checkPayment(@RequestParam(name = "razorpay_payment_id", required = false) final String razorpayPaymentId,
-			@RequestParam(name = "razorpay_signature", required = false) final String razorpaySignature,
-			@RequestParam(name = "razorpay_order_id", required = false) final String razorpayOrderId,
-			@RequestParam(name = "error[code]", required = false) final String errorCode,
-			@RequestParam(name = "error[description]", required = false) final String errorDescription,
-			@RequestParam(name = "error[field]", required = false) final String errorField) throws NotFoundException {
-		LOGGER.info("razorpayPaymentId : {} , razorpaySignature : {} , razorpayOrderId : {} , errorCode : {} ,errorDescription : {}", razorpayPaymentId,
-				razorpaySignature, razorpayOrderId, errorCode, errorDescription);
-		if ((errorCode != null) && (errorDescription != null)) {
-			paymentService.failedTransaction(razorpayOrderId);
-			return new ModelAndView(REDIRECT + customerUrl + "#/failed-error?message='" + errorDescription + "'&type=" + SuccessErrorType.PAYMENT);
+	@GetMapping(path = "/check")
+	public ModelAndView checkPayment(@RequestParam(name = "data") final String data) throws NotFoundException {
+		String result = hesabePaymentService.decrypt(data);
+		LOGGER.info("hesabe response {} ", result);
+		Gson gson = new Gson();
+		HesabePaymentResponseDTO hesabePaymentResponseDTO = gson.fromJson(result, HesabePaymentResponseDTO.class);
+		HesabeDecryptPaymentDTO decryptPaymentDTO = gson.fromJson(hesabePaymentResponseDTO.getResponse().get("data"), HesabeDecryptPaymentDTO.class);
+		boolean response;
+		String msg;
+		try {
+			response = paymentService.checkPaymentTransaction(decryptPaymentDTO.getResponse());
+			msg = messageByLocaleService.getMessage("payment.success", null);
+			// TODO send email
+		} catch (NotFoundException | ValidationException e) {
+			response = false;
+			msg = e.getMessage();
 		}
-		final boolean data = paymentService.checkPaymentTransaction(razorpayOrderId, razorpayPaymentId, razorpaySignature);
-		if (data) {
-
-			final Optional<Orders> orders = ordersService.getOrderDetailsByOnlineOrderId(razorpayOrderId);
-			Long orderId = 0L;
-			if (orders.isPresent()) {
-				orderId = orders.get().getId();
-				/**
-				 * send email start here
-				 */
-				/**
-				 * send email to customer when he/she place order and payment type is online
-				 */
-				// ordersService.sendEmailOnOrderStatusChange(orderId,
-				// NotificationQueueConstants.PLACE_ORDER);
-				/**
-				 * send email ends here
-				 */
-			}
-
-			return new ModelAndView(REDIRECT + customerUrl + "#/thank-you?message=Payment Successful. Your order Placed Successfully&orderid=" + orderId
-					+ " &type=" + SuccessErrorType.PAYMENT);
+		if (response) {
+			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
 		} else {
-			return new ModelAndView(REDIRECT + customerUrl + "#/failed-error?type=" + SuccessErrorType.PAYMENT);
+			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
 		}
 	}
 }

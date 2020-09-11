@@ -88,6 +88,15 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "online_order_id")
 	private String onlineOrderId;
 
+	@Column(name = "payment_token")
+	private String paymentToken;
+
+	@Column(name = "payment_id")
+	private String paymentId;
+
+	@Column(name = "administrative_charge")
+	private Double administrativeCharge;
+
 	@Column(name = "payment_amount")
 	private Double paymentAmount;
 

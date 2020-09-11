@@ -86,14 +86,17 @@ public class Orders extends CommonModel {
 	@Column(name = "gross_order_amount", nullable = false)
 	private Double grossOrderAmount;
 
-	@Column(name = "transaction_id", nullable = true)
-	private String transactionId;
+	@Column(name = "payment_id", nullable = true)
+	private String paymentId;
 
 	@Column(name = "online_order_id", nullable = true)
 	private String onlineOrderId;
 
-	@Column(name = "online_signature", nullable = true)
-	private String onlinePaymentSignature;
+	@Column(name = "online_payment_token", nullable = true)
+	private String onlinePaymentToken;
+
+	@Column(name = "administrative_charge")
+	private Double administrativeCharge;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	@JoinColumn(name = "delivery_boy_id", nullable = true)
