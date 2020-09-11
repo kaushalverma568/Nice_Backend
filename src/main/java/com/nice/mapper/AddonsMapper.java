@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.AddonsDTO;
@@ -20,6 +21,13 @@ public class AddonsMapper {
 		AddonsDTO addonsDTO = new AddonsDTO();
 		BeanUtils.copyProperties(addons, addonsDTO);
 		addonsDTO.setVendorId(addons.getVendor().getId());
+		if ("en".equals(LocaleContextHolder.getLocale().getLanguage())) {
+			addonsDTO.setName(addonsDTO.getNameEnglish());
+			addonsDTO.setDescription(addonsDTO.getDescriptionEnglish());
+		} else {
+			addonsDTO.setName(addonsDTO.getNameArabic());
+			addonsDTO.setDescription(addonsDTO.getDescriptionArabic());
+		}
 		return addonsDTO;
 	}
 

@@ -24,9 +24,9 @@ public class ToppingDTO implements Serializable {
 
 	private Long id;
 
-	// private String name;
+	private String name;
 
-	// private String description;
+	private String description;
 
 	@NotBlank(message = "{english.name.not.null}")
 	private String nameEnglish;

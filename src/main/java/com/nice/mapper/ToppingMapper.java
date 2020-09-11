@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.ToppingDTO;
@@ -20,6 +21,13 @@ public class ToppingMapper {
 	public ToppingDTO toDto(final Topping topping) {
 		ToppingDTO toppingResponseDTO = new ToppingDTO();
 		BeanUtils.copyProperties(topping, toppingResponseDTO);
+		if ("en".equals(LocaleContextHolder.getLocale().getLanguage())) {
+			toppingResponseDTO.setName(toppingResponseDTO.getNameEnglish());
+			toppingResponseDTO.setDescription(toppingResponseDTO.getDescriptionEnglish());
+		} else {
+			toppingResponseDTO.setName(toppingResponseDTO.getNameArabic());
+			toppingResponseDTO.setDescription(toppingResponseDTO.getDescriptionArabic());
+		}
 		return toppingResponseDTO;
 	}
 

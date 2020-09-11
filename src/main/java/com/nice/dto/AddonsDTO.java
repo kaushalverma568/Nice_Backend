@@ -38,4 +38,8 @@ public class AddonsDTO implements Serializable {
 	private Long vendorId;
 
 	private String vendorName;
+
+	private String name;
+
+	private String description;
 }
