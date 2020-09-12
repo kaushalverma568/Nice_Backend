@@ -77,7 +77,7 @@ INSERT INTO modules(
 	VALUES (16,true, now(), 1, now(), 1, 'Others','Rating Question',true);
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (17,true, now(), 1, now(), 1, 'Vendors','Vendor',true);	
+	VALUES (17,true, now(), 1, now(), 1, 'Vendor','Vendors',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (18,true, now(), 1, now(), 1, 'Products','Category',false);	
@@ -184,7 +184,7 @@ INSERT INTO permission(
 	VALUES (true, now(), 1, now(), 1, true, true, true,true, 16, 1,true);
 INSERT INTO permission(
 	 active, created_at, created_by, updated_at, updated_by, can_add, can_delete, can_edit, can_view, modules_id, role_id, side_bar)
-	VALUES (true, now(), 1, now(), 1, false, true, true,true, 17, 1,true);
+	VALUES (true, now(), 1, now(), 1, false, true, false ,true, 17, 1,true);
 INSERT INTO permission(
 	 active, created_at, created_by, updated_at, updated_by, can_add, can_delete, can_edit, can_view, modules_id, role_id, side_bar)
 	VALUES (true, now(), 1, now(), 1, false, false, false,true, 28, 1,true);

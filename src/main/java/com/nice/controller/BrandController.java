@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -45,7 +44,7 @@ import com.nice.validator.BrandValidator;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/brand")
 @RestController
@@ -55,8 +54,7 @@ public class BrandController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(BrandController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -86,15 +84,14 @@ public class BrandController {
 	/**
 	 * Add Brand
 	 *
-	 * @param brandDTO
-	 * @param result
-	 * @param userId
+	 * @param  brandDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	@PreAuthorize("hasPermission('Brand','CAN_ADD')")
 	public ResponseEntity<Object> addBrand(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final BrandDTO brandDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Brand {}", brandDTO);
@@ -112,15 +109,14 @@ public class BrandController {
 	/**
 	 * update Brand
 	 *
-	 * @param brandDTO
-	 * @param result
-	 * @param userId
+	 * @param  brandDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Brand','CAN_EDIT')")
 	public ResponseEntity<Object> updateBrand(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final BrandDTO brandDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Brand {}", brandDTO);
@@ -138,13 +134,12 @@ public class BrandController {
 	/**
 	 * Get Brand Details based on id
 	 *
-	 * @param brandId
-	 * @param userId
+	 * @param  brandId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping(name = "getBrand", value = "/{brandId}")
-	@PreAuthorize("hasPermission('Brand','CAN_VIEW')")
 	public ResponseEntity<Object> getBrand(@RequestHeader("Authorization") final String accessToken, @PathVariable("brandId") final Long brandId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Brand ");
@@ -156,15 +151,14 @@ public class BrandController {
 	/**
 	 * Get Brand list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping(name = "getBrandList", value = "/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Brand','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getBrandList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws NotFoundException {
@@ -179,14 +173,13 @@ public class BrandController {
 	/**
 	 * Change status of Brand (active/deActive)
 	 *
-	 * @param brandId
-	 * @param active
+	 * @param  brandId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping(name = "changeStatus", value = "/status/{brandId}")
-	@PreAuthorize("hasPermission('Brand','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("brandId") final Long brandId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of brand of id {} and status {}", brandId, active);
@@ -198,10 +191,10 @@ public class BrandController {
 	/**
 	 * export brand list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 * @throws FileOperationException
@@ -209,7 +202,6 @@ public class BrandController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
-	@PreAuthorize("hasPermission('Brand','CAN_EXPORT')")
 	public ResponseEntity<Object> exportBrandList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
 		brandService.exportBrandList(httpServletResponse);
@@ -220,15 +212,14 @@ public class BrandController {
 	/**
 	 * Upload brand
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Brand','CAN_IMPORT')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
