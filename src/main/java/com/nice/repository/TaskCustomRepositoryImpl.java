@@ -86,6 +86,9 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		if (parameterObject.getUpdatedAt() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("updatedAt").as(Date.class), parameterObject.getUpdatedAt()));
 		}
+		if (parameterObject.getCreatedAt() != null) {
+			predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), parameterObject.getCreatedAt()));
+		}
 		if (parameterObject.getDeliveredDate() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), parameterObject.getDeliveredDate()));
 		}

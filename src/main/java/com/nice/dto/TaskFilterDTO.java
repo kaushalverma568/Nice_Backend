@@ -43,4 +43,5 @@ public class TaskFilterDTO implements Serializable {
 
 	private Date orderDate;
 
+	private Date createdAt;
 }

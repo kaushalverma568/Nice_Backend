@@ -46,13 +46,14 @@ import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
 import com.nice.service.PaymentDetailsService;
+import com.nice.service.SettingsService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -99,6 +100,9 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private PaymentDetailsService paymentDetailService;
 
+	@Autowired
+	private SettingsService settingsService;
+
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
 
@@ -108,9 +112,8 @@ public class TaskServiceImpl implements TaskService {
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
-		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
-		 * different.
+		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for regular order, not for replacement
+		 * or return, for replacement and return the calculation for the same will be different.
 		 */
 
 		// TODO : Change the admin commission rate and get it from settings.
@@ -125,8 +128,7 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
-		 * the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have the same order.
 		 */
 		synchronized (this) {
 			/**
@@ -158,7 +160,10 @@ public class TaskServiceImpl implements TaskService {
 			task.setVendorPayableAmt(vendorPayableAmt);
 			task.setAdminCommission(adminCommissionAmt);
 			task.setTotalOrderAmount(orderTotal);
-			task.setDeliveryCharge(deliveryCharge == null ? 0d : deliveryCharge);
+			/**
+			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
+			 */
+			task.setDeliveryCharge(0d);
 			taskRepository.save(task);
 
 			/**
@@ -203,9 +208,9 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
-			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
-			 * status, this would be applicable only if there is replacement in place.
+			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and hence the order should be
+			 * moved to replaced status, else its first time delivery and order will be moved to delivered status, this would be applicable only if there is
+			 * replacement in place.
 			 */
 			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
 
@@ -233,6 +238,37 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.task.status", null));
+		}
+
+		/**
+		 * code for delivery boy delivery charge
+		 */
+		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
+			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName("DAY_MIN_ORDER_DELIVERED").getFieldValue();
+			/**
+			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered for a day then consider that
+			 * tasks
+			 */
+			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+			taskFilterDTO.setCreatedAt(new Date(System.currentTimeMillis()));
+			taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+
+			List<Task> taskList = getTaskListBasedOnParams(taskFilterDTO, null, null);
+
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(taskList) && taskList.size() >= Integer.valueOf(minOrderDelivered)) {
+				/**
+				 * set delivery charge for delivery boy above minimum orders
+				 */
+				task.setDeliveryCharge(
+						Double.valueOf(settingsService.getSettingsDetailsByFieldName("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS").getFieldValue()));
+			} else {
+				/**
+				 * set delivery charge for delivery boy below minimum orders
+				 */
+				task.setDeliveryCharge(
+						Double.valueOf(settingsService.getSettingsDetailsByFieldName("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS").getFieldValue()));
+			}
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
@@ -323,7 +359,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
