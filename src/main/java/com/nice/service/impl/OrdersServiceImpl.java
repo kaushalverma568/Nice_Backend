@@ -402,7 +402,7 @@ public class OrdersServiceImpl implements OrdersService {
 				onlineCart.setDeliveryType(orderRequestDto.getDeliveryType());
 				onlineCart.setDescription(orderRequestDto.getDescription());
 				onlineCart.setStatus(CartItemStatus.PAYMENT_WAITING.getStatusValue());
-				onlineCart.setPaymentAmount(calculatedOrderAmt);
+				onlineCart.setPaymentAmount(amountAfterWalletDeduction);
 				cartItem.setOnlineOrderId(onlineOrderId);
 				onlineCart.setOnlineOrderId(onlineOrderId);
 				onlineCart.setActive(true);
@@ -490,7 +490,7 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 			String redirectUrl = serviceUrl.concat("payment/check");
 			LOGGER.info("inside hesabe gateway for generate url");
-			String url = hesabePaymentService.createPaymentGateway(onlineOrderId, calculatedOrderAmt, redirectUrl);
+			String url = hesabePaymentService.createPaymentGateway(onlineOrderId, amountAfterWalletDeduction, redirectUrl);
 			LOGGER.info("outside hesabe gateway for generate url");
 			return url;
 		}

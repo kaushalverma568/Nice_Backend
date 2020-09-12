@@ -221,12 +221,12 @@
 				path="sql-files/1.0/rating_question_alter.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
-	<!-- <changeSet id="32" author="het.shah"
+	<changeSet id="32" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/product_business_category_add.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
-	</changeSet> -->
+	</changeSet>
 	<changeSet id="33" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -247,6 +247,13 @@
 				path="sql-files/1.0/wallet.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
+	
+	<changeSet id="35" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/stock_allocation.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
 	
 	<changeSet id="36" author="het.shah"
 			context="post-process-db-changes">

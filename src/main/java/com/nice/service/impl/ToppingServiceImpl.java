@@ -49,7 +49,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("toppingService")
@@ -114,8 +114,7 @@ public class ToppingServiceImpl implements ToppingService {
 
 	@Override
 	public Topping getToppingDetail(final Long toppingId) throws NotFoundException {
-		return toppingRepository.findById(toppingId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("topping.not.found", new Object[] { toppingId })));
+		return toppingRepository.findById(toppingId).orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("topping.not.found", null)));
 	}
 
 	@Override
