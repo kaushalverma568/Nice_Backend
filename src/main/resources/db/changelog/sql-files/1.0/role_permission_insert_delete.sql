@@ -80,55 +80,55 @@ INSERT INTO modules(
 	VALUES (17,true, now(), 1, now(), 1, 'Vendor','Vendors',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (18,true, now(), 1, now(), 1, 'Products','Category',false);	
+	VALUES (18,true, now(), 1, now(), 1,'Category', 'Products',false);	
 	INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (19,true, now(), 1, now(), 1, 'Products','Sub Category',false);	
+	VALUES (19,true, now(), 1, now(), 1,'Sub Category', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (20,true, now(), 1, now(), 1, 'Products','UOM',false);	
+	VALUES (20,true, now(), 1, now(), 1,'UOM', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (21,true, now(), 1, now(), 1, 'Products','Product Attribute',false);	
+	VALUES (21,true, now(), 1, now(), 1,'Product Attribute', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (22,true, now(), 1, now(), 1, 'Products','Product Toppings',false);	
+	VALUES (22,true, now(), 1, now(), 1,'Product Toppings', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (23,true, now(), 1, now(), 1, 'Products','Product Addons',false);	
+	VALUES (23,true, now(), 1, now(), 1, 'Product Addons','Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (24,true, now(), 1, now(), 1, 'Products','Product Extras',false);	
+	VALUES (24,true, now(), 1, now(), 1,'Product Extras', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (25,true, now(), 1, now(), 1, 'Products','Product List',false);	
+	VALUES (25,true, now(), 1, now(), 1,'Product List', 'Products',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (26,true, now(), 1, now(), 1, 'Inventory','Add Stock',false);	
+	VALUES (26,true, now(), 1, now(), 1,'Add Stock', 'Inventory',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (27,true, now(), 1, now(), 1, 'Inventory','Stock Summary',false);	
+	VALUES (27,true, now(), 1, now(), 1,'Stock Summary', 'Inventory',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (28,true, now(), 1, now(), 1, 'Orders','Orders',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (29,true, now(), 1, now(), 1, 'Orders','Delivery Logs',true);	
+	VALUES (29,true, now(), 1, now(), 1, 'Delivery Logs','Orders',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (30,true, now(), 1, now(), 1, 'Delivery Boys','Delivery Boy',true);	
+	VALUES (30,true, now(), 1, now(), 1,'Delivery Boy', 'Delivery Boys',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (31,true, now(), 1, now(), 1, 'Users','Users',false);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (32,true, now(), 1, now(), 1, 'Payout','Delivery Boy Payout',true);	
+	VALUES (32,true, now(), 1, now(), 1, 'Delivery Boy Payout','Payout',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (33,true, now(), 1, now(), 1, 'Payout','Vendor Payout',true);	
+	VALUES (33,true, now(), 1, now(), 1, 'Vendor Payout','Payout',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (34,true, now(), 1, now(), 1, 'Account','Payment Transaction',true);	
+	VALUES (34,true, now(), 1, now(), 1,'Payment Transaction','Account',true);	
 INSERT INTO modules(
 	 id,active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (35,true, now(), 1, now(), 1, 'Discount','Discount',false);	

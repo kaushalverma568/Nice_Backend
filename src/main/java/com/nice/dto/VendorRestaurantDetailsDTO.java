@@ -42,12 +42,12 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 
 	@Temporal(TemporalType.TIME)
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
-//	@NotNull(message = "{openingHours.from.not.null}")
+	@NotNull(message = "{openingHours.from.not.null}")
 	private Date openingHoursFrom;
 
 	@Temporal(TemporalType.TIME)
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
-//	@NotNull(message = "{openingHours.to.not.null}")
+	@NotNull(message = "{openingHours.to.not.null}")
 	private Date openingHoursTo;
 
 	@NotNull(message = "{minimumOrderAmt.not.null}")
