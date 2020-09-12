@@ -84,5 +84,9 @@ public class OrdersResponseDTO implements Serializable {
 	private Date cancelDate;
 	private String cancelledBy;
 	private String vendorPhoneNumber;
-
+	
+	/**
+	 * order rating 
+	 */
+    private OrderRatingResponseDTO orderRating;
 }

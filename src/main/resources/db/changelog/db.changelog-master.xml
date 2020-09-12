@@ -287,5 +287,12 @@
 				splitStatements="true" stripComments="true" />
 	</changeSet>  
 	
+		<changeSet id="42" author="nish.parmar"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/settingLink_insert.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>  
+	
 	
 </databaseChangeLog>
