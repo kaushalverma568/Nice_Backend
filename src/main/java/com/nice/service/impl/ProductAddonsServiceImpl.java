@@ -80,7 +80,7 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 			Addons addons = addonsService.getAddonsById(productAddonsDto.getAddonsId());
 			validateProductAddons(productVariant, productAddonsDto);
 			if (isExists(productAddonsDto, productVariant, addons)) {
-				throw new ValidationException(messageByLocaleService.getMessage("addons.already.exists", new Object[] { productAddonsDto.getAddonsId() }));
+				throw new ValidationException(messageByLocaleService.getMessage("addons.already.exists", new Object[] { productAddonsDto.getAddonsName() }));
 			}
 			productAddonsDto.setProductVariantId(productVariantId);
 			ProductAddons productAddons = new ProductAddons();

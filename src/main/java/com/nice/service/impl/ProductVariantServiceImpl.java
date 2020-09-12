@@ -111,7 +111,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			if (!existingProductVariant.getProduct().getId().equals(productId)) {
 				throw new ValidationException(messageByLocaleService.getMessage("product.id.not.unique", null));
 			} else if (!existingProductVariant.getUom().getId().equals(productVariantRequestDTO.getUomId())) {
-				throw new ValidationException(messageByLocaleService.getMessage("uom.id.not.unique", null));
+				throw new ValidationException(messageByLocaleService.getMessage("cannot.change.uom", null));
 			} else {
 				productVariant.setUom(existingProductVariant.getUom());
 				productVariant.setProduct(existingProductVariant.getProduct());

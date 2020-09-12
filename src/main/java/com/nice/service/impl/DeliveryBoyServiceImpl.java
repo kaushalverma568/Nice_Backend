@@ -72,7 +72,6 @@ import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CashcollectionService;
-import com.nice.service.DeliveryBoyActiveTimeService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
@@ -87,7 +86,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -139,9 +138,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Autowired
 	private CashcollectionService cashCollectionService;
-
-	@Autowired
-	private DeliveryBoyActiveTimeService deliveryBoyActiveTimeService;
 
 	@Autowired
 	private DeviceDetailService deviceDetailService;
@@ -236,10 +232,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public DeliveryBoyResponseDTO getDeliveryBoy(final Long deliveryBoyId) throws NotFoundException {
-		DeliveryBoyResponseDTO deliveryBoyResponseDto = deliveryBoyMapper.toDto(getDeliveryBoyDetail(deliveryBoyId));
-		Long activeTime = deliveryBoyActiveTimeService.getDeliveryBoyActiveTimeDetailsForToday(deliveryBoyId);
-		deliveryBoyResponseDto.setActiveTime(activeTime);
-		return deliveryBoyResponseDto;
+		return deliveryBoyMapper.toDto(getDeliveryBoyDetail(deliveryBoyId));
 	}
 
 	@Override
@@ -249,8 +242,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -275,8 +268,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	/**
 	 *
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -408,8 +401,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
-				 * verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
+				 * again, if the email is verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -482,12 +475,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				}
 			}
 			deliveryBoyCurrentStatus.setIsAvailable(isAvailable);
-			if (isAvailable.booleanValue()) {
-				deliveryBoyCurrentStatus.setLastActivateTime(new Date());
-			} else {
-				deliveryBoyActiveTimeService.updateDeliveryActiveTime(deliveryBoyCurrentStatus.getDeliveryBoy().getId());
-				deliveryBoyCurrentStatus.setLastActivateTime(null);
-			}
 			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 			LOGGER.info("update is available for delivery boy :{} and isAvailable:{}", userLogin.getEntityId(), isAvailable);
 		} else {
@@ -496,8 +483,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  deliveryBoy
+	 * @param userLogin
+	 * @param deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -542,8 +529,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
-		 * time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for
+		 * replacement or return) and at a time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);

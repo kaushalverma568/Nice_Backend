@@ -223,7 +223,7 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 	public ProductTopping getProductToppingDetails(final Long productToppingId) throws NotFoundException {
 		LOGGER.info("Inside getProductToppingDetails method, productToppingId :{} ", productToppingId);
 		return productToppingRepository.findById(productToppingId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("topping.not.found", new Object[] { productToppingId })));
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("topping.not.found", null)));
 	}
 
 	/**
