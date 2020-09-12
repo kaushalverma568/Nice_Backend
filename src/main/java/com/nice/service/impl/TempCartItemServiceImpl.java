@@ -290,8 +290,6 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 		CartItemResponseDTO cartItemResponseDTO = cartItemMapper.toDto(cartItem);
 		ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariantInternal(cartItem.getProductVariant().getId(), false);
 		cartItemResponseDTO.setProductVariantResponseDto(productVariantResponseDto);
-		cartItemResponseDTO.setProductAddonsDtoList(tempCartAddonsService.getTempCartAddonsListForCartItem(cartItem.getId()));
-		cartItemResponseDTO.setProductToppingsDtoList(tempCartToppingsService.getTempCartToppingsListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setProductExtrasDtoList(tempCartExtrasService.getTempCartExtrasListForCartItem(cartItem.getId()));
 
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = tempCartProductAttributeValueService
@@ -306,7 +304,6 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
-		cartItemResponseDTO.setProductAttributeValuesDtoMap(productAttributeValueDtoMap);
 		return cartItemResponseDTO;
 	}
 

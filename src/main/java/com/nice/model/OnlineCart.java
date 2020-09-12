@@ -69,10 +69,10 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "pincode_id", nullable = false)
 	private Long pincodeId;
 
-	@Column(name = "latitude", nullable = false)
+	@Column(name = "latitude", nullable = true)
 	private BigDecimal latitude;
 
-	@Column(name = "longitude", nullable = false)
+	@Column(name = "longitude", nullable = true)
 	private BigDecimal longitude;
 
 	@Column(name = "phone_number", nullable = false)
@@ -109,4 +109,9 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "description", nullable = true)
 	private String description;
 
+	/**
+	 * Wallet contribution for order
+	 */
+	@Column(name = "wallet_contribution", nullable = true)
+	private Double walletContirbution;
 }

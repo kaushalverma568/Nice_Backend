@@ -39,13 +39,12 @@ public class OrderRequestDTO implements Serializable {
 	private String deliveryType;
 
 	/**
-	 * This flag will be used to indicate if the wallet needs to be used for this
-	 * order or not. This flag if true can have following two cases: 1. Entire order
-	 * amount would be settled from wallet balance. 2. Partial order amount is
-	 * settled via wallet and other amount would either be COD or online payment
-	 * depending upon the payment mode selected
+	 * This flag will be used to indicate if the wallet needs to be used for this order or not. This flag if true can have
+	 * following two cases: 1. Entire order amount would be settled from wallet balance. 2. Partial order amount is settled
+	 * via wallet and other amount would either be COD or online payment depending upon the payment mode selected
 	 */
-	private Boolean useWallet = false;
+	@NotNull(message = "{wallet.use.required}")
+	private Boolean useWallet;
 
 	private String paymentId;
 
@@ -86,4 +85,9 @@ public class OrderRequestDTO implements Serializable {
 	 * Wallet contribution will be used internally
 	 */
 	private Double walletContribution;
+
+	/**
+	 * Used internally
+	 */
+	private Boolean applyDeliveryCharge;
 }

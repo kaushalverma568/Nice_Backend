@@ -279,5 +279,13 @@
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/order_hesabe.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
-	</changeSet> 
+	</changeSet>
+	<changeSet id="41" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/online_cart_remove_not_null.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>  
+	
+	
 </databaseChangeLog>

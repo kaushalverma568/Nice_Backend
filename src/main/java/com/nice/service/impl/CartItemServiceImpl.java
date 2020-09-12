@@ -23,6 +23,7 @@ import com.nice.dto.CartItemResponseDTO;
 import com.nice.dto.CartProductAttributeValueDTO;
 import com.nice.dto.CartToppingsDto;
 import com.nice.dto.ProductAddonsDTO;
+import com.nice.dto.ProductAttributeResponseDTO;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductToppingResponseDTO;
@@ -342,8 +343,6 @@ public class CartItemServiceImpl implements CartItemService {
 		CartItemResponseDTO cartItemResponseDTO = cartItemMapper.toDto(cartItem);
 		ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariantInternal(cartItem.getProductVariant().getId(), false);
 		cartItemResponseDTO.setProductVariantResponseDto(productVariantResponseDto);
-		cartItemResponseDTO.setProductAddonsDtoList(cartAddonsService.getCartAddonsDtoListForCartItem(cartItem.getId()));
-		cartItemResponseDTO.setProductToppingsDtoList(cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setProductExtrasDtoList(cartExtrasService.getCartExtrasDtoListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setCustomerId(cartItem.getCustomer().getId());
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = cartProductAttributeValueService
@@ -358,7 +357,6 @@ public class CartItemServiceImpl implements CartItemService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
-		cartItemResponseDTO.setProductAttributeValuesDtoMap(productAttributeValueDtoMap);
 		return cartItemResponseDTO;
 	}
 
@@ -499,19 +497,22 @@ public class CartItemServiceImpl implements CartItemService {
 			List<Long> productExtrasList = cartItemResponseDto.getProductExtrasDtoList().stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
 			cartItemDto.setProductExtrasId(productExtrasList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductAddonsDtoList())) {
-			List<Long> productAddonsList = cartItemResponseDto.getProductAddonsDtoList().stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductAddonsDtoList())) {
+			List<Long> productAddonsList = cartItemResponseDto.getProductVariantResponseDto().getProductAddonsDtoList().stream().map(ProductAddonsDTO::getId)
+					.collect(Collectors.toList());
 			cartItemDto.setProductAddonsId(productAddonsList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductToppingsDtoList())) {
-			List<Long> productToppingsList = cartItemResponseDto.getProductToppingsDtoList().stream().map(ProductToppingResponseDTO::getId)
-					.collect(Collectors.toList());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductToppingsDtoList())) {
+			List<Long> productToppingsList = cartItemResponseDto.getProductVariantResponseDto().getProductToppingsDtoList().stream()
+					.map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
 			cartItemDto.setProductToppingsIds(productToppingsList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartItemResponseDto.getProductAttributeValuesDtoMap())) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductAttributeValuesDtoList())) {
 			List<Long> attributeValueList = new ArrayList<>();
-			for (List<ProductAttributeValueDTO> productAttributeValueList : cartItemResponseDto.getProductAttributeValuesDtoMap().values()) {
-				List<Long> attValList = productAttributeValueList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
+			for (ProductAttributeResponseDTO productAttributeResponseDto : cartItemResponseDto.getProductVariantResponseDto()
+					.getProductAttributeValuesDtoList()) {
+				List<Long> attValList = productAttributeResponseDto.getProductAttributeValueList().stream().map(ProductAttributeValueDTO::getId)
+						.collect(Collectors.toList());
 				attributeValueList.addAll(attValList);
 			}
 			cartItemDto.setAttributeValueIds(attributeValueList);

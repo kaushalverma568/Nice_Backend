@@ -86,6 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setDeliveryType(onlineCart.getDeliveryType());
 			orderRequestDTO.setPaymentMode(PaymentMode.ONLINE.name());
 			orderRequestDTO.setDescription(onlineCart.getDescription());
+			orderRequestDTO.setWalletContribution(onlineCart.getWalletContirbution());
 			calculatedOrderAmt += onlineCart.getPaymentAmount();
 		}
 		orderRequestDTO.setOnlineOrderId(hesabePaymentDTO.getVariable1());
@@ -111,11 +112,11 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public void failedTransaction(final String razorPayOrderId) {
 		LOGGER.info("Inside Failed Payment transaction for razorPayOrderId {} :", razorPayOrderId);
-		List<OnlineCart> razorPayCartList = onlineCartRepository.findAllByOnlineOrderIdAndStatus(razorPayOrderId,
+		List<OnlineCart> onlinePaymentCartList = onlineCartRepository.findAllByOnlineOrderIdAndStatus(razorPayOrderId,
 				CartItemStatus.PAYMENT_WAITING.getStatusValue());
-		for (OnlineCart razorPayCart : razorPayCartList) {
-			razorPayCart.setStatus(CartItemStatus.PAYMENT_FAIL.getStatusValue());
-			onlineCartRepository.save(razorPayCart);
+		for (OnlineCart onlineCart : onlinePaymentCartList) {
+			onlineCart.setStatus(CartItemStatus.PAYMENT_FAIL.getStatusValue());
+			onlineCartRepository.save(onlineCart);
 		}
 	}
 
