@@ -26,8 +26,9 @@ public interface OrderRatingService {
 	 * @param  orderRatingDto
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException 
 	 */
-	OrderRatingResponseDTO addOrderRating(OrderRatingDTO orderRatingDto) throws NotFoundException;
+	OrderRatingResponseDTO addOrderRating(OrderRatingDTO orderRatingDto) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param  orderRatingId

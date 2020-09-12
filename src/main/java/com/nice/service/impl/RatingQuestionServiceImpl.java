@@ -72,10 +72,10 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 	}
 
 	@Override
-	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) {
+	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String type) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
-		if (activeRecords != null) {
-			return ratingQuestionRepository.findAllByActive(activeRecords, pageable);
+		if (type != null) {
+			return ratingQuestionRepository.findAllByType(type, pageable);
 
 		} else {
 			return ratingQuestionRepository.findAll(pageable);

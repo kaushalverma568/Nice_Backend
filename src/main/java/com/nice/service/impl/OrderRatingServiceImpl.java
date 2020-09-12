@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.DeliveryType;
 import com.nice.dto.OrderRatingDTO;
 import com.nice.dto.OrderRatingResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -69,11 +70,14 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	
 
 	@Override
-	public OrderRatingResponseDTO addOrderRating(final OrderRatingDTO orderRatingDTO) throws NotFoundException {
+	public OrderRatingResponseDTO addOrderRating(final OrderRatingDTO orderRatingDTO) throws NotFoundException, ValidationException {
+	    validateOrderRating(orderRatingDTO);
 		OrderRating orderRating= orderRatingMapper.toEntity(orderRatingDTO);
 		Orders order = orderService.getOrderById(orderRating.getOrderId());
 		orderRating.setVendorId(order.getVendor().getId());
-		orderRating.setDeliveryBoyId(order.getDeliveryBoy().getId());
+		if (order.getDeliveryBoy() != null) {
+			orderRating.setDeliveryBoyId(order.getDeliveryBoy().getId());
+		}
 	
 		/**
 		 *  first 3 rating for vendor 
@@ -89,8 +93,12 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		 * for delivery boy rating, we total question4 rating and question5 rating
 		 * 		 divide by 2 because its total of 2 types of rating so we get average
 		 */
-		orderRating.setDeliveryBoyRating(Math.round(((orderRating.getQuestion4Rating()
-				+orderRating.getQuestion5Rating())/2.0)*100.0)/100.0);
+		if (orderRating.getQuestion4Rating() != null && orderRating.getQuestion5Rating() != null) {
+			orderRating.setDeliveryBoyRating(Math.round(((orderRating.getQuestion4Rating()
+					+orderRating.getQuestion5Rating())/2.0)*100.0)/100.0);	
+		} else {
+			orderRating.setDeliveryBoyRating(0.0);
+		}
 		
 		
 		/**
@@ -98,10 +106,14 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		 * for average rating, we total all 5 question rating
 		 * 		 divide by 5 because its total of 5 types of rating so we get average
 		 */
+		if (orderRating.getQuestion4Rating() != null && orderRating.getQuestion5Rating() != null) {
 		orderRating.setAvgOrderRating(Math.round(((orderRating.getQuestion1Rating()
 				+orderRating.getQuestion2Rating()+orderRating.getQuestion3Rating()
 				+orderRating.getQuestion4Rating()+orderRating.getQuestion5Rating())/5.0)*100.0)/100.0);
-		
+		}else {
+			orderRating.setAvgOrderRating(Math.round(((orderRating.getQuestion1Rating()
+					+orderRating.getQuestion2Rating()+orderRating.getQuestion3Rating())/3.0)*100.0)/100.0);
+		}
 		/**
 		 * order rating save
 		 */	
@@ -109,6 +121,19 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	}
 
 	
+	private void validateOrderRating(OrderRatingDTO orderRatingDTO) throws NotFoundException, ValidationException {
+		Orders order = orderService.getOrderById(orderRatingDTO.getOrderId());
+		if (order.getDeliveryType().equalsIgnoreCase(DeliveryType.DELIVERY.name()) 
+				|| order.getDeliveryType().equalsIgnoreCase(DeliveryType.BOTH.name())) {
+			if (orderRatingDTO.getQuestion4Rating() == null) {
+				throw new  ValidationException(messageByLocaleService.getMessage("question4.rating.not.null", null));
+			}else if (orderRatingDTO.getQuestion5Rating() == null) {
+				throw new  ValidationException(messageByLocaleService.getMessage("question5.rating.not.null", null));
+			}
+		}
+	}
+
+
 	@Override
 	public OrderRatingResponseDTO getOrderRating(final Long orderRatingId) throws NotFoundException {
 		calculateRating();
