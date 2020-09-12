@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -40,7 +41,7 @@ import com.nice.validator.ToppingValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/topping")
 @RestController
@@ -54,8 +55,7 @@ public class ToppingController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ToppingController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -85,14 +85,15 @@ public class ToppingController {
 	/**
 	 * Add Topping
 	 *
-	 * @param toppingDTO
-	 * @param result
-	 * @param userId
+	 * @param  toppingDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Product Toppings','CAN_ADD')")
 	public ResponseEntity<Object> addTopping(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final ToppingDTO toppingDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Topping {}", toppingDTO);
@@ -111,14 +112,15 @@ public class ToppingController {
 	/**
 	 * update Topping
 	 *
-	 * @param toppingDTO
-	 * @param result
-	 * @param userId
+	 * @param  toppingDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Product Toppings','CAN_EDIT')")
 	public ResponseEntity<Object> updateTopping(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final ToppingDTO toppingDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Topping {}", toppingDTO);
@@ -136,7 +138,7 @@ public class ToppingController {
 	/**
 	 * Get Topping Details based on id
 	 *
-	 * @param toppingId
+	 * @param  toppingId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -153,9 +155,9 @@ public class ToppingController {
 	/**
 	 * Get topping list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -174,13 +176,14 @@ public class ToppingController {
 	/**
 	 * Change status of topping (active/deActive)
 	 *
-	 * @param toppingId
-	 * @param active
+	 * @param  toppingId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{toppingId}")
+	@PreAuthorize("hasPermission('Product Toppings','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("toppingId") final Long toppingId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of topping of id {} and status {}", toppingId, active);
@@ -191,17 +194,18 @@ public class ToppingController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
-	 * @throws ValidationException 
-	 * @throws FileOperationException 
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Product Toppings','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException 
-	{
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
+			throws ValidationException, FileOperationException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

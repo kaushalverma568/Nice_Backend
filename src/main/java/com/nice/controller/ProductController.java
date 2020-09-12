@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -50,7 +51,7 @@ import com.nice.validator.ProductValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
 @RestController(value = "productController")
@@ -95,11 +96,11 @@ public class ProductController {
 	public static final String IMAGE_NOT_NULL = "image.required";
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -107,6 +108,7 @@ public class ProductController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
+	@PreAuthorize("hasPermission('Product List','CAN_ADD')")
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = true) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = true) final MultipartFile detailImage,
@@ -124,11 +126,11 @@ public class ProductController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -137,6 +139,7 @@ public class ProductController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
+	@PreAuthorize("hasPermission('Product List','CAN_EDIT')")
 	public ResponseEntity<Object> updateProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
@@ -154,7 +157,7 @@ public class ProductController {
 	}
 
 	/**
-	 * @param productId
+	 * @param  productId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -172,7 +175,7 @@ public class ProductController {
 	/**
 	 * Get Cuisine with count
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -186,8 +189,8 @@ public class ProductController {
 	}
 
 	/**
-	 * @param vendorId
-	 * @param cuisineId
+	 * @param  vendorId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -203,13 +206,12 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
-	 * products will be shown to them.
+	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective products will be shown to them.
 	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  productParamRequestDTO
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -230,13 +232,13 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by Customer only as for admin and vendor there is not
-	 * need to group the products based on category
+	 * Get product list based on parameters.This method will be used by Customer only as for admin and vendor there is not need to group the products based on
+	 * category
 	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  productParamRequestDTO
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -254,16 +256,17 @@ public class ProductController {
 	/**
 	 * Change status of product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 
 	@PutMapping("/status/{productId}")
+	@PreAuthorize("hasPermission('Product List','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("productId") final Long productId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of product for id {} and new status {}", productId, active);
@@ -276,10 +279,10 @@ public class ProductController {
 	/**
 	 * export made product list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 * @throws NotFoundException
@@ -298,14 +301,15 @@ public class ProductController {
 	/**
 	 * Upload product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Product','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
@@ -319,14 +323,15 @@ public class ProductController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param accessToken
-	 * @param imageType
-	 * @param productId
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/{productId}")
+	@PreAuthorize("hasPermission('Product','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageType") final String imageType, @PathVariable("productId") final Long productId)
 			throws ValidationException, NotFoundException {

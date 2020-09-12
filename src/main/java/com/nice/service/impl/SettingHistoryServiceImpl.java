@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.UserType;
-import com.nice.dto.UsersDTO;
+import com.nice.dto.UsersResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.SettingHistory;
@@ -24,7 +24,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -61,7 +61,7 @@ public class SettingHistoryServiceImpl implements SettingHistoryService {
 				settingHistory.setUserName(locale.getLanguage().equals("en") ? vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish()
 						: vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
 			} else if (userLogin.getEntityType().equals(UserType.USER.name())) {
-				UsersDTO user = usersSerive.getUsers(userLogin.getEntityId());
+				UsersResponseDTO user = usersSerive.getUsers(userLogin.getEntityId());
 				settingHistory.setUserName(locale.getLanguage().equals("en") ? user.getFirstNameEnglish() + " " + user.getLastNameEnglish()
 						: user.getFirstNameArabic() + " " + user.getLastNameArabic());
 			}

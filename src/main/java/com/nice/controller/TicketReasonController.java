@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -83,7 +84,7 @@ public class TicketReasonController {
 	}
 
 	/**
-	 * add ticketReason
+	 * add ticket reason
 	 *
 	 * @param  accessToken
 	 * @param  ticketReasonDTO
@@ -92,6 +93,7 @@ public class TicketReasonController {
 	 * @throws ValidationException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Reasons','CAN_ADD')")
 	public ResponseEntity<Object> addTicketReason(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final TicketReasonDTO ticketReasonDTO, final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add ticketReason method {}", ticketReasonDTO);
@@ -107,7 +109,7 @@ public class TicketReasonController {
 	}
 
 	/**
-	 * update ticketReason
+	 * update ticket reason
 	 *
 	 * @param  accessToken
 	 * @param  ticketReasonDTO
@@ -117,6 +119,7 @@ public class TicketReasonController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Reasons','CAN_EDIT')")
 	public ResponseEntity<Object> updateTicketReason(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final TicketReasonDTO ticketReasonDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update ticketReason method {}", ticketReasonDTO);
@@ -132,7 +135,7 @@ public class TicketReasonController {
 	}
 
 	/**
-	 * get ticketReason
+	 * get ticket reason
 	 *
 	 * @param  ticketReasonId
 	 * @return
@@ -155,7 +158,7 @@ public class TicketReasonController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/type/list")
-	public ResponseEntity<Object> getTicketReasonTypeList(@RequestHeader("Authorization") final String accessToken) throws NotFoundException {
+	public ResponseEntity<Object> getTicketReasonTypeList(@RequestHeader("Authorization") final String accessToken) {
 		LOGGER.info("Inside get ticke tReason type list");
 		final List<String> ticketReasonTypeList = ticketReasonService.getTicketReasonTypeList();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.reason.list.message", null))
@@ -172,7 +175,6 @@ public class TicketReasonController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getTicketReasonList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
@@ -196,6 +198,7 @@ public class TicketReasonController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{ticketReasonId}")
+	@PreAuthorize("hasPermission('Reasons','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("ticketReasonId") final Long ticketReasonId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -41,12 +42,16 @@ import com.nice.validator.ProductExtrasMasterValidator;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @RequestMapping(path = "/product/extras/master")
 @RestController
 public class ProductExtrasMasterController {
 
+	/**
+	 * 
+	 */
+	private static final String PRODUCT_EXTRAS_MASTER_UPDATE_MESSAGE = "product.extras.master.update.message";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductExtrasMasterController.class);
 	/**
 	 * Locale message service - to display response messages from Property file
@@ -57,7 +62,7 @@ public class ProductExtrasMasterController {
 
 	@Autowired
 	private ProductExtrasMasterService productExtrasMasterService;
-	
+
 	@Autowired
 	private ProductExtrasMasterMapper productExtrasMasterMapper;
 
@@ -80,6 +85,7 @@ public class ProductExtrasMasterController {
 	}
 
 	@PostMapping
+	@PreAuthorize("hasPermission('Product Extras','CAN_ADD')")
 	public ResponseEntity<Object> addProductExtrasMaster(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasMasterDTO productExtrasMasterDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add ProductExtrasMaster {}", productExtrasMasterDTO);
@@ -95,6 +101,7 @@ public class ProductExtrasMasterController {
 	}
 
 	@PutMapping
+	@PreAuthorize("hasPermission('Product Extras','CAN_EDIT')")
 	public ResponseEntity<Object> updateProductExtrasMaster(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasMasterDTO productExtrasMasterDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update ProductExtrasMaster {}", productExtrasMasterDTO);
@@ -106,17 +113,16 @@ public class ProductExtrasMasterController {
 		Long productExtrasMasterId = productExtrasMasterService.updateProductExtrasMaster(productExtrasMasterDTO);
 		LOGGER.info("Outside update ProductExtrasMaster {}", productExtrasMasterId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("product.extras.master.update.message", null)).setData(productExtrasMasterId).create();
+				.setMessage(messageByLocaleService.getMessage(PRODUCT_EXTRAS_MASTER_UPDATE_MESSAGE, null)).setData(productExtrasMasterId).create();
 	}
 
 	@GetMapping(value = "/{productExtrasMasterId}")
-	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("productExtrasMasterId") final Long productExtrasMasterId)
-			throws NotFoundException {
+	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("productExtrasMasterId") final Long productExtrasMasterId) throws NotFoundException {
 		ProductExtrasMasterDTO resultProductExtrasMaster = productExtrasMasterService.getProductExtrasMaster(productExtrasMasterId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("product.extras.master.detail.message", null)).setData(resultProductExtrasMaster).create();
 	}
-
 
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getToppingList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
@@ -124,38 +130,43 @@ public class ProductExtrasMasterController {
 			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get Topping List ");
 		final Page<ProductExtrasMaster> resultExtrasMasterList = productExtrasMasterService.getList(pageNumber, pageSize, activeRecords, vendorId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.master.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage(PRODUCT_EXTRAS_MASTER_UPDATE_MESSAGE, null))
 				.setData(productExtrasMasterMapper.toDtos(resultExtrasMasterList.getContent())).setHasNextPage(resultExtrasMasterList.hasNext())
-				.setHasPreviousPage(resultExtrasMasterList.hasPrevious()).setTotalPages(resultExtrasMasterList.getTotalPages()).setPageNumber(resultExtrasMasterList.getNumber() + 1)
-				.setTotalCount(resultExtrasMasterList.getTotalElements()).create();
+				.setHasPreviousPage(resultExtrasMasterList.hasPrevious()).setTotalPages(resultExtrasMasterList.getTotalPages())
+				.setPageNumber(resultExtrasMasterList.getNumber() + 1).setTotalCount(resultExtrasMasterList.getTotalElements()).create();
 	}
 
 	@PutMapping("/status/{productExtrasMasterId}")
-	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken, 
-			@PathVariable("productExtrasMasterId") final Long productExtrasMasterId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Product Extras','CAN_DELETE')")
+	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("productExtrasMasterId") final Long productExtrasMasterId, @RequestParam final Boolean active)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductExtrasMaster of id {} and status {}", productExtrasMasterId, active);
 		productExtrasMasterService.changeStatus(productExtrasMasterId, active);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("product.extras.master.update.message", null)).create();
+				.setMessage(messageByLocaleService.getMessage(PRODUCT_EXTRAS_MASTER_UPDATE_MESSAGE, null)).create();
 	}
-	
+
 	/**
-	 * 
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 *
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
-	 * @throws ValidationException 
-	 * @throws FileOperationException 
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Product Extras','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
+			throws ValidationException, FileOperationException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}
 		productExtrasMasterService.uploadFile(file, httpServletResponse);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("product.extras.master.create.message", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("product.extras.master.create.message", null)).create();
 	}
 }

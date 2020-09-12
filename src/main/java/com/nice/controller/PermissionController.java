@@ -1,6 +1,7 @@
 package com.nice.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -39,7 +41,7 @@ import com.nice.validator.PermissionValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Dec-2019
+ * @date   : 30-Dec-2019
  */
 @RequestMapping(path = "/permission")
 @RestController
@@ -74,15 +76,15 @@ public class PermissionController {
 	/**
 	 * add permission
 	 *
-	 * @param accessToken
-	 * @param permissionDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  permissionDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_ADD')")
 	public ResponseEntity<Object> addPermission(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final PermissionDTO permissionDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add permission {}", permissionDTO);
@@ -100,14 +102,14 @@ public class PermissionController {
 	/**
 	 * update permission
 	 *
-	 * @param permissionDTO
-	 * @param result
+	 * @param  permissionDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_EDIT')")
 	public ResponseEntity<Object> updatePermission(@RequestHeader("Authorization") @RequestBody @Valid final PermissionDTO permissionDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update permission {}", permissionDTO);
@@ -125,14 +127,14 @@ public class PermissionController {
 	/**
 	 * get permission
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param permissionId
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  permissionId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{permissionId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_VIEW')")
 	public ResponseEntity<Object> getPermission(@RequestHeader("Authorization") final String accessToken, @PathVariable("permissionId") final Long permissionId)
 			throws NotFoundException {
 		PermissionResponseDTO resultres = permissionService.getPermission(permissionId);
@@ -143,22 +145,22 @@ public class PermissionController {
 	/**
 	 * get permission list by role and module
 	 *
-	 * @param accessToken
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param roleId
-	 * @param moduleId
+	 * @param  accessToken
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  roleId
+	 * @param  moduleId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_VIEW')")
 	public ResponseEntity<Object> getPermissionList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "roleId", required = false) final Long roleId, @RequestParam(name = "moduleId", required = false) final Long moduleId)
+			@RequestParam(name = "roleId", required = false) final Long roleId, @RequestParam(name = "modulesId", required = false) final Long modulesId)
 			throws NotFoundException {
-		final Page<Permission> resultRes = permissionService.getPermissionList(pageNumber, pageSize, activeRecords, roleId, moduleId);
+		final Page<Permission> resultRes = permissionService.getPermissionList(pageNumber, pageSize, activeRecords, roleId, modulesId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(LIST_MESSAGE, null))
 				.setData(permissionMapper.toResponseDTOs(resultRes.getContent())).setHasNextPage(resultRes.hasNext())
 				.setHasPreviousPage(resultRes.hasPrevious()).setTotalPages(resultRes.getTotalPages()).setPageNumber(resultRes.getNumber() + 1)
@@ -168,20 +170,34 @@ public class PermissionController {
 	/**
 	 * active/deactive permission
 	 *
-	 * @param accessToken
-	 * @param permissionId
-	 * @param isActive
+	 * @param  accessToken
+	 * @param  permissionId
+	 * @param  isActive
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{permissionId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("permissionId") final Long permissionId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of permission ofr id {} and status {}", permissionId, isActive);
 		permissionService.changeStatus(permissionId, isActive);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("permission.update.message", null))
 				.create();
+	}
+
+	/**
+	 * Get side bar specific permission list for user
+	 *
+	 * @param  accessToken
+	 * @return
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/sidebar")
+	public ResponseEntity<Object> getSideBarSpectificPermissionListForUser(@RequestHeader("Authorization") final String accessToken) {
+		final Map<String, List<ModuleAndPermissionResponseDTO>> parentModuleWisePermissionMap = permissionService.getSideBarSpectificPermissionListForUser();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("permission.detail.message", null))
+				.setData(parentModuleWisePermissionMap).create();
 	}
 }

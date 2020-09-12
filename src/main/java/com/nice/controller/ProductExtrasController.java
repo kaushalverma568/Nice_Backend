@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -35,7 +36,7 @@ import com.nice.validator.ProductExtrasValidator;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @RequestMapping(path = "/product/extras")
 @RestController
@@ -72,14 +73,15 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productExtrasDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  productExtrasDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Product Extras','CAN_ADD')")
 	public ResponseEntity<Object> addProductExtras(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasDTO productExtrasDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add ProductExtras {}", productExtrasDTO);
@@ -96,14 +98,15 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productExtrasDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  productExtrasDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Product Extras','CAN_EDIT')")
 	public ResponseEntity<Object> updateProductExtras(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductExtrasDTO productExtrasDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update ProductExtras {}", productExtrasDTO);
@@ -120,8 +123,8 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productExtrasId
+	 * @param  accessToken
+	 * @param  productExtrasId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -135,9 +138,9 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productId
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  productId
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -152,7 +155,7 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param productId
+	 * @param  productId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -165,15 +168,16 @@ public class ProductExtrasController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productExtrasId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productExtrasId
+	 * @param  active
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{productExtrasId}")
+	@PreAuthorize("hasPermission('Product Extras','CAN_DELETE')")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productExtrasId") final Long productExtrasId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductExtras of id {} and status {}", productExtrasId, active);

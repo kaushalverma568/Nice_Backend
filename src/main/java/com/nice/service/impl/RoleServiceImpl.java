@@ -20,8 +20,6 @@ import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
-import com.nice.dto.RoleDTO;
-import com.nice.dto.RoleResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -32,6 +30,7 @@ import com.nice.model.Permission;
 import com.nice.model.Role;
 import com.nice.repository.PermissionRepository;
 import com.nice.repository.RoleRepository;
+import com.nice.repository.UserLoginRepository;
 import com.nice.service.ModulesService;
 import com.nice.service.PermissionService;
 import com.nice.service.RoleService;
@@ -68,89 +67,25 @@ public class RoleServiceImpl implements RoleService {
 	@Autowired
 	private ModulesService modulesService;
 
-	@Override
-	public void addRole(final RoleDTO roleDTO) {
-		roleRepository.save(roleMapper.toEntity(roleDTO));
-	}
-
-	@Override
-	public void updateRole(final RoleDTO roleDto) throws NotFoundException, ValidationException {
-		if (roleDto.getId() == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("role.id.not.null", null));
-		}
-		getRole(roleDto.getId());
-		roleRepository.save(roleMapper.toEntity(roleDto));
-	}
-
-	@Override
-	public RoleResponseDTO getRole(final Long roleId) throws NotFoundException {
-		return roleMapper.toDto(getRoleDetail(roleId));
-	}
-
-	@Override
-	public Role getRoleDetail(final Long roleId) throws NotFoundException {
-		return roleRepository.findById(roleId)
-				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("role.not.found", new Object[] { roleId })));
-	}
-
-	@Override
-	public RoleAndPermissionResponseDTO getRoleDetailWithPermission(final Long roleId) throws NotFoundException {
-		Role role = getRoleDetail(roleId);
-		List<ModuleAndPermissionResponseDTO> moduleAndPermissionResponseDTOs = permissionMapper
-				.toModuleAndPermissionResponseDTOs(permissionRepository.findAllByRoleAndActive(role, true));
-		RoleAndPermissionResponseDTO roleAndPermissionsDTO = new RoleAndPermissionResponseDTO();
-		roleAndPermissionsDTO.setModuleAndPermissionResponseDTOs(moduleAndPermissionResponseDTOs);
-		roleAndPermissionsDTO.setActive(role.getActive());
-		roleAndPermissionsDTO.setDescription(role.getDescription());
-		roleAndPermissionsDTO.setId(roleId);
-		roleAndPermissionsDTO.setName(role.getName());
-		return roleAndPermissionsDTO;
-	}
-
-	@Override
-	public Page<Role> getRoleList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
-		if (activeRecords != null) {
-			return roleRepository.findAllByActive(activeRecords, pageable);
-		} else {
-			return roleRepository.findAll(pageable);
-		}
-	}
-
-	@Override
-	public void changeStatus(final Long roleId, final Boolean isActive) throws ValidationException, NotFoundException {
-		Role existingRole = getRoleDetail(roleId);
-		LOGGER.info("Existing role details {} ", existingRole);
-		if (isActive == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (existingRole.getActive().equals(isActive)) {
-			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(isActive) ? "role.active" : "role.deactive", null));
-		} else {
-			if (Boolean.FALSE.equals(isActive)) {
-				List<Permission> permissionList = permissionService.getPermissionList(existingRole, null, Boolean.TRUE);
-				for (Permission Permission : permissionList) {
-					permissionService.changeStatus(Permission.getId(), false);
-				}
-			}
-			existingRole.setActive(isActive);
-			roleRepository.save(existingRole);
-		}
-	}
-
-	@Override
-	public boolean isExists(final RoleDTO roleDto) {
-		if (roleDto.getId() != null) {
-			return roleRepository.findByNameIgnoreCaseAndIdNot(roleDto.getName(), roleDto.getId()).isPresent();
-		} else {
-			return roleRepository.findByNameIgnoreCase(roleDto.getName()).isPresent();
-		}
-	}
+	@Autowired
+	private UserLoginRepository userLoginRepository;
 
 	@Override
 	public void addUpdateRoleWithPermissions(final RoleAndPermissionsDTO roleAndPermissionsDTO) throws ValidationException, NotFoundException {
-		RoleDTO roleDTO = new RoleDTO();
-		BeanUtils.copyProperties(roleAndPermissionsDTO, roleDTO);
-		Role role = roleRepository.save(roleMapper.toEntity(roleDTO));
+		Role role = roleMapper.toEntity(roleAndPermissionsDTO);
+		if (roleAndPermissionsDTO.getId() != null) {
+			Role existingRole = getRoleDetail(roleAndPermissionsDTO.getId());
+			/**
+			 * default role can not be update able
+			 */
+			if (existingRole.getIsDefault().booleanValue()) {
+				throw new ValidationException(messageByLocaleService.getMessage("default.role.not.updateable", null));
+			}
+			role.setIsDefault(existingRole.getIsDefault());
+		} else {
+			role.setIsDefault(false);
+		}
+		role = roleRepository.save(role);
 		List<Long> modulesIds = new ArrayList<>();
 
 		for (ModuleAndPermissionDTO moduleAndPermissionDTO : roleAndPermissionsDTO.getModuleAndPermissionDTOs()) {
@@ -181,12 +116,92 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
+	public Role getRoleDetailByName(final String name) throws NotFoundException {
+		return roleRepository.findByName(name)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("role.not.found.name", new Object[] { name })));
+	}
+
+	@Override
+	public Role getRoleDetail(final Long roleId) throws NotFoundException {
+		return roleRepository.findById(roleId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("role.not.found", new Object[] { roleId })));
+	}
+
+	@Override
+	public RoleAndPermissionResponseDTO getRoleDetailWithPermission(final Long roleId) throws NotFoundException {
+		Role role = getRoleDetail(roleId);
+		List<ModuleAndPermissionResponseDTO> moduleAndPermissionResponseDTOs = permissionMapper
+				.toModuleAndPermissionResponseDTOs(permissionRepository.findAllByRoleAndActive(role, true));
+		RoleAndPermissionResponseDTO roleAndPermissionsDTO = new RoleAndPermissionResponseDTO();
+		roleAndPermissionsDTO.setModuleAndPermissionResponseDTOs(moduleAndPermissionResponseDTOs);
+		roleAndPermissionsDTO.setActive(role.getActive());
+		roleAndPermissionsDTO.setIsDefault(role.getIsDefault());
+		roleAndPermissionsDTO.setDescription(role.getDescription());
+		roleAndPermissionsDTO.setId(roleId);
+		roleAndPermissionsDTO.setName(role.getName());
+		return roleAndPermissionsDTO;
+	}
+
+	@Override
+	public Page<Role> getRoleList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Boolean isDefault) {
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		if (isDefault != null) {
+			if (activeRecords != null) {
+				return roleRepository.findAllByActiveAndIsDefault(activeRecords, isDefault, pageable);
+			} else {
+				return roleRepository.findAllByIsDefault(isDefault, pageable);
+			}
+		} else {
+			if (activeRecords != null) {
+				return roleRepository.findAllByActive(activeRecords, pageable);
+			} else {
+				return roleRepository.findAll(pageable);
+			}
+		}
+	}
+
+	@Override
+	public void changeStatus(final Long roleId, final Boolean isActive) throws ValidationException, NotFoundException {
+		Role existingRole = getRoleDetail(roleId);
+		LOGGER.info("Existing role details {} ", existingRole);
+		if (isActive == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
+		} else if (existingRole.getActive().equals(isActive)) {
+			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(isActive) ? "role.active" : "role.deactive", null));
+		} else {
+			if (Boolean.FALSE.equals(isActive)) {
+				List<Permission> permissionList = permissionService.getPermissionList(existingRole, null, Boolean.TRUE);
+				for (Permission Permission : permissionList) {
+					permissionService.changeStatus(Permission.getId(), false);
+				}
+			}
+			existingRole.setActive(isActive);
+			roleRepository.save(existingRole);
+		}
+	}
+
+	@Override
+	public boolean isExists(final RoleAndPermissionsDTO roleAndPermissionsDTO) {
+		if (roleAndPermissionsDTO.getId() != null) {
+			return roleRepository.findByNameIgnoreCaseAndIdNot(roleAndPermissionsDTO.getName(), roleAndPermissionsDTO.getId()).isPresent();
+		} else {
+			return roleRepository.findByNameIgnoreCase(roleAndPermissionsDTO.getName()).isPresent();
+		}
+	}
+
+	@Override
 	public void deleteRole(final Long roleId) throws NotFoundException, ValidationException {
 		Role role = getRoleDetail(roleId);
 		/**
-		 * if any user contains this role then it can not be deleteable
+		 * default role can not be delete able
 		 */
 		if (com.nice.constant.Role.getByValue(role.getName()) != null) {
+			throw new ValidationException(messageByLocaleService.getMessage("default.role.not.deleteable", null));
+		}
+		/**
+		 * if any user contains this role then it can not be delete able
+		 */
+		else if (userLoginRepository.findAllByRole(role).isPresent()) {
 			throw new ValidationException(messageByLocaleService.getMessage("role.not.deleteable", null));
 		} else {
 			List<Permission> permissions = permissionRepository.findAllByRole(role);

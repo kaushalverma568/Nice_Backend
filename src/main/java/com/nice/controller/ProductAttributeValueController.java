@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ import com.nice.service.ProductAttributeValueService;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @RequestMapping(path = "/product/attribute/value")
 @RestController
@@ -50,6 +51,7 @@ public class ProductAttributeValueController {
 	private ProductAttributeValueService productAttributeValueService;
 
 	@PostMapping("/{productVariantId}")
+	@PreAuthorize("hasPermission('Product Attribute','CAN_ADD')")
 	public ResponseEntity<Object> addUpdateProductAttributeValue(@PathVariable final Long productVariantId,
 			@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final List<ProductAttributeValueDTO> productAttributeValueDTOList,
 			final BindingResult result) throws ValidationException, NotFoundException {
@@ -76,7 +78,7 @@ public class ProductAttributeValueController {
 	}
 
 	@GetMapping("/list/{productVariantId}")
-	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
+	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getList ProductAttributeValue for ProductVariant : {} and active :{}", productVariantId, activeRecords);
 		final List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getDtoListWithUserCheck(activeRecords,
@@ -96,6 +98,7 @@ public class ProductAttributeValueController {
 	}
 
 	@PutMapping("/status/{productAttributeValueId}")
+	@PreAuthorize("hasPermission('Product Attribute','CAN_DELETE')")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAttributeValueId") final Long productAttributeValueId, @RequestParam final Boolean active)
 			throws ValidationException, NotFoundException {

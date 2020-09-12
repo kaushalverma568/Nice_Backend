@@ -10,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,8 +69,10 @@ public class CompanyController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping()
-	public ResponseEntity<Object> addCompany(@RequestParam(name = "logo", required = false) final MultipartFile logo,
-			@ModelAttribute @Valid final CompanyDTO companyDTO, final BindingResult result) throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Company','CAN_ADD')")
+	public ResponseEntity<Object> addCompany(@RequestHeader(value = "Authorization") final String accessToken,
+			@RequestParam(name = "logo", required = false) final MultipartFile logo, @ModelAttribute @Valid final CompanyDTO companyDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Company {}", companyDTO);
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -100,8 +104,10 @@ public class CompanyController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping()
-	public ResponseEntity<Object> updateCompany(@RequestParam(name = "logo", required = false) final MultipartFile logo,
-			@ModelAttribute @Valid final CompanyDTO companyDTO, final BindingResult result) throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Company','CAN_EDIT')")
+	public ResponseEntity<Object> updateCompany(@RequestHeader(value = "Authorization") final String accessToken,
+			@RequestParam(name = "logo", required = false) final MultipartFile logo, @ModelAttribute @Valid final CompanyDTO companyDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Company {}", companyDTO);
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();

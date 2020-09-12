@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,7 +55,14 @@ public class SchedulerController {
 	@Autowired
 	private DiscountService discountService;
 
+	/**
+	 * Get scheduler list
+	 *
+	 * @param  accessToken
+	 * @return
+	 */
 	@GetMapping
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSchedulerList(@RequestHeader("Authorization") final String accessToken) {
 		LOGGER.info("Inside get Scheduler list");
 		List<SchedulerDetailDTO> schedulerDetailsList = schedulerDetailsService.getSchedulerList();
@@ -62,7 +70,14 @@ public class SchedulerController {
 				.setStatus(HttpStatus.OK).create();
 	}
 
+	/**
+	 * Run scheduler
+	 *
+	 * @param  accessToken
+	 * @return
+	 */
 	@PutMapping("/run/{name}")
+	@PreAuthorize("hasPermission('Settings','CAN_EDIT')")
 	public ResponseEntity<Object> runScheduler(@RequestHeader("Authorization") final String accessToken, @PathVariable final String name)
 			throws ValidationException, NotFoundException {
 		final LocalDate runDate = LocalDate.now();

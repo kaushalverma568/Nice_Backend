@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -45,14 +46,14 @@ import com.nice.validator.CuisineValidator;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @RequestMapping(path = "/cuisine")
 @RestController
 public class CuisineController {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String CUISINE_UPDATE_MESSAGE = "cuisine.update.message";
 	private static final Logger LOGGER = LoggerFactory.getLogger(CuisineController.class);
@@ -88,11 +89,11 @@ public class CuisineController {
 	/**
 	 * add cuisine
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param image
-	 * @param cuisineDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  image
+	 * @param  cuisineDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -100,6 +101,7 @@ public class CuisineController {
 	 */
 
 	@PostMapping
+	@PreAuthorize("hasPermission('Cuisine','CAN_ADD')")
 	public ResponseEntity<Object> addCuisine(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final CuisineDTO cuisineDTO,
 			final BindingResult result) throws ValidationException {
@@ -118,17 +120,18 @@ public class CuisineController {
 	/**
 	 * update cuisine
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param cuisineDTO
-	 * @param result
-	 * @param image
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  cuisineDTO
+	 * @param  result
+	 * @param  image
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 
 	@PutMapping
+	@PreAuthorize("hasPermission('Cuisine','CAN_EDIT')")
 	public ResponseEntity<Object> updateCuisine(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CuisineDTO cuisineDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
 			throws ValidationException, NotFoundException {
@@ -147,7 +150,7 @@ public class CuisineController {
 	/**
 	 * get cuisine
 	 *
-	 * @param cuisineId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -162,9 +165,9 @@ public class CuisineController {
 	/**
 	 * To get list of cuisines
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -185,13 +188,14 @@ public class CuisineController {
 	/**
 	 * Change status of cuisine (active/deActive)
 	 *
-	 * @param cuisineId
-	 * @param active
+	 * @param  cuisineId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping(name = "changeStatus", value = "/status/{cuisineId}")
+	@PreAuthorize("hasPermission('Cuisine','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("cuisineId") final Long cuisineId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of cuisine of id {} and status {}", cuisineId, active);
@@ -203,11 +207,12 @@ public class CuisineController {
 	/**
 	 * Delete Image
 	 *
-	 * @param cuisineId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/image/{cuisineId}")
+	@PreAuthorize("hasPermission('Cuisine','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken, @PathVariable("cuisineId") final Long cuisineId)
 			throws NotFoundException {
 		LOGGER.info("Inside delete image of cuisine of id {}", cuisineId);

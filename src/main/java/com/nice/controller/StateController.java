@@ -40,7 +40,7 @@ import com.nice.validator.StateValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @RequestMapping(path = "/state")
 @RestController
@@ -78,9 +78,9 @@ public class StateController {
 	/**
 	 * Add State
 	 *
-	 * @param accessToken
-	 * @param stateDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  stateDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -113,9 +113,9 @@ public class StateController {
 	/**
 	 * Update State
 	 *
-	 * @param accessToken
-	 * @param stateDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  stateDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -147,7 +147,7 @@ public class StateController {
 	/**
 	 * Get State Details based on id
 	 *
-	 * @param stateId
+	 * @param  stateId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -161,11 +161,11 @@ public class StateController {
 	/**
 	 * Get state list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -188,15 +188,15 @@ public class StateController {
 	/**
 	 * Change status of state (active/deActive)
 	 *
-	 * @param accessToken
-	 * @param stateId
-	 * @param active
+	 * @param  accessToken
+	 * @param  stateId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{stateId}")
-	@PreAuthorize("hasPermission('State','CAN_EDIT')")
+	@PreAuthorize("hasPermission('State','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("stateId") final Long stateId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of state for id {} and status {}", stateId, active);

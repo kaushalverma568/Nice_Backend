@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +46,7 @@ import com.nice.util.PaginationUtil;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -69,14 +70,15 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param orderRequestDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  orderRequestDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/placeOrder")
+	@PreAuthorize("hasPermission('Orders','CAN_ADD')")
 	public ResponseEntity<Object> placeOrder(@RequestHeader("Authorization") final String token, @Valid @RequestBody final OrderRequestDTO orderRequestDto,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -109,10 +111,10 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param orderListFilterDto
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -146,9 +148,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param orderListFilterDto
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  orderListFilterDto
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -165,8 +167,8 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param orderId
+	 * @param  token
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -183,14 +185,15 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param token
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> cancelOrder(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
@@ -207,15 +210,16 @@ public class OrdersController {
 	/**
 	 * replace order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/replace")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> replaceOrder(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
@@ -232,15 +236,16 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/return")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> returnOrder(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
@@ -258,15 +263,16 @@ public class OrdersController {
 	 * Change status of order </br>
 	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param orderId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  orderId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/{ordersId}/status")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("ordersId") final Long ordersId,
 			@RequestParam("status") final String status) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of order for id {} and new status {}", ordersId, status);
@@ -278,6 +284,7 @@ public class OrdersController {
 	}
 
 	@PutMapping("/reject")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> rejectOrderByVendor(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside reject order for id {}", replaceCancelOrderDto.getOrderId());
@@ -287,7 +294,7 @@ public class OrdersController {
 
 	}
 
-	@PutMapping("/next/status/{orderId}")
+	@GetMapping("/next/status/{orderId}")
 	public ResponseEntity<Object> getNextStatusForOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId)
 			throws NotFoundException {
 		LOGGER.info("Inside get next status for id {}", orderId);
@@ -301,8 +308,8 @@ public class OrdersController {
 	/**
 	 * Retry for searching delivery boys for assignment of order
 	 *
-	 * @param accessToken
-	 * @param orderId
+	 * @param  accessToken
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

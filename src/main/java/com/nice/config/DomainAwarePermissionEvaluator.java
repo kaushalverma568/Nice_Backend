@@ -11,6 +11,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.UserLogin;
 import com.nice.service.PermissionService;
@@ -53,6 +54,8 @@ class DomainAwarePermissionEvaluator implements PermissionEvaluator {
 				}
 			} catch (final ValidationException e) {
 				LOGGER.info("Validation exception. :{}", e.getMessage());
+			} catch (NotFoundException e) {
+				LOGGER.info("Not Found exception. :{}", e.getMessage());
 			}
 
 			return isAuthorized;

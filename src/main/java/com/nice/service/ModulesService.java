@@ -13,25 +13,9 @@ import com.nice.model.Modules;
  * @date   : 26-06-2020
  */
 public interface ModulesService {
-	/**
-	 * add module
-	 *
-	 * @param  moduleDto
-	 * @throws ValidationException
-	 */
-	void addModule(ModulesDTO moduleDto) throws ValidationException;
 
 	/**
-	 * update module
-	 *
-	 * @param  moduleDto
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	void updateModule(ModulesDTO moduleDto) throws NotFoundException, ValidationException;
-
-	/**
-	 * get module
+	 * get module by id
 	 *
 	 * @param  moduleId
 	 * @return
@@ -41,22 +25,22 @@ public interface ModulesService {
 	ModulesDTO getModule(Long moduleId) throws NotFoundException, ValidationException;
 
 	/**
-	 * change status of module
+	 * Get module detail by id
 	 *
-	 * @param  permissionId
-	 * @param  isActive
-	 * @throws ValidationException
+	 * @param  moduleId
+	 * @return
 	 * @throws NotFoundException
 	 */
-	void changeStatus(Long moduleId, Boolean isActive) throws ValidationException, NotFoundException;
+	Modules getModuleDetail(Long moduleId) throws NotFoundException;
 
 	/**
-	 * is module exist or not
+	 * get module by name if exist
 	 *
-	 * @param  modulesDto
+	 * @param  name
 	 * @return
+	 * @throws NotFoundException
 	 */
-	boolean isExists(ModulesDTO modulesDto);
+	Modules getModuleDetailByName(String name) throws NotFoundException;
 
 	/**
 	 * get module list
@@ -64,15 +48,9 @@ public interface ModulesService {
 	 * @param  pageNumber
 	 * @param  pageSize
 	 * @param  activeRecords
+	 * @param  availableForNewRole
 	 * @return
 	 */
-	Page<Modules> getModuleList(Integer pageNumber, Integer pageSize, Boolean activeRecords);
-
-	/**
-	 * @param  moduleId
-	 * @return
-	 * @throws NotFoundException
-	 */
-	Modules getModuleDetail(Long moduleId) throws NotFoundException;
+	Page<Modules> getModuleList(Integer pageNumber, Integer pageSize, Boolean activeRecords, Boolean availableForNewRole);
 
 }

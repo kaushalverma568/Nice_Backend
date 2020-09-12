@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -78,6 +79,7 @@ public class HtmlSectionController {
 	 * @throws ValidationException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Html Section','CAN_ADD')")
 	public ResponseEntity<Object> addText(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final HtmlSectionDTO sectionDTO,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add Text of section {}", sectionDTO);
@@ -104,6 +106,7 @@ public class HtmlSectionController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Html Section','CAN_EDIT')")
 	public ResponseEntity<Object> updateText(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final HtmlSectionDTO sectionDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Text of section {}", sectionDTO);

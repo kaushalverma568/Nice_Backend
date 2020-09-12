@@ -12,23 +12,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nice.constant.Role;
 import com.nice.constant.UserType;
 import com.nice.dto.UsersDTO;
+import com.nice.dto.UsersResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.UsersMapper;
+import com.nice.model.Role;
 import com.nice.model.UserLogin;
 import com.nice.model.Users;
 import com.nice.repository.UserLoginRepository;
 import com.nice.repository.UsersRepository;
+import com.nice.service.RoleService;
 import com.nice.service.UserLoginService;
 import com.nice.service.UsersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "usersService")
 @Transactional(rollbackFor = Throwable.class)
@@ -49,64 +51,68 @@ public class UsersServiceImpl implements UsersService {
 	@Autowired
 	private UserLoginRepository userLoginRepository;
 
+	@Autowired
+	private RoleService roleService;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UsersServiceImpl.class);
 
 	@Override
-	public Users addUsers(final UsersDTO usersDTO) throws NotFoundException, ValidationException {
-		if (Role.getByValue(usersDTO.getRole()) == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("role.not.proper", null));
-		}
+	public void addUsers(final UsersDTO usersDTO) throws NotFoundException, ValidationException {
+		Role role = roleService.getRoleDetail(usersDTO.getRoleId());
 		if (usersDTO.getPassword() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
+		} else if (role.getIsDefault().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("default.user.not.creatable", null));
 		}
-
-		Users users = usersRepository.save(usersMapper.toEntity(usersDTO));
+		Users users = usersMapper.toEntity(usersDTO);
+		users.setRole(role);
+		users = usersRepository.save(users);
 		UserLogin userLogin = new UserLogin();
 		userLogin.setEntityId(users.getId());
 		userLogin.setEntityType(UserType.USER.name());
 		userLogin.setEmail(users.getEmail());
 		userLogin.setPassword(usersDTO.getPassword());
-		userLogin.setRole(usersDTO.getRole());
+		userLogin.setRole(role);
 		userLogin.setActive(true);
 		userLoginService.addUserLogin(userLogin);
-		return users;
+
 	}
 
 	@Override
-	public Users updateUsers(final UsersDTO usersDTO) throws ValidationException, NotFoundException {
+	public void updateUsers(final UsersDTO usersDTO) throws ValidationException, NotFoundException {
+		Role role = roleService.getRoleDetail(usersDTO.getRoleId());
 		if (usersDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("users.id.not.null", null));
-		}
-
-		if (Role.getByValue(usersDTO.getRole()) == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("role.not.proper", null));
+		} else if (role.getIsDefault().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("default.user.not.creatable", null));
 		}
 		Users existingUsers = getUsersDetails(usersDTO.getId());
 		/**
 		 * Change UserLogin Role if Users role is changed
 		 */
-		if (!existingUsers.getRole().equals(usersDTO.getRole()) || !existingUsers.getEmail().equalsIgnoreCase(usersDTO.getEmail())) {
+		if (!existingUsers.getRole().getId().equals(usersDTO.getRoleId())) {
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(existingUsers.getEmail(), UserType.USER.name());
 			if (optUserLogin.isPresent()) {
 				UserLogin userLogin = optUserLogin.get();
-				userLogin.setRole(usersDTO.getRole());
+				userLogin.setRole(role);
 				userLogin.setEmail(usersDTO.getEmail().toLowerCase());
 				userLoginService.updateUserLogin(userLogin);
 			}
 		}
-
-		return usersRepository.save(usersMapper.toEntity(usersDTO));
+		Users users = usersMapper.toEntity(usersDTO);
+		users.setRole(role);
+		usersRepository.save(users);
 	}
 
 	@Override
-	public UsersDTO getUsers(final Long usersId) throws NotFoundException, ValidationException {
-		UsersDTO usersDTO = usersMapper.toDto(getUsersDetails(usersId));
-		usersDTO.setUserLoginId(userLoginService.getUserLoginBasedOnEntityIdAndEntityType(usersId, UserType.USER.name()).getId());
-		return usersDTO;
+	public UsersResponseDTO getUsers(final Long usersId) throws NotFoundException, ValidationException {
+		UsersResponseDTO usersResponseDTO = usersMapper.toDto(getUsersDetails(usersId));
+		usersResponseDTO.setUserLoginId(userLoginService.getUserLoginBasedOnEntityIdAndEntityType(usersId, UserType.USER.name()).getId());
+		return usersResponseDTO;
 	}
 
 	/**
-	 * @param usersId
+	 * @param  usersId
 	 * @return
 	 * @throws NotFoundException
 	 */

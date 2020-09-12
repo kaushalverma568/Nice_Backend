@@ -2,6 +2,7 @@
 package com.nice.model;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,18 +41,18 @@ public class Permission extends CommonModel {
 	@JoinColumn(name = "modules_id")
 	private Modules modules;
 
-	private Boolean canView;
-
-	private Boolean canViewList;
-
-	private Boolean canEdit;
-
+	@Column(name = "can_add", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private Boolean canAdd;
 
+	@Column(name = "can_edit", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private Boolean canEdit;
+
+	@Column(name = "can_view", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private Boolean canView;
+
+	@Column(name = "can_delete", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private Boolean canDelete;
 
-	private Boolean canImport;
-
-	private Boolean canExport;
-
+	@Column(name = "side_bar", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private Boolean sideBar;
 }

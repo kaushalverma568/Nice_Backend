@@ -9,6 +9,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.nice.dto.UsersDTO;
+import com.nice.dto.UsersResponseDTO;
 import com.nice.model.Users;
 
 /**
@@ -18,18 +19,20 @@ import com.nice.model.Users;
 @Component
 public class UsersMapper {
 
-	public UsersDTO toDto(final Users users) {
+	public UsersResponseDTO toDto(final Users users) {
 		Locale locale = LocaleContextHolder.getLocale();
-		UsersDTO usersDTO = new UsersDTO();
-		BeanUtils.copyProperties(users, usersDTO);
+		UsersResponseDTO usersResponseDTO = new UsersResponseDTO();
+		BeanUtils.copyProperties(users, usersResponseDTO);
+		usersResponseDTO.setRoleId(users.getRole().getId());
+		usersResponseDTO.setRoleName(users.getRole().getName());
 		if (locale.getLanguage().equals("en")) {
-			usersDTO.setFirstName(users.getFirstNameEnglish());
-			usersDTO.setLastName(users.getLastNameEnglish());
+			usersResponseDTO.setFirstName(users.getFirstNameEnglish());
+			usersResponseDTO.setLastName(users.getLastNameEnglish());
 		} else {
-			usersDTO.setFirstName(users.getFirstNameArabic());
-			usersDTO.setLastName(users.getLastNameArabic());
+			usersResponseDTO.setFirstName(users.getFirstNameArabic());
+			usersResponseDTO.setLastName(users.getLastNameArabic());
 		}
-		return usersDTO;
+		return usersResponseDTO;
 	}
 
 	public Users toEntity(final UsersDTO usersDTO) {
@@ -39,8 +42,8 @@ public class UsersMapper {
 		return users;
 	}
 
-	public List<UsersDTO> toDtos(final List<Users> usersList) {
-		List<UsersDTO> results = new ArrayList<>();
+	public List<UsersResponseDTO> toDtos(final List<Users> usersList) {
+		List<UsersResponseDTO> results = new ArrayList<>();
 		for (Users users : usersList) {
 			results.add(toDto(users));
 		}

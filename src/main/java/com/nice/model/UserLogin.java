@@ -1,10 +1,14 @@
 package com.nice.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -44,8 +48,9 @@ public class UserLogin extends CommonModel {
 	@Column(name = "password", nullable = false)
 	private String password;
 
-	@Column(name = "role", nullable = false)
-	private String role;
+	@JoinColumn(name = "role_id", nullable = false, columnDefinition = "BIGINT default 1")
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Role role;
 
 	@Column(name = "facebook_key")
 	private String facebookKey;

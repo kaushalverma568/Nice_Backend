@@ -51,6 +51,10 @@ import com.nice.validator.SubCategoryValidator;
 @RequestMapping(path = "/subcategory")
 @RestController
 public class SubCategoryController {
+	/**
+	 *
+	 */
+	private static final String SUBCATEGORY_UPDATE_MESSAGE = "subcategory.update.message";
 	/*
 	 * by logging, display operation detail in console
 	 */
@@ -132,7 +136,7 @@ public class SubCategoryController {
 		}
 		subCategoryService.updateSubCategory(subCategoryDTO, image);
 		LOGGER.info("Outside update sub category ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(SUBCATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 
@@ -144,7 +148,6 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{subCategoryId}")
-	@PreAuthorize("hasPermission('Sub Category','CAN_VIEW')")
 	public ResponseEntity<Object> getSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subCategoryId") final Long subCategoryId) throws NotFoundException {
 		LOGGER.info("Inside get sub category for id:{}", subCategoryId);
@@ -164,7 +167,6 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Sub Category','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getSubCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "categoryId", required = false) final Long categoryId) throws NotFoundException {
@@ -192,7 +194,7 @@ public class SubCategoryController {
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of SubCategory of id {} and status {}", subCategoryId, active);
 		subCategoryService.changeStatus(subCategoryId, active);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(SUBCATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 
@@ -211,7 +213,6 @@ public class SubCategoryController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
-	@PreAuthorize("hasPermission('Sub Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportSubCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException, ValidationException, NotFoundException {
 		subCategoryService.exportSubCategoryList(httpServletResponse);
@@ -229,7 +230,7 @@ public class SubCategoryController {
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Sub Category','CAN_IMPORT')")
+	@PreAuthorize("hasPermission('Sub Category','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
@@ -250,10 +251,11 @@ public class SubCategoryController {
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/image/{subCategoryId}")
+	@PreAuthorize("hasPermission('Sub Category','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken, @PathVariable("subCategoryId") final Long subCategoryId)
 			throws NotFoundException {
 		subCategoryService.deleteImage(subCategoryId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(SUBCATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -92,7 +93,7 @@ public class AddonsController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	// @PreAuthorize("hasPermission('Addons','CAN_ADD')")
+	@PreAuthorize("hasPermission('Product Addons','CAN_ADD')")
 	public ResponseEntity<Object> addAddons(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final AddonsDTO addonsDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Addons {}", addonsDTO);
@@ -118,7 +119,7 @@ public class AddonsController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	// @PreAuthorize("hasPermission('Addons','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Product Addons','CAN_EDIT')")
 	public ResponseEntity<Object> updateAddons(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final AddonsDTO addonsDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Addons {}", addonsDTO);
@@ -142,7 +143,6 @@ public class AddonsController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{addonsId}")
-	// // @PreAuthorize("hasPermission('Addons','CAN_VIEW')")
 	public ResponseEntity<Object> getAddons(@RequestHeader("Authorization") final String accessToken, @PathVariable("addonsId") final Long addonsId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Addons ");
@@ -164,7 +164,6 @@ public class AddonsController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	// @PreAuthorize("hasPermission('Addons','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getAddonsList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
@@ -187,7 +186,7 @@ public class AddonsController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{addonsId}")
-	// @PreAuthorize("hasPermission('Addons','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Product Addons','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("addonsId") final Long addonsId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of addons of id {} and status {}", addonsId, active);
@@ -195,20 +194,21 @@ public class AddonsController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("addons.update.message", null))
 				.create();
 	}
-	
+
 	/**
-	 * 
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 *
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
-	 * @throws FileOperationException 
-	 * @throws ValidationException 
+	 * @throws FileOperationException
+	 * @throws ValidationException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Product Addons','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws FileOperationException, ValidationException
-			 {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
+			throws FileOperationException, ValidationException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

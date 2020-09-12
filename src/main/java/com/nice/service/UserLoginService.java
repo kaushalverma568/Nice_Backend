@@ -179,15 +179,6 @@ public interface UserLoginService {
 	Optional<UserLogin> getUserLoginBasedOnPhoneNumberAndEntityType(String email, String name);
 
 	/**
-	 * get user login based on email and role
-	 *
-	 * @param  email
-	 * @param  name
-	 * @return
-	 */
-	Optional<UserLogin> getUserLoginBasedOnEmailAndRole(String email, String role);
-
-	/**
 	 * admin login
 	 *
 	 * @param  userLoginDto

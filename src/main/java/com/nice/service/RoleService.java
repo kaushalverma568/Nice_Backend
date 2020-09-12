@@ -1,13 +1,9 @@
 package com.nice.service;
 
-import javax.validation.Valid;
-
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
-import com.nice.dto.RoleDTO;
-import com.nice.dto.RoleResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Role;
@@ -18,30 +14,15 @@ import com.nice.model.Role;
  * @date   : 26-06-2020
  */
 public interface RoleService {
-	/**
-	 * add role
-	 *
-	 * @param roleDTO
-	 */
-	void addRole(RoleDTO roleDTO);
 
 	/**
-	 * update role
+	 * add/update role with permissions
 	 *
-	 * @param  roleDto
-	 * @throws NotFoundException
+	 * @param  roleAndPermissinsDTO
 	 * @throws ValidationException
-	 */
-	void updateRole(RoleDTO roleDto) throws NotFoundException, ValidationException;
-
-	/**
-	 * get role by id
-	 *
-	 * @param  roleId
-	 * @return
 	 * @throws NotFoundException
 	 */
-	RoleResponseDTO getRole(Long roleId) throws NotFoundException;
+	void addUpdateRoleWithPermissions(RoleAndPermissionsDTO roleAndPermissinsDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get role list
@@ -49,9 +30,10 @@ public interface RoleService {
 	 * @param  pageNumber
 	 * @param  pageSize
 	 * @param  activeRecords
+	 * @param  isDefault
 	 * @return
 	 */
-	Page<Role> getRoleList(Integer pageNumber, Integer pageSize, Boolean activeRecords);
+	Page<Role> getRoleList(Integer pageNumber, Integer pageSize, Boolean activeRecords, final Boolean isDefault);
 
 	/**
 	 * change status of role
@@ -69,25 +51,16 @@ public interface RoleService {
 	 * @param  roleDto
 	 * @return
 	 */
-	boolean isExists(RoleDTO roleDTO);
+	boolean isExists(RoleAndPermissionsDTO roleAndPermissionsDTO);
 
 	/**
-	 * get role detail object ny id
+	 * get role detail object by id
 	 *
 	 * @param  roleId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Role getRoleDetail(Long roleId) throws NotFoundException;
-
-	/**
-	 * add/update role with permissions
-	 *
-	 * @param  roleAndPermissinsDTO
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	void addUpdateRoleWithPermissions(@Valid RoleAndPermissionsDTO roleAndPermissinsDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * delete role
@@ -104,4 +77,13 @@ public interface RoleService {
 	 * @throws NotFoundException
 	 */
 	RoleAndPermissionResponseDTO getRoleDetailWithPermission(Long roleId) throws NotFoundException;
+
+	/**
+	 * Get role detail name id
+	 *
+	 * @param  name
+	 * @return
+	 * @throws NotFoundException
+	 */
+	Role getRoleDetailByName(String name) throws NotFoundException;
 }

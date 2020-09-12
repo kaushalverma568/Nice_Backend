@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -41,7 +42,7 @@ import com.nice.validator.ProductAttributeValidator;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @RequestMapping(path = "/product/attribute")
 @RestController
@@ -79,7 +80,18 @@ public class ProductAttributeController {
 		binder.addValidators(productAttributeValidator);
 	}
 
+	/**
+	 * Add product attribute
+	 *
+	 * @param  accessToken
+	 * @param  productAttributeDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Product Attribute','CAN_ADD')")
 	public ResponseEntity<Object> addProductAttribute(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductAttributeDTO productAttributeDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add ProductAttribute {}", productAttributeDTO);
@@ -94,7 +106,18 @@ public class ProductAttributeController {
 				.setMessage(messageByLocaleService.getMessage("product.attribute.create.message", null)).setData(resultProductAttribute).create();
 	}
 
+	/**
+	 * Update product attribute
+	 *
+	 * @param  accessToken
+	 * @param  productAttributeDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Product Attribute','CAN_EDIT')")
 	public ResponseEntity<Object> updateProductAttribute(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final ProductAttributeDTO productAttributeDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update ProductAttribute {}", productAttributeDTO);
@@ -109,6 +132,15 @@ public class ProductAttributeController {
 				.setMessage(messageByLocaleService.getMessage("product.attribute.update.message", null)).setData(resultProductAttribute).create();
 	}
 
+	/**
+	 * Get product attribute
+	 *
+	 * @param  accessToken
+	 * @param  productAttributeId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@GetMapping(value = "/{productAttributeId}")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAttributeId") final Long productAttributeId) throws NotFoundException, ValidationException {
@@ -117,9 +149,19 @@ public class ProductAttributeController {
 				.setMessage(messageByLocaleService.getMessage("product.attribute.detail.message", null)).setData(resultProductAttribute).create();
 	}
 
+	/**
+	 * Get product attribute list
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  vendorId
+	 * @return
+	 * @throws ValidationException
+	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "vendorId", required = true) final Long vendorId) throws ValidationException {
 		final Page<ProductAttribute> resultProductAttribute = productAttributeService.getList(pageNumber, pageSize, activeRecords, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
@@ -129,6 +171,13 @@ public class ProductAttributeController {
 				.setPageNumber(resultProductAttribute.getNumber() + 1).setTotalCount(resultProductAttribute.getTotalElements()).create();
 	}
 
+	/**
+	 * get all product attribute without pagination
+	 *
+	 * @param  accessToken
+	 * @return
+	 * @throws ValidationException
+	 */
 	@GetMapping("/active/all")
 	public ResponseEntity<Object> getAllListWithoutPagination(@RequestHeader("Authorization") final String accessToken) throws ValidationException {
 		final List<ProductAttribute> resultProductAttribute = productAttributeService.getAllActiveList();
@@ -137,8 +186,19 @@ public class ProductAttributeController {
 				.setData(productAttributeMapper.toDtos(resultProductAttribute)).create();
 	}
 
+	/**
+	 * change status product attribute(active/deactive)
+	 *
+	 * @param  accessToken
+	 * @param  productAttributeId
+	 * @param  active
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{productAttributeId}")
-	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
+	@PreAuthorize("hasPermission('Product Attribute','CAN_DELETE')")
+	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAttributeId") final Long productAttributeId, @RequestParam final Boolean active)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductAttribute of id {} and status {}", productAttributeId, active);
@@ -148,15 +208,17 @@ public class ProductAttributeController {
 	}
 
 	/**
+	 * import product attribute
 	 *
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('Product Attribute','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
 			throws ValidationException, FileOperationException {

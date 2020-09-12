@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +34,7 @@ import com.nice.service.ProductToppingService;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/product/topping")
 @RestController
@@ -53,16 +54,17 @@ public class ProductToppingController {
 	private ProductToppingService productToppingService;
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productToppingDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productToppingDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/{productVariantId}")
+	@PreAuthorize("hasPermission('Product Toppings','CAN_ADD')")
 	public ResponseEntity<Object> addProductTopping(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@Valid @RequestBody final List<ProductToppingDto> productToppingDTOList, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Product Topping {}", productToppingDTOList);
@@ -79,14 +81,14 @@ public class ProductToppingController {
 
 	/**
 	 *
-	 * @param productToppingId
+	 * @param  productToppingId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/{productToppingId}")
-	public ResponseEntity<Object> getProductTopping(@PathVariable("productToppingId") final Long productToppingId)
-			throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> getProductTopping(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("productToppingId") final Long productToppingId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getProductTopping ToppingId {}", productToppingId);
 		final ProductToppingResponseDTO productToppingDTO = productToppingService.getProductTopping(productToppingId);
 		LOGGER.info("After getProductTopping ToppingId {}", productToppingId);
@@ -96,14 +98,14 @@ public class ProductToppingController {
 
 	/**
 	 *
-	 * @param productVariantId
-	 * @param active
+	 * @param  productVariantId
+	 * @param  active
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/list/{productVariantId}")
-	public ResponseEntity<Object> getProductListBasedOnParams(@PathVariable final Long productVariantId,
+	public ResponseEntity<Object> getDtoListWithUserCheck(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@RequestParam(required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get Topping List for Product Variant {}", productVariantId);
 		List<ProductToppingResponseDTO> productToppingList = productToppingService.getDtoListWithUserCheck(activeRecords, productVariantId);
@@ -114,12 +116,13 @@ public class ProductToppingController {
 
 	/**
 	 *
-	 * @param productVariantId
-	 * @param activeRecords
+	 * @param  productVariantId
+	 * @param  activeRecords
 	 * @return
 	 */
 	@GetMapping("/cust/list/{productVariantId}")
-	public ResponseEntity<Object> getProductList(@PathVariable final Long productVariantId, @RequestParam(required = false) final Boolean activeRecords) {
+	public ResponseEntity<Object> getToppingForProductVariant(@PathVariable final Long productVariantId,
+			@RequestParam(required = false) final Boolean activeRecords) {
 		LOGGER.info("Inside get Topping List for Product varinat {}", productVariantId);
 		List<ProductToppingResponseDTO> productToppingList = productToppingService.getToppingForProductVariant(productVariantId, true);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("topping.list.message", null))
@@ -129,16 +132,17 @@ public class ProductToppingController {
 	/**
 	 * Change status of product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 
 	@PutMapping("/status/{productToppingId}")
+	@PreAuthorize("hasPermission('Product Toppings','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productToppingId") final Long productToppingId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {

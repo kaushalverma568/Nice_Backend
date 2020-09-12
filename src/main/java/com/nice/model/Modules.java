@@ -1,5 +1,6 @@
 package com.nice.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,7 +30,18 @@ public class Modules extends CommonModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(name = "name", unique = true, nullable = false, columnDefinition = "CHARACTER VARYING(255) default ' '")
 	private String name;
 
-	private String userRole;
+	/**
+	 * It contains side bar portion's name of UI
+	 */
+	@Column(name = "parent_module_name", nullable = false, columnDefinition = "CHARACTER VARYING(255) default ' '")
+	private String parentModuleName;
+
+	/**
+	 * It contains weather this module is available for new role or not
+	 */
+	@Column(name = "available_for_new_role", columnDefinition = "Boolean default false")
+	private Boolean availableForNewRole;
 }

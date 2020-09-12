@@ -48,6 +48,7 @@ import com.nice.repository.UserLoginRepository;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
 import com.nice.service.OtpService;
+import com.nice.service.RoleService;
 import com.nice.service.UserLoginService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
@@ -76,6 +77,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
 	private UserLoginService userLoginService;
+
+	@Autowired
+	private RoleService roleService;
 
 	@Autowired
 	private OtpService otpService;
@@ -204,7 +208,7 @@ public class CustomerServiceImpl implements CustomerService {
 		userLogin.setEntityId(resultCustomer.getId());
 		userLogin.setEntityType(UserType.CUSTOMER.name());
 		userLogin.setEmail(resultCustomer.getEmail());
-		userLogin.setRole(Role.CUSTOMER.name());
+		userLogin.setRole(roleService.getRoleDetailByName(Role.CUSTOMER.getStatusValue()));
 		userLogin.setPhoneNumber(resultCustomer.getPhoneNumber());
 
 		if (RegisterVia.FACEBOOK.getStatusValue().equals(customerDTO.getRegisteredVia())) {

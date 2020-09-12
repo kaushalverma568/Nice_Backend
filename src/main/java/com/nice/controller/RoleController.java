@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.dto.RoleAndPermissionResponseDTO;
 import com.nice.dto.RoleAndPermissionsDTO;
-import com.nice.dto.RoleDTO;
-import com.nice.dto.RoleResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -76,46 +74,30 @@ public class RoleController {
 		binder.addValidators(roleValidator);
 	}
 
-	@PostMapping
-	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
-	public ResponseEntity<Object> addRole(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final RoleDTO roleDto,
-			final BindingResult result) throws ValidationException {
-		LOGGER.info("Inside add role {}", roleDto);
+	/**
+	 * add/update role with permissions
+	 *
+	 * @param  accessToken
+	 * @param  roleAndPermissinsDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/permission")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_ADD')")
+	public ResponseEntity<Object> addUpdateRoleWithPermissions(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody @Valid final RoleAndPermissionsDTO roleAndPermissinsDTO, final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside add role with permissions {}", roleAndPermissinsDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error(ROLE_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		roleService.addRole(roleDto);
-		LOGGER.info("Outside add role");
+		roleService.addUpdateRoleWithPermissions(roleAndPermissinsDTO);
+		LOGGER.info("Outside add role with permissions");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.create.message", null))
 				.create();
-
-	}
-
-	@PutMapping
-	@PreAuthorize("hasPermission('Role & permissions','CAN_EDIT')")
-	public ResponseEntity<Object> updateRole(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final RoleDTO roleDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside update role {}", roleDTO);
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error(ROLE_VALIDATION_FAILED);
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		roleService.updateRole(roleDTO);
-		LOGGER.info("Outside update role ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.update.message", null))
-				.create();
-	}
-
-	@GetMapping("/{roleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
-	public ResponseEntity<Object> getRole(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId)
-			throws NotFoundException {
-		RoleResponseDTO resultres = roleService.getRole(roleId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.detail.message", null))
-				.setData(resultres).create();
 	}
 
 	/**
@@ -127,7 +109,7 @@ public class RoleController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/permission/{roleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_VIEW')")
 	public ResponseEntity<Object> getRoleWithPermissions(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId)
 			throws NotFoundException {
 		RoleAndPermissionResponseDTO roleAndPermissionResponseDTO = roleService.getRoleDetailWithPermission(roleId);
@@ -145,18 +127,29 @@ public class RoleController {
 	 * @return
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_VIEW_LIST')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_VIEW')")
 	public ResponseEntity<Object> getRoleList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
-			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
-		final Page<Role> resultRes = roleService.getRoleList(pageNumber, pageSize, activeRecords);
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "isDefault", required = false) final Boolean isDefault) {
+		final Page<Role> resultRes = roleService.getRoleList(pageNumber, pageSize, activeRecords, isDefault);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.list.message", null))
 				.setData(roleMapper.toDtos(resultRes.getContent())).setHasNextPage(resultRes.hasNext()).setHasPreviousPage(resultRes.hasPrevious())
 				.setTotalPages(resultRes.getTotalPages()).setPageNumber(resultRes.getNumber() + 1).setTotalCount(resultRes.getTotalElements()).create();
 
 	}
 
+	/**
+	 * change status of role(active/deactive)
+	 *
+	 * @param  accessToken
+	 * @param  roleId
+	 * @param  isActive
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{roleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId,
 			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of role of id {} and status {}", roleId, isActive);
@@ -166,33 +159,16 @@ public class RoleController {
 	}
 
 	/**
-	 * add/update role with permissions
+	 * Delete role
 	 *
 	 * @param  accessToken
-	 * @param  roleAndPermissinsDTO
-	 * @param  result
+	 * @param  roleId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PostMapping("/permission")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_ADD')")
-	public ResponseEntity<Object> addUpdateRoleWithPermissions(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final RoleAndPermissionsDTO roleAndPermissinsDTO, final BindingResult result) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside add role with permissions {}", roleAndPermissinsDTO);
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error(ROLE_VALIDATION_FAILED);
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		roleService.addUpdateRoleWithPermissions(roleAndPermissinsDTO);
-		LOGGER.info("Outside add role with permissions");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.create.message", null))
-				.create();
-	}
-
 	@DeleteMapping("/{roleId}")
-	@PreAuthorize("hasPermission('Role & permissions','CAN_DELETE')")
+	@PreAuthorize("hasPermission('Role-Permission','CAN_DELETE')")
 	public ResponseEntity<Object> deleteRole(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside delete role of id {}", roleId);

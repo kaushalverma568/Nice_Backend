@@ -33,4 +33,6 @@ public class RoleResponseDTO implements Serializable {
 	private Date updatedAt;
 
 	private Boolean active;
+
+	private Boolean isDefault;
 }

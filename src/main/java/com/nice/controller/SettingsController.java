@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -70,6 +71,8 @@ public class SettingsController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsController.class);
 
 	/**
+	 * Add settings
+	 *
 	 * @param  userId
 	 * @param  settingsDto
 	 * @param  result
@@ -77,6 +80,7 @@ public class SettingsController {
 	 * @throws ValidationException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Settings','CAN_ADD')")
 	public ResponseEntity<Object> addSettings(@RequestHeader(value = "Authorization") final String accessToken, @RequestBody @Valid SettingsDto settingsDto,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add Setting method : {}", settingsDto);
@@ -92,6 +96,8 @@ public class SettingsController {
 	}
 
 	/**
+	 * Update Settings
+	 *
 	 * @param  userId
 	 * @param  settingsDto
 	 * @param  result
@@ -99,6 +105,7 @@ public class SettingsController {
 	 * @throws ValidationException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Settings','CAN_EDIT')")
 	public ResponseEntity<Object> updateSettings(@RequestHeader(value = "Authorization") final String accessToken,
 			@RequestBody @Valid final SettingsDto settingsDto, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Setting method : {}", settingsDto);
@@ -112,9 +119,19 @@ public class SettingsController {
 		return new GenericResponseHandlers.Builder().setData("Total Setting updated : " + count)
 				.setMessage(messageByLocaleService.getMessage("settings.update.message", null)).setStatus(HttpStatus.OK).create();
 	}
-	
-	
+
+	/**
+	 * Update Settings list
+	 *
+	 * @param  accessToken
+	 * @param  settingsDtoList
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/list")
+	@PreAuthorize("hasPermission('Settings','CAN_EDIT')")
 	public ResponseEntity<Object> updateSettingsList(@RequestHeader(value = "Authorization") final String accessToken,
 			@RequestBody @Valid final SettingsListDto settingsDtoList, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Setting method : {}", settingsDtoList);
@@ -125,14 +142,18 @@ public class SettingsController {
 		}
 		settingsService.updateSettingsList(settingsDtoList);
 		LOGGER.info("Updated Setting Successfully : {}", settingsDtoList);
-		return new GenericResponseHandlers.Builder()
-				.setMessage(messageByLocaleService.getMessage("settings.update.message", null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("settings.update.message", null)).setStatus(HttpStatus.OK)
+				.create();
 	}
 
 	/**
+	 * Get settings list
+	 *
+	 * @param  accessToken
 	 * @return
 	 */
 	@GetMapping()
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSettingsList(@RequestHeader(value = "Authorization") final String accessToken) {
 		LOGGER.info("Inside getAll Settings list");
 		List<SettingsDto> settingsDtoList = settingsService.getAllSettingsList();
@@ -140,9 +161,15 @@ public class SettingsController {
 		return new GenericResponseHandlers.Builder().setData(settingsDtoList).setMessage(messageByLocaleService.getMessage("settings.list.message", null))
 				.setStatus(HttpStatus.OK).create();
 	}
-	
-	
+
+	/**
+	 * Get settings map
+	 *
+	 * @param  accessToken
+	 * @return
+	 */
 	@GetMapping("/map")
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSettingsMap(@RequestHeader(value = "Authorization") final String accessToken) {
 		LOGGER.info("Inside getAll Settings list");
 		Map<String, SettingsDto> settingsMap = settingsService.getSettingsMap();
@@ -152,11 +179,15 @@ public class SettingsController {
 	}
 
 	/**
+	 * Get settings by id
+	 *
+	 * @param  accessToken
 	 * @param  id
 	 * @return
 	 * @throws ValidationException
 	 */
 	@GetMapping(value = "/{id}")
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSettingsDetails(@RequestHeader(value = "Authorization") final String accessToken, @PathVariable final Long id)
 			throws ValidationException {
 		LOGGER.info("Get Setting for : {}", id);
@@ -167,8 +198,8 @@ public class SettingsController {
 	}
 
 	/**
-	 * This method should be used only if we need to get the details of field value in decrypted format. Currently no need
-	 * to use this method in front end.
+	 * Get settings by field name ( This method should be used only if we need to get the details of field value in decrypted format. Currently no need to use
+	 * this method in front end.)
 	 *
 	 * @param  fieldName
 	 * @param  encrypted
@@ -177,13 +208,14 @@ public class SettingsController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping(value = "/decrypted/{fieldName}/{encrypted}")
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSettingsDetailsFromFieldName(@RequestHeader(value = "Authorization") final String accessToken,
 			@PathVariable final String fieldName, @PathVariable final boolean encrypted) throws ValidationException, NotFoundException {
 		LOGGER.info("Get Setting for field : {}", fieldName);
 
 		/**
-		 * The Below validation is place specifically so that no one can sniff the Secret of Payment Gateway using APIs, Hence
-		 * deliberately we are throwing a not found message here.
+		 * The Below validation is place specifically so that no one can sniff the Secret of Payment Gateway using APIs, Hence deliberately we are throwing a
+		 * not found message here.
 		 */
 		if ("PAYMENT_GATEWAY_SECRET".equalsIgnoreCase(fieldName)) {
 			throw new ValidationException(messageByLocaleService.getMessage("settings.not.found.name", new Object[] { "PAYMENT_GATEWAY_SECRET" }));
@@ -197,7 +229,16 @@ public class SettingsController {
 				.setStatus(HttpStatus.OK).create();
 	}
 
+	/**
+	 * Get settings by field name
+	 *
+	 * @param  accessToken
+	 * @param  fieldName
+	 * @return
+	 * @throws ValidationException
+	 */
 	@GetMapping(value = "/fieldName/{fieldName}")
+	@PreAuthorize("hasPermission('Settings','CAN_VIEW')")
 	public ResponseEntity<Object> getSettingsObject(@RequestHeader(value = "Authorization") final String accessToken, @PathVariable final String fieldName)
 			throws ValidationException {
 		LOGGER.info("Inside getAll Settings Details");

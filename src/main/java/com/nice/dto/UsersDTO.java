@@ -36,18 +36,11 @@ public class UsersDTO implements Serializable {
 	@NotBlank(message = "{email.not.null}")
 	private String email;
 
-	@NotBlank(message = "{role.not.null}")
-	private String role;
+	@NotNull(message = "{role.id.not.null}")
+	private Long roleId;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
 	private String password;
-
-	/**
-	 * For response purpose only
-	 */
-	private Long userLoginId;
-	private String firstName;
-	private String lastName;
 }

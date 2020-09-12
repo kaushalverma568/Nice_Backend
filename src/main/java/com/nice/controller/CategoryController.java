@@ -45,11 +45,15 @@ import com.nice.validator.CategoryValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @RequestMapping(path = "/category")
 @RestController
 public class CategoryController {
+	/**
+	 *
+	 */
+	private static final String CATEGORY_UPDATE_MESSAGE = "category.update.message";
 	/**
 	 *
 	 */
@@ -59,8 +63,7 @@ public class CategoryController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -90,9 +93,9 @@ public class CategoryController {
 	/**
 	 * Add Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -117,9 +120,9 @@ public class CategoryController {
 	/**
 	 * update Category
 	 *
-	 * @param categoryDTO
-	 * @param result
-	 * @param userId
+	 * @param  categoryDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -137,20 +140,19 @@ public class CategoryController {
 		}
 		categoryService.updateCategory(categoryDTO, image);
 		LOGGER.info("Outside update Category ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 
 	/**
 	 * Get Category Details based on id
 	 *
-	 * @param categoryId
-	 * @param userId
+	 * @param  categoryId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{categoryId}")
-	@PreAuthorize("hasPermission('Category','CAN_VIEW')")
 	public ResponseEntity<Object> getCategory(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Category ");
@@ -162,15 +164,14 @@ public class CategoryController {
 	/**
 	 * Get Category list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Category','CAN_VIEW_LIST')")
 	public ResponseEntity<Object> getCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
@@ -186,8 +187,8 @@ public class CategoryController {
 	/**
 	 * Change status of Category (active/deActive)
 	 *
-	 * @param categoryId
-	 * @param active
+	 * @param  categoryId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -198,17 +199,17 @@ public class CategoryController {
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of category of id {} and status {}", categoryId, active);
 		categoryService.changeStatus(categoryId, active);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 
 	/**
 	 * export category list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException
@@ -216,7 +217,6 @@ public class CategoryController {
 	 */
 	@Produces("text/csv")
 	@GetMapping("/export/list")
-	@PreAuthorize("hasPermission('Category','CAN_EXPORT')")
 	public ResponseEntity<Object> exportCategoryList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse)
 			throws FileOperationException, ValidationException, NotFoundException {
 		categoryService.exportCategoryList(httpServletResponse);
@@ -226,15 +226,15 @@ public class CategoryController {
 	/**
 	 * Upload category
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Category','CAN_IMPORT')")
+	@PreAuthorize("hasPermission('Category','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = false) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
@@ -248,17 +248,18 @@ public class CategoryController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param accessToken
-	 * @param categoryId
+	 * @param  accessToken
+	 * @param  categoryId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/image/{categoryId}")
+	@PreAuthorize("hasPermission('Category','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken, @PathVariable("categoryId") final Long categoryId)
 			throws NotFoundException {
 		categoryService.deleteImage(categoryId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("category.update.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CATEGORY_UPDATE_MESSAGE, null))
 				.create();
 	}
 }

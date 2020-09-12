@@ -75,6 +75,7 @@ import com.nice.repository.VendorRepository;
 import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OtpService;
+import com.nice.service.RoleService;
 import com.nice.service.UserLoginService;
 import com.nice.service.UsersService;
 import com.nice.service.VendorService;
@@ -155,6 +156,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Autowired
 	private UsersRepository usersRepository;
 
+	@Autowired
+	private RoleService roleService;
+
 	@SuppressWarnings("unused")
 	@Override
 	public UserDetails loadUserByUsername(final String username) {
@@ -195,7 +199,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
-			optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, Role.SUPER_ADMIN.name());
+			try {
+				optUserLogin = userLoginRepository.findByEmailAndRole(actualUser, roleService.getRoleDetailByName(Role.SUPER_ADMIN.getStatusValue()));
+			} catch (NotFoundException e) {
+				LOGGER.error("SUPER_ADMIN role not found");
+			}
 		}
 
 		/**
@@ -210,7 +218,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * 2.User is deactivated by Administrator </br>
 		 */
 		else if (!optUserLogin.get().getActive().booleanValue()) {
-			if (optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())) {
+			if (optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())) {
 				Customer customer = null;
 				try {
 					customer = customerService.getCustomerDetails(optUserLogin.get().getEntityId());
@@ -229,7 +237,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
 							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
 				}
-			} else if (optUserLogin.get().getEntityType().equals(Role.DELIVERY_BOY.getStatusValue())) {
+			} else if (optUserLogin.get().getEntityType().equals(UserType.DELIVERY_BOY.name())) {
 				DeliveryBoy deliveryBoy = null;
 				try {
 					deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(optUserLogin.get().getEntityId());
@@ -248,7 +256,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					throw new BaseRuntimeException(HttpStatus.UNAUTHORIZED,
 							messageByLocaleService.getMessage(USER_EMAIL_NOT_ACTIVATE, new Object[] { actualUser }));
 				}
-			} else if (optUserLogin.get().getEntityType().equals(Role.VENDOR.getStatusValue())) {
+			} else if (optUserLogin.get().getEntityType().equals(UserType.VENDOR.name())) {
 				Vendor vendor = null;
 				try {
 					vendor = vendorService.getVendorDetail(optUserLogin.get().getEntityId());
@@ -272,7 +280,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not
 			 * login with email and password but it can login with OTP.
 			 */
-			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(Role.CUSTOMER.getStatusValue())
+			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
 				Customer customer = null;
 				try {
@@ -287,7 +295,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		}
 
-		final String role = optUserLogin.get().getRole();
+		final String role = optUserLogin.get().getRole().getName();
 		final SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 		if (RegisterVia.GOOGLE.getStatusValue().equals(requestVia)) {
 			return new UserAwareUserDetails(actualUserWithType, optUserLogin.get().getGoogleKey(), Arrays.asList(authority), optUserLogin.get());
@@ -354,9 +362,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		userLoginDto.setUserName(socialLoginDto.getEmail().toLowerCase());
 		userLoginDto.setPassword(socialLoginDto.getUniqueId());
 		userLoginDto.setRegisteredVia(socialLoginDto.getRegisteredVia());
-		userLoginDto.setUserType(Role.CUSTOMER.getStatusValue());
+		userLoginDto.setUserType(UserType.CUSTOMER.name());
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByEmailAndEntityType(socialLoginDto.getEmail().toLowerCase(),
-				Role.CUSTOMER.getStatusValue());
+				UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent()) {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(socialLoginDto.getEmail().toLowerCase());
 			if (!optCustomer.isPresent()) {
@@ -499,7 +507,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		 * Invalidate the OTP once token generated
 		 */
 		if (RegisterVia.OTP.getStatusValue().equals(userLoginDto.getRegisteredVia())) {
-			final UserLogin userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName(), Role.CUSTOMER.getStatusValue())
+			final UserLogin userLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName(), UserType.CUSTOMER.name())
 					.orElseThrow(() -> new NotFoundException(
 							messageByLocaleService.getMessage(CUSTOMER_NOT_FOUND_PHONE, new Object[] { userLoginDto.getUserName() })));
 			/**
@@ -643,7 +651,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		/**
 		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
 		 */
-		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, Role.CUSTOMER.getStatusValue());
+		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent()) {
 			/**
 			 * Additional check whether customer is available or not.
@@ -690,7 +698,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (userLogin.isPresent()) {
 			BeanUtils.copyProperties(userLogin.get(), loginResponse);
 			loginResponse.setUserId(userLogin.get().getId());
-			if (Role.CUSTOMER.getStatusValue().equals(userLogin.get().getRole())) {
+			if (UserType.CUSTOMER.name().equals(userLogin.get().getEntityType())) {
 				Customer customer = customerService.getCustomerDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(customer, loginResponse);
 				loginResponse.setCanChangePassword(!(userLogin.get().getPassword() == null
@@ -732,7 +740,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				loginResponse.setCanChangePassword(true);
 			}
 		} else {
-			userLogin = userLoginRepository.findByEmailAndRole(userLoginDto.getUserName().toLowerCase(), Role.SUPER_ADMIN.getStatusValue());
+			userLogin = userLoginRepository.findByEmailAndRole(userLoginDto.getUserName().toLowerCase(),
+					roleService.getRoleDetailByName(Role.SUPER_ADMIN.getStatusValue()));
 			if (userLogin.isPresent()) {
 				BeanUtils.copyProperties(userLogin.get(), loginResponse);
 				loginResponse.setUserId(userLogin.get().getId());
@@ -749,7 +758,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void checkOtpForLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException {
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(userLoginDto.getUserName(),
-				Role.CUSTOMER.getStatusValue());
+				UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
 			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
@@ -768,11 +777,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.expire.otp", null));
 		}
-	}
-
-	@Override
-	public Optional<UserLogin> getUserLoginBasedOnEmailAndRole(final String email, final String role) {
-		return userLoginRepository.findByEmailAndRole(email.toLowerCase(), role);
 	}
 
 	@Override
@@ -967,7 +971,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			customerRepository.save(customer);
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getPhoneNumber()) && deliveryBoy.getPhoneVerified().booleanValue() && deliveryBoy.getPhoneNumber().equals(phoneNumber)) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getPhoneNumber()) && deliveryBoy.getPhoneVerified().booleanValue()
+					&& deliveryBoy.getPhoneNumber().equals(phoneNumber)) {
 				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			deliveryBoy.setPhoneVerified(true);
@@ -977,7 +982,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			if (!VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
-			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getPhoneNumber())  && vendor.getPhoneVerified().booleanValue()&& vendor.getPhoneNumber().equals(phoneNumber)) {
+			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getPhoneNumber()) && vendor.getPhoneVerified().booleanValue()
+					&& vendor.getPhoneNumber().equals(phoneNumber)) {
 				throw new ValidationException(messageByLocaleService.getMessage(OLD_PHONE_NEW_PHONE_SAME, null));
 			}
 			vendor.setPhoneVerified(true);
@@ -995,7 +1001,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		BeanUtils.copyProperties(userLogin, loginResponse);
 		loginResponse.setUserId(userLogin.getId());
-		if (Role.CUSTOMER.getStatusValue().equals(userLogin.getRole())) {
+		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(customer, loginResponse);
 			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null

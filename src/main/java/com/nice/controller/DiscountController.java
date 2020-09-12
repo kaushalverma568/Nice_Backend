@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,8 @@ import com.nice.service.DiscountService;
 
 /**
  *
- * @author : Kody Technolab PVT. LTD.
- * @date : 23-Mar-2020
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 23-Mar-2020
  * @description : Discount Related APIs
  */
 @RequestMapping(path = "/discount")
@@ -56,17 +57,18 @@ public class DiscountController {
 	/**
 	 * Add Discount
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> addDiscount(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final DiscountDTO discountDTO, final BindingResult bindingResult) throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Discount','CAN_ADD')")
+	public ResponseEntity<Object> addDiscount(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final DiscountDTO discountDTO,
+			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add discount {}", discountDTO);
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -74,24 +76,25 @@ public class DiscountController {
 		}
 		discountService.addDiscount(discountDTO);
 		LOGGER.info("Outside add discount ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.create.message", null)).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.create.message", null))
+				.create();
 	}
 
 	/**
 	 * Update Discount
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	public ResponseEntity<Object> updateDiscount(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final DiscountDTO discountDTO, final BindingResult result) throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Discount','CAN_EDIT')")
+	public ResponseEntity<Object> updateDiscount(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final DiscountDTO discountDTO,
+			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update discount {}", discountDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -100,14 +103,14 @@ public class DiscountController {
 		}
 		discountService.updateDiscount(discountDTO);
 		LOGGER.info("Outside update discount");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.update.message", null)).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.update.message", null))
+				.create();
 	}
 
 	/**
 	 * Get Discount Details based on id
 	 *
-	 * @param discountId
+	 * @param  discountId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -115,18 +118,18 @@ public class DiscountController {
 	@GetMapping("/{discountId}")
 	public ResponseEntity<Object> getDiscount(@PathVariable("discountId") final Long discountId) throws NotFoundException, ValidationException {
 		final DiscountResponseDTO discountResponseDTO = discountService.getDiscount(discountId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.detail.message", null)).setData(discountResponseDTO).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.detail.message", null))
+				.setData(discountResponseDTO).create();
 	}
 
 	/**
 	 * Get Discount list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param pincodeId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  pincodeId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -138,43 +141,44 @@ public class DiscountController {
 		final Page<Discount> resultDiscounts = discountService.getDiscountListBasedOnParams(pageNumber, pageSize, status, brandId);
 		List<DiscountResponseDTO> discountResponseDTOs = discountService.getDiscountListBasedOnParams(resultDiscounts.getContent());
 
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.list.message", null)).setData(discountResponseDTOs)
-				.setHasNextPage(resultDiscounts.hasNext()).setHasPreviousPage(resultDiscounts.hasPrevious()).setTotalPages(resultDiscounts.getTotalPages())
-				.setPageNumber(resultDiscounts.getNumber() + 1).setTotalCount(resultDiscounts.getTotalElements()).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.list.message", null))
+				.setData(discountResponseDTOs).setHasNextPage(resultDiscounts.hasNext()).setHasPreviousPage(resultDiscounts.hasPrevious())
+				.setTotalPages(resultDiscounts.getTotalPages()).setPageNumber(resultDiscounts.getNumber() + 1).setTotalCount(resultDiscounts.getTotalElements())
+				.create();
 
 	}
 
 	/**
 	 * Change status of discount (CANCELLED)
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{discountId}")
-	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("discountId") final Long discountId, @RequestParam("status") final String status) throws NotFoundException, ValidationException {
+	@PreAuthorize("hasPermission('Discount','CAN_DELETE')")
+	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("discountId") final Long discountId,
+			@RequestParam("status") final String status) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of discount for id {} and new status {}", discountId, status);
 		discountService.changeStatus(discountId, status);
 		LOGGER.info("Outside change status of discount ");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.update.message", null)).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.update.message", null))
+				.create();
 
 	}
 
 	/**
 	 * Get product list of that discounted
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param pincodeId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  pincodeId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -183,8 +187,8 @@ public class DiscountController {
 	public ResponseEntity<Object> getProductListOfThatDiscount(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("discountId") final Long discountId) throws NotFoundException {
 		Map<String, String> productMap = discountService.getProductListOfThatDiscount(discountId);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("discount.list.message", null)).setData(productMap).create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.list.message", null))
+				.setData(productMap).create();
 	}
 
 }

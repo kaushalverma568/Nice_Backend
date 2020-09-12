@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,6 +66,7 @@ public class TicketController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping()
+	@PreAuthorize("hasPermission('Ticket','CAN_ADD')")
 	public ResponseEntity<Object> addTicket(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final TicketDTO ticketDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add Ticket {}", ticketDTO);
@@ -88,6 +90,7 @@ public class TicketController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/{ticketId}")
+	@PreAuthorize("hasPermission('Ticket','CAN_EDIT')")
 	public ResponseEntity<Object> updateTicketStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("ticketId") final Long ticketId,
 			@RequestParam("ticketStatus") final String ticketStatus, @RequestParam("comment") final String comment)
 			throws ValidationException, NotFoundException {
@@ -106,6 +109,7 @@ public class TicketController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping(path = "/{ticketId}")
+	@PreAuthorize("hasPermission('Ticket','CAN_VIEW')")
 	public ResponseEntity<Object> getTicket(@RequestHeader("Authorization") final String accessToken, @PathVariable("ticketId") final Long ticketId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Ticket {}", ticketId);
@@ -128,6 +132,7 @@ public class TicketController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/list/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Ticket','CAN_VIEW')")
 	public ResponseEntity<Object> getTicketListBasedOnParams(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "userType", required = false) final String userType, @RequestParam(name = "name", required = false) final String name,
 			@RequestParam(name = "entityId", required = false) final Long entityId, @PathVariable("pageNumber") final Integer pageNumber,
@@ -144,6 +149,7 @@ public class TicketController {
 	}
 
 	/**
+	 * Export ticket
 	 *
 	 * @param  accessToken
 	 * @param  httpServletResponse
@@ -154,6 +160,7 @@ public class TicketController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/export/list")
+	@PreAuthorize("hasPermission('Ticket','CAN_VIEW')")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "name", required = false) final String name, @RequestParam(name = "userType", required = false) final String userType)
 			throws FileNotFoundException, NotFoundException {

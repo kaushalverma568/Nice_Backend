@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -150,6 +151,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/account/details")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> updateAccountDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final DeliveryBoyAccountDetailsDTO deliveryBoyAccountDetailsDTO, final BindingResult result)
 			throws ValidationException, NotFoundException {
@@ -239,6 +241,7 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{deliveryBoyId}")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @RequestParam("active") final Boolean active)
 			throws NotFoundException, ValidationException {
@@ -261,6 +264,7 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/profilepicture/{deliveryBoyId}")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> updateProfilePicture(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
@@ -283,6 +287,7 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/accept/order/{orderId}")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> acceptOrder(@RequestHeader("Authorization") final String accessToken, @PathVariable("orderId") final Long orderId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order where order id {}", orderId);
@@ -316,6 +321,7 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/logout")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> logout(@RequestHeader("Authorization") final String accessToken) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside Log out method for delivery boy");
 		deliveryBoyService.validateBeforeLogout();
@@ -335,6 +341,7 @@ public class DeliveryBoyController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping()
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final DeliveryBoyPersonalDetailsDTO deliveryBoyPersonalDetailsDTO, final BindingResult result)
 			throws ValidationException, NotFoundException {
@@ -394,6 +401,7 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/available")
+	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> updateIsAvailable(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "isAvailable", required = true) final Boolean isAvailable) throws NotFoundException, ValidationException {
 		LOGGER.info("update is available for delivery, isAvailable : {}", isAvailable);

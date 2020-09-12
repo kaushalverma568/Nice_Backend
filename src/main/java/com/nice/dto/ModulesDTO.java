@@ -24,8 +24,8 @@ public class ModulesDTO implements Serializable {
 	@NotBlank(message = "{name.not.null}")
 	private String name;
 
-	@NotBlank(message = "{userRole.not.null}")
-	private String userRole;
+	@NotNull(message = "{availableForNewRole.not.null}")
+	private Boolean availableForNewRole;
 
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;

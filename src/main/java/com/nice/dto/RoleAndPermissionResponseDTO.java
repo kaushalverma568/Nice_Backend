@@ -26,5 +26,7 @@ public class RoleAndPermissionResponseDTO implements Serializable {
 
 	private Boolean active;
 
+	private Boolean isDefault;
+
 	private List<ModuleAndPermissionResponseDTO> moduleAndPermissionResponseDTOs;
 }

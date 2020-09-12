@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,19 +26,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nice.response.GenericResponseHandlers;
 import com.nice.dto.SubscriptionPlanDTO;
-import com.nice.model.SubscriptionPlan;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.SubscriptionPlanMapper;
+import com.nice.model.SubscriptionPlan;
+import com.nice.response.GenericResponseHandlers;
 import com.nice.service.SubscriptionPlanService;
 import com.nice.validator.SubscriptionPlanValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 
 @RequestMapping(path = "/subscription/plan")
@@ -76,8 +77,18 @@ public class SubscriptionPlanController {
 		binder.addValidators(subscriptionPlanValidator);
 	}
 
-
+	/**
+	 * Add Subscription Plan
+	 *
+	 * @param  accessToken
+	 * @param  subscriptionPlanDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Subscription Plan','CAN_ADD')")
 	public ResponseEntity<Object> addSubscriptionPlan(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final SubscriptionPlanDTO subscriptionPlanDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add SubscriptionPlan {}", subscriptionPlanDTO);
@@ -92,7 +103,18 @@ public class SubscriptionPlanController {
 				.setMessage(messageByLocaleService.getMessage("subscription.plan.create.message", null)).setData(resultSubscriptionPlan).create();
 	}
 
+	/**
+	 * Update Subscription Plan
+	 *
+	 * @param  accessToken
+	 * @param  subscriptionPlanDTO
+	 * @param  result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Subscription Plan','CAN_EDIT')")
 	public ResponseEntity<Object> updateSubscriptionPlan(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final SubscriptionPlanDTO subscriptionPlanDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update SubscriptionPlan {}", subscriptionPlanDTO);
@@ -104,31 +126,63 @@ public class SubscriptionPlanController {
 		SubscriptionPlanDTO resultSubscriptionPlan = subscriptionPlanService.updateSubscriptionPlan(subscriptionPlanDTO);
 		LOGGER.info("Outside update SubscriptionPlan {}", resultSubscriptionPlan);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("subscription.plan.update.message", null )).setData(resultSubscriptionPlan).create();
+				.setMessage(messageByLocaleService.getMessage("subscription.plan.update.message", null)).setData(resultSubscriptionPlan).create();
 	}
 
+	/**
+	 * Get Subscription Plan
+	 *
+	 * @param  accessToken
+	 * @param  subscriptionPlanId
+	 * @return
+	 * @throws NotFoundException
+	 */
 	@GetMapping(value = "/{subscriptionPlanId}")
-	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("subscriptionPlanId") final Long subscriptionPlanId)
-			throws NotFoundException {
+	@PreAuthorize("hasPermission('Subscription Plan','CAN_VIEW')")
+	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("subscriptionPlanId") final Long subscriptionPlanId) throws NotFoundException {
 		SubscriptionPlanDTO resultSubscriptionPlan = subscriptionPlanService.getSubscriptionPlan(subscriptionPlanId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("subscription.plan.detail.message", null)).setData(resultSubscriptionPlan).create();
 	}
 
+	/**
+	 * Get Subscription Plan List
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyWord
+	 * @return
+	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord ) {
-		final Page<SubscriptionPlan> resultSubscriptionPlan = subscriptionPlanService.getList(pageNumber, pageSize, activeRecords,searchKeyWord);
+	@PreAuthorize("hasPermission('Subscription Plan','CAN_VIEW')")
+	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) {
+		final Page<SubscriptionPlan> resultSubscriptionPlan = subscriptionPlanService.getList(pageNumber, pageSize, activeRecords, searchKeyWord);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("subscription.plan.list.message", null )).setData(subscriptionPlanMapper.toDtos(resultSubscriptionPlan.getContent()))
-				.setHasNextPage(resultSubscriptionPlan.hasNext()).setHasPreviousPage(resultSubscriptionPlan.hasPrevious()).setTotalPages(resultSubscriptionPlan.getTotalPages())
+				.setMessage(messageByLocaleService.getMessage("subscription.plan.list.message", null))
+				.setData(subscriptionPlanMapper.toDtos(resultSubscriptionPlan.getContent())).setHasNextPage(resultSubscriptionPlan.hasNext())
+				.setHasPreviousPage(resultSubscriptionPlan.hasPrevious()).setTotalPages(resultSubscriptionPlan.getTotalPages())
 				.setPageNumber(resultSubscriptionPlan.getNumber() + 1).setTotalCount(resultSubscriptionPlan.getTotalElements()).create();
 	}
 
+	/**
+	 * Change status of subscription plan (active/deActive)
+	 *
+	 * @param  accessToken
+	 * @param  subscriptionPlanId
+	 * @param  active
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
 	@PutMapping("/status/{subscriptionPlanId}")
+	@PreAuthorize("hasPermission('Subscription Plan','CAN_DELETE')")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("subscriptionPlanId") final Long subscriptionPlanId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
+			@PathVariable("subscriptionPlanId") final Long subscriptionPlanId, @RequestParam final Boolean active)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of SubscriptionPlan of id {} and status {}", subscriptionPlanId, active);
 		subscriptionPlanService.changeStatus(subscriptionPlanId, active);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)

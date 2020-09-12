@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,6 +69,7 @@ public class SliderImageController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
+	@PreAuthorize("hasPermission('Slider Banner','CAN_ADD')")
 	public ResponseEntity<Object> addSliderImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
 			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
@@ -104,6 +106,7 @@ public class SliderImageController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping()
+	@PreAuthorize("hasPermission('Slider Banner','CAN_EDIT')")
 	public ResponseEntity<Object> updateSliderImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
 			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
@@ -138,6 +141,7 @@ public class SliderImageController {
 	/**
 	 * Get Slider Banner List
 	 *
+	 * @param  imageType
 	 * @return
 	 */
 	@GetMapping("/list")
@@ -147,8 +151,18 @@ public class SliderImageController {
 				.setData(sliderBannerDTOs).create();
 	}
 
+	/**
+	 * Delete Slider Banner by id
+	 *
+	 * @param  accessToken
+	 * @param  id
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Object> getSliderBannerList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long id)
+	@PreAuthorize("hasPermission('Slider Banner','CAN_DELETE')")
+	public ResponseEntity<Object> deleteSliderBannerById(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long id)
 			throws NotFoundException, ValidationException {
 		sliderBannerService.deleteSliderBannerById(id);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("slider.delete.message", null))

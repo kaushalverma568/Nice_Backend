@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.dto.UsersDTO;
+import com.nice.dto.UsersResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -84,6 +86,7 @@ public class UsersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Users','CAN_ADD')")
 	public ResponseEntity<Object> addUsers(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final UsersDTO usersDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add users {}", usersDTO);
@@ -92,10 +95,10 @@ public class UsersController {
 			LOGGER.error("Users validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Users resultUsers = usersService.addUsers(usersDTO);
-		LOGGER.info("Outside add users {}", resultUsers);
+		usersService.addUsers(usersDTO);
+		LOGGER.info("Outside add users ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.create.message", null))
-				.setData(resultUsers).create();
+				.create();
 	}
 
 	/**
@@ -110,6 +113,7 @@ public class UsersController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Users','CAN_EDIT')")
 	public ResponseEntity<Object> updateUsers(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final UsersDTO usersDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update users {}", usersDTO);
@@ -118,10 +122,10 @@ public class UsersController {
 			LOGGER.error("Users validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		final Users resultUsers = usersService.updateUsers(usersDTO);
-		LOGGER.info("Outside update users {}", resultUsers);
+		usersService.updateUsers(usersDTO);
+		LOGGER.info("Outside update users");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.update.message", null))
-				.setData(resultUsers).create();
+				.create();
 	}
 
 	/**
@@ -133,8 +137,10 @@ public class UsersController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/{usersId}")
-	public ResponseEntity<Object> getUsers(@PathVariable("usersId") final Long usersId) throws NotFoundException, ValidationException {
-		final UsersDTO resultUsers = usersService.getUsers(usersId);
+	@PreAuthorize("hasPermission('Users','CAN_VIEW')")
+	public ResponseEntity<Object> getUsers(@RequestHeader("Authorization") final String accessToken, @PathVariable("usersId") final Long usersId)
+			throws NotFoundException, ValidationException {
+		final UsersResponseDTO resultUsers = usersService.getUsers(usersId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.detail.message", null))
 				.setData(resultUsers).create();
 	}
@@ -149,8 +155,9 @@ public class UsersController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getUsersList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
+	@PreAuthorize("hasPermission('Users','CAN_VIEW')")
+	public ResponseEntity<Object> getUsersList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<Users> usersList = usersService.getUsersList(pageNumber, pageSize, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("users.list.message", null))
 				.setData(usersMapper.toDtos(usersList.getContent())).setHasNextPage(usersList.hasNext()).setHasPreviousPage(usersList.hasPrevious())
@@ -170,6 +177,7 @@ public class UsersController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{usersId}")
+	@PreAuthorize("hasPermission('Users','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("usersId") final Long usersId,
 			@RequestParam("active") final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of users ofr id {} and status {}", usersId, active);

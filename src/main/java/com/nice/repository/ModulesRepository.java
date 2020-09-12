@@ -17,44 +17,56 @@ import com.nice.model.Modules;
 public interface ModulesRepository extends JpaRepository<Modules, Long> {
 
 	/**
-	 * get modules by name,userRole and id not
+	 * get modules by name
 	 *
 	 * @param  name
-	 * @param  userRole
+	 * @return
+	 */
+	Optional<Modules> findByName(String name);
+
+	/**
+	 * get modules by name and id not
+	 *
+	 * @param  name
 	 * @param  id
 	 * @return
 	 */
-	Optional<Modules> findByNameIgnoreCaseAndUserRoleAndIdNot(String name, String userRole, Long id);
+	Optional<Modules> findByNameIgnoreCaseAndIdNot(String name, Long id);
 
 	/**
-	 * get modules by name,userRole
+	 * get modules by name
 	 *
 	 * @param  name
-	 * @param  userRole
 	 * @return
 	 */
-	Optional<Modules> findByNameIgnoreCaseAndUserRole(String name, String userRole);
+	Optional<Modules> findByNameIgnoreCase(String name);
 
 	/**
-	 * @param  activeRecords
-	 * @param  userRole
-	 * @param  pageable
-	 * @return
-	 */
-	Page<Modules> findAllByActiveAndUserRole(Boolean activeRecords, String userRole, Pageable pageable);
-
-	/**
-	 * @param  userRole
-	 * @param  pageable
-	 * @return
-	 */
-	Page<Modules> findAllByUserRole(String userRole, Pageable pageable);
-
-	/**
+	 * get modules by active
+	 *
 	 * @param  activeRecords
 	 * @param  pageable
 	 * @return
 	 */
 	Page<Modules> findAllByActive(Boolean activeRecords, Pageable pageable);
+
+	/**
+	 * get modules by active and availableForNewRole
+	 *
+	 * @param  activeRecords
+	 * @param  availableForNewRole
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Modules> findAllByActiveAndAvailableForNewRole(Boolean activeRecords, Boolean availableForNewRole, Pageable pageable);
+
+	/**
+	 * get modules by availableForNewRole
+	 *
+	 * @param  availableForNewRole
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Modules> findAllByAvailableForNewRole(Boolean availableForNewRole, Pageable pageable);
 
 }

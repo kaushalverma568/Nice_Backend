@@ -78,6 +78,7 @@ import com.nice.service.DeviceDetailService;
 import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
 import com.nice.service.OtpService;
+import com.nice.service.RoleService;
 import com.nice.service.TaskService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
@@ -86,7 +87,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -145,6 +146,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Autowired
 	private OrderItemService orderItemService;
 
+	@Autowired
+	private RoleService roleService;
+
 	@Override
 	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
@@ -155,8 +159,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getEmailVerified().booleanValue()) {
 			deliveryBoy = optDeliveryBoy.get();
-			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoyDTO.getEmail().toLowerCase(),
-					Role.DELIVERY_BOY.name());
+			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(deliveryBoyDTO.getEmail().toLowerCase(),
+					UserType.DELIVERY_BOY.name());
 			if (optUserLogin.isPresent()) {
 				sendOtpForEmailVerification(optUserLogin.get(), deliveryBoy);
 				return;
@@ -203,7 +207,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		userLogin.setEntityId(deliveryBoy.getId());
 		userLogin.setEntityType(UserType.DELIVERY_BOY.name());
 		userLogin.setEmail(deliveryBoy.getEmail());
-		userLogin.setRole(Role.DELIVERY_BOY.name());
+		userLogin.setRole(roleService.getRoleDetailByName(Role.DELIVERY_BOY.getStatusValue()));
 		userLogin.setPassword(deliveryBoyDTO.getPassword());
 		userLogin.setActive(false);
 		userLoginService.addUserLogin(userLogin);
@@ -242,8 +246,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -268,8 +272,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	/**
 	 *
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -345,7 +349,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(deliveryBoy);
 		LOGGER.info("Existing DeliveryBoy details {} ", deliveryBoy);
 		String userName = null;
-		final Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndRole(deliveryBoy.getEmail(), Role.DELIVERY_BOY.name());
+		final Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(deliveryBoy.getEmail(), UserType.DELIVERY_BOY.name());
 		if (active == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (deliveryBoy.getActive().equals(active)) {
@@ -401,8 +405,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
-				 * again, if the email is verified then we will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him again, if the email is
+				 * verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -433,7 +437,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public void updateIsLogin(final String userName) throws NotFoundException {
-		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndRole(userName, Role.DELIVERY_BOY.name());
+		Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(userName, UserType.DELIVERY_BOY.name());
 		if (optUserLogin.isPresent()) {
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(optUserLogin.get().getEntityId()));
 			deliveryBoyCurrentStatus.setIsLogin(true);
@@ -483,8 +487,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -529,8 +533,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for
-		 * replacement or return) and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders(not for replacement or return) and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);

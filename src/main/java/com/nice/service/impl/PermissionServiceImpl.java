@@ -1,8 +1,10 @@
 package com.nice.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
+import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -24,6 +29,7 @@ import com.nice.mapper.PermissionMapper;
 import com.nice.model.Modules;
 import com.nice.model.Permission;
 import com.nice.model.Role;
+import com.nice.model.UserLogin;
 import com.nice.repository.PermissionRepository;
 import com.nice.service.ModulesService;
 import com.nice.service.PermissionService;
@@ -93,8 +99,8 @@ public class PermissionServiceImpl implements PermissionService {
 			if (roleId != null) {
 				Role role = roleService.getRoleDetail(roleId);
 				if (moduleId != null) {
-					Modules module = modulesService.getModuleDetail(moduleId);
-					return permissionRepository.findAllByActiveAndModulesAndRole(activeRecords, module, role, pageable);
+					Modules modules = modulesService.getModuleDetail(moduleId);
+					return permissionRepository.findAllByActiveAndModulesAndRole(activeRecords, modules, role, pageable);
 				} else {
 					return permissionRepository.findAllByActiveAndRole(activeRecords, role, pageable);
 				}
@@ -120,12 +126,12 @@ public class PermissionServiceImpl implements PermissionService {
 	 */
 	private Page<Permission> getPermissonListByModulesAndRole(final Long roleId, final Long moduleId, final Pageable pageable) throws NotFoundException {
 		if (moduleId != null) {
-			Modules module = modulesService.getModuleDetail(moduleId);
+			Modules modules = modulesService.getModuleDetail(moduleId);
 			if (roleId != null) {
 				Role role = roleService.getRoleDetail(roleId);
-				return permissionRepository.findAllByRoleAndModules(role, module, pageable);
+				return permissionRepository.findAllByRoleAndModules(role, modules, pageable);
 			} else {
-				return permissionRepository.findAllByModules(module, pageable);
+				return permissionRepository.findAllByModules(modules, pageable);
 
 			}
 		} else {
@@ -169,19 +175,19 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	@Override
-	public Map<String, Boolean> getRoleAndModuleWisePermission(final String role, final String moduleName) throws ValidationException {
-		Permission permission = permissionRepository.getRoleAndModuleWisePermission(role, moduleName);
-		if (permission == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("permission.not.found.role", new Object[] { role, moduleName }));
+	public Map<String, Boolean> getRoleAndModuleWisePermission(final Role role, final String moduleName) throws ValidationException, NotFoundException {
+		Modules modules = modulesService.getModuleDetailByName(moduleName);
+		Optional<Permission> permission = permissionRepository.findByRoleAndModules(role, modules);
+		if (!permission.isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("permission.not.found.role", new Object[] { role.getName(), moduleName }));
 		}
+
 		final Map<String, Boolean> permissionMap = new HashMap<>();
-		permissionMap.put(Constant.CAN_ADD, permission.getCanAdd());
-		permissionMap.put(Constant.CAN_EDIT, permission.getCanEdit());
-		permissionMap.put(Constant.CAN_VIEW, permission.getCanView());
-		permissionMap.put(Constant.CAN_VIEW_LIST, permission.getCanViewList());
-		permissionMap.put(Constant.CAN_DELETE, permission.getCanDelete());
-		permissionMap.put(Constant.CAN_EXPORT, permission.getCanExport());
-		permissionMap.put(Constant.CAN_IMPORT, permission.getCanImport());
+		permissionMap.put(Constant.CAN_ADD, permission.get().getCanAdd());
+		permissionMap.put(Constant.CAN_EDIT, permission.get().getCanEdit());
+		permissionMap.put(Constant.CAN_VIEW, permission.get().getCanView());
+		permissionMap.put(Constant.CAN_DELETE, permission.get().getCanDelete());
+		permissionMap.put(Constant.SIDE_BAR, permission.get().getSideBar());
 		return permissionMap;
 	}
 
@@ -204,5 +210,28 @@ public class PermissionServiceImpl implements PermissionService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new HashMap<>();
+
+		/**
+		 * get only those permissions for which particular role has access on side bar
+		 */
+		List<Permission> permissionList = permissionRepository.findAllByRoleAndSideBarAndActive(userLogin.getRole(), true, true);
+
+		for (Permission permission : permissionList) {
+			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
+				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = modulePermissionMap.get(permission.getModules().getParentModuleName());
+				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+			} else {
+				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = new ArrayList<>();
+				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+				modulePermissionMap.put(permission.getModules().getParentModuleName(), moduleWisePermissionList);
+			}
+		}
+		return modulePermissionMap;
 	}
 }

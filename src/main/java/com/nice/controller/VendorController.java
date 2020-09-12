@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.validation.BindingResult;
@@ -68,7 +69,7 @@ import com.nice.validator.VendorValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
@@ -95,8 +96,7 @@ public class VendorController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -132,8 +132,8 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -157,13 +157,14 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> updatePersonalDetails(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final VendorDTO vendorDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update vendor {}", vendorDTO);
@@ -182,13 +183,14 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/bank/details")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> updateBankDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final VendorBankDetailsDTO vendorBankDetailsDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update account details {}", vendorBankDetailsDTO);
@@ -206,8 +208,8 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -215,6 +217,7 @@ public class VendorController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PutMapping("/restaurant/details")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> updateRestaurantDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "storeImage", required = false) final MultipartFile storeImage,
 			@RequestParam(name = "storeDetailImage", required = false) final MultipartFile storeDetailImage,
@@ -236,14 +239,15 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param accessToken
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/{vendorId}/subscription/{subscriptionPlanId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> updateSubscriptionPlan(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("vendorId") final Long vendorId, @PathVariable("subscriptionPlanId") final Long subscriptionPlanId)
 			throws NotFoundException, ValidationException {
@@ -257,14 +261,15 @@ public class VendorController {
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param accessToken
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/orderservice/enable/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> updateOrderServiceEnableForVendor(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("vendorId") final Long vendorId, @RequestParam("isOrderServiceEnable") final Boolean isOrderServiceEnable)
 			throws ValidationException, NotFoundException {
@@ -278,7 +283,7 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -293,7 +298,7 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -309,11 +314,11 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -333,13 +338,14 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param vendorId
-	 * @param active
+	 * @param  vendorId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, active);
@@ -368,7 +374,7 @@ public class VendorController {
 	/**
 	 * Get vendor list for customer app
 	 *
-	 * @param vendorListFilterDTO
+	 * @param  vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -396,14 +402,15 @@ public class VendorController {
 	/**
 	 * Change status of vendor
 	 *
-	 * @param accessToken
-	 * @param vendorId
-	 * @param newStatus
+	 * @param  accessToken
+	 * @param  vendorId
+	 * @param  newStatus
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/change/status/{vendorId}/{newStatus}")
+	@PreAuthorize("hasPermission('Vendor','CAN_DELETE')")
 	public ResponseEntity<Object> changeVendorStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
 			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
@@ -417,9 +424,9 @@ public class VendorController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param httpServletResponse
-	 * @param vendorFilterDTO
+	 * @param  accessToken
+	 * @param  httpServletResponse
+	 * @param  vendorFilterDTO
 	 * @return
 	 * @throws IOException
 	 * @throws FileNotFoundException
@@ -434,14 +441,15 @@ public class VendorController {
 	/**
 	 * update vendor is featured
 	 *
-	 * @param accessToken
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@PutMapping("/featured/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatusOfIsFeaturedProduct(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("vendorId") final Long vendorId, @RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of is featured vendor for id {} and new status {}", vendorId, active);
@@ -454,14 +462,15 @@ public class VendorController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param accessToken
-	 * @param imageType
-	 * @param productId
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/image/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageType", required = true) final String imageType, @PathVariable("vendorId") final Long vendorId)
 			throws ValidationException, NotFoundException {
@@ -473,8 +482,8 @@ public class VendorController {
 	/**
 	 * get vendor basic details
 	 *
-	 * @param accessToken
-	 * @param vendorId
+	 * @param  accessToken
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -489,10 +498,9 @@ public class VendorController {
 	}
 
 	/**
-	 * redirect api from hesabe for vendor subscription. data is response from
-	 * hesabe in encrypted form
+	 * redirect api from hesabe for vendor subscription. data is response from hesabe in encrypted form
 	 *
-	 * @param data
+	 * @param  data
 	 * @return
 	 * @throws NotFoundException
 	 */

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,7 +40,7 @@ import com.nice.validator.CustomerAddressValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @RequestMapping(path = "/customer")
 @RestController
@@ -80,14 +81,15 @@ public class CustomerAddressController {
 	/**
 	 * Add customer Address
 	 *
-	 * @param accessToken
-	 * @param customerAddressDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  customerAddressDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/address")
+	@PreAuthorize("hasPermission('Customer Address','CAN_ADD')")
 	public ResponseEntity<Object> addCustomersAddress(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final CustomerAddressDTO customerAddressDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add customer address  {}", customerAddressDTO);
@@ -114,14 +116,15 @@ public class CustomerAddressController {
 	/**
 	 * Update customer address
 	 *
-	 * @param accessToken
-	 * @param customerAddressDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  customerAddressDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/address")
+	@PreAuthorize("hasPermission('Customer Address','CAN_EDIT')")
 	public ResponseEntity<Object> updateCustomer(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final CustomerAddressDTO customerAddressDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update customer address {}", customerAddressDTO);
@@ -148,13 +151,14 @@ public class CustomerAddressController {
 	/**
 	 * Get customer address details based on id
 	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param addressId
+	 * @param  accessToken
+	 * @param  customerId
+	 * @param  addressId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/address/{addressId}")
+	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddress(@RequestHeader("Authorization") final String accessToken, @PathVariable("addressId") final Long addressId)
 			throws NotFoundException {
 		final CustomerAddressResponseDTO customerAddressResponseDTO = customerAddressService.getAddress(addressId);
@@ -165,16 +169,17 @@ public class CustomerAddressController {
 	/**
 	 * Get list of customer Address based on customerId
 	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  customerId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/{customerId}/address/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddressList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("customerId") final Long customerId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
@@ -188,17 +193,18 @@ public class CustomerAddressController {
 	/**
 	 * Get customer address list based on parameters
 	 *
-	 * @param accessToken
-	 * @param customerId
-	 * @param countryId
-	 * @param stateId
-	 * @param cityId
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  customerId
+	 * @param  countryId
+	 * @param  stateId
+	 * @param  cityId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 */
 	@GetMapping("/address/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddressListBasedOnParams(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "customerId", required = false) final Long customerId,
 			@RequestParam(name = "countryId", required = false) final Long countryId, @RequestParam(name = "stateId", required = false) final Long stateId,
@@ -214,14 +220,15 @@ public class CustomerAddressController {
 	/**
 	 * Change status of customer Address (active/deActive)
 	 *
-	 * @param customersAddressId
-	 * @param active
+	 * @param  customersAddressId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 
 	@DeleteMapping("/address/{customersAddressId}")
+	@PreAuthorize("hasPermission('Customer Address','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("customersAddressId") final Long customersAddressId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside delete cusotmer address of customer for address id {} ", customersAddressId);
@@ -233,13 +240,14 @@ public class CustomerAddressController {
 	/**
 	 * Update customer address default based on id
 	 *
-	 * @param accessToken
-	 * @param addressId
+	 * @param  accessToken
+	 * @param  addressId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/address/default/{addressId}")
+	@PreAuthorize("hasPermission('Customer Address','CAN_EDIT')")
 	public ResponseEntity<Object> updateCustomerAddressDefault(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("addressId") final Long addressId) throws NotFoundException, ValidationException {
 		customerAddressService.updateCustomerAddressDefault(addressId);

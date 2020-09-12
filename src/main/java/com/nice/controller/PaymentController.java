@@ -26,7 +26,7 @@ import com.nice.service.PaymentService;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 13-07-2020
+ * @date   : 13-07-2020
  */
 
 @RequestMapping(path = "/payment")

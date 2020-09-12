@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -139,6 +140,7 @@ public class CustomerController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('Customer','CAN_EDIT')")
 	public ResponseEntity<Object> updateProfileDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final CustomerPersonalDetailsDTO customerPersonalDetailsDTO, final BindingResult result)
 			throws ValidationException, NotFoundException {
@@ -162,6 +164,7 @@ public class CustomerController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{customerId}")
+	@PreAuthorize("hasPermission('Customer','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomer(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId)
 			throws NotFoundException {
 		final CustomerResponseDTO customerResponseDTO = customerService.getCustomer(customerId);
@@ -180,6 +183,7 @@ public class CustomerController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Customer','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
@@ -204,6 +208,7 @@ public class CustomerController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{customerId}")
+	@PreAuthorize("hasPermission('Customer','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of customer for id {} and status {}", customerId, active);
@@ -226,6 +231,7 @@ public class CustomerController {
 	 * @throws IOException
 	 */
 	@GetMapping("/export/list")
+	@PreAuthorize("hasPermission('Customer','CAN_VIEW')")
 	public ResponseEntity<Object> exportCustomerList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws IOException {
 		customerService.exportCustomerList(activeRecords, httpServletResponse);

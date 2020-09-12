@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ import com.nice.service.ProductAddonsService;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date : 02-Jul-2020
+ * @date   : 02-Jul-2020
  */
 @RequestMapping(path = "/product/addons")
 @RestController
@@ -51,15 +52,16 @@ public class ProductAddonsController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productVariantId
-	 * @param productAddonsDtoList
-	 * @param result
+	 * @param  accessToken
+	 * @param  productVariantId
+	 * @param  productAddonsDtoList
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/{productVariantId}")
+	@PreAuthorize("hasPermission('Product Addons','CAN_ADD')")
 	public ResponseEntity<Object> addProductAddons(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@RequestBody @Valid final List<ProductAddonsDTO> productAddonsDtoList, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add ProductAddons {}", productAddonsDtoList);
@@ -76,8 +78,8 @@ public class ProductAddonsController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param productAddonsId
+	 * @param  accessToken
+	 * @param  productAddonsId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -93,14 +95,14 @@ public class ProductAddonsController {
 
 	/**
 	 *
-	 * @param productVariantId
-	 * @param activeRecords
+	 * @param  productVariantId
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/list/{productVariantId}")
-	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId,
+	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long productVariantId,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getList with productVariant :{} , activeRecords :{}", productVariantId, activeRecords);
 		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoListWithUserCheck(activeRecords, productVariantId);
@@ -111,13 +113,13 @@ public class ProductAddonsController {
 
 	/**
 	 *
-	 * @param productVariantId
+	 * @param  productVariantId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/cust/list/{productVariantId}")
-	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> getList(@PathVariable final Long productVariantId) throws NotFoundException {
 		LOGGER.info("Inside getList with productVariant :{}", productVariantId);
 		final List<ProductAddonsDTO> resultProductAddons = productAddonsService.getDtoList(true, productVariantId);
 		LOGGER.info("After getList with productVariant :{}", productVariantId);
@@ -127,15 +129,16 @@ public class ProductAddonsController {
 
 	/**
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productAddonsId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productAddonsId
+	 * @param  active
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/status/{productAddonsId}")
+	@PreAuthorize("hasPermission('Product Addons','CAN_DELETE')")
 	public ResponseEntity<Object> updateStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productAddonsId") final Long productAddonsId, @RequestParam final Boolean active) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of ProductAddons of id {} and status {}", productAddonsId, active);

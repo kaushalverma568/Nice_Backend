@@ -15,16 +15,25 @@ import com.nice.model.Role;
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-
-	Role findByName(String name);
+	/**
+	 * Get role by name if exist
+	 *
+	 * @param  name
+	 * @return
+	 */
+	Optional<Role> findByName(String name);
 
 	/**
+	 * Get role by name ignore case if exist
+	 *
 	 * @param  name
 	 * @return
 	 */
 	Optional<Role> findByNameIgnoreCase(String name);
 
 	/**
+	 * Get role by name ignore case and id not if exist
+	 *
 	 * @param  roleName
 	 * @param  id
 	 * @return
@@ -32,10 +41,31 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 	Optional<Role> findByNameIgnoreCaseAndIdNot(String name, Long id);
 
 	/**
+	 * Get page of role by active
+	 *
 	 * @param  activeRecords
 	 * @param  pageable
 	 * @return
 	 */
 	Page<Role> findAllByActive(Boolean activeRecords, Pageable pageable);
+
+	/**
+	 * Get page of role by active and isDefault
+	 *
+	 * @param  activeRecords
+	 * @param  isDefault
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Role> findAllByActiveAndIsDefault(Boolean activeRecords, Boolean isDefault, Pageable pageable);
+
+	/**
+	 * Get page of role by isDefault
+	 *
+	 * @param  isDefault
+	 * @param  pageable
+	 * @return
+	 */
+	Page<Role> findAllByIsDefault(Boolean isDefault, Pageable pageable);
 
 }

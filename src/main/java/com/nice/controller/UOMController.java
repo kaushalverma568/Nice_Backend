@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -86,6 +87,7 @@ public class UOMController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('UOM','CAN_ADD')")
 	public ResponseEntity<Object> addUOM(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final UOMDTO uomDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add UOM {}", uomDTO);
@@ -110,6 +112,7 @@ public class UOMController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
+	@PreAuthorize("hasPermission('UOM','CAN_EDIT')")
 	public ResponseEntity<Object> updateUOM(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final UOMDTO uomDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update UOM {}", uomDTO);
@@ -132,7 +135,7 @@ public class UOMController {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	@GetMapping(name = "getUOM", value = "/{uomId}")
+	@GetMapping("/{uomId}")
 	public ResponseEntity<Object> getUOM(@RequestHeader("Authorization") final String accessToken, @PathVariable("uomId") final Long uomId)
 			throws NotFoundException {
 		LOGGER.info("Inside get UOM ");
@@ -152,8 +155,8 @@ public class UOMController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping(name = "getUOMList", value = "/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getUOMList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
+	public ResponseEntity<Object> getUOMList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get UOM List ");
 		final Page<UOM> resultUOMs = uomService.getUOMList(pageNumber, pageSize, activeRecords, vendorId);
@@ -172,6 +175,7 @@ public class UOMController {
 	 * @throws ValidationException
 	 */
 	@PutMapping(name = "changeStatus", value = "/status/{uomId}")
+	@PreAuthorize("hasPermission('UOM','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("uomId") final Long uomId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of uom of id {} and status {}", uomId, active);
@@ -183,7 +187,7 @@ public class UOMController {
 	@GetMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws FileNotFoundException  {
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws FileNotFoundException {
 		uomService.exportList(vendorId, activeRecords, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("uom.list.message", null)).create();
 	}
@@ -193,12 +197,14 @@ public class UOMController {
 	 * @param  file
 	 * @param  httpServletResponse
 	 * @return
-	 * @throws ValidationException 
-	 * @throws FileOperationException 
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@PostMapping(path = "/upload")
+	@PreAuthorize("hasPermission('UOM','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws ValidationException, FileOperationException  {
+			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse)
+			throws ValidationException, FileOperationException {
 		if (file == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("file.not.null", null));
 		}

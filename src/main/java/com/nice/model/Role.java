@@ -1,5 +1,6 @@
 package com.nice.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,4 +29,6 @@ public class Role extends CommonModel {
 
 	private String description;
 
+	@Column(name = "is_default", columnDefinition = "boolean default false")
+	private Boolean isDefault;
 }

@@ -11,7 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.nice.dto.RoleDTO;
+import com.nice.dto.RoleAndPermissionsDTO;
 import com.nice.dto.RoleResponseDTO;
 import com.nice.model.Role;
 import com.nice.model.UserLogin;
@@ -43,9 +43,9 @@ public class RoleMapper {
 		return roleDTO;
 	}
 
-	public Role toEntity(final RoleDTO roleDTO) {
+	public Role toEntity(final RoleAndPermissionsDTO roleAndPermissionsDTO) {
 		Role role = new Role();
-		BeanUtils.copyProperties(roleDTO, role);
+		BeanUtils.copyProperties(roleAndPermissionsDTO, role);
 		return role;
 	}
 

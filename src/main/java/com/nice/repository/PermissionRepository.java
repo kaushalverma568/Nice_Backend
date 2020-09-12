@@ -6,8 +6,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.Modules;
@@ -31,33 +29,34 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	Page<Permission> findAllByActive(Boolean activeRecords, Pageable pageable);
 
 	/**
+	 * get permission by role,modules and id not if exist
+	 *
 	 * @param  role
-	 * @param  module
+	 * @param  modules
 	 * @param  id
 	 * @return
 	 */
-	Optional<Permission> findByRoleAndModulesAndIdNot(Role role, Modules module, Long id);
+	Optional<Permission> findByRoleAndModulesAndIdNot(Role role, Modules modules, Long id);
 
 	/**
+	 * get permission by role and modules if exist
+	 *
 	 * @param  role
-	 * @param  module
+	 * @param  modules
 	 * @return
 	 */
-	Optional<Permission> findByRoleAndModules(Role role, Modules module);
-
-	@Query(value = "select * from permission p join role ro on ro.id=p.role_id join modules mo on p.modules_id=mo.id where ro.name=:role and mo.name=:moduleName", nativeQuery = true)
-	Permission getRoleAndModuleWisePermission(@Param(value = "role") String role, @Param(value = "moduleName") String moduleName);
+	Optional<Permission> findByRoleAndModules(Role role, Modules modules);
 
 	/**
-	 * get page by role,active and module
+	 * get page by role,active and modules
 	 *
 	 * @param  activeRecords
-	 * @param  module
+	 * @param  modules
 	 * @param  role
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Permission> findAllByActiveAndModulesAndRole(Boolean activeRecords, Modules module, Role role, Pageable pageable);
+	Page<Permission> findAllByActiveAndModulesAndRole(Boolean activeRecords, Modules modules, Role role, Pageable pageable);
 
 	/**
 	 * get page by role and active
@@ -79,23 +78,23 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	List<Permission> findAllByActiveAndRole(Boolean activeRecords, Role role);
 
 	/**
-	 * get page by active and module
+	 * get page by active and modules
 	 *
 	 * @param  activeRecords
-	 * @param  module
+	 * @param  modules
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Permission> findAllByActiveAndModules(Boolean activeRecords, Modules module, Pageable pageable);
+	Page<Permission> findAllByActiveAndModules(Boolean activeRecords, Modules modules, Pageable pageable);
 
 	/**
-	 * get page by module
+	 * get page by modules
 	 *
-	 * @param  module
+	 * @param  modules
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Permission> findAllByModules(Modules module, Pageable pageable);
+	Page<Permission> findAllByModules(Modules modules, Pageable pageable);
 
 	/**
 	 * get page by role
@@ -115,14 +114,14 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	List<Permission> findAllByRole(Role role);
 
 	/**
-	 * get page by role and module
+	 * get page by role and modules
 	 *
 	 * @param  role
-	 * @param  module
+	 * @param  modules
 	 * @param  pageable
 	 * @return
 	 */
-	Page<Permission> findAllByRoleAndModules(Role role, Modules module, Pageable pageable);
+	Page<Permission> findAllByRoleAndModules(Role role, Modules modules, Pageable pageable);
 
 	/**
 	 * get all by role,active and module
@@ -159,5 +158,15 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	 * @return
 	 */
 	List<Permission> findAllByActive(Boolean active);
+
+	/**
+	 * Get permission list by role,side bar and active
+	 *
+	 * @param  role
+	 * @param  sideBar
+	 * @param  active
+	 * @return
+	 */
+	List<Permission> findAllByRoleAndSideBarAndActive(Role role, Boolean sideBar, Boolean active);
 
 }
