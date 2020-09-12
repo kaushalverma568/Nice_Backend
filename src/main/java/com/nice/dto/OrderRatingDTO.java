@@ -31,10 +31,10 @@ public class OrderRatingDTO implements Serializable {
 	@NotNull(message = "{question3.rating.not.null}")
 	private Double question3Rating;
 
-	@NotNull(message = "{question4.rating.not.null}")
+//	@NotNull(message = "{question4.rating.not.null}")
 	private Double question4Rating;
 
-	@NotNull(message = "{question5.rating.not.null}")
+//	@NotNull(message = "{question5.rating.not.null}")
 	private Double question5Rating;
 
 	private String review;

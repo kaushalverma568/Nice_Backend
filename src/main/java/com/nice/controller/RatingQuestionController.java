@@ -117,8 +117,8 @@ public class RatingQuestionController {
 
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
-		final Page<RatingQuestion> resultRatingQuestion = ratingQuestionService.getList(pageNumber, pageSize, activeRecords);
+			@RequestParam(name = "type", required = false) final String type) {
+		final Page<RatingQuestion> resultRatingQuestion = ratingQuestionService.getList(pageNumber, pageSize, type);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("rating.question.list.message", null )).setData(ratingQuestionMapper.toDtos(resultRatingQuestion.getContent()))
 				.setHasNextPage(resultRatingQuestion.hasNext()).setHasPreviousPage(resultRatingQuestion.hasPrevious()).setTotalPages(resultRatingQuestion.getTotalPages())

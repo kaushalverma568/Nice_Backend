@@ -50,7 +50,7 @@ public interface RatingQuestionService {
 	 * @param  searchKeyWord
 	 * @return
 	 */
-	Page<RatingQuestion> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords);
+	Page<RatingQuestion> getList(Integer pageNumber, Integer pageSize, String type);
 
 	/**
 	 * @param  ratingQuestionId

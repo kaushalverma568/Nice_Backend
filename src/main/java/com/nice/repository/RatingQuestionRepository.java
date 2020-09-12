@@ -50,4 +50,12 @@ public interface RatingQuestionRepository extends JpaRepository<RatingQuestion, 
 	 */
 	Optional<Order> findByQuestionArabicIgnoreCase(String questionArabic);
 
+	/***
+	 * 
+	 * @param type
+	 * @param pageable
+	 * @return
+	 */
+	Page<RatingQuestion> findAllByType(String type, Pageable pageable);
+
 }
