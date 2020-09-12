@@ -99,12 +99,13 @@ public class CategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PostMapping
 	@PreAuthorize("hasPermission('Category','CAN_ADD')")
 	public ResponseEntity<Object> addCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
-			throws ValidationException, NotFoundException {
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside add Category {}", categoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -126,12 +127,13 @@ public class CategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PutMapping
 	@PreAuthorize("hasPermission('Category','CAN_EDIT')")
 	public ResponseEntity<Object> updateCategory(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CategoryDTO categoryDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
-			throws ValidationException, NotFoundException {
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update Category {}", categoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

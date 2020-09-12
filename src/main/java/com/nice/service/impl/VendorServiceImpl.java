@@ -56,6 +56,7 @@ import com.nice.dto.VendorPaymentDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -562,7 +563,7 @@ public class VendorServiceImpl implements VendorService {
 
 	@Override
 	public void updateRestaurantDetails(final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final MultipartFile storeImage,
-			final MultipartFile storeDetailImage, final MultipartFile featuredImage) throws NotFoundException, ValidationException {
+			final MultipartFile storeDetailImage, final MultipartFile featuredImage) throws NotFoundException, ValidationException, FileOperationException {
 		Vendor vendor = getVendorDetail(vendorRestaurantDetailsDTO.getVendorId());
 		if (vendor.getActive().booleanValue() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 			BeanUtils.copyProperties(vendorRestaurantDetailsDTO, vendor);

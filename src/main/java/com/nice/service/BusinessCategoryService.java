@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.BusinessCategoryDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.BusinessCategory;
@@ -12,26 +13,31 @@ public interface BusinessCategoryService {
 
 	/**
 	 *
-	 * @param businessCategoryDto
-	 * @param image
-	 * @return
-	 * @throws NotFoundException
-	 */
-	BusinessCategoryDTO addBusinessCategory(BusinessCategoryDTO businessCategoryDto, MultipartFile image) throws NotFoundException;
-
-	/**
-	 *
-	 * @param businessCategoryDTO
-	 * @param image
+	 * @param  businessCategoryDto
+	 * @param  image
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	BusinessCategoryDTO updateBusinessCategory(BusinessCategoryDTO businessCategoryDTO, MultipartFile image) throws NotFoundException, ValidationException;
+	BusinessCategoryDTO addBusinessCategory(BusinessCategoryDTO businessCategoryDto, MultipartFile image)
+			throws NotFoundException, FileOperationException, ValidationException;
 
 	/**
 	 *
-	 * @param businessCategoryId
+	 * @param  businessCategoryDTO
+	 * @param  image
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws FileOperationException
+	 */
+	BusinessCategoryDTO updateBusinessCategory(BusinessCategoryDTO businessCategoryDTO, MultipartFile image)
+			throws NotFoundException, ValidationException, FileOperationException;
+
+	/**
+	 *
+	 * @param  businessCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -39,17 +45,17 @@ public interface BusinessCategoryService {
 
 	/**
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 */
 	Page<BusinessCategory> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords);
 
 	/**
 	 *
-	 * @param businessCategoryId
-	 * @param active
+	 * @param  businessCategoryId
+	 * @param  active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -57,7 +63,7 @@ public interface BusinessCategoryService {
 
 	/**
 	 *
-	 * @param businessCategoryId
+	 * @param  businessCategoryId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -65,21 +71,21 @@ public interface BusinessCategoryService {
 
 	/**
 	 *
-	 * @param businessCategoryId
-	 * @param manageInventory
+	 * @param  businessCategoryId
+	 * @param  manageInventory
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void updateManageInventory(Long businessCategoryId, Boolean manageInventory) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param businessCategoryDTO
+	 * @param  businessCategoryDTO
 	 * @return
 	 */
 	boolean isExistsArabic(BusinessCategoryDTO businessCategoryDTO);
 
 	/**
-	 * @param businessCategoryDTO
+	 * @param  businessCategoryDTO
 	 * @return
 	 */
 	boolean isExistsEnglish(BusinessCategoryDTO businessCategoryDTO);

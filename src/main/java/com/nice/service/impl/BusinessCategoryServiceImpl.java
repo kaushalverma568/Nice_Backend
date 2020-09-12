@@ -19,6 +19,7 @@ import com.nice.constant.Constant;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.dto.VendorFilterDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -55,7 +56,8 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	private VendorService vendorService;
 
 	@Override
-	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image) throws NotFoundException {
+	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image)
+			throws NotFoundException, FileOperationException, ValidationException {
 		BusinessCategory businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
 		businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
 		businessCategory.setOriginalImageName(image.getOriginalFilename());
@@ -64,7 +66,7 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 
 	@Override
 	public BusinessCategoryDTO updateBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image)
-			throws NotFoundException, ValidationException {
+			throws NotFoundException, ValidationException, FileOperationException {
 		if (businessCategoryDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("business.category.id.not.null", null));
 		}

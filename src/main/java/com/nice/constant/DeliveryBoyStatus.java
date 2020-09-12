@@ -13,7 +13,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum DeliveryBoyStatus {
-	PENDING("Pending"), ACTIVE("Active"), DE_ACTIVE("De-active");
+	PENDING("Pending"), VERIFIED("Verified"), ACTIVE("Active"), DE_ACTIVE("De-active");
 
 	String statusValue;
 

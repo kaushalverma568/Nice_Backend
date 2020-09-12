@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.BusinessCategoryDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -48,7 +49,7 @@ import com.nice.validator.BusinessCategoryValidator;
 public class BusinessCategoryController {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String BUSINESS_CATEGORY_UPDATE_MESSAGE = "business.category.update.message";
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessCategoryController.class);
@@ -93,12 +94,13 @@ public class BusinessCategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PostMapping
 	@PreAuthorize("hasPermission('Business Category','CAN_ADD')")
 	public ResponseEntity<Object> addBusinessCategory(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside add BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -124,12 +126,13 @@ public class BusinessCategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PutMapping
 	@PreAuthorize("hasPermission('Business Category','CAN_EDIT')")
 	public ResponseEntity<Object> updateBusinessCategory(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final BusinessCategoryDTO businessCategoryDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update BusinessCategory {}", businessCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

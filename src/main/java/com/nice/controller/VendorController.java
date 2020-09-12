@@ -55,6 +55,7 @@ import com.nice.dto.VendorListFilterDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -213,6 +214,7 @@ public class VendorController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -223,7 +225,7 @@ public class VendorController {
 			@RequestParam(name = "storeDetailImage", required = false) final MultipartFile storeDetailImage,
 			@RequestParam(name = "featuredImage", required = false) final MultipartFile featuredImage,
 			@ModelAttribute @Valid final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final BindingResult result)
-			throws ValidationException, NotFoundException {
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update restaurant details {}", vendorRestaurantDetailsDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

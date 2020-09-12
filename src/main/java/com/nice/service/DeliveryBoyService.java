@@ -19,6 +19,7 @@ import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
 import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoy;
@@ -39,9 +40,10 @@ public interface DeliveryBoyService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 * @throws MessagingException
 	 */
-	void addDeliveryBoy(DeliveryBoyDTO deliveryBoyDTO, MultipartFile profilePicture) throws ValidationException, NotFoundException;
+	void addDeliveryBoy(DeliveryBoyDTO deliveryBoyDTO, MultipartFile profilePicture) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * get DTO object of deliveryBoy
@@ -89,8 +91,9 @@ public interface DeliveryBoyService {
 	 * @param  deliveryBoyId
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	void updateProfilePicture(MultipartFile profilePicture, Long deliveryBoyId) throws NotFoundException, ValidationException;
+	void updateProfilePicture(MultipartFile profilePicture, Long deliveryBoyId) throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * Update personal details

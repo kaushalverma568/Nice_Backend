@@ -29,8 +29,9 @@ public interface SubCategoryService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
-	void addSubCategory(SubCategoryDTO subCategoryDTO, MultipartFile image) throws ValidationException, NotFoundException;
+	void addSubCategory(SubCategoryDTO subCategoryDTO, MultipartFile image) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * update sub category
@@ -40,8 +41,9 @@ public interface SubCategoryService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
-	void updateSubCategory(SubCategoryDTO subCategoryDTO, MultipartFile image) throws ValidationException, NotFoundException;
+	void updateSubCategory(SubCategoryDTO subCategoryDTO, MultipartFile image) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * get DTO object of sub category

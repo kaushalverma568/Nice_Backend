@@ -27,9 +27,10 @@ public interface CategoryService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 
-	void addCategory(CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException;
+	void addCategory(CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * update category
@@ -38,8 +39,9 @@ public interface CategoryService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
-	void updateCategory(CategoryDTO categoryDTO, final MultipartFile image) throws NotFoundException, ValidationException;
+	void updateCategory(CategoryDTO categoryDTO, final MultipartFile image) throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * get DTO object of category

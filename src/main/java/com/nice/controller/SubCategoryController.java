@@ -95,12 +95,13 @@ public class SubCategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PostMapping
 	@PreAuthorize("hasPermission('Sub Category','CAN_ADD')")
 	public ResponseEntity<Object> addSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
-			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
+			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside add sub category {}", subCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -122,12 +123,13 @@ public class SubCategoryController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PutMapping
 	@PreAuthorize("hasPermission('Sub Category','CAN_EDIT')")
 	public ResponseEntity<Object> updateSubCategory(@RequestHeader("Authorization") final String accessToken,
 			@ModelAttribute @Valid final SubCategoryDTO subCategoryDTO, final BindingResult result,
-			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException {
+			@RequestParam(name = "image", required = false) final MultipartFile image) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update sub category {}", subCategoryDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

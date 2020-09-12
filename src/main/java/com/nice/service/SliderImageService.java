@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.SliderImageDTO;
 import com.nice.dto.SliderImageResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.SliderImage;
@@ -24,8 +25,10 @@ public interface SliderImageService {
 	 * @param  imageArabic
 	 * @param  userId
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	void addSliderImages(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic) throws ValidationException;
+	void addSliderImages(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic)
+			throws ValidationException, FileOperationException;
 
 	/**
 	 * Update Slider Banner
@@ -35,8 +38,10 @@ public interface SliderImageService {
 	 * @param  imageArabic
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	void updateSliderImage(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic) throws NotFoundException, ValidationException;
+	void updateSliderImage(SliderImageDTO sliderBannerDTO, MultipartFile imageEnglish, MultipartFile imageArabic)
+			throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * Get Slider Banner DTO List

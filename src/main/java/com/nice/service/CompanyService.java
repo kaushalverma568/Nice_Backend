@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CompanyDTO;
 import com.nice.dto.CompanyResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Company;
@@ -21,8 +22,9 @@ public interface CompanyService {
 	 * @param  logo
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
-	void addCompany(CompanyDTO company, final MultipartFile logo) throws ValidationException, NotFoundException;
+	void addCompany(CompanyDTO company, final MultipartFile logo) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * Updating Company and returning the updated object
@@ -31,8 +33,9 @@ public interface CompanyService {
 	 * @param  logo
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	void updateCompany(CompanyDTO company, final MultipartFile logo) throws NotFoundException, ValidationException;
+	void updateCompany(CompanyDTO company, final MultipartFile logo) throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * Get company

@@ -98,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
 	private FileStorageService fileStorageService;
 
 	@Override
-	public void addCategory(final CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException {
+	public void addCategory(final CategoryDTO categoryDTO, final MultipartFile image) throws ValidationException, NotFoundException, FileOperationException {
 		final Category category = categoryMapper.toEntity(categoryDTO);
 		category.setVendor(vendorService.getVendorDetail(categoryDTO.getVendorId()));
 		if (image != null) {
@@ -108,7 +108,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public void updateCategory(final CategoryDTO resultCategoryDTO, final MultipartFile image) throws NotFoundException, ValidationException {
+	public void updateCategory(final CategoryDTO resultCategoryDTO, final MultipartFile image)
+			throws NotFoundException, ValidationException, FileOperationException {
 		if (resultCategoryDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("category.id.not.null", null));
 		} else {
@@ -269,10 +270,12 @@ public class CategoryServiceImpl implements CategoryService {
 	/**
 	 * upload image of product
 	 *
-	 * @param image
-	 * @param product
+	 * @param  image
+	 * @param  product
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	private void uploadImage(final MultipartFile image, final Category category) {
+	private void uploadImage(final MultipartFile image, final Category category) throws FileOperationException, ValidationException {
 		category.setImage(assetService.saveAsset(image, AssetConstant.CATEGORY, 0));
 		category.setImageOriginalName(image.getOriginalFilename());
 	}
@@ -340,8 +343,9 @@ public class CategoryServiceImpl implements CategoryService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (categoryRepository.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(categoryImport.getNameEnglish(), categoryImport.getNameArabic(),
-						vendor).isPresent()) {
+				if (categoryRepository
+						.findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndVendor(categoryImport.getNameEnglish(), categoryImport.getNameArabic(), vendor)
+						.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("category.name.not.unique", null));
 				} else {
 					final CategoryDTO categoryDTO = new CategoryDTO();

@@ -51,6 +51,7 @@ import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -150,7 +151,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	private RoleService roleService;
 
 	@Override
-	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture) throws ValidationException, NotFoundException {
+	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture)
+			throws ValidationException, NotFoundException, FileOperationException {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
@@ -384,7 +386,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void updateProfilePicture(final MultipartFile profilePicture, final Long deliveryBoyId) throws NotFoundException, ValidationException {
+	public void updateProfilePicture(final MultipartFile profilePicture, final Long deliveryBoyId)
+			throws NotFoundException, ValidationException, FileOperationException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
 		deleteOldImage(deliveryBoy);
 		uploadImage(profilePicture, deliveryBoy);
@@ -419,10 +422,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param profilePicture
-	 * @param deliveryBoy
+	 * @param  profilePicture
+	 * @param  deliveryBoy
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	private void uploadImage(final MultipartFile profilePicture, final DeliveryBoy deliveryBoy) {
+	private void uploadImage(final MultipartFile profilePicture, final DeliveryBoy deliveryBoy) throws FileOperationException, ValidationException {
 		deliveryBoy.setProfilePictureName(assetService.saveAsset(profilePicture, AssetConstant.DELIVERY_BOY, 0));
 		deliveryBoy.setProfilePictureOriginalName(profilePicture.getOriginalFilename());
 	}
@@ -431,7 +436,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public void verifyEmail(final Long deliveryBoyId) throws NotFoundException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
 		deliveryBoy.setEmailVerified(true);
-		deliveryBoy.setStatus(DeliveryBoyStatus.ACTIVE.getStatusValue());
+		deliveryBoy.setStatus(DeliveryBoyStatus.VERIFIED.getStatusValue());
 		deliveryBoyRepository.save(deliveryBoy);
 	}
 

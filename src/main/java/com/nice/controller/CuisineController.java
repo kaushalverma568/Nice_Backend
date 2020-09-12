@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CuisineDTO;
 import com.nice.dto.CuisineResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -96,6 +97,7 @@ public class CuisineController {
 	 * @param  result
 	 * @return
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 * @throws NotFoundException
 	 * @throws IOException
 	 */
@@ -104,7 +106,7 @@ public class CuisineController {
 	@PreAuthorize("hasPermission('Cuisine','CAN_ADD')")
 	public ResponseEntity<Object> addCuisine(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image, @ModelAttribute @Valid final CuisineDTO cuisineDTO,
-			final BindingResult result) throws ValidationException {
+			final BindingResult result) throws ValidationException, FileOperationException {
 		LOGGER.info("Inside add cuisine method {}", cuisineDTO);
 		List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -128,13 +130,14 @@ public class CuisineController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 
 	@PutMapping
 	@PreAuthorize("hasPermission('Cuisine','CAN_EDIT')")
 	public ResponseEntity<Object> updateCuisine(@RequestHeader("Authorization") final String accessToken, @ModelAttribute @Valid final CuisineDTO cuisineDTO,
 			final BindingResult result, @RequestParam(name = "image", required = false) final MultipartFile image)
-			throws ValidationException, NotFoundException {
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update cuisine method {}", cuisineDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

@@ -11,6 +11,7 @@ import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.dto.SliderImageDTO;
 import com.nice.dto.SliderImageResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -43,7 +44,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 
 	@Override
 	public void addSliderImages(final SliderImageDTO sliderImageDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
-			throws ValidationException {
+			throws ValidationException, FileOperationException {
 		if (Constant.BANNER.equalsIgnoreCase(sliderImageDTO.getType())
 				&& sliderImageRepository.findAllByTypeOrderByIdAsc(Constant.BANNER).size() == Constant.MAX_BANNER_IMAGES) {
 			throw new ValidationException(messageByLocaleService.getMessage("banner.slider.image.limit.exaust", new Object[] { Constant.MAX_BANNER_IMAGES }));
@@ -59,7 +60,7 @@ public class SliderImageServiceImpl implements SliderImageService {
 
 	@Override
 	public void updateSliderImage(final SliderImageDTO sliderImageDTO, final MultipartFile imageEnglish, final MultipartFile imageArabic)
-			throws NotFoundException, ValidationException {
+			throws NotFoundException, ValidationException, FileOperationException {
 		if (sliderImageDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("slider.image.id.not.null", null));
 		}

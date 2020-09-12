@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CuisineDTO;
 import com.nice.dto.CuisineResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Cuisine;
@@ -21,9 +22,10 @@ public interface CuisineService {
 	 * @param  image
 	 * @param  userId
 	 * @return
+	 * @throws FileOperationException
 	 * @throws ValidationException
 	 */
-	void addCuisine(CuisineDTO cuisineDTO, MultipartFile image);
+	void addCuisine(CuisineDTO cuisineDTO, MultipartFile image) throws FileOperationException, ValidationException;
 
 	/**
 	 * Update cuisine
@@ -34,8 +36,9 @@ public interface CuisineService {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
-	void updateCuisine(CuisineDTO cuisineDTO, MultipartFile image) throws NotFoundException, ValidationException;
+	void updateCuisine(CuisineDTO cuisineDTO, MultipartFile image) throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * Get details of cuisine

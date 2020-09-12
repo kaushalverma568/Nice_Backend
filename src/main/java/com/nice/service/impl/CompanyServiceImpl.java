@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.constant.AssetConstant;
 import com.nice.dto.CompanyDTO;
 import com.nice.dto.CompanyResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -46,7 +47,7 @@ public class CompanyServiceImpl implements CompanyService {
 	private AssetService assetService;
 
 	@Override
-	public void addCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws ValidationException, NotFoundException {
+	public void addCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws ValidationException, NotFoundException, FileOperationException {
 		if (companyRepository.count() >= 1) {
 			LOGGER.error("Only One Company Details allowed");
 			throw new ValidationException(messageByLocaleService.getMessage("company.count.exhausted", null));
@@ -59,7 +60,7 @@ public class CompanyServiceImpl implements CompanyService {
 	}
 
 	@Override
-	public void updateCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws NotFoundException, ValidationException {
+	public void updateCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws NotFoundException, ValidationException, FileOperationException {
 		if (companyDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("company.id.not.null", null));
 		} else {

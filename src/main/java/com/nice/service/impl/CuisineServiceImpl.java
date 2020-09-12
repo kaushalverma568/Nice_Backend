@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.constant.AssetConstant;
 import com.nice.dto.CuisineDTO;
 import com.nice.dto.CuisineResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -56,7 +57,7 @@ public class CuisineServiceImpl implements CuisineService {
 	private VendorCuisineService vendorCuisineService;
 
 	@Override
-	public void addCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) {
+	public void addCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) throws FileOperationException, ValidationException {
 		Cuisine cuisine = cuisineMapper.toEntity(cuisineDTO);
 		if (image != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(image.getOriginalFilename())) {
 			uploadImage(image, cuisine);
@@ -67,10 +68,12 @@ public class CuisineServiceImpl implements CuisineService {
 	/**
 	 * upload image of cuisine
 	 *
-	 * @param image
-	 * @param cuisine
+	 * @param  image
+	 * @param  cuisine
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	private void uploadImage(final MultipartFile image, final Cuisine cuisine) {
+	private void uploadImage(final MultipartFile image, final Cuisine cuisine) throws FileOperationException, ValidationException {
 		cuisine.setImageName(assetService.saveAsset(image, AssetConstant.CUISINE, 0));
 		cuisine.setImageOriginalName(image.getOriginalFilename());
 	}
@@ -87,7 +90,7 @@ public class CuisineServiceImpl implements CuisineService {
 	}
 
 	@Override
-	public void updateCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) throws NotFoundException, ValidationException {
+	public void updateCuisine(final CuisineDTO cuisineDTO, final MultipartFile image) throws NotFoundException, ValidationException, FileOperationException {
 		if (cuisineDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("cuisine.id.not.null", null));
 		}

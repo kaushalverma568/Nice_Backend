@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.FileStorageException;
+import com.nice.exception.ValidationException;
 import com.nice.service.AmazonS3ClientService;
 import com.nice.service.AssetService;
 import com.nice.service.FileStorageService;
@@ -27,13 +29,13 @@ import com.nice.util.MediaFileUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final String EXTENSION = "extension";
 
@@ -55,7 +57,7 @@ public class AssetServiceImpl implements AssetService {
 	private ImageUtility imageUtility;
 
 	@Override
-	public String saveAsset(final MultipartFile image, final String subDirectory, final int count) {
+	public String saveAsset(final MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
 		if (AssetConstant.IS_AWS) {
 			return saveAssetAws(image, subDirectory, count);
 		} else {
@@ -66,23 +68,24 @@ public class AssetServiceImpl implements AssetService {
 	/**
 	 * Save images for mentioned sub directory
 	 *
-	 * @param image
-	 * @param subDirectory
-	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param  image
+	 * @param  subDirectory
+	 * @param  count                  : if value is not 0 then it will append number to imageName to avoid conflict
 	 * @return
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	private String saveAssetLocal(final MultipartFile image, final String subDirectory, final int count) {
+	private String saveAssetLocal(MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
 			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
 				// TODO
 				/**
-				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the
-				 * exceptions thrown in method signature for the functionality, currently as there is issue with git it is commented as
-				 * there are not conflicts in files due to this.
+				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the exceptions thrown in
+				 * method signature for the functionality, currently as there is issue with git it is commented as there are not conflicts in files due to this.
 				 */
-				// image = imageUtility.resizeImage(image);
+				image = imageUtility.resizeImage(image);
 			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");
@@ -98,19 +101,12 @@ public class AssetServiceImpl implements AssetService {
 		return newFileName;
 	}
 
-	private String saveAssetAws(final MultipartFile image, final String subDirectory, final int count) {
+	private String saveAssetAws(MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
 			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
-				// TODO
-				/**
-				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the
-				 * exceptions thrown in method signature for the functionality, currently as there is issue with git it is commented as
-				 * there are not conflicts in files due to this.
-				 */
-
-				// image = imageUtility.resizeImage(image);
+				image = imageUtility.resizeImage(image);
 			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");

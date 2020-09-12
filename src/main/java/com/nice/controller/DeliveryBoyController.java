@@ -49,6 +49,7 @@ import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -121,11 +122,13 @@ public class DeliveryBoyController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 * @throws MessagingException
 	 */
 	@PostMapping
 	public ResponseEntity<Object> addDeliveryBoy(@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
-			@ModelAttribute @Valid final DeliveryBoyDTO deliveryBoyDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@ModelAttribute @Valid final DeliveryBoyDTO deliveryBoyDTO, final BindingResult result)
+			throws ValidationException, NotFoundException, FileOperationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			LOGGER.error("DeliveryBoy validation failed");
@@ -262,12 +265,13 @@ public class DeliveryBoyController {
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@PutMapping("/profilepicture/{deliveryBoyId}")
 	@PreAuthorize("hasPermission('Delivery Boy','CAN_EDIT')")
 	public ResponseEntity<Object> updateProfilePicture(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "profilePicture", required = false) final MultipartFile profilePicture,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException, FileOperationException {
 		LOGGER.info("Inside update profile picture of delivery boy id:{}", deliveryBoyId);
 		if (profilePicture == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(profilePicture.getOriginalFilename())) {
 			throw new ValidationException(messageByLocaleService.getMessage("profile.image.required", null));

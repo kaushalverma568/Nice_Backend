@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.CompanyDTO;
 import com.nice.dto.CompanyResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -67,12 +68,13 @@ public class CompanyController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PostMapping()
 	@PreAuthorize("hasPermission('Company','CAN_ADD')")
 	public ResponseEntity<Object> addCompany(@RequestHeader(value = "Authorization") final String accessToken,
 			@RequestParam(name = "logo", required = false) final MultipartFile logo, @ModelAttribute @Valid final CompanyDTO companyDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside add Company {}", companyDTO);
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();
@@ -102,12 +104,13 @@ public class CompanyController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@PutMapping()
 	@PreAuthorize("hasPermission('Company','CAN_EDIT')")
 	public ResponseEntity<Object> updateCompany(@RequestHeader(value = "Authorization") final String accessToken,
 			@RequestParam(name = "logo", required = false) final MultipartFile logo, @ModelAttribute @Valid final CompanyDTO companyDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update Company {}", companyDTO);
 
 		final List<FieldError> fieldErrors = result.getFieldErrors();

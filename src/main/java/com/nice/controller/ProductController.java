@@ -41,6 +41,7 @@ import com.nice.dto.ProductRequestDTO;
 import com.nice.dto.ProductResponseDTO;
 import com.nice.exception.BaseException;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -104,6 +105,7 @@ public class ProductController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -112,7 +114,8 @@ public class ProductController {
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = true) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = true) final MultipartFile detailImage,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result)
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside add Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -134,6 +137,7 @@ public class ProductController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -143,7 +147,8 @@ public class ProductController {
 	public ResponseEntity<Object> updateProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = false) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = false) final MultipartFile detailImage,
-			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result) throws ValidationException, NotFoundException {
+			@ModelAttribute @Valid final ProductRequestDTO productRequestDTO, final BindingResult result)
+			throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update Product {}", productRequestDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

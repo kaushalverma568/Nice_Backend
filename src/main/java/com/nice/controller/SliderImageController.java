@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.SliderImageDTO;
 import com.nice.dto.SliderImageResponseDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -65,6 +66,7 @@ public class SliderImageController {
 	 * @param  result
 	 * @return
 	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -73,7 +75,7 @@ public class SliderImageController {
 	public ResponseEntity<Object> addSliderImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
 			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
-			final BindingResult result) throws ValidationException {
+			final BindingResult result) throws ValidationException, FileOperationException {
 		LOGGER.info("Inside add slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
@@ -102,6 +104,7 @@ public class SliderImageController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws FileOperationException
 	 */
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -110,7 +113,7 @@ public class SliderImageController {
 	public ResponseEntity<Object> updateSliderImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageEnglish", required = false) final MultipartFile imageEnglish,
 			@RequestParam(name = "imageArabic", required = false) final MultipartFile imageArabic, @ModelAttribute @Valid final SliderImageDTO sliderBannerDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, FileOperationException {
 		LOGGER.info("Inside update slider image {}", sliderBannerDTO);
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {

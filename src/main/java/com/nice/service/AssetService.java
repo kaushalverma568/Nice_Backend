@@ -5,6 +5,9 @@ package com.nice.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nice.exception.FileOperationException;
+import com.nice.exception.ValidationException;
+
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date   : 26-Jun-2020
@@ -16,8 +19,10 @@ public interface AssetService {
 	 * @param  subDirectory
 	 * @param  count
 	 * @return
+	 * @throws ValidationException
+	 * @throws FileOperationException
 	 */
-	String saveAsset(MultipartFile image, String subDirectory, int count);
+	String saveAsset(MultipartFile image, String subDirectory, int count) throws FileOperationException, ValidationException;
 
 	/**
 	 * @param fileName
