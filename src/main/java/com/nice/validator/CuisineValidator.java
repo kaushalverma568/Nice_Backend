@@ -49,7 +49,7 @@ public class CuisineValidator implements Validator {
 			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.english.not.unique", null));
 		}
 
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameArabic()) && cuisineService.isCuisineExistsArabic(cuisineDTO)) {
+		if (cuisineDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(cuisineDTO.getNameArabic()) && cuisineService.isCuisineExistsArabic(cuisineDTO)) {
 			errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("cuisine.name.arabic.not.unique", null));
 		}
 
