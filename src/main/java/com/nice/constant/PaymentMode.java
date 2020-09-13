@@ -8,5 +8,5 @@ package com.nice.constant;
  * @date : 06-Apr-2020
  */
 public enum PaymentMode {
-	ONLINE, COD
+	ONLINE, COD, WALLET
 }

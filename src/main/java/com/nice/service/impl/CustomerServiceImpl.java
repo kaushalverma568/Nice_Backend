@@ -54,7 +54,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -235,8 +235,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -293,8 +293,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -321,8 +321,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
@@ -399,8 +399,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
-				 * then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
+				 * if the email is verified then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();
@@ -477,5 +477,12 @@ public class CustomerServiceImpl implements CustomerService {
 		customer.setLastName(customerPersonalDetailsDTO.getLastName());
 		customer.setBirthDate(customerPersonalDetailsDTO.getBirthDate());
 		return customerRepository.save(customer);
+	}
+
+	@Override
+	public void updateWalletBalance(final Double amount, final Long customerId) throws NotFoundException {
+		Customer customer = getCustomerDetails(customerId);
+		customer.setWalletAmt(amount);
+		customerRepository.save(customer);
 	}
 }

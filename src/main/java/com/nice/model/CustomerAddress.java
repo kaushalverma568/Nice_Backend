@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Entity
 @Table(name = "customer_address")
@@ -83,10 +83,10 @@ public class CustomerAddress extends CommonModel {
 	@Column(name = "default_address")
 	private boolean defaultAddress;
 
-	@Column(name = "latitude")
+	@Column(name = "latitude", nullable = false)
 	private BigDecimal latitude;
 
-	@Column(name = "longitude")
+	@Column(name = "longitude", nullable = false)
 	private BigDecimal longitude;
 
 	/**
