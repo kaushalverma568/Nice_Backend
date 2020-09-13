@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMode;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
@@ -39,6 +40,7 @@ import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.model.Orders;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.OrdersService;
 import com.nice.util.PaginationUtil;
@@ -202,7 +204,59 @@ public class OrdersController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		orderService.cancelOrder(replaceCancelOrderDto);
+
+		Orders order = orderService.getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!OrderStatusEnum.PENDING.getStatusValue().equals(order.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
+		}
+		orderService.cancelOrder(replaceCancelOrderDto, false);
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
+	/**
+	 *
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/admin/cancel")
+	public ResponseEntity<Object> cancelOrderAdmin(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method of Admin");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		orderService.cancelOrder(replaceCancelOrderDto, true);
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
+	/**
+	 * This can be accessed only by Vendor
+	 *
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/reject")
+	public ResponseEntity<Object> rejectOrder(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		orderService.cancelOrder(replaceCancelOrderDto, true);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -276,6 +330,9 @@ public class OrdersController {
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("ordersId") final Long ordersId,
 			@RequestParam("status") final String status) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of order for id {} and new status {}", ordersId, status);
+		if (OrderStatusEnum.CANCELLED.getStatusValue().equalsIgnoreCase(status) || OrderStatusEnum.REJECTED.getStatusValue().equalsIgnoreCase(status)) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.status", null));
+		}
 		orderService.changeStatus(ordersId, status);
 		LOGGER.info("Outside change status of order");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.change.status.messege", null))

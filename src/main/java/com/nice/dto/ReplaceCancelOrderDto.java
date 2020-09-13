@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Apr-2020
+ * @date : 14-Apr-2020
  */
 @Data
 public class ReplaceCancelOrderDto implements Serializable {

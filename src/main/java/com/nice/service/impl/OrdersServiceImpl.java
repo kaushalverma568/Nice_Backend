@@ -51,6 +51,7 @@ import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.StockTransferDto;
 import com.nice.dto.VendorResponseDTO;
+import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.AuthorizationException;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
@@ -120,6 +121,7 @@ import com.nice.service.StockDetailsService;
 import com.nice.service.StockTransferService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
+import com.nice.service.WalletTrxService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
@@ -248,11 +250,22 @@ public class OrdersServiceImpl implements OrdersService {
 	@Autowired
 	private OrderRatingService orderRatingService;
 
+	@Autowired
+	private WalletTrxService walletTrxService;
+
 	@Value("${service.url}")
 	private String serviceUrl;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
+
+		/**
+		 * COD is not supported for pickup orders
+		 */
+		if (DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orderRequestDto.getDeliveryType())
+				&& PaymentMode.COD.name().equalsIgnoreCase(orderRequestDto.getPaymentMode())) {
+			throw new ValidationException(messageByLocaleService.getMessage("cod.not.supported.pickup", null));
+		}
 
 		Long customerId = getCustomerIdForLoginUser();
 		orderRequestDto.setCustomerId(customerId);
@@ -338,8 +351,14 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Check for wallet amount if the wallet amount is to be utilized
 		 */
 		if (orderRequestDto.getUseWallet().booleanValue()) {
+			if (customer.getWalletAmt() > amountAfterWalletDeduction) {
+				orderRequestDto.setWalletContribution(amountAfterWalletDeduction);
+				amountAfterWalletDeduction = 0.0d;
+			} else {
 			amountAfterWalletDeduction = Double.sum(amountAfterWalletDeduction, customer.getWalletAmt() * -1);
 			orderRequestDto.setWalletContribution(customer.getWalletAmt());
+			}
+
 		} else {
 			orderRequestDto.setWalletContribution(0.0d);
 		}
@@ -354,7 +373,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Validate and prepare order object
 		 */
-		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
+		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name()) || amountAfterWalletDeduction == 0.0d) {
 			Orders order = createOrder(cartItemList, orderRequestDto, amountAfterWalletDeduction);
 
 			/**
@@ -522,8 +541,8 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check for wallet amount
 		 */
-		if (orderRequestDto.getWalletContribution() != 0 && orderRequestDto.getWalletContribution().compareTo(customer.getWalletAmt()) != 0) {
-			throw new ValidationException(messageByLocaleService.getMessage("wallet.amount.mismatch", null));
+		if (orderRequestDto.getWalletContribution() != 0 && orderRequestDto.getWalletContribution().compareTo(customer.getWalletAmt()) > 0) {
+			throw new ValidationException(messageByLocaleService.getMessage("wallet.amount.insufficient", null));
 		}
 		order.setActive(true);
 		order.setPaymentMode(orderRequestDto.getPaymentMode());
@@ -595,6 +614,9 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setOrderStatus(OrderStatusEnum.PENDING.getStatusValue());
 		order.setTotalOrderAmount(calculatedOrderAmt);
 		order.setWalletContribution(orderRequestDto.getWalletContribution());
+		if (calculatedOrderAmt == 0.0d) {
+			order.setPaymentMode(PaymentMode.WALLET.name());
+		}
 
 		/**
 		 * Set Online Payment details for Order
@@ -749,8 +771,8 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery charge is to be taken for all
-		 * order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
 				&& (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery)) {
@@ -761,6 +783,19 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setGrossOrderAmount(orderItemTotal);
 		order.setReplaced(false);
 		ordersRepository.save(order);
+
+		/**
+		 * Make an entry in wallet txn table
+		 */
+		if (orderRequestDto.getWalletContribution() != 0) {
+			addWalletTxn(orderRequestDto.getWalletContribution(), orderRequestDto.getCustomerId(), order.getId());
+			/**
+			 * Set updated wallet balance
+			 */
+			Double updatedWalletBalance = customer.getWalletAmt() - orderRequestDto.getWalletContribution();
+			customerService.updateWalletBalance(updatedWalletBalance, customer.getId());
+		}
+
 		for (OrdersItem orderItem : orderItemList) {
 			orderItem.setOrder(order);
 			orderItem.setActive(true);
@@ -792,6 +827,20 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		saveOrderStatusHistory(order);
 		return order;
+	}
+
+	/**
+	 * @param orderRequestDto
+	 * @param order
+	 * @throws NotFoundException
+	 */
+	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId) throws NotFoundException {
+		WalletTrxDTO walletTxnDto = new WalletTrxDTO();
+		walletTxnDto.setActive(true);
+		walletTxnDto.setAmount(transactionAmount);
+		walletTxnDto.setCustomerId(customerId);
+		walletTxnDto.setOrderId(orderId);
+		walletTrxService.addupdateWalletTrx(walletTxnDto);
 	}
 
 	/**
@@ -863,8 +912,8 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery charge is to be taken for all
-		 * order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
 		 */
 		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
 			orderAmt = Double.sum(orderAmt, deliveryCharge);
@@ -1027,8 +1076,8 @@ public class OrdersServiceImpl implements OrdersService {
 		UserLogin userLogin = checkForUserLogin();
 
 		/**
-		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else placing a validation allowing only
-		 * delivery boy to do the same
+		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
+		 * placing a validation allowing only delivery boy to do the same
 		 */
 		if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue())
 				&& ((DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType()) && !UserType.VENDOR.name().equals(userLogin.getEntityType()))
@@ -1043,8 +1092,8 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
-		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is Ready" status it is not directly
-		 * moved to Order Pickup before allocating stock
+		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
+		 * Ready" status it is not directly moved to Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1054,7 +1103,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the order. </br>
+		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
+		 * order. </br>
 		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
@@ -1092,8 +1142,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical case of replacement of orders that
-		 * will be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
 		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 				&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
@@ -1118,7 +1168,8 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
@@ -1270,17 +1321,41 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto, final boolean deductDeliveryCharge)
+			throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
-		if (!OrderStatusEnum.PENDING.getStatusValue().equals(orders.getOrderStatus())) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.cancel", null));
-		}
 		orders.setCancelReason(replaceCancelOrderDto.getReason());
 		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 		/**
 		 * Add this method to cancel order.
 		 */
-		changeStatus(Constant.CANCELLED, orders);
+		orders.setOrderStatus(OrderStatusEnum.CANCELLED.getStatusValue());
+		ordersRepository.save(orders);
+
+		saveOrderStatusHistory(orders);
+		/**
+		 * Update the wallet for the customer, incase of online payment
+		 */
+		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+			if (deductDeliveryCharge) {
+				/**
+				 * this means the refund is to be made to customer wallet after deducting the delivery charges from the order
+				 */
+				Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution() - orders.getDeliveryCharge();
+				customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
+				/**
+				 * make an entry in wallet txn
+				 */
+				addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId());
+			} else {
+				Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
+				customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
+				/**
+				 * make an entry in wallet txn
+				 */
+				addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId());
+	}
+		}
 	}
 
 	@Override
@@ -1360,19 +1435,33 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public void rejectOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
 
-		Orders order = getOrderById(replaceCancelOrderDto.getOrderId());
-		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
+		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(orders.getOrderStatus());
 		if (!existingOrderStatus.contains(Constant.REJECTED)) {
 			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
-			String existingOrderStatusForMessage = messageByLocaleService.getMessage(order.getOrderStatus(), null);
+			String existingOrderStatusForMessage = messageByLocaleService.getMessage(orders.getOrderStatus(), null);
 			throw new ValidationException(
 					messageByLocaleService.getMessage("status.not.allowed", new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
 		}
-		order.setOrderStatus(Constant.REJECTED);
-		order.setCancelReason(replaceCancelOrderDto.getReason());
-		order.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
-		ordersRepository.save(order);
-		saveOrderStatusHistory(order);
+		orders.setOrderStatus(Constant.REJECTED);
+		orders.setCancelReason(replaceCancelOrderDto.getReason());
+		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
+		ordersRepository.save(orders);
+		saveOrderStatusHistory(orders);
+
+		/**
+		 * Update the wallet for the customer, incase of online payment
+		 */
+		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
+			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
+
+			customerService.updateWalletBalance(amountToBeCredited + existingWalletAmt, orders.getCustomer().getId());
+			/**
+			 * make an entry in wallet txn
+			 */
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId());
+	}
 	}
 
 	@Override

@@ -136,7 +136,7 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
+	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, boolean deductDeliveryCharge) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param newStatus
