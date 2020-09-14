@@ -1,7 +1,5 @@
 package com.nice.model;
 
-import java.util.Date;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +17,7 @@ import lombok.EqualsAndHashCode;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 15-07-2020
+ * @date   : 15-07-2020
  */
 @Entity
 @Table(name = "delivery_boy_current_status")
@@ -58,10 +56,4 @@ public class DeliveryBoyCurrentStatus extends CommonModel {
 	 */
 	@Column(name = "is_available", nullable = false)
 	private Boolean isAvailable;
-
-	/**
-	 * If the current status of the delivery boy is active, then this will contain the last active time, el
-	 */
-	@Column(name = "last_activate_time", nullable = true)
-	private Date lastActivateTime;
 }

@@ -670,6 +670,10 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public List<Vendor> getVendorListBasedOnParams(final Integer startIndex, final Integer pageSize, final VendorFilterDTO vendorFilterDTO)
 			throws ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		sortByFieldAndDirection(vendorFilterDTO);
 		return vendorRepository.getVendorListBasedOnParams(startIndex, pageSize, vendorFilterDTO);
 	}
@@ -991,5 +995,13 @@ public class VendorServiceImpl implements VendorService {
 				.plusDays(subscriptionPlan.getDays()).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
 		vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
 		vendorRepository.save(vendor);
+	}
+
+	private UserLogin getUserLoginFromToken() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (Constant.ANONYMOUS_USER.equals(principal)) {
+			return null;
+		}
+		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 	}
 }

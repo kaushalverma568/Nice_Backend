@@ -18,7 +18,6 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-	
 	<changeSet id="3" author="ankit.bhimani"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -26,7 +25,6 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-
 	<changeSet id="4" author="het.shah"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -46,21 +44,18 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-
 	<changeSet id="7" author="nisha.parmar"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/inventory.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
-
 	<changeSet id="8" author="het.shah"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/order.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
-	</changeSet>
-	
+	</changeSet>	
 	<changeSet id="9" author="nisha.parmar"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -68,37 +63,32 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-
 	<changeSet id="10" author="ankit.bhimani"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/OnlineCart.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
-
 	<changeSet id="11" author="nisha.parmar"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/discount.sql" relativeToChangelogFile="true"
 			splitStatements="true" stripComments="true" />
 	</changeSet>
-
 	<changeSet id="12" author="nisha.parmar"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/productRateUpdateHistoryTrigger.sql"
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
-	</changeSet> 
-	
-	<!--  Chnages by Het -->
+	</changeSet> 	
+	<!--  Changes by Het -->
 	<changeSet id="13" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/task.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
-	</changeSet> 	
-	
+	</changeSet> 		
 	<changeSet id="14" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -111,12 +101,87 @@
 				path="sql-files/1.0/vendor_payment.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
-	
 	<changeSet id="16" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/wallet.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
-	
+	<changeSet id="17" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_oauth.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="18" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_role.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="19" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_user_login.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="20" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_country_state.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="21" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_company.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>	
+	<changeSet id="22" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_settings.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="23" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_scheduler.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="24" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_modules.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="25" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_permission.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="26" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_business_category.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="27" author="ankit.bhimani"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_query_rating_question.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -89,7 +88,6 @@ public class CustomerAddressController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/address")
-	@PreAuthorize("hasPermission('Customer Address','CAN_ADD')")
 	public ResponseEntity<Object> addCustomersAddress(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final CustomerAddressDTO customerAddressDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add customer address  {}", customerAddressDTO);
@@ -124,7 +122,6 @@ public class CustomerAddressController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/address")
-	@PreAuthorize("hasPermission('Customer Address','CAN_EDIT')")
 	public ResponseEntity<Object> updateCustomer(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final CustomerAddressDTO customerAddressDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update customer address {}", customerAddressDTO);
@@ -158,7 +155,6 @@ public class CustomerAddressController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/address/{addressId}")
-	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddress(@RequestHeader("Authorization") final String accessToken, @PathVariable("addressId") final Long addressId)
 			throws NotFoundException {
 		final CustomerAddressResponseDTO customerAddressResponseDTO = customerAddressService.getAddress(addressId);
@@ -179,7 +175,6 @@ public class CustomerAddressController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/{customerId}/address/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddressList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("customerId") final Long customerId, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) throws NotFoundException, ValidationException {
@@ -204,7 +199,6 @@ public class CustomerAddressController {
 	 * @return
 	 */
 	@GetMapping("/address/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Customer Address','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomerAddressListBasedOnParams(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "customerId", required = false) final Long customerId,
 			@RequestParam(name = "countryId", required = false) final Long countryId, @RequestParam(name = "stateId", required = false) final Long stateId,
@@ -228,7 +222,6 @@ public class CustomerAddressController {
 	 */
 
 	@DeleteMapping("/address/{customersAddressId}")
-	@PreAuthorize("hasPermission('Customer Address','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("customersAddressId") final Long customersAddressId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside delete cusotmer address of customer for address id {} ", customersAddressId);
@@ -247,7 +240,6 @@ public class CustomerAddressController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/address/default/{addressId}")
-	@PreAuthorize("hasPermission('Customer Address','CAN_EDIT')")
 	public ResponseEntity<Object> updateCustomerAddressDefault(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("addressId") final Long addressId) throws NotFoundException, ValidationException {
 		customerAddressService.updateCustomerAddressDefault(addressId);
