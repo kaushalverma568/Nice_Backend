@@ -57,7 +57,9 @@ public class LoginResponse implements Serializable {
 
 	private String phoneNumber;
 
-	private String role;
+	private Long roleId;
+
+	private String roleName;
 
 	private Boolean canChangePassword;
 
