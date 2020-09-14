@@ -27,6 +27,7 @@ public final class SettingsConstant {
 	 */
 	private static Double dayMinOrderDelivered = 0.0d;
 	private static Double orderAmountForFreeDelivery = 0.0d;
+	private static Double adminComission = 0.0d;
 
 	/**
 	 * Sets the values of static fields</b> The value specified is set for the key specified in the arguments</br>
@@ -47,10 +48,12 @@ public final class SettingsConstant {
 			deliveryChargeDeliveryBoyBelowMinOrders = Double.valueOf(String.valueOf(value));
 		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
 			deliveryChargeDeliveryBoyAboveMinOrders = Double.valueOf(String.valueOf(value));
-		} else if ("DAY_MIN_ORDER_DELIVERED".equalsIgnoreCase(key)) {
+		} else if (Constant.DAY_MIN_ORDER_DELIVERED.equalsIgnoreCase(key)) {
 			dayMinOrderDelivered = Double.valueOf(String.valueOf(value));
 		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
 			orderAmountForFreeDelivery = Double.valueOf(String.valueOf(value));
+		} else if (Constant.ADMIN_COMISSION.equalsIgnoreCase(key)) {
+			adminComission = Double.valueOf(String.valueOf(value));
 		}
 	}
 
@@ -71,10 +74,12 @@ public final class SettingsConstant {
 			return deliveryChargeDeliveryBoyBelowMinOrders;
 		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
 			return deliveryChargeDeliveryBoyAboveMinOrders;
-		} else if ("DAY_MIN_ORDER_DELIVERED".equalsIgnoreCase(key)) {
+		} else if (Constant.DAY_MIN_ORDER_DELIVERED.equalsIgnoreCase(key)) {
 			return dayMinOrderDelivered;
 		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
 			return orderAmountForFreeDelivery;
+		} else if (Constant.ADMIN_COMISSION.equalsIgnoreCase(key)) {
+			return adminComission;
 		}
 		return null;
 	}

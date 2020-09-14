@@ -504,8 +504,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Long getCountForVariantForVendor(final ProductVariant productVariant) {
-		return stockDetailsRepository.countAvailableQtyForProductVariantForVendor(productVariant);
+	public Long getCountForVariant(final ProductVariant productVariant) {
+		return stockDetailsRepository.countAvailableQtyForProductVariant(productVariant);
 	}
 
 	@Override

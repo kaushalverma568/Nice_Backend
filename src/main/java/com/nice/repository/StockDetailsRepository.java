@@ -69,7 +69,7 @@ public interface StockDetailsRepository extends JpaRepository<StockDetails, Long
 	 * @return
 	 */
 	@Query("select sum(sd.available) from StockDetails sd where productVariant=:productVariant")
-	Long countAvailableQtyForProductVariantForVendor(ProductVariant productVariant);
+	Long countAvailableQtyForProductVariant(ProductVariant productVariant);
 
 	/**
 	 * 

@@ -91,8 +91,9 @@ public class UOMServiceImpl implements UOMService {
 		} else {
 			label.append(uom.getQuantity());
 		}
-		uom.setUomLabelEnglish(label.append(" " + uom.getMeasurementEnglish()).toString());
-		uom.setUomLabelArabic(label.append(" " + uom.getMeasurementArabic()).toString());
+
+		uom.setUomLabelEnglish(label.toString().concat(" " + uom.getMeasurementEnglish()));
+		uom.setUomLabelArabic(label.toString().concat(" " + uom.getMeasurementArabic()));
 		uomRepository.save(uom);
 	}
 
@@ -124,8 +125,8 @@ public class UOMServiceImpl implements UOMService {
 			} else {
 				label.append(uom.getQuantity());
 			}
-			uom.setUomLabelEnglish(label.append(" " + uom.getMeasurementEnglish()).toString());
-			uom.setUomLabelArabic(label.append(" " + uom.getMeasurementArabic()).toString());
+			uom.setUomLabelEnglish(label.toString().concat(" " + uom.getMeasurementEnglish()));
+			uom.setUomLabelArabic(label.toString().concat(" " + uom.getMeasurementArabic()).toString());
 			uomRepository.save(uom);
 		}
 	}
@@ -198,13 +199,15 @@ public class UOMServiceImpl implements UOMService {
 			/**
 			 * At the time of update is uom with same measurement exist or not except it's own id
 			 */
-			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityAndIdNot(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(), uomDTO.getId())
-					.isPresent();
+			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorIdAndIdNot(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(),
+					uomDTO.getVendorId(), uomDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is uom with same measurement exist or not
 			 */
-			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantity(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity()).isPresent();
+			return uomRepository
+					.findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorId(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(), uomDTO.getVendorId())
+					.isPresent();
 		}
 	}
 
@@ -214,13 +217,15 @@ public class UOMServiceImpl implements UOMService {
 			/**
 			 * At the time of update is uom with same measurement exist or not except it's own id
 			 */
-			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantityAndIdNot(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(), uomDTO.getId())
-					.isPresent();
+			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantityAndVendorIdAndIdNot(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(),
+					uomDTO.getVendorId(), uomDTO.getId()).isPresent();
 		} else {
 			/**
 			 * At the time of create is uom with same measurement exist or not
 			 */
-			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantity(uomDTO.getMeasurementArabic(), uomDTO.getQuantity()).isPresent();
+			return uomRepository
+					.findByMeasurementArabicIgnoreCaseAndQuantityAndVendorId(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(), uomDTO.getVendorId())
+					.isPresent();
 		}
 	}
 

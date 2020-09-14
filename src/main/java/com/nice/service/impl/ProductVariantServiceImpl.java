@@ -25,12 +25,14 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.ProductVariantMapper;
+import com.nice.model.BusinessCategory;
 import com.nice.model.Product;
 import com.nice.model.ProductAddons;
 import com.nice.model.ProductVariant;
 import com.nice.model.UOM;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductVariantRepository;
+import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartItemService;
 import com.nice.service.DiscountService;
 import com.nice.service.ProductAddonsService;
@@ -38,6 +40,7 @@ import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductToppingService;
 import com.nice.service.ProductVariantService;
+import com.nice.service.StockDetailsService;
 import com.nice.service.TempCartItemService;
 import com.nice.service.UOMService;
 import com.nice.util.CommonUtility;
@@ -87,6 +90,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
+
+	@Autowired
+	private StockDetailsService stockDetailsService;
+
+	@Autowired
+	private BusinessCategoryService businessCategoryService;
 
 	@Override
 	public void addUpdateProductVariantList(final Long productId, final ProductVariantRequestDTO productVariantRequestDTO)
@@ -221,11 +230,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 		productVariantResponseDTO.setUomQuantity(productVariant.getUom().getQuantity());
 
-		// TODO
-		/**
-		 * Get available qty from inventory and set here, currently set as 0
-		 */
-		productVariantResponseDTO.setAvailableQty(0);
+		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(productVariant.getProduct().getId());
+
+		if (!businessCategory.getNameEnglish().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_FOOD_DELIVERY)) {
+			productVariantResponseDTO.setAvailableQty(stockDetailsService.getCountForVariant(productVariant).intValue());
+		}
 		/**
 		 * Set product addons, attribute values and toppings list for the product variant
 		 */

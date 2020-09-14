@@ -69,41 +69,24 @@ public interface UOMRepository extends JpaRepository<UOM, Long> {
 
 	/**
 	 * check uom exist based on measurment and qty
-	 *
-	 * @param measurementEnglish
 	 * @param quantity
+	 * @param vendorId TODO
+	 * @param measurementEnglish
+	 *
 	 * @return
 	 */
-	Optional<UOM> findByMeasurementEnglishIgnoreCaseAndQuantity(String measurementEnglish, Double quantity);
-
-	/**
-	 * check uom exist based on measurment and qty
-	 *
-	 * @param measurementEnglish
-	 * @param quantity
-	 * @return
-	 */
-	Optional<UOM> findByMeasurementArabicIgnoreCaseAndQuantity(String measurementArabic, Double quantity);
+	Optional<UOM> findByMeasurementArabicIgnoreCaseAndQuantityAndVendorId(String measurementArabic, Double quantity, Long vendorId);
 
 	/**
 	 * check uom exist based on measurment and qty and id not
-	 *
-	 * @param measurementEnglish
 	 * @param quantity
-	 * @param id
+	 * @param vendorId
+	 * @param id TODO
+	 * @param measurementEnglish
+	 *
 	 * @return
 	 */
-	Optional<UOM> findByMeasurementEnglishIgnoreCaseAndQuantityAndIdNot(String measurementEnglish, Double quantity, Long id);
-
-	/**
-	 * check uom exist based on measurment and qty and id not
-	 *
-	 * @param measurementEnglish
-	 * @param quantity
-	 * @param id
-	 * @return
-	 */
-	Optional<UOM> findByMeasurementArabicIgnoreCaseAndQuantityAndIdNot(String measurementArabic, Double quantity, Long id);
+	Optional<UOM> findByMeasurementArabicIgnoreCaseAndQuantityAndVendorIdAndIdNot(String measurementArabic, Double quantity, Long vendorId, Long id);
 
 	/**
 	 * get uom based on measurement english and arabic with qty and vendor
@@ -118,4 +101,21 @@ public interface UOMRepository extends JpaRepository<UOM, Long> {
 	 */
 	Optional<UOM> findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorIdOrMeasurementArabicIgnoreCaseAndQuantityAndVendorId(String measurementEnglish,
 			Double quantity, Long id, String measurementArabic, Double quantity2, Long id2);
+
+	/**
+	 * @param measurementEnglish
+	 * @param quantity
+	 * @param vendorId
+	 * @param id
+	 * @return
+	 */
+	Optional<UOM> findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorIdAndIdNot(String measurementEnglish, Double quantity, Long vendorId, Long id);
+
+	/**
+	 * @param measurementEnglish
+	 * @param quantity
+	 * @param vendorId
+	 * @return
+	 */
+	Optional<UOM> findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorId(String measurementEnglish, Double quantity, Long vendorId);
 }

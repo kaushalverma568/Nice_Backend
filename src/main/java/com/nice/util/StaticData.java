@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.nice.constant.Constant;
 import com.nice.constant.SettingsConstant;
 import com.nice.service.SettingsService;
 
@@ -33,13 +34,12 @@ public class StaticData implements CommandLineRunner {
 					settingsService.getSettingsDetailsByNameForNonEncryptedFields("ORDER_DELIVERY_CHARGE").getFieldValue());
 			SettingsConstant.setSettingsValue("ORDER_AMOUNT_FOR_FREE_DELIVERY",
 					settingsService.getSettingsDetailsByNameForNonEncryptedFields("ORDER_AMOUNT_FOR_FREE_DELIVERY").getFieldValue());
-			SettingsConstant.setSettingsValue("DAY_MIN_ORDER_DELIVERED",
-					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DAY_MIN_ORDER_DELIVERED").getFieldValue());
+			SettingsConstant.setSettingsValue(Constant.DAY_MIN_ORDER_DELIVERED,
+					settingsService.getSettingsDetailsByNameForNonEncryptedFields(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue());
 			SettingsConstant.setSettingsValue("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS",
 					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS").getFieldValue());
 			SettingsConstant.setSettingsValue("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS",
 					settingsService.getSettingsDetailsByNameForNonEncryptedFields("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS").getFieldValue());
-
 		} catch (ValidationException e) {
 			logger.error("Error in load static data method");
 		}

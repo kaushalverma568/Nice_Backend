@@ -42,8 +42,13 @@ public class Task extends CommonModel {
 	@Column(name = "id")
 	private Long id;
 
+	/**
+	 * Here nullable is made true for delivery boy, as we will be making task for the pickup order as well and in that case
+	 * no delivery boy will be assigned, this is taken so as to facilitate the payout structure for vendor, so now both
+	 * payout will happen from task table itself(delivery boy and vendor payout)
+	 */
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
-	@JoinColumn(name = "delivery_boy_id", nullable = false)
+	@JoinColumn(name = "delivery_boy_id", nullable = true)
 	private DeliveryBoy deliveryBoy;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
@@ -79,4 +84,6 @@ public class Task extends CommonModel {
 	@Column(name = "delivered_date")
 	private Date deliveredDate;
 
+	@Column(name = "order_delivery_type", nullable = false)
+	private String orderDeliveryType;
 }

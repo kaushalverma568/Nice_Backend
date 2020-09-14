@@ -187,7 +187,7 @@ public interface StockDetailsService {
 	 * @param productVariant
 	 * @return
 	 */
-	Long getCountForVariantForVendor(ProductVariant productVariant);
+	Long getCountForVariant(ProductVariant productVariant);
 
 	/**
 	 * AddStockRequestDTO details to add stock

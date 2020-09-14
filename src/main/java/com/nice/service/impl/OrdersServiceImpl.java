@@ -338,7 +338,7 @@ public class OrdersServiceImpl implements OrdersService {
 				 */
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
 				if (businessCategory.getManageInventory().booleanValue()) {
-					Long availableQty = stockDetailsService.getCountForVariantForVendor(productVariant);
+					Long availableQty = stockDetailsService.getCountForVariant(productVariant);
 					if (availableQty == null || availableQty < cartItem.getQuantity()) {
 						if ("en".equalsIgnoreCase(LocaleContextHolder.getLocale().getLanguage())) {
 							throw new ValidationException(

@@ -29,7 +29,7 @@ import com.nice.util.MediaFileUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
@@ -68,9 +68,9 @@ public class AssetServiceImpl implements AssetService {
 	/**
 	 * Save images for mentioned sub directory
 	 *
-	 * @param  image
-	 * @param  subDirectory
-	 * @param  count                  : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param image
+	 * @param subDirectory
+	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
 	 * @return
 	 * @throws ValidationException
 	 * @throws FileOperationException
@@ -80,11 +80,6 @@ public class AssetServiceImpl implements AssetService {
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
 			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
-				// TODO
-				/**
-				 * Uncomment this line for image related code, currently commented as there would be changes in lot of files to add the exceptions thrown in
-				 * method signature for the functionality, currently as there is issue with git it is commented as there are not conflicts in files due to this.
-				 */
 				image = imageUtility.resizeImage(image);
 			}
 			if (count != 0) {
