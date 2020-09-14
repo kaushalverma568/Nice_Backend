@@ -83,7 +83,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -377,7 +377,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -486,12 +486,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -590,8 +591,8 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		/**
-		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is true then product should be made
-		 * visible else that product should be shown as out of stock
+		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is
+		 * true then product should be made visible else that product should be shown as out of stock
 		 */
 		if (businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_GROCERY)) {
 			productResponseDTO.setProductAvailable(availableQty > 0);
@@ -634,9 +635,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -666,7 +667,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -696,8 +697,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is null or the userLogin->entityType
-		 * is customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
 		 */
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
@@ -710,21 +711,22 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * upload image of product
 	 *
-	 * @param  image
-	 * @param  product
+	 * @param image
+	 * @param product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
 	private void uploadImage(final MultipartFile image, final Product product) throws FileOperationException, ValidationException {
 		LOGGER.info("Inside uploadImage for product :{}", product.getId());
-		product.setImage(assetService.saveAsset(image, AssetConstant.PRODUCT_DIR, 0));
+		product.setImage(assetService.saveAsset(image, AssetConstant.PRODUCT_DIR, 0, Constant.PRODUCT_LIST_IMAGE_WIDTH, Constant.PRODUCT_LIST_IMAGE_HEIGHT));
 		product.setImageOriginalName(image.getOriginalFilename());
 		LOGGER.info("After uploadImage for product :{}", product.getId());
 	}
 
 	private void uploadDetailImage(final MultipartFile detailImage, final Product product) throws FileOperationException, ValidationException {
 		LOGGER.info("Inside uploadImage for product :{}", product.getId());
-		product.setDetailImage(assetService.saveAsset(detailImage, AssetConstant.PRODUCT_DIR, 0));
+		product.setDetailImage(
+				assetService.saveAsset(detailImage, AssetConstant.PRODUCT_DIR, 0, Constant.PRODUCT_DETAIL_IMAGE_WIDTH, Constant.PRODUCT_DETAIL_IMAGE_HEIGHT));
 		product.setDetailImageOriginalName(detailImage.getOriginalFilename());
 		LOGGER.info("After uploadImage for product :{}", product.getId());
 	}
@@ -830,8 +832,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTOs
-	 * @param  userId
+	 * @param productImportDTOs
+	 * @param userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -903,10 +905,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTO
-	 * @param  brandId
-	 * @param  vendor
-	 * @param  productRequestDTO
+	 * @param productImportDTO
+	 * @param brandId
+	 * @param vendor
+	 * @param productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, final Long brandId, final Vendor vendor,

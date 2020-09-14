@@ -32,7 +32,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -59,7 +59,8 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 	public BusinessCategoryDTO addBusinessCategory(final BusinessCategoryDTO businessCategoryDTO, final MultipartFile image)
 			throws NotFoundException, FileOperationException, ValidationException {
 		BusinessCategory businessCategory = businessCategoryMapper.toEntity(businessCategoryDTO);
-		businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
+		businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0, Constant.BUSINESS_CATEGORY_IMAGE_WIDTH,
+				Constant.BUSINESS_CATEGORY_IMAGE_HEIGHT));
 		businessCategory.setOriginalImageName(image.getOriginalFilename());
 		return businessCategoryMapper.toDto(businessCategoryRepository.save(businessCategory));
 	}
@@ -78,7 +79,8 @@ public class BusinessCategoryServiceImpl implements BusinessCategoryService {
 		}
 		if (image != null) {
 			assetService.deleteFile(oldImageName, AssetConstant.BUSINESS_CATEGORY_DIR);
-			businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0));
+			businessCategory.setImageName(assetService.saveAsset(image, AssetConstant.BUSINESS_CATEGORY_DIR, 0, Constant.BUSINESS_CATEGORY_IMAGE_WIDTH,
+					Constant.BUSINESS_CATEGORY_IMAGE_HEIGHT));
 			businessCategory.setOriginalImageName(image.getOriginalFilename());
 		} else {
 			businessCategory.setImageName(oldImageName);

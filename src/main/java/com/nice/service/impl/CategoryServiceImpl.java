@@ -56,7 +56,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -175,9 +175,9 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param pageable
 	 * @return
 	 */
 	private Page<Category> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
@@ -270,13 +270,13 @@ public class CategoryServiceImpl implements CategoryService {
 	/**
 	 * upload image of product
 	 *
-	 * @param  image
-	 * @param  product
+	 * @param image
+	 * @param product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
 	private void uploadImage(final MultipartFile image, final Category category) throws FileOperationException, ValidationException {
-		category.setImage(assetService.saveAsset(image, AssetConstant.CATEGORY, 0));
+		category.setImage(assetService.saveAsset(image, AssetConstant.CATEGORY, 0, Constant.CUISINE_IMAGE_WIDTH, Constant.CUISINE_IMAGE_HEIGHT));
 		category.setImageOriginalName(image.getOriginalFilename());
 	}
 
@@ -330,8 +330,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param  categoryImports
-	 * @param  userId
+	 * @param categoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {
