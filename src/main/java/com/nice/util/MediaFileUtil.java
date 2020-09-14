@@ -12,13 +12,13 @@ import org.springframework.http.MediaType;
  * @date : 26-Jun-2020
  */
 public class MediaFileUtil {
-	private static final String PNG_EXT = ".png";
-	private static final String JPG_EXT = ".jpg";
-	private static final String JPEG_EXT = ".jpeg";
-	private static final String GIF_EXT = ".gif";
-	private static final String JPE_EXT = ".jpe";
-	private static final String JFIF_EXT = ".jfif";
-	private static final String PDF_EXT = ".pdf";
+	private static final String PNG_EXT = "png";
+	private static final String JPG_EXT = "jpg";
+	private static final String JPEG_EXT = "jpeg";
+	private static final String GIF_EXT = "gif";
+	private static final String JPE_EXT = "jpe";
+	private static final String JFIF_EXT = "jfif";
+	private static final String PDF_EXT = "pdf";
 
 	private MediaFileUtil() {
 
