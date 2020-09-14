@@ -241,7 +241,7 @@
 				splitStatements="true" stripComments="true" />
 	</changeSet> 
 	
-	<changeSet id="34" author="het.shah"
+	<changeSet id="35" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/wallet.sql" relativeToChangelogFile="true"
@@ -286,8 +286,7 @@
 				path="sql-files/1.0/online_cart_remove_not_null.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>  
-	
-		<changeSet id="42" author="nish.parmar"
+	<changeSet id="42" author="nish.parmar"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/settingLink_insert.sql" relativeToChangelogFile="true"
@@ -299,12 +298,16 @@
 				path="sql-files/1.0/role_permission_insert_delete.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
 	</changeSet>
-	
-	<changeSet id="43" author="het.shah"
+	<changeSet id="44" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/drop_not_null_from_task_add_column_order_delivery_type.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="45" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 				path="sql-files/1.0/wallet_remove_columns.sql" relativeToChangelogFile="true"
 				splitStatements="true" stripComments="true" />
-	</changeSet>	
-	
+	</changeSet>
 </databaseChangeLog>
