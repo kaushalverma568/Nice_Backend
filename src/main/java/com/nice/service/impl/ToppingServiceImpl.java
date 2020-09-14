@@ -49,7 +49,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("toppingService")
@@ -213,9 +213,10 @@ public class ToppingServiceImpl implements ToppingService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(toppingImports)) {
 				final List<ToppingImport> insertListOfBean = insertListOfUoms(
 						toppingImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
-				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name English", "Topping Name Arabic", "Description", "Product Food type",
-						"Result" };
-				Object[] toppingDetailsField = new Object[] { "nameEnglish", "nameArabic", "description", "productFoodType", "uploadMessage" };
+				Object[] toppingDetailsHeadersField = new Object[] { "Topping Name English", "Topping Name Arabic", "Description English", "Description Arabic",
+						"Product Food type", "Result" };
+				Object[] toppingDetailsField = new Object[] { "nameEnglish", "nameArabic", "descriptionEnglish", "descriptionArabic", "productFoodType",
+						"uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, toppingDetailsField, toppingDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

@@ -320,8 +320,8 @@ public class CategoryServiceImpl implements CategoryService {
 				final List<CategoryImport> insertListOfBean = insertListOfCategories(
 						categoryImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())
 								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameArabic())).collect(Collectors.toList()));
-				Object[] categoryDetailsHeadersField = new Object[] { "Category Name", "Result" };
-				Object[] categoryDetailsField = new Object[] { "name", "uploadMessage" };
+				Object[] categoryDetailsHeadersField = new Object[] { "Category Name English", "Category Name Arabic", "Result" };
+				Object[] categoryDetailsField = new Object[] { "nameEnglish", "nameArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, categoryDetailsField, categoryDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

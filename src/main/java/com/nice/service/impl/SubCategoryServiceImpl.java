@@ -300,8 +300,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameArabic())
 								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getCategoryNameArabic()))
 						.collect(Collectors.toList()));
-				Object[] subCategoryDetailsHeadersField = new Object[] { "SubCategory Name", "Category Name", "Result" };
-				Object[] subCategoryDetailsField = new Object[] { "name", "categoryName", "uploadMessage" };
+				Object[] subCategoryDetailsHeadersField = new Object[] { "SubCategory Name English", "SubCategory Name Arabic", "Category Name English",
+						"Category Name Arabic", "Result" };
+				Object[] subCategoryDetailsField = new Object[] { "nameEnglish", "nameArabic", "categoryNameEnglish", "categoryNameArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, subCategoryDetailsField, subCategoryDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

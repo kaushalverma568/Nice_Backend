@@ -275,8 +275,9 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(extrasImports)) {
 				final List<ExtrasImport> insertListOfBean = insertListOfUoms(extrasImports.stream()
 						.filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish()) && x.getRate() > 0).collect(Collectors.toList()));
-				Object[] extrasDetailsHeadersField = new Object[] { "Name", "Description", "Rate", "Result" };
-				Object[] extrasDetailsField = new Object[] { "Name", "description", "rate", "uploadMessage" };
+				Object[] extrasDetailsHeadersField = new Object[] { "Extras Name English", "Extras Name Arabic", "Description English", "Description Arabic",
+						"Rate", "Result" };
+				Object[] extrasDetailsField = new Object[] { "nameEnglish", "nameArabic", "descriptionEnglish", "descriptionArabic", "rate", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, extrasDetailsField, extrasDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

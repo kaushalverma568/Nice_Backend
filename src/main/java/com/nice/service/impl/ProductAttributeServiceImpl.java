@@ -273,8 +273,9 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(attributeImports)) {
 				final List<ProductAttributeImport> insertListOfBean = insertListOfUoms(
 						attributeImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
-				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name", "Description", "Result" };
-				Object[] attributeDetailsField = new Object[] { "name", "description", "uploadMessage" };
+				Object[] attributeDetailsHeadersField = new Object[] { "Product Attribute Name English", "Product Attribute Name Arabic", "Description English",
+						"Description Arabic", "Result" };
+				Object[] attributeDetailsField = new Object[] { "nameEnglish", "nameArabic", "descriptionEnglish", "descriptionArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, attributeDetailsField, attributeDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

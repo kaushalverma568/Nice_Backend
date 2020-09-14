@@ -48,7 +48,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 14-Jul-2020
+ * @date   : 14-Jul-2020
  */
 @Service("addonsService")
 @Transactional(rollbackOn = Throwable.class)
@@ -177,9 +177,9 @@ public class AddonsServiceImpl implements AddonsService {
 	}
 
 	/**
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  pageable
 	 * @return
 	 */
 	private Page<Addons> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
@@ -248,8 +248,9 @@ public class AddonsServiceImpl implements AddonsService {
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(addonsImports)) {
 				final List<AddonsImport> insertListOfBean = insertListOfUoms(
 						addonsImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())).collect(Collectors.toList()));
-				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name English", "Addons Name Arabic", "Description", "Result" };
-				Object[] addonsDetailsField = new Object[] { "nameEnglish", "nameArabic", "description", "uploadMessage" };
+				Object[] addonsDetailsHeadersField = new Object[] { "Addons Name English", "Addons Name Arabic", "Description English", "Description Arabic",
+						"Result" };
+				Object[] addonsDetailsField = new Object[] { "nameEnglish", "nameArabic", "descriptionEnglish", "descriptionArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, addonsDetailsField, addonsDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

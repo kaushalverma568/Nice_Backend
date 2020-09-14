@@ -179,8 +179,8 @@ public class BrandServiceImpl implements BrandService {
 				final List<BrandImport> insertListOfBean = insertListOfBrands(
 						brandImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameEnglish())
 								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getNameArabic())).collect(Collectors.toList()));
-				Object[] brandDetailsHeadersField = new Object[] { "Brand Name", "Result" };
-				Object[] brandDetailsField = new Object[] { "name", "uploadMessage" };
+				Object[] brandDetailsHeadersField = new Object[] { "Brand Name English", "Brand Name Arabic", "Result" };
+				Object[] brandDetailsField = new Object[] { "nameEnglish", "nameArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, brandDetailsField, brandDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
