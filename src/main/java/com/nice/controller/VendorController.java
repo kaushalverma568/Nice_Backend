@@ -290,6 +290,7 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> getVendor(@PathVariable("vendorId") final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get Vendor for id:{}", vendorId);
 		final VendorResponseDTO resultVendorResponseDTO = vendorService.getVendor(vendorId);
@@ -305,6 +306,7 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/bank/details/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> getVendorBankDetails(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Vendor for id:{}", vendorId);
@@ -325,6 +327,7 @@ public class VendorController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> getVendorListBasedOnParams(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final VendorFilterDTO vendorFilterDTO) throws ValidationException {
 		Long totalCount = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
@@ -382,6 +385,7 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/app/list/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> getVendorCustomerListBasedOnParams(@RequestBody @Valid final VendorListFilterDTO vendorListFilterDTO,
 			final BindingResult result, @PathVariable final Integer pageNumber, @PathVariable final Integer pageSize)
 			throws ValidationException, NotFoundException {
@@ -434,6 +438,7 @@ public class VendorController {
 	 * @throws FileNotFoundException
 	 */
 	@PostMapping("/export/list")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
 			@RequestBody final VendorFilterDTO vendorFilterDTO) throws FileNotFoundException {
 		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
@@ -491,6 +496,7 @@ public class VendorController {
 	 */
 
 	@GetMapping("/basic/{vendorId}")
+	@PreAuthorize("hasPermission('Vendor','CAN_VIEW')")
 	public ResponseEntity<Object> getVendorBasicDetails(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId)
 			throws NotFoundException {
 		LOGGER.info("Inside get Vendor basic details for id:{}", vendorId);

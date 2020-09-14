@@ -747,6 +747,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			if (userLogin.isPresent()) {
 				BeanUtils.copyProperties(userLogin.get(), loginResponse);
 				loginResponse.setUserId(userLogin.get().getId());
+				loginResponse.setRoleId(userLogin.get().getRole().getId());
+				loginResponse.setRoleName(userLogin.get().getRole().getName());
 			}
 		}
 		return loginResponse;
