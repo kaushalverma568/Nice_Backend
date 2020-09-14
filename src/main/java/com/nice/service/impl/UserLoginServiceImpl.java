@@ -698,6 +698,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (userLogin.isPresent()) {
 			BeanUtils.copyProperties(userLogin.get(), loginResponse);
 			loginResponse.setUserId(userLogin.get().getId());
+			loginResponse.setRole(userLogin.get().getRole().getName());
 			if (UserType.CUSTOMER.name().equals(userLogin.get().getEntityType())) {
 				Customer customer = customerService.getCustomerDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(customer, loginResponse);
@@ -1001,6 +1002,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		BeanUtils.copyProperties(userLogin, loginResponse);
 		loginResponse.setUserId(userLogin.getId());
+		loginResponse.setRole(userLogin.getRole().getName());
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(customer, loginResponse);

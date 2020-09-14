@@ -244,7 +244,7 @@ public class UserLoginController {
 		/**
 		 * When password is changed and the user is not super admin, revoke the user token
 		 */
-		if (!(Role.SUPER_ADMIN.name().equals(userLogin.getRole()))) {
+		if (!(Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName()))) {
 			revokeToken(userLogin.getEmail());
 		}
 
@@ -489,7 +489,7 @@ public class UserLoginController {
 		/**
 		 * for super admin we have to use USER as userType
 		 */
-		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole())) {
+		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName())) {
 			userLogin.setEntityType(UserType.USER.name());
 		}
 		LoginResponse loginResponse = null;
@@ -531,7 +531,7 @@ public class UserLoginController {
 		/**
 		 * for super admin we have to use USER as userType
 		 */
-		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole())) {
+		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName())) {
 			userLogin.setEntityType(UserType.USER.name());
 		}
 		LoginResponse loginResponse = null;
