@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -83,7 +82,6 @@ public class CountryController {
 	 * @throws ValidationException
 	 */
 	@PostMapping
-	@PreAuthorize("hasPermission('Country','CAN_ADD')")
 	public ResponseEntity<Object> addCountry(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CountryDTO countryDTO,
 			final BindingResult result) throws ValidationException {
 		LOGGER.info("Inside add country {}", countryDTO);
@@ -109,7 +107,6 @@ public class CountryController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Country','CAN_EDIT')")
 	public ResponseEntity<Object> updateCountry(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final CountryDTO countryDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update country {}", countryDTO);
@@ -170,7 +167,6 @@ public class CountryController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/status/{countryId}")
-	@PreAuthorize("hasPermission('Country','CAN_DELETE')")
 	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("countryId") final Long countryId,
 			@RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of country ofr id {} and status {}", countryId, active);
