@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class PaymentDetailsDTO implements Serializable {
@@ -34,4 +34,6 @@ public class PaymentDetailsDTO implements Serializable {
 
 	@NotEmpty(message = "{transactionNo.not.null}")
 	private String transactionNo;
+
+	private String entityType;
 }

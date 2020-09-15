@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jul-2020
+ * @date : 17-Jul-2020
  */
 @Data
 public class TaskResponseDto implements Serializable {
@@ -45,11 +45,18 @@ public class TaskResponseDto implements Serializable {
 	private Long deliveryLongitude;
 
 	/**
-	 * Details related to payment
+	 * Details related to delivery boy payment
 	 */
-	private Long paymentDetailsId;
-	private String transactionId;
-	private Date paidOn;
+	private Long deliveryBoyPaymentDetailsId;
+	private String deliveryBoyTransactionId;
+	private Date deliveryBoyPaidOn;
+
+	/**
+	 * Details related to vendor payment
+	 */
+	private Long vendorPaymentDetailsId;
+	private String vendorTransactionId;
+	private Date vendorPaidOn;
 
 	/**
 	 * Details related to Task

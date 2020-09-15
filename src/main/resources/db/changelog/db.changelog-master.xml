@@ -184,8 +184,22 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-
-<!-- Change set merge reamining from here -->
+	
+	<!-- Merging changeset from here remaining -->
+	<changeSet id="47" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/alter_task_add_column_payout.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="48" author="het.shah"
+			context="post-process-db-changes">
+			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+				path="sql-files/1.0/alter_table_for_payout.sql" relativeToChangelogFile="true"
+				splitStatements="true" stripComments="true" />
+	</changeSet>
+	
+	
 	<changeSet id="49" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.constant.TaskStatusEnum;
@@ -31,7 +32,7 @@ import com.nice.validator.TaskValidator;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -61,9 +62,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  taskId
+	 * @param token
+	 * @param userId
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -82,8 +83,8 @@ public class TaskController {
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -99,8 +100,8 @@ public class TaskController {
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -116,8 +117,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -132,17 +133,17 @@ public class TaskController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  paymentDetailsId
+	 * @param token
+	 * @param paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/payment/{paymentDetailsId}")
-	public ResponseEntity<Object> getTaskListForPaymentDetails(@RequestHeader("Authorization") final String token, @PathVariable final Long paymentDetailsId)
-			throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> getTaskListForPaymentDetails(@RequestHeader("Authorization") final String token, @PathVariable final Long paymentDetailsId,
+			@RequestParam(required = true) final String userType) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get task details method for paymentDetailsId: {}", paymentDetailsId);
-		List<TaskResponseDto> taskResponseDtoList = taskService.getTaskListFromPayment(paymentDetailsId);
+		List<TaskResponseDto> taskResponseDtoList = taskService.getTaskListFromPayment(paymentDetailsId, userType);
 		LOGGER.info("After get task details method for paymentDetailsId: {}", paymentDetailsId);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("task.list.display.message", null)).setStatus(HttpStatus.OK)
 				.setData(taskResponseDtoList).create();

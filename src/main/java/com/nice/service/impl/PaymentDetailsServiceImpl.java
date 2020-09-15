@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.UserType;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -18,6 +19,7 @@ import com.nice.mapper.PaymentDetailsMapper;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
+import com.nice.model.Vendor;
 import com.nice.repository.PaymentDetailsRepository;
 import com.nice.repository.TaskRepository;
 import com.nice.service.PaymentDetailsService;
@@ -53,32 +55,61 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		for (Long taskId : paymentDetailsDTO.getTaskIds()) {
 			taskList.add(taskService.getTaskDetail(taskId));
 		}
-		/**
-		 * if tasks do not have unique delivery boy then throw exception
-		 */
-		List<DeliveryBoy> deliveryBoys = taskList.stream().map(Task::getDeliveryBoy).distinct().collect(Collectors.toList());
-		if (!deliveryBoys.isEmpty() && deliveryBoys.size() > 1) {
-			throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.not.unique", null));
-		}
-		/**
-		 * get task list calculate amount and validate it and then set task payment
-		 * payment details id
-		 */
-		Double sum = 0d;
-		for (Task task : taskList) {
-			sum += task.getDeliveryCharge();
-		}
-		if (!sum.equals(paymentDetailsDTO.getPaymentAmount())) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.amount", new Object[] { sum }));
-		}
-
 		PaymentDetails paymentDetails = paymentDetailsMapper.toEntity(paymentDetailsDTO);
-		paymentDetails.setDeliveryBoy(deliveryBoys.get(0));
+
+		/**
+		 * if tasks do not have unique delivery boy OR vendor then throw exception
+		 */
+		if (UserType.DELIVERY_BOY.name().equals(paymentDetailsDTO.getEntityType())) {
+			List<DeliveryBoy> deliveryBoys = taskList.stream().map(Task::getDeliveryBoy).distinct().collect(Collectors.toList());
+			if (!deliveryBoys.isEmpty() && deliveryBoys.size() > 1) {
+				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.delivery.boy", null));
+			}
+			/**
+			 * get task list calculate amount and validate it
+			 */
+			Double sum = 0d;
+			for (Task task : taskList) {
+				sum += task.getDeliveryCharge();
+			}
+			if (!sum.equals(paymentDetailsDTO.getPaymentAmount())) {
+				throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.amount", new Object[] { sum }));
+			}
+			paymentDetails.setDeliveryBoy(deliveryBoys.get(0));
+		} else {
+			List<Vendor> vendors = taskList.stream().map(Task::getVendor).distinct().collect(Collectors.toList());
+			if (!vendors.isEmpty() && vendors.size() > 1) {
+				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.vendor", null));
+			}
+			/**
+			 * get task list calculate amount and validate it
+			 */
+			Double sum = 0d;
+			for (Task task : taskList) {
+				sum += task.getVendorPayableAmt();
+			}
+			if (!sum.equals(paymentDetailsDTO.getPaymentAmount())) {
+				throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.amount", new Object[] { sum }));
+			}
+			paymentDetails.setVendor(vendors.get(0));
+		}
+		/**
+		 * Setting total no of orders based on task list here
+		 */
 		paymentDetails.setNoOfOrders(taskList.size());
 		paymentDetails = paymentDetailsRepository.save(paymentDetails);
 
-		for (Task task : taskList) {
-			task.setPaymentDetails(paymentDetails);
+		/**
+		 * Saving the payment details in task of delivery boy and vendor
+		 */
+		if (UserType.DELIVERY_BOY.name().equals(paymentDetailsDTO.getEntityType())) {
+			for (Task task : taskList) {
+				task.setDeliveryBoyPaymentDetails(paymentDetails);
+			}
+		} else {
+			for (Task task : taskList) {
+				task.setVendorPaymentDetails(paymentDetails);
+			}
 		}
 		taskRepository.saveAll(taskList);
 	}
@@ -99,8 +130,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	public Boolean isPaymentDetailsExists(final PaymentDetailsDTO paymentDetailsDTO) {
 		if (paymentDetailsDTO.getId() != null) {
 			/**
-			 * At the time of update is paymentDetails with same transaction no exist or not
-			 * except it's own id
+			 * At the time of update is paymentDetails with same transaction no exist or not except it's own id
 			 */
 			return paymentDetailsRepository.findByTransactionNoIgnoreCaseAndIdNot(paymentDetailsDTO.getTransactionNo(), paymentDetailsDTO.getId()).isPresent();
 		} else {

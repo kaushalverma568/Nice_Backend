@@ -68,11 +68,11 @@ public class AssetServiceImpl implements AssetService {
 
 	/**
 	 *
-	 * @param  image
-	 * @param  subDirectory
-	 * @param  count                  : if value is not 0 then it will append number to imageName to avoid conflict
-	 * @param  width                  : if width 0 then image will not be resized, pass the image dimension to resize image
-	 * @param  height                 : if height 0 then image will not be resized, pass the image dimension to resize image
+	 * @param image
+	 * @param subDirectory
+	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
+	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
 	 * @return
 	 * @throws FileOperationException
 	 * @throws ValidationException
