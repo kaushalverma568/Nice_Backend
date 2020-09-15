@@ -22,7 +22,7 @@ import com.nice.service.OrdersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jul-2020
+ * @date : 17-Jul-2020
  */
 @Service("orderLocationService")
 @Transactional(rollbackOn = Throwable.class)
@@ -54,15 +54,18 @@ public class OrderLocationServiceImpl implements OrderLocationService {
 		/**
 		 * check if all value matches with each other
 		 */
-		if (orders.getDeliveryBoy().getId().equals(deliveryBoy.getId()) && orders.getCustomer().getId().equals(customer.getId())) {
+		if (orders.getDeliveryBoy() != null && orders.getDeliveryBoy().getId().equals(deliveryBoy.getId())
+				&& orders.getCustomer().getId().equals(customer.getId())) {
 			OrderLocation orderLocation = orderLocationMapper.toEntity(orderLocationDTO);
 			orderLocation.setActive(true);
 			orderLocationRepository.save(orderLocation);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(
-					!orders.getDeliveryBoy().getId().equals(deliveryBoy.getId()) ? "order.delivery.boy.mismatch" : "order.customer.mistmatch",
+					orders.getDeliveryBoy() != null && !orders.getDeliveryBoy().getId().equals(deliveryBoy.getId()) ? "order.delivery.boy.mismatch"
+							: "order.customer.mistmatch",
 					new Object[] { orderLocationDTO.getOrderId(),
-							!orders.getDeliveryBoy().getId().equals(deliveryBoy.getId()) ? orderLocationDTO.getDeliveryBoyId()
+							orders.getDeliveryBoy() != null && !orders.getDeliveryBoy().getId().equals(deliveryBoy.getId())
+									? orderLocationDTO.getDeliveryBoyId()
 									: orderLocationDTO.getCustomerId() }));
 		}
 	}
