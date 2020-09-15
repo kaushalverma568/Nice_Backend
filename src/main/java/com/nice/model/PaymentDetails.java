@@ -45,9 +45,13 @@ public class PaymentDetails extends CommonModel {
 	@Column(name = "payment_amount", nullable = false)
 	private Double paymentAmount;
 
-	@JoinColumn(name = "delivery_boy_id", nullable = false)
+	@JoinColumn(name = "delivery_boy_id", nullable = true)
 	@ManyToOne(fetch = FetchType.LAZY)
 	private DeliveryBoy deliveryBoy;
+
+	@JoinColumn(name = "vendor_id", nullable = true)
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Vendor vendor;
 
 	@Column(name = "no_of_orders", nullable = false)
 	private Integer noOfOrders;

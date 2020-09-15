@@ -126,10 +126,18 @@ public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRep
 	Long countByOrderAndTaskType(Orders orders, String taskType);
 
 	/**
+	 *
 	 * @param paymentDetails
 	 * @return
 	 */
-	List<Task> findAllByPaymentDetails(PaymentDetails paymentDetails);
+	List<Task> findAllByVendorPaymentDetails(PaymentDetails paymentDetails);
+
+	/**
+	 *
+	 * @param paymentDetails
+	 * @return
+	 */
+	List<Task> findAllByDeliveryBoyPaymentDetails(PaymentDetails paymentDetails);
 
 	/**
 	 * @param deliveryBoyId

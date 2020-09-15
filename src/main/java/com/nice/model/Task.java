@@ -51,6 +51,13 @@ public class Task extends CommonModel {
 	@JoinColumn(name = "delivery_boy_id", nullable = true)
 	private DeliveryBoy deliveryBoy;
 
+	/**
+	 * For any order vendor would always be present, delivery boy may not be present in task if it is a pickup order.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+	@JoinColumn(name = "vendor_id", nullable = false)
+	private Vendor vendor;
+
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	@JoinColumn(name = "order_id", nullable = false)
 	private Orders order;
@@ -65,8 +72,12 @@ public class Task extends CommonModel {
 	private String taskType;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-	@JoinColumn(name = "payment_details_id", nullable = true)
-	private PaymentDetails paymentDetails;
+	@JoinColumn(name = "delivery_boy_payment_details_id", nullable = true)
+	private PaymentDetails deliveryBoyPaymentDetails;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@JoinColumn(name = "vendor_payment_details_id", nullable = true)
+	private PaymentDetails vendorPaymentDetails;
 
 	@Column(name = "total_order_amount", nullable = false)
 	private Double totalOrderAmount;

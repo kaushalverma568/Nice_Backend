@@ -134,14 +134,18 @@ public interface TaskService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void updatePaymentDetailsInTask(List<Long> taskIds, Long paymentId) throws ValidationException, NotFoundException;
+	void updateDeliveryBoyPaymentDetailsInTask(List<Long> taskIds, Long paymentId) throws ValidationException, NotFoundException;
 
 	/**
+	 * Get the orders linked to payout Id based on user type
+	 *
 	 * @param paymentId
+	 * @param userType
+	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	List<TaskResponseDto> getTaskListFromPayment(Long paymentId) throws ValidationException, NotFoundException;
+	List<TaskResponseDto> getTaskListFromPayment(Long paymentId, String userType) throws ValidationException, NotFoundException;
 
 	/**
 	 *

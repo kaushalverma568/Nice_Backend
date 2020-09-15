@@ -24,6 +24,7 @@ import com.nice.constant.PaymentMode;
 import com.nice.constant.SettingsConstant;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
+import com.nice.constant.UserType;
 import com.nice.dto.CashCollectionDTO;
 import com.nice.dto.DeliveryBoyOrderCountDto;
 import com.nice.dto.TaskDto;
@@ -184,6 +185,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setVendorPayableAmt(vendorPayableAmt);
 			task.setAdminCommission(adminCommissionAmt);
 			task.setTotalOrderAmount(orderTotal);
+			task.setVendor(orders.getVendor());
 			/**
 			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
 			 */
@@ -398,35 +400,51 @@ public class TaskServiceImpl implements TaskService {
 		taskResponseDto.setVendorPhoneNumber(vendorResponseDto.getPhoneNumber());
 		taskResponseDto.setOrderDate(order.getCreatedAt());
 		/**
-		 * Get Details related to Payment, if payment is done
+		 * Get Details related to delivery boy Payment, if payment is done
 		 */
-		if (task.getPaymentDetails() != null) {
-			taskResponseDto.setPaymentDetailsId(task.getPaymentDetails().getId());
-			taskResponseDto.setTransactionId(task.getPaymentDetails().getTransactionNo());
-			taskResponseDto.setPaidOn(task.getPaymentDetails().getCreatedAt());
+		if (task.getDeliveryBoyPaymentDetails() != null) {
+			taskResponseDto.setDeliveryBoyPaymentDetailsId(task.getDeliveryBoyPaymentDetails().getId());
+			taskResponseDto.setDeliveryBoyTransactionId(task.getDeliveryBoyPaymentDetails().getTransactionNo());
+			taskResponseDto.setDeliveryBoyPaidOn(task.getDeliveryBoyPaymentDetails().getCreatedAt());
+		}
+		/**
+		 * Set details related to vendor payment, if payment done
+		 */
+		if (task.getVendorPaymentDetails() != null) {
+			taskResponseDto.setVendorPaymentDetailsId(task.getVendorPaymentDetails().getId());
+			taskResponseDto.setVendorTransactionId(task.getVendorPaymentDetails().getTransactionNo());
+			taskResponseDto.setVendorPaidOn(task.getVendorPaymentDetails().getCreatedAt());
 		}
 		return taskResponseDto;
 	}
 
 	@Override
-	public void updatePaymentDetailsInTask(final List<Long> taskIds, final Long paymentId) throws ValidationException, NotFoundException {
+	public void updateDeliveryBoyPaymentDetailsInTask(final List<Long> taskIds, final Long paymentId) throws ValidationException, NotFoundException {
 
 		PaymentDetails paymentDetails = paymentDetailService.getPaymentDetailsDetail(paymentId);
 		List<Task> taskList = taskRepository.findAllById(taskIds);
 		for (Task task : taskList) {
-			if (task.getPaymentDetails() != null) {
+			if (task.getDeliveryBoyPaymentDetails() != null) {
 				throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.for.task", new Object[] { task.getId() }));
 			}
-			task.setPaymentDetails(paymentDetails);
+			task.setDeliveryBoyPaymentDetails(paymentDetails);
 			taskRepository.save(task);
 		}
 	}
 
 	@Override
-	public List<TaskResponseDto> getTaskListFromPayment(final Long paymentId) throws ValidationException, NotFoundException {
-		PaymentDetails paymentDetails = paymentDetailService.getPaymentDetailsDetail(paymentId);
+	public List<TaskResponseDto> getTaskListFromPayment(final Long paymentId, final String userType) throws ValidationException, NotFoundException {
 
-		List<Task> taskList = taskRepository.findAllByPaymentDetails(paymentDetails);
+		PaymentDetails paymentDetails = paymentDetailService.getPaymentDetailsDetail(paymentId);
+		List<Task> taskList = null;
+		if (UserType.VENDOR.name().equals(userType)) {
+			taskList = taskRepository.findAllByVendorPaymentDetails(paymentDetails);
+		} else if (UserType.DELIVERY_BOY.name().equals(userType)) {
+			taskList = taskRepository.findAllByDeliveryBoyPaymentDetails(paymentDetails);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("", null));
+		}
+
 		List<TaskResponseDto> taskResponseDtoList = new ArrayList<>();
 		for (Task task : taskList) {
 			TaskResponseDto taskResponseDto = convertToResponseDto(task);
