@@ -567,6 +567,7 @@ public class TaskServiceImpl implements TaskService {
 				deliveryLogDTO.setVendorName(task.getVendor().getFirstNameArabic().concat(" ").concat(task.getVendor().getLastNameArabic()));
 				deliveryLogDTO.setVendorStoreName(task.getVendor().getStoreNameArabic());
 			}
+			deliveryLogDTOs.add(deliveryLogDTO);
 		}
 		return deliveryLogDTOs;
 	}

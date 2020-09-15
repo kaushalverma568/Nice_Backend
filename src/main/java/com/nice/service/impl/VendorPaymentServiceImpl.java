@@ -1,14 +1,20 @@
 package com.nice.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.nice.constant.PaymentStatus;
 import com.nice.dto.VendorPaymentDTO;
+import com.nice.dto.VendorPaymentResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -101,6 +107,32 @@ public class VendorPaymentServiceImpl implements VendorPaymentService {
 	public VendorPayment getVendorPaymentById(final Long id) throws NotFoundException {
 		return vendorPaymentRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("vendor.payment.not.found", new Object[] { id })));
+	}
+
+	@Override
+	public List<VendorPaymentResponseDTO> getVendorPaymentListByVendorId(final Long vendorId) {
+		List<VendorPaymentResponseDTO> vendorPaymentResponseDTOs = new ArrayList<>();
+		List<VendorPayment> vendorPayments = vendorPaymentRepository.findAllByVendorIdAndStatus(vendorId, PaymentStatus.PAYMENT_SUCCESS.name());
+		for (VendorPayment vendorPayment : vendorPayments) {
+			VendorPaymentResponseDTO dto = new VendorPaymentResponseDTO();
+			BeanUtils.copyProperties(vendorPayment, dto);
+			dto.setPaymentDate(vendorPayment.getUpdatedAt());
+			dto.setSubscriptionPlanId(vendorPayment.getSubscriptionPlan().getId());
+			dto.setVendorId(vendorPayment.getVendor().getId());
+			dto.setAmountPaid(vendorPayment.getAmount() + vendorPayment.getAdministrativeCharge());
+			dto.setSubscriptionPlanAmount(vendorPayment.getSubscriptionPlan().getAmount());
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				dto.setSubscriptionPlanName(vendorPayment.getSubscriptionPlan().getNameEnglish());
+				dto.setVendorName(vendorPayment.getVendor().getFirstNameEnglish().concat(" ").concat(vendorPayment.getVendor().getLastNameEnglish()));
+				dto.setVendorStoreName(vendorPayment.getVendor().getStoreNameEnglish());
+			} else {
+				dto.setSubscriptionPlanName(vendorPayment.getSubscriptionPlan().getNameArabic());
+				dto.setVendorName(vendorPayment.getVendor().getFirstNameArabic().concat(" ").concat(vendorPayment.getVendor().getLastNameArabic()));
+				dto.setVendorStoreName(vendorPayment.getVendor().getStoreNameArabic());
+			}
+			vendorPaymentResponseDTOs.add(dto);
+		}
+		return vendorPaymentResponseDTOs;
 	}
 
 }

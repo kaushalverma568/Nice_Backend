@@ -534,7 +534,7 @@ public class DeliveryBoyController {
 	@PostMapping("/loglist/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDeliveryLogsList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("pageNumber") final Integer pageNumber, @PathVariable("pageSize") final Integer pageSize,
-			@RequestBody final DeliveryLogFilterDTO deliveryLogFilterDTO) throws NotFoundException, ValidationException {
+			@RequestBody final DeliveryLogFilterDTO deliveryLogFilterDTO) throws ValidationException {
 		Long totalCount = taskService.getTaskCountForDeliveryLog(deliveryLogFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		List<DeliveryLogDTO> resultDeliveryLogList = taskService.getTaskListForDeliveryLog(deliveryLogFilterDTO, paginationUtilDto.getStartIndex(), pageSize);

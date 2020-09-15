@@ -1,5 +1,6 @@
 package com.nice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,5 +31,14 @@ public interface VendorPaymentRepository extends JpaRepository<VendorPayment, Lo
 	 * @return
 	 */
 	Optional<VendorPayment> findByVendorOrderIdAndStatus(String vendorOrderId, String status);
+
+	/**
+	 * get list of payment by vendor id and status
+	 *
+	 * @param vendorId
+	 * @param status
+	 * @return
+	 */
+	List<VendorPayment> findAllByVendorIdAndStatus(Long vendorId, String status);
 
 }
