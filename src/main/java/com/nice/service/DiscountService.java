@@ -8,14 +8,14 @@ import org.springframework.data.domain.Page;
 
 import com.nice.dto.DiscountDTO;
 import com.nice.dto.DiscountResponseDTO;
-import com.nice.model.Discount;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.Discount;
 
 /**
- * 
- * @author : Kody Technolab PVT. LTD.
- * @date : 27-Mar-2020
+ *
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 27-Mar-2020
  * @description :
  */
 public interface DiscountService {
@@ -23,8 +23,8 @@ public interface DiscountService {
 	/**
 	 * Add discount
 	 *
-	 * @param discountDTO
-	 * @param userId
+	 * @param  discountDTO
+	 * @param  userId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -33,7 +33,7 @@ public interface DiscountService {
 	/**
 	 * Get discount details based on discountId
 	 *
-	 * @param discountId
+	 * @param  discountId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -43,7 +43,7 @@ public interface DiscountService {
 	/**
 	 * Get Discount details based on Id : Specially for internally calls
 	 *
-	 * @param discountId
+	 * @param  discountId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -52,9 +52,9 @@ public interface DiscountService {
 	/**
 	 * Change status of discount
 	 *
-	 * @param discountId
-	 * @param status
-	 * @param userId
+	 * @param  discountId
+	 * @param  status
+	 * @param  userId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -62,9 +62,9 @@ public interface DiscountService {
 
 	/**
 	 * update discount
-	 * 
-	 * @param discountDTO
-	 * @param userId
+	 *
+	 * @param  discountDTO
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -73,19 +73,19 @@ public interface DiscountService {
 
 	/**
 	 * Get discount list based on parameters
-	 * 
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param status
-	 * @param brandId
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  status
+	 * @param  vendorId
 	 * @return
 	 */
-	Page<Discount> getDiscountListBasedOnParams(Integer pageNumber, Integer pageSize, String status, Long brandId);
+	Page<Discount> getDiscountListBasedOnParams(Integer pageNumber, Integer pageSize, String status, Long vendorId);
 
 	/**
 	 * get discount list in response dto
-	 * 
-	 * @param discounts
+	 *
+	 * @param  discounts
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -94,13 +94,13 @@ public interface DiscountService {
 
 	/**
 	 * activate or expire discount according to start date and end date of discount
-	 * 
+	 *
 	 * @param runDate
 	 */
 	void activateExpireDiscount(LocalDate runDate);
 
 	/**
-	 * @param discountId
+	 * @param  discountId
 	 * @return
 	 * @throws NotFoundException
 	 */

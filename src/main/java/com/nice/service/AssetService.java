@@ -10,19 +10,19 @@ import com.nice.exception.ValidationException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 public interface AssetService {
 
 	/**
-	 * @param  image
-	 * @param  subDirectory
-	 * @param  count
+	 * @param image
+	 * @param subDirectory
+	 * @param count
 	 * @return
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
-	String saveAsset(MultipartFile image, String subDirectory, int count) throws FileOperationException, ValidationException;
+	String saveAsset(MultipartFile image, String subDirectory, int count, int width, int height) throws FileOperationException, ValidationException;
 
 	/**
 	 * @param fileName
@@ -31,8 +31,8 @@ public interface AssetService {
 	void deleteFile(String fileName, String direcotry);
 
 	/**
-	 * @param  newFileName
-	 * @param  subDirPath
+	 * @param newFileName
+	 * @param subDirPath
 	 * @return
 	 */
 	String getGeneratedUrl(String newFileName, String subDirPath);

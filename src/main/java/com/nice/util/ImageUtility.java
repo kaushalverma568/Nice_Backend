@@ -20,7 +20,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.constant.Constant;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -37,7 +36,18 @@ public class ImageUtility {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtility.class);
 
-	public MultipartFile resizeImage(final MultipartFile originalImage) throws FileOperationException, ValidationException {
+	/**
+	 *
+	 *
+	 * @param originalImage
+	 * @param width
+	 * @param height
+	 * @return
+	 * @throws FileOperationException
+	 * @throws ValidationException
+	 */
+
+	public MultipartFile resizeImage(final MultipartFile originalImage, final int width, final int height) throws FileOperationException, ValidationException {
 		try {
 			InputStream inputStream = originalImage.getInputStream();
 			BufferedImage img = ImageIO.read(inputStream);
@@ -48,8 +58,8 @@ public class ImageUtility {
 			if (img == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("images.type", null));
 			}
-			int targetWidth = Constant.IMAGE_WIDTH;
-			int targetHeight = Constant.IMAGE_HEIGHT;
+			int targetWidth = width;
+			int targetHeight = height;
 			img = Scalr.resize(img, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight);
 
 			ImageIO.write(img, extension, thumbOutput);

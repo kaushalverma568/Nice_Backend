@@ -43,11 +43,13 @@ public class OrdersResponseDTO implements Serializable {
 	private String deliveryBoyNameArabic;
 	private Long deliveryBoyId;
 	private String cancelReason;
+	private String rejectReason;
+	private String returnReason;
+	private String replaceReason;
 	private Date orderDate;
 	private List<OrderItemResponseDTO> orderItemResponseDtoList;
 	private Long count;
 	private String description;
-	private String returnReplaceReason;
 	private String email;
 	private Long vendorId;
 	private List<OrderStatusDto> orderStatusDtoList;
@@ -85,9 +87,10 @@ public class OrdersResponseDTO implements Serializable {
 	private String cancelledBy;
 	private String vendorPhoneNumber;
 	private String deliveryType;
-	
+
 	/**
-	 * order rating 
+	 * order rating
 	 */
-    private OrderRatingResponseDTO orderRating;
+	private List<RatingQuestionDTO> ratingQuestionList;
+	private OrderRatingResponseDTO orderRating;
 }

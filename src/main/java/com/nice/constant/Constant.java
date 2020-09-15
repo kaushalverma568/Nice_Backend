@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -97,12 +97,6 @@ public final class Constant {
 	public static final String BUSINESS_CATEGORY_FOOD_DELIVERY = "Food Delivery";
 
 	/**
-	 * Image dimensions in pixels
-	 */
-	public static final int IMAGE_WIDTH = 150;
-	public static final int IMAGE_HEIGHT = 150;
-
-	/**
 	 * Delivery Charge
 	 */
 	public static final String ORDER_DELIVERY_CHARGE = "ORDER_DELIVERY_CHARGE";
@@ -111,10 +105,32 @@ public final class Constant {
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
 
-	// TODO
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
-	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission and not the vendor, once changed in
+	 * the settings table , replace the same name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "VENDOR_COMISSION";
+	/**
+	 * Image Dimensions
+	 */
+	public static final int VENDOR_LIST_IMAGE_WIDTH = 70;
+	public static final int VENDOR_LIST_IMAGE_HEIGHT = 70;
+	public static final int VENDOR_FEATURE_IMAGE_WIDTH = 270;
+	public static final int VENDOR_FEATURE_IMAGE_HEIGHT = 110;
+	public static final int VENDOR_DETAIL_IMAGE_WIDTH = 375;
+	public static final int VENDOR_DETAIL_IMAGE_HEIGHT = 164;
+	public static final int PRODUCT_LIST_IMAGE_WIDTH = 70;
+	public static final int PRODUCT_LIST_IMAGE_HEIGHT = 70;
+	public static final int PRODUCT_DETAIL_IMAGE_WIDTH = 375;
+	public static final int PRODUCT_DETAIL_IMAGE_HEIGHT = 164;
+	public static final int BUSINESS_CATEGORY_IMAGE_WIDTH = 154;
+	public static final int BUSINESS_CATEGORY_IMAGE_HEIGHT = 154;
+	public static final int CATEGORY_IMAGE_WIDTH = 70;
+	public static final int CATEGORY_IMAGE_HEIGHT = 70;
+	public static final int CUISINE_IMAGE_WIDTH = 70;
+	public static final int CUISINE_IMAGE_HEIGHT = 70;
+	public static final int SUB_CATEGORY_IMAGE_WIDTH = 70;
+	public static final int SUB_CATEGORY_IMAGE_HEIGHT = 70;
+	public static final int SLIDER_IMAGE_WIDTH = 335;
+	public static final int SLIDER_IMAGE_HEIGHT = 170;
 }
