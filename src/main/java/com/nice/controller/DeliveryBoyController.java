@@ -37,13 +37,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nice.constant.Constant;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.UserType;
-import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
+import com.nice.dto.OrdersCountDTO;
 import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
 import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.PaginationUtilDto;
@@ -390,9 +390,31 @@ public class DeliveryBoyController {
 	public ResponseEntity<Object> getAssignedOrdersCount(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get assigned orders count for id:{}", deliveryBoyId);
-		final AssignedOrdersCountDTO assignedOrdersCountDTO = deliveryBoyService.getAssignedOrdersCount(deliveryBoyId);
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+		final OrdersCountDTO ordersCountDTO = deliveryBoyService.getOrdersCount(deliveryBoyId, taskFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
-				.setData(assignedOrdersCountDTO).create();
+				.setData(ordersCountDTO).create();
+	}
+
+	/**
+	 * Get delivered orders count
+	 *
+	 * @param  deliveryBoyId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/order/delivered/{deliveryBoyId}")
+	public ResponseEntity<Object> getDeliveredOrdersCount(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("deliveryBoyId") final Long deliveryBoyId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get delivered orders count for id:{}", deliveryBoyId);
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setDeliveredDate(new Date());
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+		final OrdersCountDTO ordersCountDTO = deliveryBoyService.getOrdersCount(deliveryBoyId, taskFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
+				.setData(ordersCountDTO).create();
 	}
 
 	/**
@@ -426,8 +448,7 @@ public class DeliveryBoyController {
 	 */
 	@GetMapping("/notification/order/{orderId}")
 	public ResponseEntity<Object> getOrderDetailInDeliveryBoyAcceptNotification(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("deliveryBoyId") final Long deliveryBoyId, @PathVariable("orderId") final Long orderId)
-			throws NotFoundException, ValidationException {
+			@PathVariable("orderId") final Long orderId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get order detail in delivery boy accept notification for orderId:{}", orderId);
 		final OrdersDetailDTOForDeliveryBoy orderNotificationDTO = deliveryBoyService.getOrderDetailInDeliveryBoyAcceptNotification(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.detail.message", null))

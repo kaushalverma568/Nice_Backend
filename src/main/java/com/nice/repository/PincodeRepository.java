@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nice.model.City;
 import com.nice.model.Pincode;
 
 /**
@@ -29,17 +30,19 @@ public interface PincodeRepository extends JpaRepository<Pincode, Long>, Pincode
 	 * Get Pincode based on codeValue for not given id
 	 *
 	 * @param  codeValue
+	 * @param  city
 	 * @param  id
 	 * @return
 	 */
-	Optional<Pincode> findByCodeValueIgnoreCaseAndIdNot(String codeValue, Long id);
+	Optional<Pincode> findByCodeValueIgnoreCaseAndCityAndIdNot(String codeValue, City city, Long id);
 
 	/**
 	 * Get Pincode based on codeValue
 	 *
 	 * @param  codeValue
+	 * @param  city
 	 * @return
 	 */
-	Optional<Pincode> findByCodeValueIgnoreCase(String codeValue);
+	Optional<Pincode> findByCodeValueIgnoreCaseAndCity(String codeValue, City city);
 
 }

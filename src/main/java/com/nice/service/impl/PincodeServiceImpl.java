@@ -66,17 +66,18 @@ public class PincodeServiceImpl implements PincodeService {
 	}
 
 	@Override
-	public Boolean isPincodeExists(final PincodeDTO pincodeDTO) {
+	public Boolean isPincodeExists(final PincodeDTO pincodeDTO) throws NotFoundException {
+		City city = cityService.getCityDetails(pincodeDTO.getCityId());
 		if (pincodeDTO.getId() != null) {
 			/**
-			 * At the time of update is pincode with same codeValue exist or not except it's own ID
+			 * At the time of update is pincode with same codeValue for same city exist or not except it's own ID
 			 */
-			return pincodeRepository.findByCodeValueIgnoreCaseAndIdNot(pincodeDTO.getCodeValue(), pincodeDTO.getId()).isPresent();
+			return pincodeRepository.findByCodeValueIgnoreCaseAndCityAndIdNot(pincodeDTO.getCodeValue(), city, pincodeDTO.getId()).isPresent();
 		} else {
 			/**
-			 * At the time of add is pincode with same codeValue exist or not
+			 * At the time of add is pincode with same codeValue for same city exist or not
 			 */
-			return pincodeRepository.findByCodeValueIgnoreCase(pincodeDTO.getCodeValue()).isPresent();
+			return pincodeRepository.findByCodeValueIgnoreCaseAndCity(pincodeDTO.getCodeValue(), city).isPresent();
 		}
 	}
 

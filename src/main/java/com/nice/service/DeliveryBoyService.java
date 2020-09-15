@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.dto.AssignedOrdersCountDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
+import com.nice.dto.OrdersCountDTO;
 import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
 import com.nice.dto.OrdersListDTOForDeliveryBoy;
 import com.nice.dto.TaskFilterDTO;
@@ -211,14 +211,15 @@ public interface DeliveryBoyService {
 	OrdersDetailDTOForDeliveryBoy getOrderDetailInDeliveryBoyAcceptNotification(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
-	 * get assigned ordres count(regular orders ,return orders,replace orders separate counts)
+	 * get assigned/delivered orders count(regular orders ,return orders,replace orders separate counts)
 	 *
 	 * @param  deliveryBoyId
+	 * @param  taskFilterDTO
 	 * @return
-	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	AssignedOrdersCountDTO getAssignedOrdersCount(Long deliveryBoyId) throws NotFoundException, ValidationException;
+	OrdersCountDTO getOrdersCount(Long deliveryBoyId, TaskFilterDTO taskFilterDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * get delivery boy dash board

@@ -48,7 +48,7 @@ public interface PincodeService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Boolean isPincodeExists(PincodeDTO pincodeDTO);
+	Boolean isPincodeExists(PincodeDTO pincodeDTO) throws NotFoundException;
 
 	/**
 	 * Change status of pincode (active/deActive)

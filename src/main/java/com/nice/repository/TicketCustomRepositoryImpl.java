@@ -105,7 +105,7 @@ public class TicketCustomRepositoryImpl implements TicketCustomRepository {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(name)) {
 			sqlQuery.append(
-					" and(lower(CONCAT (ct.first_name,' ',ct.last_name)) like :name  or lower(CONCAT (db.first_name,' ',db.last_name)) like :name or lower(CONCAT (vd.first_name,' ',vd.last_name)) like :name )");
+					" and(lower(CONCAT (ct.first_name,' ',ct.last_name)) like :name or lower(CONCAT (db.first_name_english,' ',db.last_name_english)) like :name or lower(CONCAT (db.first_name_arabic,' ',db.last_name_arabic)) like :name or lower(CONCAT (vd.first_name_english,' ',vd.last_name_english)) like :name or lower(CONCAT (vd.first_name_arabic,' ',vd.last_name_arabic)) like :name )");
 			paramMap.put("name", "%" + name.toLowerCase() + "%");
 		}
 		return sqlQuery;
