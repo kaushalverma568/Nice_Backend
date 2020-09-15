@@ -172,7 +172,6 @@ public class BusinessCategoryController {
 	 * @return
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Business Category','CAN_VIEW')")
 	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<BusinessCategory> resultBusinessCategory = businessCategoryService.getList(pageNumber, pageSize, activeRecords);

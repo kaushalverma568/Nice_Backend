@@ -136,9 +136,9 @@ public class DiscountController {
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getDiscountListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "status", required = false) final String status, @RequestParam(name = "brandId", required = false) final Long brandId)
+			@RequestParam(name = "status", required = false) final String status, @RequestParam(name = "vendorId", required = false) final Long vendorId)
 			throws ValidationException, NotFoundException {
-		final Page<Discount> resultDiscounts = discountService.getDiscountListBasedOnParams(pageNumber, pageSize, status, brandId);
+		final Page<Discount> resultDiscounts = discountService.getDiscountListBasedOnParams(pageNumber, pageSize, status, vendorId);
 		List<DiscountResponseDTO> discountResponseDTOs = discountService.getDiscountListBasedOnParams(resultDiscounts.getContent());
 
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.list.message", null))

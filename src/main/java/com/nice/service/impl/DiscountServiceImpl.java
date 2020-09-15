@@ -51,7 +51,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service("discountService")
 @Transactional(rollbackFor = Throwable.class)
@@ -155,8 +155,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discountDTO
-	 * @param discount
+	 * @param  discountDTO
+	 * @param  discount
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -175,8 +175,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * in discount updation if we are removing some product for this discount then remove them from product history (all the
-		 * other things are same as we written for category specific discount)
+		 * in discount updation if we are removing some product for this discount then remove them from product history (all the other things are same as we
+		 * written for category specific discount)
 		 */
 		if (!isCreation.booleanValue()) {
 			/**
@@ -192,8 +192,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start
-		 * date & end date or end date is between new start date & end date)
+		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start date & end date or end date is
+		 * between new start date & end date)
 		 */
 		for (Long productId : discountDTO.getProductIds()) {
 			Optional<DiscountAppliedProductHistory> existingHistory = discountAppliedProductHistoryRepository.isDiscountExist(productId, discount.getId(),
@@ -234,8 +234,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discountId
-	 * @param status
+	 * @param  discountId
+	 * @param  status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -281,7 +281,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param discount
+	 * @param  discount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -339,7 +339,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param existingDiscount
+	 * @param  existingDiscount
 	 * @throws NotFoundException
 	 */
 	private void setDiscountInProducts(final Discount existingDiscount) throws NotFoundException {
@@ -369,14 +369,14 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	@Override
-	public Page<Discount> getDiscountListBasedOnParams(final Integer pageNumber, final Integer pageSize, final String status, final Long categoryId) {
+	public Page<Discount> getDiscountListBasedOnParams(final Integer pageNumber, final Integer pageSize, final String status, final Long vendorId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(status) && categoryId != null) {
-			return discountRepository.findAllByStatusAndCategoryId(status, categoryId, pageable);
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(status) && vendorId != null) {
+			return discountRepository.findAllByStatusAndVendorId(status, vendorId, pageable);
 		} else if (status != null) {
 			return discountRepository.findAllByStatus(status, pageable);
-		} else if (categoryId != null) {
-			return discountRepository.findAllByCategoryId(categoryId, pageable);
+		} else if (vendorId != null) {
+			return discountRepository.findAllByVendorId(vendorId, pageable);
 		}
 		return discountRepository.findAll(pageable);
 	}
@@ -422,8 +422,7 @@ public class DiscountServiceImpl implements DiscountService {
 				}
 			}
 			/**
-			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will
-			 * not run for some day )
+			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will not run for some day )
 			 */
 			if (runDate.isAfter(endDate) && discount.getStatus().equals(DiscountStatusEnum.UPCOMING.getStatusValue())) {
 				try {
