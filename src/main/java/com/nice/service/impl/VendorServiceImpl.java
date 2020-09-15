@@ -101,7 +101,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Mar-2020
+ * @date   : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -390,8 +390,8 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified
+				 * then we will be returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -405,8 +405,8 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if the email is verified then
+			 * we will be returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -439,8 +439,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param vendor
+	 * @param  userLogin
+	 * @param  vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -682,8 +682,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -708,8 +708,8 @@ public class VendorServiceImpl implements VendorService {
 
 	/**
 	 *
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final VendorFilterDTO vendorFilterDTO) throws ValidationException {
@@ -857,7 +857,12 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void exportVendorList(final VendorFilterDTO vendorFilterDTO, final HttpServletResponse httpServletResponse) throws FileNotFoundException {
+	public void exportVendorList(final VendorFilterDTO vendorFilterDTO, final HttpServletResponse httpServletResponse)
+			throws FileNotFoundException, ValidationException {
+		UserLogin userLogin = getUserLoginFromToken();
+		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		List<Vendor> vendorList;
 		List<VendorExport> vendorExportList = new ArrayList<>();
 		vendorList = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
@@ -942,7 +947,7 @@ public class VendorServiceImpl implements VendorService {
 	/**
 	 * for failed transaction
 	 *
-	 * @param vendorOrderId
+	 * @param  vendorOrderId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

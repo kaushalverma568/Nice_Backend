@@ -436,10 +436,11 @@ public class VendorController {
 	 * @return
 	 * @throws IOException
 	 * @throws FileNotFoundException
+	 * @throws ValidationException
 	 */
 	@PostMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestBody final VendorFilterDTO vendorFilterDTO) throws FileNotFoundException {
+			@RequestBody final VendorFilterDTO vendorFilterDTO) throws FileNotFoundException, ValidationException {
 		vendorService.exportVendorList(vendorFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null)).create();
 	}

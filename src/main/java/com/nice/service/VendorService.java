@@ -242,8 +242,9 @@ public interface VendorService {
 	 * @param  httpServletResponse
 	 * @throws IOException
 	 * @throws FileNotFoundException
+	 * @throws ValidationException
 	 */
-	void exportVendorList(VendorFilterDTO vendorFilterDTO, HttpServletResponse httpServletResponse) throws FileNotFoundException;
+	void exportVendorList(VendorFilterDTO vendorFilterDTO, HttpServletResponse httpServletResponse) throws FileNotFoundException, ValidationException;
 
 	/**
 	 * verify vendor contact
