@@ -91,5 +91,6 @@ public class OrdersResponseDTO implements Serializable {
 	/**
 	 * order rating
 	 */
+	private List<RatingQuestionDTO> ratingQuestionList;
 	private OrderRatingResponseDTO orderRating;
 }

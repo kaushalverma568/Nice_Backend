@@ -59,6 +59,7 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderRatingMapper;
 import com.nice.mapper.OrderStatusHistoryMapper;
+import com.nice.mapper.RatingQuestionMapper;
 import com.nice.model.BusinessCategory;
 import com.nice.model.CartAddons;
 import com.nice.model.CartExtras;
@@ -84,6 +85,7 @@ import com.nice.model.OrdersProductAttributeValue;
 import com.nice.model.OrdersToppings;
 import com.nice.model.Pincode;
 import com.nice.model.ProductVariant;
+import com.nice.model.RatingQuestion;
 import com.nice.model.State;
 import com.nice.model.StockAllocation;
 import com.nice.model.TicketReason;
@@ -118,6 +120,7 @@ import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
 import com.nice.service.PincodeService;
 import com.nice.service.ProductVariantService;
+import com.nice.service.RatingQuestionService;
 import com.nice.service.StateService;
 import com.nice.service.StockAllocationService;
 import com.nice.service.StockDetailsService;
@@ -265,6 +268,12 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Value("${service.url}")
 	private String serviceUrl;
+	
+    @Autowired
+	private RatingQuestionService ratingQuestionService;
+	
+	@Autowired
+	private RatingQuestionMapper ratingQuestionMapper;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -1292,7 +1301,14 @@ public class OrdersServiceImpl implements OrdersService {
 				}
 			}
 		}
-
+		
+		List<RatingQuestion> ratingQuestion = new ArrayList<>();
+		if (ordersResponseDTO.getDeliveryType().equalsIgnoreCase(DeliveryType.PICKUP.name())) {
+			ratingQuestion = (ratingQuestionService.getList(1, 1000, "Vendor")).getContent();
+		} else {
+			ratingQuestion = (ratingQuestionService.getList(1, 1000, null)).getContent();
+		}
+		ordersResponseDTO.setRatingQuestionList(ratingQuestionMapper.toDtos(ratingQuestion));
 		Optional<OrderRating> orderRating = orderRatingRepository.findByOrderId(orderId);
 		if (orderRating.isPresent()) {
 			ordersResponseDTO.setOrderRating(orderRatingMapper.toResponseDto(orderRating.get()));
