@@ -36,8 +36,6 @@ public class PermissionResponseDTO implements Serializable {
 
 	private Boolean canDelete;
 
-	private Boolean sideBar;
-
 	private Boolean active;
 
 	private Boolean roleActive;

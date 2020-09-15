@@ -52,7 +52,4 @@ public class Permission extends CommonModel {
 
 	@Column(name = "can_delete", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private Boolean canDelete;
-
-	@Column(name = "side_bar", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-	private Boolean sideBar;
 }

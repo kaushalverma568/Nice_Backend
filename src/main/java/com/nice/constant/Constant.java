@@ -59,7 +59,6 @@ public final class Constant {
 	public static final String CAN_EDIT = "CAN_EDIT";
 	public static final String CAN_ADD = "CAN_ADD";
 	public static final String CAN_DELETE = "CAN_DELETE";
-	public static final String SIDE_BAR = "SIDE_BAR";
 
 	public static final String ANONYMOUS_USER = "anonymousUser";
 

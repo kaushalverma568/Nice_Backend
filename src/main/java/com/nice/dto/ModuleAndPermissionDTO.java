@@ -29,6 +29,4 @@ public class ModuleAndPermissionDTO implements Serializable {
 	private Boolean canAdd;
 
 	private Boolean canDelete;
-
-	private Boolean sideBar;
 }

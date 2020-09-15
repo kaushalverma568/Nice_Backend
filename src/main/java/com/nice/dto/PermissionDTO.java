@@ -34,8 +34,6 @@ public class PermissionDTO implements Serializable {
 
 	private Boolean canDelete;
 
-	private Boolean sideBar;
-
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 

@@ -58,7 +58,7 @@ INSERT INTO modules(
 /**
  * Orders
  */
-NSERT INTO modules(
+INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1, 'Orders','Orders',true);	
 INSERT INTO modules(

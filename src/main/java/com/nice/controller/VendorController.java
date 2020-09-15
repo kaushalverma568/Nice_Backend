@@ -455,7 +455,7 @@ public class VendorController {
 	 * @throws ValidationException
 	 */
 	@PutMapping("/featured/{vendorId}")
-	@PreAuthorize("hasPermission('Vendor','CAN_DELETE')")
+	@PreAuthorize("hasPermission('Vendor','CAN_EDIT')")
 	public ResponseEntity<Object> changeStatusOfIsFeaturedProduct(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("vendorId") final Long vendorId, @RequestParam("active") final Boolean active) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of is featured vendor for id {} and new status {}", vendorId, active);

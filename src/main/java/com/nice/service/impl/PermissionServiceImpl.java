@@ -2,6 +2,7 @@ package com.nice.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -187,7 +188,6 @@ public class PermissionServiceImpl implements PermissionService {
 		permissionMap.put(Constant.CAN_EDIT, permission.get().getCanEdit());
 		permissionMap.put(Constant.CAN_VIEW, permission.get().getCanView());
 		permissionMap.put(Constant.CAN_DELETE, permission.get().getCanDelete());
-		permissionMap.put(Constant.SIDE_BAR, permission.get().getSideBar());
 		return permissionMap;
 	}
 
@@ -215,12 +215,12 @@ public class PermissionServiceImpl implements PermissionService {
 	@Override
 	public Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new HashMap<>();
+		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new LinkedHashMap<>();
 
 		/**
-		 * get only those permissions for which particular role has access on side bar
+		 * get only those permissions for which particular role has access of VIEW
 		 */
-		List<Permission> permissionList = permissionRepository.findAllByRoleAndSideBarAndActive(userLogin.getRole(), true, true);
+		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewAndActiveOrderByIdAsc(userLogin.getRole(), true, true);
 
 		for (Permission permission : permissionList) {
 			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
