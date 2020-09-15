@@ -37,6 +37,7 @@ import com.nice.constant.PaymentMode;
 import com.nice.constant.Role;
 import com.nice.constant.SettingsConstant;
 import com.nice.constant.TaskTypeEnum;
+import com.nice.constant.TicketReasonType;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
@@ -85,6 +86,7 @@ import com.nice.model.Pincode;
 import com.nice.model.ProductVariant;
 import com.nice.model.State;
 import com.nice.model.StockAllocation;
+import com.nice.model.TicketReason;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.CartItemRepository;
@@ -120,6 +122,7 @@ import com.nice.service.StateService;
 import com.nice.service.StockAllocationService;
 import com.nice.service.StockDetailsService;
 import com.nice.service.StockTransferService;
+import com.nice.service.TicketReasonService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
 import com.nice.service.WalletTrxService;
@@ -257,6 +260,9 @@ public class OrdersServiceImpl implements OrdersService {
 	@Autowired
 	private WalletTrxService walletTrxService;
 
+	@Autowired
+	private TicketReasonService ticketReasonService;
+
 	@Value("${service.url}")
 	private String serviceUrl;
 
@@ -273,8 +279,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 		Long customerId = getCustomerIdForLoginUser();
 		orderRequestDto.setCustomerId(customerId);
-		CustomerAddress customerAddress = customerAddressService
-				.getAddressDetails(orderRequestDto.getShippingAddressId());
+		CustomerAddress customerAddress = customerAddressService.getAddressDetails(orderRequestDto.getShippingAddressId());
 		City city = customerAddress.getCity();
 		Customer customer = customerService.getCustomerDetails(customerId);
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(orderRequestDto.getCustomerId());
@@ -290,66 +295,55 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check if the vendor servicable and customer delivery belong to same city
 		 */
-		if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())
-				&& vendor.getIsOrderServiceEnable())) {
+		if (!(vendor.getActive() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) && vendor.getIsOrderServiceEnable())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
 		} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
 				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.mode",
-					new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("vendor.unavailable.for.mode", new Object[] { orderRequestDto.getPaymentMode().toLowerCase() }));
 		} else if (!DeliveryType.BOTH.getStatusValue().equalsIgnoreCase(vendor.getDeliveryType())
 				&& !orderRequestDto.getDeliveryType().equalsIgnoreCase(vendor.getDeliveryType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.delivery.type", null));
 		}
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			if (!vendor.getCity().getId().equals(city.getId())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city",
-						new Object[] { vendor.getCity().getNameEnglish() }));
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameEnglish() }));
 			}
 		} else {
 			if (!vendor.getCity().getId().equals(city.getId())) {
-				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city",
-						new Object[] { vendor.getCity().getNameArabic() }));
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameArabic() }));
 			}
 		}
 
 		/**
-		 * check if the products in cart are active or not active then throw error also
-		 * check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
-			ProductVariant productVariant = productVariantService
-					.getProductVariantDetail(cartItem.getProductVariant().getId());
+			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
 			if (!productVariant.getActive().booleanValue()) {
 				if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 					throw new ValidationException(messageByLocaleService.getMessage("product.inactive",
-							new Object[] { productVariant.getProduct().getNameEnglish(),
-									productVariant.getUom().getUomLabelEnglish() }));
+							new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabelEnglish() }));
 				} else {
 					throw new ValidationException(messageByLocaleService.getMessage("product.inactive",
-							new Object[] { productVariant.getProduct().getNameArabic(),
-									productVariant.getUom().getUomLabelArabic() }));
+							new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabelArabic() }));
 				}
 
 			} else {
 				/**
-				 * Stock related check for product while placing order by customer for Grocery
-				 * business category in which the inventory is managed
+				 * Stock related check for product while placing order by customer for Grocery business category in which the inventory
+				 * is managed
 				 */
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
 				if (businessCategory.getManageInventory().booleanValue()) {
 					Long availableQty = stockDetailsService.getCountForVariantForVendor(productVariant);
 					if (availableQty == null || availableQty < cartItem.getQuantity()) {
 						if ("en".equalsIgnoreCase(LocaleContextHolder.getLocale().getLanguage())) {
-							throw new ValidationException(
-									messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
-											new Object[] { productVariant.getProduct().getNameEnglish(),
-													productVariant.getUom().getUomLabelEnglish(), availableQty }));
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
+									new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabelEnglish(), availableQty }));
 						} else {
-							throw new ValidationException(
-									messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
-											new Object[] { productVariant.getProduct().getNameArabic(),
-													productVariant.getUom().getUomLabelArabic(), availableQty }));
+							throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.for.product.available.qty",
+									new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabelArabic(), availableQty }));
 						}
 
 					}
@@ -359,8 +353,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * This amount includes amount with delivery charge, the wallet contribution
-		 * would be calculated after that and subtracted from the actual order amount.
+		 * This amount includes amount with delivery charge, the wallet contribution would be calculated after that and
+		 * subtracted from the actual order amount.
 		 */
 		Double calculatedOrderAmt = calculateTotalOrderAmt(cartItemList, orderRequestDto.getApplyDeliveryCharge());
 
@@ -385,15 +379,13 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Validate order amount
 		 */
 		if (!amountAfterWalletDeduction.equals(CommonUtility.round(orderRequestDto.getTotalOrderAmount()))) {
-			throw new ValidationException(messageByLocaleService.getMessage("order.amount.mismatch",
-					new Object[] { amountAfterWalletDeduction }));
+			throw new ValidationException(messageByLocaleService.getMessage("order.amount.mismatch", new Object[] { amountAfterWalletDeduction }));
 		}
 
 		/**
 		 * Validate and prepare order object
 		 */
-		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())
-				|| amountAfterWalletDeduction == 0.0d) {
+		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name()) || amountAfterWalletDeduction == 0.0d) {
 			Orders order = createOrder(cartItemList, orderRequestDto, amountAfterWalletDeduction);
 
 			/**
@@ -477,8 +469,7 @@ public class OrdersServiceImpl implements OrdersService {
 				/**
 				 * Create online toppings list for this cart item
 				 */
-				List<CartToppings> cartToppingsList = cartToppingsService
-						.getCartToppingsListForCartItem(cartItem.getId());
+				List<CartToppings> cartToppingsList = cartToppingsService.getCartToppingsListForCartItem(cartItem.getId());
 				List<OnlineToppings> onlineToppingsList = new ArrayList<>();
 
 				for (CartToppings cartToppings : cartToppingsList) {
@@ -503,8 +494,7 @@ public class OrdersServiceImpl implements OrdersService {
 				for (CartProductAttributeValue cartProductAttributeValue : cartProductAttributeValueList) {
 					OnlineProductAttributeValue onlineProductAttributeValue = new OnlineProductAttributeValue();
 					onlineProductAttributeValue.setOnlineCartId(onlineCart.getId());
-					onlineProductAttributeValue
-							.setProductAttributeValue(cartProductAttributeValue.getProductAttributeValue());
+					onlineProductAttributeValue.setProductAttributeValue(cartProductAttributeValue.getProductAttributeValue());
 					onlineProductAttributeValue.setQuantity(cartProductAttributeValue.getQuantity());
 					onlineProductAttributeValue.setActive(true);
 					onlineProductAttributeValue.setCreatedAt(new Date());
@@ -515,24 +505,21 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 			String redirectUrl = serviceUrl.concat("payment/check");
 			LOGGER.info("inside hesabe gateway for generate url");
-			String url = hesabePaymentService.createPaymentGateway(onlineOrderId, amountAfterWalletDeduction,
-					redirectUrl);
+			String url = hesabePaymentService.createPaymentGateway(onlineOrderId, amountAfterWalletDeduction, redirectUrl);
 			LOGGER.info("outside hesabe gateway for generate url");
 			return url;
 		}
 	}
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
-		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
-				.concat(customerAddress.getArea()).concat(" ").concat(customerAddress.getCity().getNameEnglish())
-				.concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
+		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
+				.concat(customerAddress.getCity().getNameEnglish()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
 				.concat(customerAddress.getState().getNameEnglish());
 	}
 
 	private String makeCustomerAddressArabic(final CustomerAddress customerAddress) {
-		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ")
-				.concat(customerAddress.getArea()).concat(" ").concat(customerAddress.getCity().getNameArabic())
-				.concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
+		return customerAddress.getStreetNo().concat(" ").concat(customerAddress.getBuildingName()).concat(" ").concat(customerAddress.getArea()).concat(" ")
+				.concat(customerAddress.getCity().getNameArabic()).concat(" ").concat(customerAddress.getPincode().getCodeValue()).concat(" ")
 				.concat(customerAddress.getState().getNameArabic());
 	}
 
@@ -554,8 +541,8 @@ public class OrdersServiceImpl implements OrdersService {
 	 * @throws ValidationException
 	 */
 	@Override
-	public Orders createOrder(final List<CartItem> cartItemList, final OrderRequestDTO orderRequestDto,
-			final Double calculatedOrderAmt) throws NotFoundException, ValidationException {
+	public Orders createOrder(final List<CartItem> cartItemList, final OrderRequestDTO orderRequestDto, final Double calculatedOrderAmt)
+			throws NotFoundException, ValidationException {
 		Orders order = new Orders();
 		/**
 		 * Fetch Customer Details based on CustomerId
@@ -566,8 +553,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check for wallet amount
 		 */
-		if (orderRequestDto.getWalletContribution() != 0
-				&& orderRequestDto.getWalletContribution().compareTo(customer.getWalletAmt()) > 0) {
+		if (orderRequestDto.getWalletContribution() != 0 && orderRequestDto.getWalletContribution().compareTo(customer.getWalletAmt()) > 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("wallet.amount.insufficient", null));
 		}
 		order.setActive(true);
@@ -583,8 +569,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (orderRequestDto.getShippingAddressId() != null) {
 
-			CustomerAddress customerAddress = customerAddressService
-					.getAddressDetails(orderRequestDto.getShippingAddressId());
+			CustomerAddress customerAddress = customerAddressService.getAddressDetails(orderRequestDto.getShippingAddressId());
 
 			/**
 			 * Set Address for customer in order
@@ -605,8 +590,7 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in
-		 * orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -634,8 +618,8 @@ public class OrdersServiceImpl implements OrdersService {
 			BigDecimal dropLatitude = order.getLatitude();
 			BigDecimal dropLongitude = order.getLongitude();
 
-			distance = CommonUtility.distance(pickUpLatitude.doubleValue(), pickupLongitude.doubleValue(),
-					dropLatitude.doubleValue(), dropLongitude.doubleValue());
+			distance = CommonUtility.distance(pickUpLatitude.doubleValue(), pickupLongitude.doubleValue(), dropLatitude.doubleValue(),
+					dropLongitude.doubleValue());
 		}
 
 		order.setDistance(distance);
@@ -667,9 +651,8 @@ public class OrdersServiceImpl implements OrdersService {
 			orderItem.setProductVariant(cartItem.getProductVariant());
 			orderItem.setUnitPrice(cartItem.getProductVariant().getRate());
 			orderItem.setUnitPriceAfterDiscount(cartItem.getProductVariant().getDiscountedRate());
-			orderItem.setTotalAmt(
-					orderItem.getUnitPriceAfterDiscount() == null ? orderItem.getUnitPrice() * cartItem.getQuantity()
-							: orderItem.getUnitPriceAfterDiscount() * cartItem.getQuantity());
+			orderItem.setTotalAmt(orderItem.getUnitPriceAfterDiscount() == null ? orderItem.getUnitPrice() * cartItem.getQuantity()
+					: orderItem.getUnitPriceAfterDiscount() * cartItem.getQuantity());
 			orderItem.setQuantity(cartItem.getQuantity());
 			if (orderItem.getUnitPriceAfterDiscount() != null) {
 				orderItem.setTotalDiscountAmt(orderItem.getUnitPriceAfterDiscount() * cartItem.getQuantity());
@@ -688,23 +671,20 @@ public class OrdersServiceImpl implements OrdersService {
 			 * if payment mode is online then get toppings,addon,extras from online tables
 			 */
 			if (PaymentMode.ONLINE.name().equals(orderRequestDto.getPaymentMode())) {
-				List<OnlineAddons> onlineAddonsList = onlineAddonsRepository
-						.findAllByOnlineCartId(cartItem.getOnlineCartId());
+				List<OnlineAddons> onlineAddonsList = onlineAddonsRepository.findAllByOnlineCartId(cartItem.getOnlineCartId());
 				for (OnlineAddons onlineAddons : onlineAddonsList) {
 					CartAddons cartAddons = new CartAddons();
 					BeanUtils.copyProperties(onlineAddons, cartAddons);
 					cartAddonsList.add(cartAddons);
 				}
 
-				List<OnlineExtras> onlineExtrasList = onlineExtrasRepository
-						.findAllByOnlineCartId(cartItem.getOnlineCartId());
+				List<OnlineExtras> onlineExtrasList = onlineExtrasRepository.findAllByOnlineCartId(cartItem.getOnlineCartId());
 				for (OnlineExtras onlineExtras : onlineExtrasList) {
 					CartExtras cartExtras = new CartExtras();
 					BeanUtils.copyProperties(onlineExtras, cartExtras);
 					cartExtrasList.add(cartExtras);
 				}
-				List<OnlineToppings> onlineToppingsList = onlineToppingsRepository
-						.findAllByOnlineCartId(cartItem.getOnlineCartId());
+				List<OnlineToppings> onlineToppingsList = onlineToppingsRepository.findAllByOnlineCartId(cartItem.getOnlineCartId());
 				for (OnlineToppings onlineToppings : onlineToppingsList) {
 					CartToppings cartToppings = new CartToppings();
 					BeanUtils.copyProperties(onlineToppings, cartToppings);
@@ -722,8 +702,7 @@ public class OrdersServiceImpl implements OrdersService {
 				cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem);
 				cartExtrasList = cartExtrasService.getCartExtrasListForCartItem(cartItem);
 				cartToppingsList = cartToppingsService.getCartToppingsListForCartItem(cartItem);
-				cartProductAttributeValueList = cartProductAttributeValueService
-						.getCartProductAttributeValueListForCartItem(cartItem);
+				cartProductAttributeValueList = cartProductAttributeValueService.getCartProductAttributeValueListForCartItem(cartItem);
 			}
 			/**
 			 * Set addons list in order items
@@ -736,8 +715,7 @@ public class OrdersServiceImpl implements OrdersService {
 				orderAddons.setQuantity(cartAddons.getQuantity());
 				orderAddons.setAmount(cartAddons.getProductAddons().getRate() * cartAddons.getQuantity());
 				if (cartAddons.getProductAddons().getDiscountedRate() != null) {
-					orderAddons.setDiscountedAmount(
-							cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
+					orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
 				}
 				orderAddonsList.add(orderAddons);
 				orderItemTotal += orderAddons.getAmount();
@@ -755,8 +733,7 @@ public class OrdersServiceImpl implements OrdersService {
 				orderExtras.setQuantity(cartExtras.getQuantity());
 				orderExtras.setAmount(cartExtras.getProductExtras().getRate() * cartExtras.getQuantity());
 				if (cartExtras.getProductExtras().getDiscountedRate() != null) {
-					orderExtras.setDiscountedAmount(
-							cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
+					orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
 				}
 				orderItemTotal += orderExtras.getAmount();
 				orderExtrasList.add(orderExtras);
@@ -772,12 +749,10 @@ public class OrdersServiceImpl implements OrdersService {
 				orderProductAttributeValue.setActive(true);
 				orderProductAttributeValue.setProductAttributeValue(cartProductAttribute.getProductAttributeValue());
 				orderProductAttributeValue.setQuantity(cartProductAttribute.getQuantity());
-				orderProductAttributeValue.setAmount(
-						cartProductAttribute.getProductAttributeValue().getRate() * cartProductAttribute.getQuantity());
+				orderProductAttributeValue.setAmount(cartProductAttribute.getProductAttributeValue().getRate() * cartProductAttribute.getQuantity());
 				if (cartProductAttribute.getProductAttributeValue().getDiscountedRate() != null) {
 					orderProductAttributeValue
-							.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate()
-									* cartProductAttribute.getQuantity());
+							.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate() * cartProductAttribute.getQuantity());
 				}
 				orderItemTotal += orderProductAttributeValue.getAmount();
 				orderProductAttributeValuesList.add(orderProductAttributeValue);
@@ -794,8 +769,7 @@ public class OrdersServiceImpl implements OrdersService {
 				orderToppings.setQuantity(cartToppings.getQuantity());
 				orderToppings.setAmount(cartToppings.getProductToppings().getRate() * cartToppings.getQuantity());
 				if (cartToppings.getProductToppings().getDiscountedRate() != null) {
-					orderToppings.setDiscountedAmount(
-							cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
+					orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
 				}
 				orderItemTotal += orderToppings.getAmount();
 				orderToppingsList.add(orderToppings);
@@ -807,12 +781,10 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Check if delivery charge is applicable
 		 */
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
-		Double orderAmountForFreeDelivery = (Double) SettingsConstant
-				.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
+		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the
-		 * configuration for the same. If delivery charge is to be taken for all order
-		 * set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
 				&& (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery)) {
@@ -859,8 +831,7 @@ public class OrdersServiceImpl implements OrdersService {
 				}
 			}
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItem.getOrderProductAttributeValuesList())) {
-				for (OrdersProductAttributeValue orderProductAttributeValues : orderItem
-						.getOrderProductAttributeValuesList()) {
+				for (OrdersProductAttributeValue orderProductAttributeValues : orderItem.getOrderProductAttributeValuesList()) {
 					orderProductAttributeValues.setOrderItem(orderItem);
 					orderProductAttributeValueRepository.save(orderProductAttributeValues);
 				}
@@ -875,8 +846,7 @@ public class OrdersServiceImpl implements OrdersService {
 	 * @param order
 	 * @throws NotFoundException
 	 */
-	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId)
-			throws NotFoundException {
+	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId) throws NotFoundException {
 		WalletTrxDTO walletTxnDto = new WalletTrxDTO();
 		walletTxnDto.setActive(true);
 		walletTxnDto.setAmount(transactionAmount);
@@ -896,36 +866,32 @@ public class OrdersServiceImpl implements OrdersService {
 		orderStatusRepository.save(orderStatus);
 	}
 
-	private Double calculateTotalOrderAmt(final List<CartItem> cartItemList, final boolean applyDeliveryCharge)
-			throws NotFoundException {
+	private Double calculateTotalOrderAmt(final List<CartItem> cartItemList, final boolean applyDeliveryCharge) throws NotFoundException {
 
 		Double orderAmt = 0.0d;
 
 		for (CartItem cartItem : cartItemList) {
-			Double rate = cartItem.getProductVariant().getDiscountedRate() == null
-					|| cartItem.getProductVariant().getDiscountedRate() == 0.0d ? cartItem.getProductVariant().getRate()
-							: cartItem.getProductVariant().getDiscountedRate();
+			Double rate = cartItem.getProductVariant().getDiscountedRate() == null || cartItem.getProductVariant().getDiscountedRate() == 0.0d
+					? cartItem.getProductVariant().getRate()
+					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for
-			 * calculation
+			 * Add the addons , extras, product attribute values, toppings amount for calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
 			for (CartAddons cartAddons : cartAddonsList) {
-				Double addonsRate = cartAddons.getProductAddons().getDiscountedRate() == null
-						|| cartAddons.getProductAddons().getDiscountedRate() == 0.0d
-								? cartAddons.getProductAddons().getRate()
-								: cartAddons.getProductAddons().getDiscountedRate();
+				Double addonsRate = cartAddons.getProductAddons().getDiscountedRate() == null || cartAddons.getProductAddons().getDiscountedRate() == 0.0d
+						? cartAddons.getProductAddons().getRate()
+						: cartAddons.getProductAddons().getDiscountedRate();
 				totalAddonsAmount += addonsRate * cartAddons.getQuantity();
 			}
 
 			List<CartExtras> cartExtrasList = cartExtrasService.getCartExtrasListForCartItem(cartItem.getId());
 			Double totalExtrasAmount = 0d;
 			for (CartExtras cartExtras : cartExtrasList) {
-				Double extrasRate = cartExtras.getProductExtras().getDiscountedRate() == null
-						|| cartExtras.getProductExtras().getDiscountedRate() == 0.0d
-								? cartExtras.getProductExtras().getRate()
-								: cartExtras.getProductExtras().getDiscountedRate();
+				Double extrasRate = cartExtras.getProductExtras().getDiscountedRate() == null || cartExtras.getProductExtras().getDiscountedRate() == 0.0d
+						? cartExtras.getProductExtras().getRate()
+						: cartExtras.getProductExtras().getDiscountedRate();
 				totalExtrasAmount += extrasRate * cartExtras.getQuantity();
 			}
 
@@ -933,8 +899,7 @@ public class OrdersServiceImpl implements OrdersService {
 			Double totalToppingsAmount = 0d;
 			for (CartToppings cartTopping : cartToppingsList) {
 				Double toppingRate = cartTopping.getProductToppings().getDiscountedRate() == null
-						|| cartTopping.getProductToppings().getDiscountedRate() == 0.0d
-								? cartTopping.getProductToppings().getRate()
+						|| cartTopping.getProductToppings().getDiscountedRate() == 0.0d ? cartTopping.getProductToppings().getRate()
 								: cartTopping.getProductToppings().getDiscountedRate();
 				totalToppingsAmount += toppingRate * cartTopping.getQuantity();
 			}
@@ -949,20 +914,18 @@ public class OrdersServiceImpl implements OrdersService {
 								: cartProductAttributeValues.getProductAttributeValue().getDiscountedRate();
 				cartProductAttributeListAmount += attributeRate * cartProductAttributeValues.getQuantity();
 			}
-			orderAmt = orderAmt + (rate * cartItem.getQuantity()) + cartProductAttributeListAmount + totalToppingsAmount
-					+ totalExtrasAmount + totalAddonsAmount;
+			orderAmt = orderAmt + (rate * cartItem.getQuantity()) + cartProductAttributeListAmount + totalToppingsAmount + totalExtrasAmount
+					+ totalAddonsAmount;
 		}
 
 		/**
 		 * Check if delivery charge is applicable
 		 */
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
-		Double orderAmountForFreeDelivery = (Double) SettingsConstant
-				.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
+		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the
-		 * configuration for the same. If delivery charge is to be taken for all order
-		 * set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
+		 * charge is to be taken for all order set the value to any negative value
 		 */
 		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
 			orderAmt = Double.sum(orderAmt, deliveryCharge);
@@ -976,8 +939,7 @@ public class OrdersServiceImpl implements OrdersService {
 	 * @throws ValidationException
 	 */
 	@Override
-	public Long getOrderCountBasedOnParams(final OrderListFilterDto orderListFilterDto)
-			throws NotFoundException, ValidationException {
+	public Long getOrderCountBasedOnParams(final OrderListFilterDto orderListFilterDto) throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			orderListFilterDto.setVendorId(userLogin.getEntityId());
@@ -988,8 +950,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public List<OrdersResponseDTO> getOrderListBasedOnParams(final Integer startIndex, final Integer pageSize,
-			final OrderListFilterDto orderListFilterDto) throws NotFoundException, ValidationException {
+	public List<OrdersResponseDTO> getOrderListBasedOnParams(final Integer startIndex, final Integer pageSize, final OrderListFilterDto orderListFilterDto)
+			throws NotFoundException, ValidationException {
 		UserLogin userLogin = checkForUserLogin();
 		boolean forAdmin = true;
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
@@ -1003,8 +965,8 @@ public class OrdersServiceImpl implements OrdersService {
 		return toDtos(orderList, forAdmin);
 	}
 
-	private OrdersResponseDTO toDto(final Orders orders, final boolean isFromAdmin, final boolean replacementOrderItems,
-			final boolean fullDetails) throws NotFoundException {
+	private OrdersResponseDTO toDto(final Orders orders, final boolean isFromAdmin, final boolean replacementOrderItems, final boolean fullDetails)
+			throws NotFoundException {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
@@ -1013,15 +975,42 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (locale.getLanguage().equals("en")) {
 			orderResponseDto.setCity(orders.getCity().getNameEnglish());
-			orderResponseDto.setVendorName(
-					orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish());
+			orderResponseDto.setVendorName(orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish());
 			orderResponseDto.setAddress(orders.getAddressEnglish());
 		} else {
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
-			orderResponseDto.setVendorName(
-					orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic());
+			orderResponseDto.setVendorName(orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic());
 			orderResponseDto.setAddress(orders.getAddressArabic());
 		}
+		/**
+		 * Set reason for the order if any
+		 */
+		if (orders.getReturnReplaceReason() != null) {
+			TicketReason reason = orders.getReturnReplaceReason();
+			if (locale.getLanguage().equals("en")) {
+				if (TicketReasonType.CANCEL.name().equals(reason.getType())) {
+					orderResponseDto.setCancelReason(reason.getReasonEnglish());
+				} else if (TicketReasonType.REJECT.name().equals(reason.getType())) {
+					orderResponseDto.setRejectReason(reason.getReasonEnglish());
+				} else if (TicketReasonType.REPLACE.name().equals(reason.getType())) {
+					orderResponseDto.setReplaceReason(reason.getReasonEnglish());
+				} else if (TicketReasonType.RETURN.name().equals(reason.getType())) {
+					orderResponseDto.setReturnReason(reason.getReasonEnglish());
+				}
+			} else {
+				if (TicketReasonType.CANCEL.name().equals(reason.getType())) {
+					orderResponseDto.setCancelReason(reason.getReasonArabic());
+				} else if (TicketReasonType.REJECT.name().equals(reason.getType())) {
+					orderResponseDto.setRejectReason(reason.getReasonArabic());
+				} else if (TicketReasonType.REPLACE.name().equals(reason.getType())) {
+					orderResponseDto.setReplaceReason(reason.getReasonArabic());
+				} else if (TicketReasonType.RETURN.name().equals(reason.getType())) {
+					orderResponseDto.setReturnReason(reason.getReasonArabic());
+				}
+			}
+
+		}
+
 		/**
 		 * set pincode field for email and push notification
 		 */
@@ -1049,30 +1038,30 @@ public class OrdersServiceImpl implements OrdersService {
 		orderResponseDto.setEmail(orders.getCustomer().getEmail());
 
 		if (orders.getDeliveryBoy() != null) {
-			orderResponseDto.setDeliveryBoyNameEnglish(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ")
-					.concat(orders.getDeliveryBoy().getLastNameEnglish()));
-			orderResponseDto.setDeliveryBoyNameArabic(orders.getDeliveryBoy().getFirstNameArabic().concat(" ")
-					.concat(orders.getDeliveryBoy().getLastNameArabic()));
+			orderResponseDto
+					.setDeliveryBoyNameEnglish(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getDeliveryBoy().getLastNameEnglish()));
+			orderResponseDto
+					.setDeliveryBoyNameArabic(orders.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getDeliveryBoy().getLastNameArabic()));
 			if (locale.getLanguage().equals("en")) {
-				orderResponseDto.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ")
-						.concat(orders.getDeliveryBoy().getLastNameEnglish()));
+				orderResponseDto
+						.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getDeliveryBoy().getLastNameEnglish()));
 			} else {
-				orderResponseDto.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameArabic().concat(" ")
-						.concat(orders.getDeliveryBoy().getLastNameArabic()));
+				orderResponseDto
+						.setDeliveryBoyName(orders.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getDeliveryBoy().getLastNameArabic()));
 			}
 			orderResponseDto.setDeliveryBoyId(orders.getDeliveryBoy().getId());
 		}
 		if (orders.getReplacementDeliveryBoy() != null) {
-			orderResponseDto.setReplacementDeliveryBoyNameEnglish(orders.getReplacementDeliveryBoy()
-					.getFirstNameEnglish().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
-			orderResponseDto.setReplacementDeliveryBoyNameArabic(orders.getReplacementDeliveryBoy().getFirstNameArabic()
-					.concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
+			orderResponseDto.setReplacementDeliveryBoyNameEnglish(
+					orders.getReplacementDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
+			orderResponseDto.setReplacementDeliveryBoyNameArabic(
+					orders.getReplacementDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
 			if (locale.getLanguage().equals("en")) {
-				orderResponseDto.setReplacementDeliveryBoyName(orders.getReplacementDeliveryBoy().getFirstNameEnglish()
-						.concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
+				orderResponseDto.setReplacementDeliveryBoyName(
+						orders.getReplacementDeliveryBoy().getFirstNameEnglish().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameEnglish()));
 			} else {
-				orderResponseDto.setReplacementDeliveryBoyName(orders.getReplacementDeliveryBoy().getFirstNameArabic()
-						.concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
+				orderResponseDto.setReplacementDeliveryBoyName(
+						orders.getReplacementDeliveryBoy().getFirstNameArabic().concat(" ").concat(orders.getReplacementDeliveryBoy().getLastNameArabic()));
 			}
 			orderResponseDto.setReplacementDeliveryBoyId(orders.getReplacementDeliveryBoy().getId());
 		}
@@ -1090,8 +1079,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		VendorResponseDTO vendorDto = vendorService.getVendor(orders.getVendor().getId());
 		orderResponseDto.setVendorImageUrl(vendorDto.getStoreImageUrl());
-		BusinessCategoryDTO businessCategory = businessCategoryService
-				.getBusinessCategory(vendorDto.getBusinessCategoryId());
+		BusinessCategoryDTO businessCategory = businessCategoryService.getBusinessCategory(vendorDto.getBusinessCategoryId());
 		orderResponseDto.setManageInventory(businessCategory.getManageInventory());
 		orderResponseDto.setVendorPhoneNumber(vendorDto.getPhoneNumber());
 		return orderResponseDto;
@@ -1103,8 +1091,7 @@ public class OrdersServiceImpl implements OrdersService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	private Long setOrderItemInResponse(final Orders orders, final OrdersResponseDTO orderResponseDto)
-			throws NotFoundException {
+	private Long setOrderItemInResponse(final Orders orders, final OrdersResponseDTO orderResponseDto) throws NotFoundException {
 		List<OrdersItem> orderItemList = ordersItemRepository.findAllByOrderId(orders.getId());
 		orderResponseDto.setOrderItemResponseDtoList(orderItemService.toOrderItemResponseDto(orderItemList));
 		Long totalCountForOrder = 0L;
@@ -1114,8 +1101,7 @@ public class OrdersServiceImpl implements OrdersService {
 		return totalCountForOrder;
 	}
 
-	private List<OrdersResponseDTO> toDtos(final List<Orders> orders, final boolean isFromAdmin)
-			throws NotFoundException {
+	private List<OrdersResponseDTO> toDtos(final List<Orders> orders, final boolean isFromAdmin) throws NotFoundException {
 		List<OrdersResponseDTO> results = new ArrayList<>();
 		for (Orders o : orders) {
 			results.add(toDto(o, isFromAdmin, false, false));
@@ -1131,13 +1117,11 @@ public class OrdersServiceImpl implements OrdersService {
 		UserLogin userLogin = checkForUserLogin();
 
 		/**
-		 * Validation for allowing vendor only to mark status as "Order Pick Up" and
-		 * that too only for PickUp Order, else placing a validation allowing only
-		 * delivery boy to do the same
+		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
+		 * placing a validation allowing only delivery boy to do the same
 		 */
 		if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue())
-				&& ((DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
-						&& !UserType.VENDOR.name().equals(userLogin.getEntityType()))
+				&& ((DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType()) && !UserType.VENDOR.name().equals(userLogin.getEntityType()))
 						|| (DeliveryType.DELIVERY.getStatusValue().equals(order.getDeliveryType())
 								&& !UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())))) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -1146,13 +1130,11 @@ public class OrdersServiceImpl implements OrdersService {
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
 		final String existingStockStatus = existingOrderStatus.getStockValue();
 		if (!existingOrderStatus.contains(newStatus)) {
-			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed",
-					new Object[] { newStatus, order.getOrderStatus() }));
+			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
-		 * Check manage inventory flag for order, if its true then need to place a check
-		 * that once the order is in "Order Is Ready" status it is not directly moved to
-		 * Order Pickup before allocating stock
+		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
+		 * Ready" status it is not directly moved to Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1162,10 +1144,9 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Check if the vendor confirms the order and its delivery type is Pick Up, then
-		 * make the status as in Process for the order. </br>
-		 * if the order is pickuped in case of Pickup orders, it will be marked as
-		 * delivered
+		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
+		 * order. </br>
+		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 			if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
@@ -1187,36 +1168,30 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * If the order status is related to replacement then set allocatedFor as
-		 * Replacement
+		 * If the order status is related to replacement then set allocatedFor as Replacement
 		 */
-		if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED)
-				|| newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
+		if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
 				|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 			allocatedFor = TaskTypeEnum.REPLACEMENT.name();
 		}
 
 		/**
-		 * Work to be done here related to inventory for Nice; For Dussy : remove All
-		 * the below stock related code.
+		 * Work to be done here related to inventory for Nice; For Dussy : remove All the below stock related code.
 		 */
 
 		/**
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer
-		 * the inventory, that will be a typical case of replacement of orders that will
-		 * be handled in a different way
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
+		 * case of replacement of orders that will be handled in a different way
 		 */
-		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus) && !existingStockStatus
-				.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
+				&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
 			/**
-			 * Fetch list of all allocated stock based on lot and move one by one for the
-			 * order.
+			 * Fetch list of all allocated stock based on lot and move one by one for the order.
 			 */
-			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
-					allocatedFor);
+			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
 			for (StockAllocation stockAllocation : stockAllocationList) {
 				StockTransferDto stockTransferDto = new StockTransferDto();
 				stockTransferDto.setTransferedFrom(existingStockStatus);
@@ -1234,19 +1209,18 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 		/**
-		 * This handles the Replacement of stock, the stock already delivered for a
-		 * order will be moved from delivered to replaced status
+		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+		 * replaced status
 		 */
 		if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
-			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(),
-					TaskTypeEnum.REPLACEMENT.name());
+			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
 			Set<Long> orderItemIdSet = new HashSet<>();
 			for (StockAllocation stockAllocation : stockAllocationList) {
 				orderItemIdSet.add(stockAllocation.getOrderItem().getId());
 			}
 			for (Long orderItem : orderItemIdSet) {
-				List<StockAllocation> replacementStockAllocationList = stockAllocationService
-						.getAllocatedStockForOrderItem(orderItem, TaskTypeEnum.DELIVERY.name());
+				List<StockAllocation> replacementStockAllocationList = stockAllocationService.getAllocatedStockForOrderItem(orderItem,
+						TaskTypeEnum.DELIVERY.name());
 				for (StockAllocation stockAllocation : replacementStockAllocationList) {
 					StockTransferDto stockTransferDto = new StockTransferDto();
 					stockTransferDto.setTransferedFrom(Constant.DELIVERED);
@@ -1285,11 +1259,10 @@ public class OrdersServiceImpl implements OrdersService {
 			isFromAdmin = true;
 		}
 
-		Orders order = ordersRepository.findById(orderId).orElseThrow(
-				() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
+		Orders order = ordersRepository.findById(orderId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(NOT_FOUND, new Object[] { orderId })));
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to
-		 * him.
+		 * If the user is Vendor or customer, check if the order actually belongs to him.
 		 */
 		if ((!isFromAdmin && !order.getCustomer().getId().equals(customerId))
 				|| (isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId))) {
@@ -1302,8 +1275,7 @@ public class OrdersServiceImpl implements OrdersService {
 			ordersResponseDTO.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			ordersResponseDTO.setPhoneNumber(customer.getPhoneNumber());
 		}
-		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper
-				.toDtos(orderStatusRepository.findAllByOrderId(orderId));
+		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusRepository.findAllByOrderId(orderId));
 		ordersResponseDTO.setOrderStatusDtoList(orderStatusDtoList);
 		ordersResponseDTO.setOrderDate(order.getCreatedAt());
 		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(ordersResponseDTO.getOrderStatus())) {
@@ -1312,8 +1284,7 @@ public class OrdersServiceImpl implements OrdersService {
 					ordersResponseDTO.setCancelDate(orderStatusDto.getCreatedAt());
 					UserLogin userLoginTemp = userLoginService.getUserLoginDetail(orderStatusDto.getCreatedBy());
 					if (userLoginTemp.getEntityType().equalsIgnoreCase(UserType.CUSTOMER.name())) {
-						CustomerResponseDTO customerResponseDto = customerService
-								.getCustomer(userLoginTemp.getEntityId());
+						CustomerResponseDTO customerResponseDto = customerService.getCustomer(userLoginTemp.getEntityId());
 						ordersResponseDTO.setCancelledBy(customerResponseDto.getName());
 					} else {
 						ordersResponseDTO.setCancelledBy(messageByLocaleService.getMessage("nice", null));
@@ -1341,8 +1312,7 @@ public class OrdersServiceImpl implements OrdersService {
 		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName())) {
 			return true;
 		}
-		if (userType.contains(userLogin.getEntityType())
-				&& (entityId == null || userLogin.getEntityId().equals(entityId))) {
+		if (userType.contains(userLogin.getEntityType()) && (entityId == null || userLogin.getEntityId().equals(entityId))) {
 			return true;
 		}
 		throw new AuthorizationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -1378,14 +1348,14 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void exportOrderList(final HttpServletResponse httpServletResponse,
-			final OrderListFilterDto orderListFilterDto) throws NotFoundException, FileNotFoundException {
+	public void exportOrderList(final HttpServletResponse httpServletResponse, final OrderListFilterDto orderListFilterDto)
+			throws NotFoundException, FileNotFoundException {
 		List<Orders> orderList = ordersRepository.getOrderListBasedOnParams(null, null, orderListFilterDto);
 		List<OrdersResponseDTO> orderDtoList = toDtos(orderList, true);
-		final Object[] orderHeaderField = new Object[] { "Customer Name", "Phone Number", "Total Order Amount",
-				"Order Status", "Payment Mode", "Vendor Name", "Delivery Boy Name", "Order Date" };
-		final Object[] orderDataField = new Object[] { "customerName", "phoneNumber", "totalOrderAmount", "orderStatus",
-				"paymentMode", "vendorName", "deliveryBoyName", "orderDate" };
+		final Object[] orderHeaderField = new Object[] { "Customer Name", "Phone Number", "Total Order Amount", "Order Status", "Payment Mode", "Vendor Name",
+				"Delivery Boy Name", "Order Date" };
+		final Object[] orderDataField = new Object[] { "customerName", "phoneNumber", "totalOrderAmount", "orderStatus", "paymentMode", "vendorName",
+				"deliveryBoyName", "orderDate" };
 		try {
 			exportCSV.writeCSVFile(orderDtoList, orderDataField, orderHeaderField, httpServletResponse);
 		} catch (IOException e) {
@@ -1397,7 +1367,10 @@ public class OrdersServiceImpl implements OrdersService {
 	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto, final boolean deductDeliveryCharge)
 			throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
-		orders.setCancelReason(replaceCancelOrderDto.getReason());
+
+		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
+
+		orders.setReturnReplaceReason(ticketReason);
 		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 		/**
 		 * Add this method to cancel order.
@@ -1412,11 +1385,9 @@ public class OrdersServiceImpl implements OrdersService {
 		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 			if (deductDeliveryCharge) {
 				/**
-				 * this means the refund is to be made to customer wallet after deducting the
-				 * delivery charges from the order
+				 * this means the refund is to be made to customer wallet after deducting the delivery charges from the order
 				 */
-				Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution()
-						- orders.getDeliveryCharge();
+				Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution() - orders.getDeliveryCharge();
 				customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
 				/**
 				 * make an entry in wallet txn
@@ -1434,77 +1405,68 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void replaceOrder(final ReplaceCancelOrderDto replaceCancelOrderDto)
-			throws NotFoundException, ValidationException {
+	public void replaceOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
 
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		if (!Constant.DELIVERED.equals(orders.getOrderStatus())) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("order.not.delivered.already.replaced", null));
+			throw new ValidationException(messageByLocaleService.getMessage("order.not.delivered.already.replaced", null));
 		}
 		/**
 		 * if vendor does not accepts replacement then throw error
 		 */
 		if (!VendorAccepts.REPLACE.getStatusValue().equals(orders.getVendor().getAccepts())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts",
-					new Object[] { orders.getVendor().getAccepts() }));
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts", new Object[] { orders.getVendor().getAccepts() }));
 		}
 		Optional<OrderStatusHistory> orderStatusHistory = orderStatusRepository.findByOrderIdAndStatus(orders.getId(),
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the replacement request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the replacement request has come after a maximum days for which vendor can accepts then throw error.
 			 */
-			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt())
-					.plusDays(orders.getVendor().getMaxDaysForAccept()).isBefore(LocalDate.now())) {
-				throw new ValidationException(messageByLocaleService.getMessage("order.outside.replacement.period",
-						new Object[] { orders.getVendor().getMaxDaysForAccept() }));
+			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
+					.isBefore(LocalDate.now())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("order.outside.replacement.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
 			}
-
-			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
+			TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
+			orders.setReturnReplaceReason(ticketReason);
 			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.REPLACE_REQUESTED, orders);
 		}
 	}
 
 	@Override
-	public List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(final String status,
-			final String deliveryType, final Integer assignmentTryCount, final Date notificationTimer) {
-		return ordersRepository
-				.findAllByOrderStatusAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(status,
-						deliveryType, assignmentTryCount, notificationTimer);
+	public List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(final String status, final String deliveryType, final Integer assignmentTryCount,
+			final Date notificationTimer) {
+		return ordersRepository.findAllByOrderStatusAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(status, deliveryType,
+				assignmentTryCount, notificationTimer);
 	}
 
 	@Override
-	public void returnOrder(final ReplaceCancelOrderDto replaceCancelOrderDto)
-			throws ValidationException, NotFoundException {
+	public void returnOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws ValidationException, NotFoundException {
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		if (!Constant.DELIVERED.equals(orders.getOrderStatus())) {
-			throw new ValidationException(
-					messageByLocaleService.getMessage("order.not.delivered.already.returned", null));
+			throw new ValidationException(messageByLocaleService.getMessage("order.not.delivered.already.returned", null));
 		}
 		/**
 		 * if vendor does not accepts return then throw error
 		 */
 		if (!VendorAccepts.RETURN.getStatusValue().equals(orders.getVendor().getAccepts())) {
-			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts",
-					new Object[] { orders.getVendor().getAccepts() }));
+			throw new ValidationException(messageByLocaleService.getMessage("vendor.not.accepts", new Object[] { orders.getVendor().getAccepts() }));
 		}
 		Optional<OrderStatusHistory> orderStatusHistory = orderStatusRepository.findByOrderIdAndStatus(orders.getId(),
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the return request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the return request has come after a maximum days for which vendor can accepts then throw error.
 			 */
-			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt())
-					.plusDays(orders.getVendor().getMaxDaysForAccept()).isBefore(LocalDate.now())) {
-				throw new ValidationException(messageByLocaleService.getMessage("order.outside.replacement.period",
-						new Object[] { orders.getVendor().getMaxDaysForAccept() }));
+			if (CommonUtility.convetUtilDatetoLocalDate(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
+					.isBefore(LocalDate.now())) {
+				throw new ValidationException(
+						messageByLocaleService.getMessage("order.outside.replacement.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
 			}
-
-			orders.setReturnReplaceReason(replaceCancelOrderDto.getReason());
+			TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
+			orders.setReturnReplaceReason(ticketReason);
 			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.RETURN_REQUESTED, orders);
 		}
@@ -1517,19 +1479,19 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void rejectOrder(final ReplaceCancelOrderDto replaceCancelOrderDto)
-			throws NotFoundException, ValidationException {
+	public void rejectOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
 
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(orders.getOrderStatus());
 		if (!existingOrderStatus.contains(Constant.REJECTED)) {
 			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
 			String existingOrderStatusForMessage = messageByLocaleService.getMessage(orders.getOrderStatus(), null);
-			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed",
-					new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("status.not.allowed", new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
 		}
 		orders.setOrderStatus(Constant.REJECTED);
-		orders.setCancelReason(replaceCancelOrderDto.getReason());
+		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
+		orders.setReturnReplaceReason(ticketReason);
 		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 		ordersRepository.save(orders);
 		saveOrderStatusHistory(orders);

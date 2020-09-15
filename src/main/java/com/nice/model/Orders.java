@@ -106,11 +106,9 @@ public class Orders extends CommonModel {
 	@JoinColumn(name = "vendor_id", nullable = false)
 	private Vendor vendor;
 
-	@Column(name = "cancel_reason", nullable = true)
-	private String cancelReason;
-
-	@Column(name = "return_replace_reason", nullable = true)
-	private String returnReplaceReason;
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+	@JoinColumn(name = "return_replace_cancel_reject_reason_id", nullable = true)
+	private TicketReason returnReplaceReason;
 
 	@Column(name = "cancel_return_replace_description", nullable = true)
 	private String cancelReturnReplaceDescription;
