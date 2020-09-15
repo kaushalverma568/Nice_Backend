@@ -24,7 +24,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service("sliderImageService")
 @Transactional(rollbackFor = Throwable.class)
@@ -50,9 +50,11 @@ public class SliderImageServiceImpl implements SliderImageService {
 			throw new ValidationException(messageByLocaleService.getMessage("banner.slider.image.limit.exaust", new Object[] { Constant.MAX_BANNER_IMAGES }));
 		}
 		SliderImage sliderBanner = sliderBannerMapper.toEntity(sliderImageDTO);
-		sliderBanner.setImageNameEnglish(assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0));
+		sliderBanner.setImageNameEnglish(
+				assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0, Constant.SLIDER_IMAGE_WIDTH, Constant.SLIDER_IMAGE_HEIGHT));
 		sliderBanner.setImageOrigionalNameEnglish(imageEnglish.getOriginalFilename());
-		sliderBanner.setImageNameArabic(assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1));
+		sliderBanner.setImageNameArabic(
+				assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1, Constant.SLIDER_IMAGE_WIDTH, Constant.SLIDER_IMAGE_HEIGHT));
 		sliderBanner.setImageOrigionalNameArabic(imageArabic.getOriginalFilename());
 		sliderImageRepository.save(sliderBanner);
 
@@ -72,7 +74,8 @@ public class SliderImageServiceImpl implements SliderImageService {
 
 		if (imageEnglish != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageEnglish.getOriginalFilename())) {
 			assetService.deleteFile(existingSliderBanner.getImageNameEnglish(), AssetConstant.SLIDER_IMAGES);
-			sliderBanner.setImageNameEnglish(assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0));
+			sliderBanner.setImageNameEnglish(
+					assetService.saveAsset(imageEnglish, AssetConstant.SLIDER_IMAGES, 0, Constant.SLIDER_IMAGE_WIDTH, Constant.SLIDER_IMAGE_HEIGHT));
 			sliderBanner.setImageOrigionalNameEnglish(imageEnglish.getOriginalFilename());
 		} else {
 			sliderBanner.setImageNameEnglish(existingSliderBanner.getImageNameEnglish());
@@ -80,7 +83,8 @@ public class SliderImageServiceImpl implements SliderImageService {
 		}
 		if (imageArabic != null && CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(imageArabic.getOriginalFilename())) {
 			assetService.deleteFile(existingSliderBanner.getImageNameArabic(), AssetConstant.SLIDER_IMAGES);
-			sliderBanner.setImageNameArabic(assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1));
+			sliderBanner.setImageNameArabic(
+					assetService.saveAsset(imageArabic, AssetConstant.SLIDER_IMAGES, 1, Constant.SLIDER_IMAGE_WIDTH, Constant.SLIDER_IMAGE_HEIGHT));
 			sliderBanner.setImageOrigionalNameArabic(imageArabic.getOriginalFilename());
 		} else {
 			sliderBanner.setImageNameArabic(existingSliderBanner.getImageNameArabic());

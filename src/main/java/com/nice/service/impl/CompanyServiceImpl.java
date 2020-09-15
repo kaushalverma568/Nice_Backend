@@ -24,7 +24,7 @@ import com.nice.service.CompanyService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service("companyService")
 @Transactional(rollbackFor = Throwable.class)
@@ -53,7 +53,7 @@ public class CompanyServiceImpl implements CompanyService {
 			throw new ValidationException(messageByLocaleService.getMessage("company.count.exhausted", null));
 		} else {
 			Company company = companyMapper.toEntity(companyDTO);
-			company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0));
+			company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0, 0, 0));
 			company.setCompanyImageOriginalName(logo.getOriginalFilename());
 			companyRepository.save(company);
 		}
@@ -70,7 +70,7 @@ public class CompanyServiceImpl implements CompanyService {
 			company = companyMapper.toEntity(companyDTO);
 			if (logo != null) {
 				assetService.deleteFile(oldImageName, AssetConstant.COMPANY_DIR);
-				company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0));
+				company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0, 0, 0));
 				company.setCompanyImageOriginalName(logo.getOriginalFilename());
 			} else {
 				company.setCompanyImageName(oldImageName);

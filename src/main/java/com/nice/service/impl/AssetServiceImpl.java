@@ -57,30 +57,33 @@ public class AssetServiceImpl implements AssetService {
 	private ImageUtility imageUtility;
 
 	@Override
-	public String saveAsset(final MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
+	public String saveAsset(final MultipartFile image, final String subDirectory, final int count, final int width, final int height)
+			throws FileOperationException, ValidationException {
 		if (AssetConstant.IS_AWS) {
-			return saveAssetAws(image, subDirectory, count);
+			return saveAssetAws(image, subDirectory, count, width, height);
 		} else {
-			return saveAssetLocal(image, subDirectory, count);
+			return saveAssetLocal(image, subDirectory, count, width, height);
 		}
 	}
 
 	/**
-	 * Save images for mentioned sub directory
 	 *
 	 * @param image
 	 * @param subDirectory
 	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
+	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
 	 * @return
-	 * @throws ValidationException
 	 * @throws FileOperationException
+	 * @throws ValidationException
 	 */
-	private String saveAssetLocal(MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
+	private String saveAssetLocal(MultipartFile image, final String subDirectory, final int count, final int width, final int height)
+			throws FileOperationException, ValidationException {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
 			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
-				image = imageUtility.resizeImage(image);
+				image = imageUtility.resizeImage(image, width, height);
 			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");
@@ -96,12 +99,24 @@ public class AssetServiceImpl implements AssetService {
 		return newFileName;
 	}
 
-	private String saveAssetAws(MultipartFile image, final String subDirectory, final int count) throws FileOperationException, ValidationException {
+	/**
+	 *
+	 * @param image
+	 * @param subDirectory
+	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
+	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
+	 * @return
+	 * @throws FileOperationException
+	 * @throws ValidationException
+	 */
+	private String saveAssetAws(MultipartFile image, final String subDirectory, final int count, final int width, final int height)
+			throws FileOperationException, ValidationException {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
-			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
-				image = imageUtility.resizeImage(image);
+			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION)) && (width != 0 && height != 0)) {
+				image = imageUtility.resizeImage(image, width, height);
 			}
 			if (count != 0) {
 				String newfileNameWithOutExtension = imageProperties.remove("newfileNameWithOutExtension");

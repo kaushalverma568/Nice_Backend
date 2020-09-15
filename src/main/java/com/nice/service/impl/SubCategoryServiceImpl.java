@@ -53,7 +53,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
@@ -247,13 +247,14 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	/**
 	 * upload image of sub category
 	 *
-	 * @param  image
-	 * @param  product
+	 * @param image
+	 * @param product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
 	private void uploadImage(final MultipartFile image, final SubCategory subCategory) throws FileOperationException, ValidationException {
-		subCategory.setImage(assetService.saveAsset(image, AssetConstant.SUB_CATEGORY, 0));
+		subCategory
+				.setImage(assetService.saveAsset(image, AssetConstant.SUB_CATEGORY, 0, Constant.SUB_CATEGORY_IMAGE_WIDTH, Constant.SUB_CATEGORY_IMAGE_HEIGHT));
 		subCategory.setImageOriginalName(image.getOriginalFilename());
 	}
 
@@ -311,8 +312,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param  subCategoryImports
-	 * @param  userId
+	 * @param subCategoryImports
+	 * @param userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {

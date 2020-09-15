@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.AssetConstant;
+import com.nice.constant.Constant;
 import com.nice.dto.CuisineDTO;
 import com.nice.dto.CuisineResponseDTO;
 import com.nice.exception.FileOperationException;
@@ -33,7 +34,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Service("cuisineService")
 @Transactional(rollbackFor = Throwable.class)
@@ -68,13 +69,13 @@ public class CuisineServiceImpl implements CuisineService {
 	/**
 	 * upload image of cuisine
 	 *
-	 * @param  image
-	 * @param  cuisine
+	 * @param image
+	 * @param cuisine
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
 	private void uploadImage(final MultipartFile image, final Cuisine cuisine) throws FileOperationException, ValidationException {
-		cuisine.setImageName(assetService.saveAsset(image, AssetConstant.CUISINE, 0));
+		cuisine.setImageName(assetService.saveAsset(image, AssetConstant.CUISINE, 0, Constant.CUISINE_IMAGE_WIDTH, Constant.CUISINE_IMAGE_HEIGHT));
 		cuisine.setImageOriginalName(image.getOriginalFilename());
 	}
 
