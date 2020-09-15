@@ -1,9 +1,12 @@
+/**
+ * DashBoard
+ */
 INSERT INTO modules(
 	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Country','Master',false);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'State','Master',false);	
+	VALUES (true, now(), 1, now(), 1, 'Dashboard','Dashboard',true);
+/**
+ * Master
+ */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1, 'City','Master',true);	
@@ -18,37 +21,16 @@ INSERT INTO modules(
 	VALUES (true, now(), 1, now(), 1, 'Subscription Plan','Master',true);	
 INSERT INTO modules(
 	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Business Category','Master',true);	
+	VALUES (true, now(), 1, now(), 1, 'Business Category','Master',true);
+/**
+ * Customer
+ */
 INSERT INTO modules(
 	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Settings','Settings',false);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Company','Company',false);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Html Section','Html Section',true);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Slider Banner','Html Section',true);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Role-Permission','Role-Permission',false);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Customer','Customer',true);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Others','Ticket',true);	
-INSERT INTO modules(
-	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Others','Reasons',true);	
-INSERT INTO modules(
-	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Others','Rating Question',true);
-INSERT INTO modules(
-	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Vendor','Vendors',true);	
+	VALUES (true, now(), 1, now(), 1, 'Customer','Customer',true);
+/**
+ * Products
+ */
 INSERT INTO modules(
 	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1,'Category', 'Products',false);	
@@ -73,33 +55,100 @@ INSERT INTO modules(
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1,'Product List', 'Products',false);	
-INSERT INTO modules(
-	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1,'Add Stock', 'Inventory',false);	
-INSERT INTO modules(
-	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1,'Stock Summary', 'Inventory',false);	
-INSERT INTO modules(
+/**
+ * Orders
+ */
+NSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1, 'Orders','Orders',true);	
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Delivery Logs','Orders',true);	
+	VALUES (true, now(), 1, now(), 1, 'Delivery Logs','Orders',true);
+/**
+ * Vendor
+ */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1,'Delivery Boy', 'Delivery Boys',true);	
-INSERT INTO modules(
-	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Users','Users',false);	
+	VALUES (true, now(), 1, now(), 1, 'Vendor','Vendors',true);
+/**
+ * Payout
+ */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1, 'Delivery Boy Payout','Payout',true);	
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1, 'Vendor Payout','Payout',true);	
+	VALUES (true, now(), 1, now(), 1, 'Vendor Payout','Payout',true);
+/**
+ * Delivery Boys
+ */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
-	VALUES (true, now(), 1, now(), 1,'Payment Transaction','Account',true);	
+	VALUES (true, now(), 1, now(), 1,'Delivery Boy', 'Delivery Boys',true);
+/**
+ * Inventory
+ */
+INSERT INTO modules(
+	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1,'Add Stock', 'Inventory',false);	
+INSERT INTO modules(
+	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1,'Stock Summary', 'Inventory',false);
+/**
+ * Accounts
+ */
+INSERT INTO modules(
+	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1,'Payment Transaction','Account',true);
+/**
+ * Role & Permission
+ */
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Role-Permission','Role-Permission',false);
+/**
+ * HTML section
+ */
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Html Section','Html Section',true);	
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Slider Banner','Html Section',true);
+/**
+ * Settings
+ */
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Settings','Settings',false);
+/**
+ * Company
+ */
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Company','Company',false);
+/**
+ * Users
+ */
+INSERT INTO modules(
+	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Users','Users',false);
+	
+/**
+ * Others
+ */
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Ticket','Others',true);	
+INSERT INTO modules(
+	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Reasons','Others',true);	
+INSERT INTO modules(
+	 active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
+	VALUES (true, now(), 1, now(), 1, 'Rating Question','Others',true);	
+/**
+ * Discount
+ */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role)
 	VALUES (true, now(), 1, now(), 1, 'Discount','Discount',false);	
