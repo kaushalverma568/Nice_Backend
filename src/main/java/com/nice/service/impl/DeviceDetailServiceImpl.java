@@ -78,16 +78,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	}
 
 	@Override
-	public Boolean checkDeviceIdAlreadyExist(final DeviceDetailDTO deviceDetailDTO) {
-		if (deviceDetailDTO.getId() != null) {
-			return deviceDetailRepository
-					.findByDeviceIdAndUserTypeAndIdNot(deviceDetailDTO.getDeviceId(), deviceDetailDTO.getUserType(), deviceDetailDTO.getId()).isPresent();
-		} else {
-			return deviceDetailRepository.findByDeviceIdAndUserType(deviceDetailDTO.getDeviceId(), deviceDetailDTO.getUserType()).isPresent();
-		}
-	}
-
-	@Override
 	public List<DeviceDetail> getDeviceDetailListByUserId(final Long userId) throws NotFoundException {
 		Optional<UserLogin> userLogin = userLoginService.getUserLogin(userId);
 		if (userLogin.isPresent()) {

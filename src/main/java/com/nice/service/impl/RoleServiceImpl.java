@@ -103,6 +103,14 @@ public class RoleServiceImpl implements RoleService {
 			PermissionDTO permissionDTO = new PermissionDTO();
 			BeanUtils.copyProperties(moduleAndPermissionDTO, permissionDTO);
 			Permission permission = permissionMapper.toEntity(permissionDTO);
+			/**
+			 * For a special requirement by client regarding super admin and new user can view product list we have to add some restrictions here
+			 */
+			if (modules.getName().equals("Product List")) {
+				permission.setCanAdd(false);
+				permission.setCanEdit(false);
+				permission.setCanDelete(false);
+			}
 			permission.setId(null);
 			permission.setModules(modules);
 			permission.setRole(role);

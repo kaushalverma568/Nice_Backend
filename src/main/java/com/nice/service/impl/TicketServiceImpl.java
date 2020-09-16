@@ -37,13 +37,14 @@ import com.nice.model.TicketReason;
 import com.nice.model.UserLogin;
 import com.nice.repository.TicketReasonRepository;
 import com.nice.repository.TicketRepository;
+import com.nice.service.TicketReasonService;
 import com.nice.service.TicketService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("ticketService")
@@ -66,6 +67,9 @@ public class TicketServiceImpl implements TicketService {
 	private TicketReasonRepository ticketReasonRepository;
 
 	@Autowired
+	private TicketReasonService ticketReasonService;
+
+	@Autowired
 	private TicketMapper ticketMapper;
 
 	@Autowired
@@ -82,16 +86,15 @@ public class TicketServiceImpl implements TicketService {
 		} else if (!(UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type.ticket", null));
-		} else if (!ticketReasonRepository.findAllByReasonEnglishOrReasonArabic(ticket.getTicketReason(), ticket.getTicketReason()).isPresent()) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.ticket.reason", null));
 		} else {
-
+			TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(ticketDTO.getTicketReasonId());
 			/**
 			 * set ticket status as pending for new ticket
 			 */
 			ticket.setEntityId(userLogin.getEntityId());
 			ticket.setUserType(userLogin.getEntityType());
 			ticket.setTicketStatus(TicketStatusEnum.PENDING.getStatusValue());
+			ticket.setTicketReason(ticketReason);
 			ticket.setActive(true);
 			ticketRepository.save(ticket);
 		}
@@ -173,8 +176,7 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Inside get ticket list for user {}", userLogin.getId());
 		Long entityId = null;
 		/**
-		 * if login user is delivery boy , vendor or customer then get ticket list of
-		 * that user only
+		 * if login user is delivery boy , vendor or customer then get ticket list of that user only
 		 */
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {

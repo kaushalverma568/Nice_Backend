@@ -113,7 +113,8 @@ public interface PermissionService {
 	 * Get side bar specific permission list for user
 	 *
 	 * @return
+	 * @throws NotFoundException
 	 */
-	Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser();
+	Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() throws NotFoundException;
 
 }

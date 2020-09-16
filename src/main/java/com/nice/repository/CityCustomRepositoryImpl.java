@@ -6,6 +6,7 @@ package com.nice.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
@@ -26,7 +27,7 @@ import com.nice.model.State;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Repository(value = "cityCustomRepository")
 public class CityCustomRepositoryImpl implements CityCustomRepository {
@@ -50,9 +51,9 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword) {
+			final String searchKeyword, final Set<Long> idsIn) {
 		Locale locale = LocaleContextHolder.getLocale();
-			/**
+		/**
 		 * Create Criteria builder instance using entity manager
 		 */
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -87,6 +88,9 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 			predicates.add(criteriaBuilder.or(predicateForNameEnglish, predicateForNameArabic));
 		}
 
+		if (idsIn != null && !idsIn.isEmpty()) {
+			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
+		}
 		/**
 		 * Add the clauses for the query.
 		 */
@@ -101,8 +105,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<City> fetchGraph = entityManager.createEntityGraph(City.class);
 		fetchGraph.addSubgraph(STATE_PARAM);
@@ -115,7 +118,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword) {
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Set<Long> idsIn) {
 		/**
 		 * Create Criteria builder instance using entity manager
 		 */
@@ -150,7 +153,9 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 			Predicate predicateForNameArabic = criteriaBuilder.like(criteriaBuilder.lower(city.get(NAME_ARABIC)), "%" + searchKeyword.toLowerCase() + "%");
 			predicates.add(criteriaBuilder.or(predicateForNameEnglish, predicateForNameArabic));
 		}
-
+		if (idsIn != null && !idsIn.isEmpty()) {
+			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
+		}
 		/**
 		 * Add the clauses for the query.
 		 */

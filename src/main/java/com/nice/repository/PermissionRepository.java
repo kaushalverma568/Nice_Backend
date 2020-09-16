@@ -167,6 +167,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	 * @param  active
 	 * @return
 	 */
-	List<Permission> findAllByRoleAndCanViewAndActiveOrderByIdAsc(Role role, Boolean canView, Boolean active);
+	List<Permission> findAllByRoleAndCanViewAndActiveOrderByModulesAsc(Role role, Boolean canView, Boolean active);
 
 }

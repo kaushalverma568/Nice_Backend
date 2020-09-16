@@ -40,14 +40,6 @@ public interface DeviceDetailService {
 	List<DeviceDetailDTO> getAllDeviceDetailList();
 
 	/**
-	 * check for combination of usertype and device id is unique or not
-	 *
-	 * @param  deviceDetailDTO
-	 * @return
-	 */
-	Boolean checkDeviceIdAlreadyExist(DeviceDetailDTO deviceDetailDTO);
-
-	/**
 	 * get device detail list by user
 	 *
 	 * @param  userId

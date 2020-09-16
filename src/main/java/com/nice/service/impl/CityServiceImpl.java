@@ -1,6 +1,8 @@
 package com.nice.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ import com.nice.service.StateService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Service(value = "cityService")
 @Transactional(rollbackFor = Throwable.class)
@@ -133,8 +135,8 @@ public class CityServiceImpl implements CityService {
 	/**
 	 * Deactivate customer address and validation while activate city & validate state while city is activate
 	 *
-	 * @param cityId
-	 * @param active
+	 * @param  cityId
+	 * @param  active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -153,14 +155,34 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword) {
-		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword);
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Boolean isPincodeExist) {
+		Set<Long> idsIn = new HashSet<>();
+		/**
+		 * For getting only those cities which has active pin codes
+		 */
+		if (isPincodeExist != null && isPincodeExist) {
+			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, null, null);
+			for (Pincode pincode : pincodeList) {
+				idsIn.add(pincode.getCity().getId());
+			}
+		}
+		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, idsIn);
 	}
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword) {
-		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword);
+			final String searchKeyword, final Boolean isPincodeExist) {
+		Set<Long> idsIn = new HashSet<>();
+		/**
+		 * For getting only those cities which has active pin codes
+		 */
+		if (isPincodeExist != null && isPincodeExist) {
+			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, null, null);
+			for (Pincode pincode : pincodeList) {
+				idsIn.add(pincode.getCity().getId());
+			}
+		}
+		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword, idsIn);
 	}
 
 }

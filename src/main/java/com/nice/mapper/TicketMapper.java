@@ -28,7 +28,7 @@ import com.nice.service.VendorService;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 09-07-2020
+ * @date   : 09-07-2020
  */
 @Component
 public class TicketMapper {
@@ -46,7 +46,14 @@ public class TicketMapper {
 		final Locale locale = LocaleContextHolder.getLocale();
 		TicketResponseDTO ticketResponseDTO = new TicketResponseDTO();
 		BeanUtils.copyProperties(ticket, ticketResponseDTO);
-
+		ticketResponseDTO.setTicketReasonEnglish(ticket.getTicketReason().getReasonEnglish());
+		ticketResponseDTO.setTicketReasonArabic(ticket.getTicketReason().getReasonArabic());
+		ticketResponseDTO.setTicketReasonId(ticket.getTicketReason().getId());
+		if (locale.getLanguage().equals("en")) {
+			ticketResponseDTO.setTicketReason(ticket.getTicketReason().getReasonEnglish());
+		} else {
+			ticketResponseDTO.setTicketReason(ticket.getTicketReason().getReasonArabic());
+		}
 		if (ticket.getTicketStatus() != null) {
 			final TicketStatusEnum ticketOldStatus = TicketStatusEnum.valueOf(TicketStatusEnum.getByValue(ticketResponseDTO.getTicketStatus()).name());
 			if (ticketOldStatus.nextStatus() == null) {

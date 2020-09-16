@@ -20,7 +20,13 @@ public class TicketResponseDTO implements Serializable {
 
 	private Long id;
 
+	private Long ticketReasonId;
+
 	private String ticketReason;
+
+	private String ticketReasonEnglish;
+
+	private String ticketReasonArabic;
 
 	private String userType;
 

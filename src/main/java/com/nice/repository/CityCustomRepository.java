@@ -4,6 +4,7 @@
 package com.nice.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import com.nice.model.City;
 
@@ -23,7 +24,7 @@ public interface CityCustomRepository {
 	 * @param  searchKeyword
 	 * @return
 	 */
-	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword);
+	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn);
 
 	/**
 	 * Get count of city based on filter parameters
@@ -31,8 +32,9 @@ public interface CityCustomRepository {
 	 * @param  activeRecords
 	 * @param  stateId
 	 * @param  searchKeyword
+	 * @param  idsIn
 	 * @return
 	 */
-	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword);
+	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn);
 
 }

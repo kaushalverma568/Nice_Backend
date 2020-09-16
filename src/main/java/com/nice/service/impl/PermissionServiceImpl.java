@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
@@ -31,10 +32,13 @@ import com.nice.model.Modules;
 import com.nice.model.Permission;
 import com.nice.model.Role;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.repository.PermissionRepository;
 import com.nice.service.ModulesService;
 import com.nice.service.PermissionService;
 import com.nice.service.RoleService;
+import com.nice.service.VendorService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -54,6 +58,9 @@ public class PermissionServiceImpl implements PermissionService {
 
 	@Autowired
 	private ModulesService modulesService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@Autowired
 	private PermissionMapper permissionMapper;
@@ -213,16 +220,26 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	@Override
-	public Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() {
+	public Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() throws NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		Vendor vendor = null;
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+		}
 		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new LinkedHashMap<>();
 
 		/**
 		 * get only those permissions for which particular role has access of VIEW
 		 */
-		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewAndActiveOrderByIdAsc(userLogin.getRole(), true, true);
+		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewAndActiveOrderByModulesAsc(userLogin.getRole(), true, true);
 
 		for (Permission permission : permissionList) {
+			/**
+			 * If there is no inventory manage for vendor then we will not display inventory module in side bar
+			 */
+			if (permission.getModules().getParentModuleName().equals("Inventory") && vendor != null && !vendor.getBusinessCategory().getManageInventory()) {
+				continue;
+			}
 			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
 				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = modulePermissionMap.get(permission.getModules().getParentModuleName());
 				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));

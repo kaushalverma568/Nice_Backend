@@ -54,7 +54,7 @@ public class ModulesServiceImpl implements ModulesService {
 
 	@Override
 	public Page<Modules> getModuleList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Boolean availableForNewRole) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("name"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (availableForNewRole != null) {
 			if (activeRecords != null) {
 				return moduleRepository.findAllByActiveAndAvailableForNewRole(activeRecords, availableForNewRole, pageable);

@@ -20,8 +20,8 @@ public class TicketDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{ticket.reason.not.null}")
-	private String ticketReason;
+	@NotBlank(message = "{ticket.reason.id.not.null}")
+	private Long ticketReasonId;
 
 	private String ticketStatus;
 

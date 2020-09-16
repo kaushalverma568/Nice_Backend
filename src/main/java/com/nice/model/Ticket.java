@@ -1,12 +1,16 @@
 package com.nice.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
+import javax.persistence.FetchType;
 import javax.persistence.FieldResult;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
@@ -23,7 +27,7 @@ import lombok.EqualsAndHashCode;
 				@FieldResult(name = "createdAt", column = "created_at"), @FieldResult(name = "updatedAt", column = "updated_at"),
 				@FieldResult(name = "createdBy", column = "created_by"), @FieldResult(name = "updatedBy", column = "updated_by"),
 				@FieldResult(name = "entityId", column = "entity_id"), @FieldResult(name = "userType", column = "user_type"),
-				@FieldResult(name = "ticketReason", column = "ticket_reason"), @FieldResult(name = "ticketStatus", column = "ticket_status"),
+				@FieldResult(name = "ticketReason", column = "ticket_reason_id"), @FieldResult(name = "ticketStatus", column = "ticket_status"),
 				@FieldResult(name = "description", column = "description"), @FieldResult(name = "comment", column = "comment") }) })
 @Entity
 @Table(name = "ticket")
@@ -47,8 +51,9 @@ public class Ticket extends CommonModel {
 	@Column(name = "user_type", nullable = false)
 	private String userType;
 
-	@Column(name = "ticket_reason", nullable = false)
-	private String ticketReason;
+	@JoinColumn(name = "ticket_reason_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private TicketReason ticketReason;
 
 	@Column(name = "ticket_status", nullable = false)
 	private String ticketStatus;

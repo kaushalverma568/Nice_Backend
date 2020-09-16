@@ -195,7 +195,7 @@ public class PermissionController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/sidebar")
-	public ResponseEntity<Object> getSideBarSpectificPermissionListForUser(@RequestHeader("Authorization") final String accessToken) {
+	public ResponseEntity<Object> getSideBarSpectificPermissionListForUser(@RequestHeader("Authorization") final String accessToken) throws NotFoundException {
 		final Map<String, List<ModuleAndPermissionResponseDTO>> parentModuleWisePermissionMap = permissionService.getSideBarSpectificPermissionListForUser();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("permission.detail.message", null))
 				.setData(parentModuleWisePermissionMap).create();
