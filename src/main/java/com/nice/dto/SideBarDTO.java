@@ -25,6 +25,8 @@ public class SideBarDTO implements Serializable {
 
 	private Boolean canDelete;
 
+	private Boolean canViewSidebar;
+
 	private List<ModuleAndPermissionResponseDTO> children;
 
 }

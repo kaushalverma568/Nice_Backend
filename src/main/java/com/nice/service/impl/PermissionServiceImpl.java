@@ -270,6 +270,7 @@ public class PermissionServiceImpl implements PermissionService {
 			sideBarDTO.setCanAdd(true);
 			sideBarDTO.setCanEdit(true);
 			sideBarDTO.setCanDelete(true);
+			sideBarDTO.setCanViewSidebar(true);
 			sideBarDTO.setModulesName(parentModule.getKey());
 			sideBarDTO.setChildren(parentModule.getValue());
 			sideBarDTOList.add(sideBarDTO);
