@@ -12,6 +12,7 @@ import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
+import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.util.CommonUtility;
@@ -54,7 +55,7 @@ public class DeliveryBoyValidator implements Validator {
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return DeliveryBoyDTO.class.equals(clazz) || DeliveryBoyPersonalDetailsDTO.class.equals(clazz) || DeliveryBoyAccountDetailsDTO.class.equals(clazz)
-				|| DeliveryBoyFilterDTO.class.equals(clazz);
+				|| DeliveryBoyFilterDTO.class.equals(clazz) || DeliveryLogFilterDTO.class.equals(clazz);
 	}
 
 	/**
