@@ -172,8 +172,8 @@ public class BusinessCategoryController {
 	 * @return
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
-			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
+	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
+			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final Page<BusinessCategory> resultBusinessCategory = businessCategoryService.getList(pageNumber, pageSize, activeRecords);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("business.category.list.message", null))
