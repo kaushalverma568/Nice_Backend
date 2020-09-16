@@ -154,7 +154,6 @@ public class BusinessCategoryController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping(value = "/{businessCategoryId}")
-	@PreAuthorize("hasPermission('Business Category','CAN_VIEW')")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("businessCategoryId") final Long businessCategoryId) throws NotFoundException {
 		BusinessCategoryDTO resultBusinessCategory = businessCategoryService.getBusinessCategory(businessCategoryId);

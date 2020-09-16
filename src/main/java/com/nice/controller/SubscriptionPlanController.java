@@ -138,7 +138,6 @@ public class SubscriptionPlanController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping(value = "/{subscriptionPlanId}")
-	@PreAuthorize("hasPermission('Subscription Plan','CAN_VIEW')")
 	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("subscriptionPlanId") final Long subscriptionPlanId) throws NotFoundException {
 		SubscriptionPlanDTO resultSubscriptionPlan = subscriptionPlanService.getSubscriptionPlan(subscriptionPlanId);
@@ -156,7 +155,6 @@ public class SubscriptionPlanController {
 	 * @return
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	@PreAuthorize("hasPermission('Subscription Plan','CAN_VIEW')")
 	public ResponseEntity<Object> getList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyWord) {

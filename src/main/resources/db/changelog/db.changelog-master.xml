@@ -184,27 +184,5 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
-	<changeSet id="28" author="ankit.bhimani"
-		context="post-process-db-changes">
-		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
-			path="sql-files/1.0/insert_query_alter_permission.sql"
-			relativeToChangelogFile="true" splitStatements="true"
-			stripComments="true" />
-	</changeSet>
-	<changeSet id="29" author="ankit.bhimani"
-		context="post-process-db-changes">
-		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
-			path="sql-files/1.0/alter_ticket.sql"
-			relativeToChangelogFile="true" splitStatements="true"
-			stripComments="true" />
-	</changeSet>
-	<changeSet id="30" author="ankit.bhimani"
-		context="post-process-db-changes">
-		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
-			path="sql-files/1.0/insert_query_permission2.sql"
-			relativeToChangelogFile="true" splitStatements="true"
-			stripComments="true" />
-	</changeSet>	
-	
 
 </databaseChangeLog>

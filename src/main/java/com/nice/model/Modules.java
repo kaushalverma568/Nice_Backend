@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
  * @date   : 26-06-2020
  */
@@ -44,4 +43,10 @@ public class Modules extends CommonModel {
 	 */
 	@Column(name = "available_for_new_role", columnDefinition = "Boolean default false")
 	private Boolean availableForNewRole;
+
+	/**
+	 * It contains weather this module has parent or not. used for side bar
+	 */
+	@Column(name = "no_parent_module", columnDefinition = "Boolean default false")
+	private Boolean noParentModule;
 }

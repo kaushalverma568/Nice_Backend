@@ -37,4 +37,9 @@ public class PermissionDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
+	/**
+	 * set internally and used for side bar
+	 */
+	private Boolean canViewSidebar;
+
 }

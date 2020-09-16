@@ -233,9 +233,10 @@ public class PermissionServiceImpl implements PermissionService {
 		List<SideBarDTO> sideBarDTOList = new ArrayList<>();
 
 		/**
-		 * get only those permissions for which particular role has access of VIEW
+		 * get only those permissions for which particular role has access of VIEW Side
+		 * bar
 		 */
-		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewAndActiveOrderByModulesAsc(userLogin.getRole(), true, true);
+		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewSidebarAndActiveOrderByModulesAsc(userLogin.getRole(), true, true);
 
 		for (Permission permission : permissionList) {
 			/**
@@ -251,14 +252,17 @@ public class PermissionServiceImpl implements PermissionService {
 				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
 			} else {
 				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = new ArrayList<>();
-				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+				if (!permission.getModules().getNoParentModule()) {
+					moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+				}
+
 				modulePermissionMap.put(permission.getModules().getParentModuleName(), moduleWisePermissionList);
 			}
 		}
 		for (Entry<String, List<ModuleAndPermissionResponseDTO>> parentModule : modulePermissionMap.entrySet()) {
 			SideBarDTO sideBarDTO = new SideBarDTO();
 			/**
-			 * Below static value nowhere use. This is just for sidebar structure of
+			 * Below static value nowhere use. This is just for side bar structure of
 			 * front-end.
 			 */
 			sideBarDTO.setModulesId(1L);
@@ -267,9 +271,7 @@ public class PermissionServiceImpl implements PermissionService {
 			sideBarDTO.setCanEdit(true);
 			sideBarDTO.setCanDelete(true);
 			sideBarDTO.setModulesName(parentModule.getKey());
-			if (parentModule.getValue().size() != 1) {
-				sideBarDTO.setChildren(parentModule.getValue());
-			}
+			sideBarDTO.setChildren(parentModule.getValue());
 			sideBarDTOList.add(sideBarDTO);
 
 		}

@@ -32,6 +32,7 @@ public class PermissionMapper {
 	public Permission toEntity(final PermissionDTO permissionDTO) {
 		Permission permission = new Permission();
 		BeanUtils.copyProperties(permissionDTO, permission);
+		permission.setCanViewSidebar(permissionDTO.getCanView());
 		return permission;
 	}
 

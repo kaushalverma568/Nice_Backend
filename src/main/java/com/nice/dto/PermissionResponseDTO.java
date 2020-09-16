@@ -39,4 +39,6 @@ public class PermissionResponseDTO implements Serializable {
 	private Boolean active;
 
 	private Boolean roleActive;
+
+	private Boolean canViewSidebar;
 }

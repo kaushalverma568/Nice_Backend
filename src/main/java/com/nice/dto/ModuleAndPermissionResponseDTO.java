@@ -5,7 +5,6 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
  * @date   : Aug 13, 2020
  */
@@ -28,4 +27,6 @@ public class ModuleAndPermissionResponseDTO implements Serializable {
 	private Boolean canAdd;
 
 	private Boolean canDelete;
+
+	private Boolean canViewSidebar;
 }
