@@ -2,7 +2,7 @@ package com.nice.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
@@ -20,7 +20,7 @@ public class TicketDTO implements Serializable {
 
 	private Long id;
 
-	@NotBlank(message = "{ticket.reason.id.not.null}")
+	@NotNull(message = "{ticket.reason.id.not.null}")
 	private Long ticketReasonId;
 
 	private String ticketStatus;
