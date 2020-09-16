@@ -52,6 +52,7 @@ import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.dto.VendorDTO;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
+import com.nice.dto.VendorPaymentResponseDTO;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
@@ -64,13 +65,14 @@ import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.HesabePaymentService;
+import com.nice.service.VendorPaymentService;
 import com.nice.service.VendorService;
 import com.nice.util.PaginationUtil;
 import com.nice.validator.VendorValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 25, 2020
+ * @date : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
@@ -101,7 +103,8 @@ public class VendorController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -114,6 +117,9 @@ public class VendorController {
 
 	@Autowired
 	private HesabePaymentService hesabePaymentService;
+
+	@Autowired
+	private VendorPaymentService vendorPaymentService;
 
 	/**
 	 * to bind validator with object using 'BindingResult' in method
@@ -137,8 +143,8 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -162,8 +168,8 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -188,8 +194,8 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -213,8 +219,8 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param  vendorDTO
-	 * @param  result
+	 * @param vendorDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -245,9 +251,9 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param  accessToken
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -267,9 +273,9 @@ public class VendorController {
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param  accessToken
-	 * @param  vendorBankDetailsDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param vendorBankDetailsDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -289,7 +295,7 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -304,7 +310,7 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -320,11 +326,11 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  countryId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param countryId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -344,8 +350,8 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param  vendorId
-	 * @param  active
+	 * @param vendorId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -380,7 +386,7 @@ public class VendorController {
 	/**
 	 * Get vendor list for customer app
 	 *
-	 * @param  vendorListFilterDTO
+	 * @param vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -408,9 +414,9 @@ public class VendorController {
 	/**
 	 * Change status of vendor
 	 *
-	 * @param  accessToken
-	 * @param  vendorId
-	 * @param  newStatus
+	 * @param accessToken
+	 * @param vendorId
+	 * @param newStatus
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -430,9 +436,9 @@ public class VendorController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  httpServletResponse
-	 * @param  vendorFilterDTO
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param vendorFilterDTO
 	 * @return
 	 * @throws IOException
 	 * @throws FileNotFoundException
@@ -448,9 +454,9 @@ public class VendorController {
 	/**
 	 * update vendor is featured
 	 *
-	 * @param  accessToken
-	 * @param  productId
-	 * @param  active
+	 * @param accessToken
+	 * @param productId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -469,9 +475,9 @@ public class VendorController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param  accessToken
-	 * @param  imageType
-	 * @param  productId
+	 * @param accessToken
+	 * @param imageType
+	 * @param productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -489,8 +495,8 @@ public class VendorController {
 	/**
 	 * get vendor basic details
 	 *
-	 * @param  accessToken
-	 * @param  vendorId
+	 * @param accessToken
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -505,9 +511,10 @@ public class VendorController {
 	}
 
 	/**
-	 * redirect api from hesabe for vendor subscription. data is response from hesabe in encrypted form
+	 * redirect api from hesabe for vendor subscription. data is response from
+	 * hesabe in encrypted form
 	 *
-	 * @param  data
+	 * @param data
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -532,6 +539,15 @@ public class VendorController {
 		} else {
 			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
 		}
+	}
+
+	@GetMapping("/subscription/history/{vendorId}")
+	public ResponseEntity<Object> getVendorPaymentHistory(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId) {
+		LOGGER.info("Inside get Vendor payment history for id:{}", vendorId);
+		final List<VendorPaymentResponseDTO> vendorBasicDetailDTO = vendorPaymentService.getVendorPaymentListByVendorId(vendorId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.payment.list.message", null))
+				.setData(vendorBasicDetailDTO).create();
 	}
 
 }

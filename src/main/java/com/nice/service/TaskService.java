@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.nice.dto.DeliveryBoyOrderCountDto;
+import com.nice.dto.DeliveryLogDTO;
+import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
@@ -49,7 +51,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType);
 
 	/**
-	 * get orders count according to status ,taskType and date for delivery boy(get today's delivered /replaced count)
+	 * get orders count according to status ,taskType and date for delivery boy(get
+	 * today's delivered /replaced count)
 	 *
 	 * @param deliveryBoy
 	 * @param status
@@ -60,8 +63,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeAndDateForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType, Date date);
 
 	/**
-	 * get task list count based on parameters (for today's delivered/replaced order list for delivery boy created at will
-	 * be current date)
+	 * get task list count based on parameters (for today's delivered/replaced order
+	 * list for delivery boy created at will be current date)
 	 *
 	 * @param taskFilterDTO
 	 * @return
@@ -179,4 +182,21 @@ public interface TaskService {
 	 */
 	DeliveryBoyOrderCountDto getTaskTypeWiseCountForPaymentDetailsId(Long deliveryBoyId);
 
+	/**
+	 * get task list for delivery log
+	 *
+	 * @param deliveryLogFilterDTO
+	 * @param startIndex
+	 * @param pageSize
+	 * @return
+	 */
+	List<DeliveryLogDTO> getTaskListForDeliveryLog(DeliveryLogFilterDTO deliveryLogFilterDTO, Integer startIndex, Integer pageSize);
+
+	/**
+	 * get task count for delivery log
+	 *
+	 * @param deliveryLogFilterDTO
+	 * @return
+	 */
+	Long getTaskCountForDeliveryLog(DeliveryLogFilterDTO deliveryLogFilterDTO);
 }

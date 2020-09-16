@@ -19,7 +19,7 @@ import com.nice.util.CommonUtility;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 19, 2020
+ * @date : Jun 19, 2020
  */
 @Component
 public class DeliveryBoyValidator implements Validator {
@@ -39,7 +39,8 @@ public class DeliveryBoyValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryBoyValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -57,7 +58,8 @@ public class DeliveryBoyValidator implements Validator {
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 
 	@Override

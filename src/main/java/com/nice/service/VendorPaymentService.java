@@ -1,6 +1,9 @@
 package com.nice.service;
 
+import java.util.List;
+
 import com.nice.dto.VendorPaymentDTO;
+import com.nice.dto.VendorPaymentResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.VendorPayment;
@@ -64,4 +67,12 @@ public interface VendorPaymentService {
 	 * @throws NotFoundException
 	 */
 	VendorPayment getVendorPaymentByVendorOrderIdAndStatus(String vendorOrderId, String status) throws NotFoundException;
+
+	/**
+	 * get vendor payment history
+	 *
+	 * @param vendorId
+	 * @return
+	 */
+	List<VendorPaymentResponseDTO> getVendorPaymentListByVendorId(Long vendorId);
 }

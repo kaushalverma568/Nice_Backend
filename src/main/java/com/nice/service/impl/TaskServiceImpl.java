@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,8 @@ import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.CashCollectionDTO;
 import com.nice.dto.DeliveryBoyOrderCountDto;
+import com.nice.dto.DeliveryLogDTO;
+import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
@@ -35,6 +38,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.TaskMapper;
+import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
 import com.nice.model.DeliveryBoyLocation;
@@ -115,15 +119,17 @@ public class TaskServiceImpl implements TaskService {
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it
+		 * Valdiation to check if the order type is not pick-up the delivery boy should
+		 * be assigned to it
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.delivery.boy.for.order", null));
 		}
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
-		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor
+		 * for the task, this code is only for regular order, not for replacement or
+		 * return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
@@ -137,11 +143,13 @@ public class TaskServiceImpl implements TaskService {
 		}
 		// TODO
 		/**
-		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
-		 * value for return order as well in orders table , keeping that in mind the below lines have been coded
+		 * For return and replacement orders, set the values accordingly, here it is
+		 * assumed that the orderTotal will be a +ve value for return order as well in
+		 * orders table , keeping that in mind the below lines have been coded
 		 *
-		 * For replacement orders, there would only be delivery charge and that would be handled in change status method below,
-		 * the vendor payable amount and admin comission would be zero
+		 * For replacement orders, there would only be delivery charge and that would be
+		 * handled in change status method below, the vendor payable amount and admin
+		 * comission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.name().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
@@ -150,8 +158,8 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
-		 * the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same
+		 * order for delivery donot end up have the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
@@ -187,7 +195,8 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
+			 * Actual delivery charge will set at the time of completion of task (see:
+			 * change task status method)
 			 */
 			task.setDeliveryCharge(0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
@@ -235,14 +244,17 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
-			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
-			 * status, this would be applicable only if there is replacement in place.
+			 * Change the status of order based on the task type, if the task type is
+			 * replacement, the order is being replaced and hence the order should be moved
+			 * to replaced status, else its first time delivery and order will be moved to
+			 * delivered status, this would be applicable only if there is replacement in
+			 * place.
 			 */
 			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
 
 			/**
-			 * If its a COD task then make an entry in cash collection for the delivery person
+			 * If its a COD task then make an entry in cash collection for the delivery
+			 * person
 			 */
 			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())) {
 				CashCollectionDTO cashCollection = new CashCollectionDTO();
@@ -273,8 +285,8 @@ public class TaskServiceImpl implements TaskService {
 		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
-			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered
-			 * for a day then consider that tasks
+			 * if count of today's total delivered or cancelled task for this delivery boy
+			 * is greater than minimum order delivered for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -464,7 +476,8 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not
+		 * accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -522,5 +535,45 @@ public class TaskServiceImpl implements TaskService {
 		deliveryBoyOrderCount.setReturnOrders(taskRepository.getCountReturnOrderCountForDeliveryPerson(deliveryBoyId));
 		deliveryBoyOrderCount.setTotalAmountPaid(taskRepository.getTotalDeliveryChargeForDeliveryPerson(deliveryBoyId));
 		return deliveryBoyOrderCount;
+	}
+
+	@Override
+	public List<DeliveryLogDTO> getTaskListForDeliveryLog(final DeliveryLogFilterDTO deliveryLogFilterDTO, final Integer startIndex, final Integer pageSize) {
+		List<Task> taskList = taskRepository.getTaskListForDeliveryLogBasedOnParams(deliveryLogFilterDTO, startIndex, pageSize);
+		return convertToDeliveryLog(taskList);
+	}
+
+	private List<DeliveryLogDTO> convertToDeliveryLog(final List<Task> tasks) {
+		List<DeliveryLogDTO> deliveryLogDTOs = new ArrayList<>();
+		for (Task task : tasks) {
+			DeliveryLogDTO deliveryLogDTO = new DeliveryLogDTO();
+			deliveryLogDTO.setAssignedDate(task.getUpdatedAt());
+			Customer customer = task.getOrder().getCustomer();
+			deliveryLogDTO.setCustomerId(customer.getId());
+			deliveryLogDTO.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
+			deliveryLogDTO.setCustomerEmail(customer.getEmail());
+			deliveryLogDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+			deliveryLogDTO.setDeliveryBoyEmail(task.getDeliveryBoy().getEmail());
+			deliveryLogDTO.setOrderDate(task.getOrder().getCreatedAt());
+			deliveryLogDTO.setOrderId(task.getOrder().getId());
+			deliveryLogDTO.setTaskStatus(task.getStatus());
+			deliveryLogDTO.setVendorId(task.getVendor().getId());
+			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
+				deliveryLogDTO.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(task.getDeliveryBoy().getLastNameEnglish()));
+				deliveryLogDTO.setVendorName(task.getVendor().getFirstNameEnglish().concat(" ").concat(task.getVendor().getLastNameEnglish()));
+				deliveryLogDTO.setVendorStoreName(task.getVendor().getStoreNameEnglish());
+			} else {
+				deliveryLogDTO.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(task.getDeliveryBoy().getLastNameArabic()));
+				deliveryLogDTO.setVendorName(task.getVendor().getFirstNameArabic().concat(" ").concat(task.getVendor().getLastNameArabic()));
+				deliveryLogDTO.setVendorStoreName(task.getVendor().getStoreNameArabic());
+			}
+			deliveryLogDTOs.add(deliveryLogDTO);
+		}
+		return deliveryLogDTOs;
+	}
+
+	@Override
+	public Long getTaskCountForDeliveryLog(final DeliveryLogFilterDTO deliveryLogFilterDTO) {
+		return taskRepository.getTaskCountForDeliveryLogBasedOnParams(deliveryLogFilterDTO);
 	}
 }
