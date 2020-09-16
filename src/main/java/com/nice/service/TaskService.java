@@ -6,12 +6,15 @@ package com.nice.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.nice.dto.DeliveryBoyOrderCountDto;
 import com.nice.dto.DeliveryLogDTO;
 import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoy;
@@ -199,4 +202,15 @@ public interface TaskService {
 	 * @return
 	 */
 	Long getTaskCountForDeliveryLog(DeliveryLogFilterDTO deliveryLogFilterDTO);
+
+	/**
+	 * export delivery log based on params
+	 *
+	 * @param deliveryLogFilterDTO
+	 * @param httpServletResponse
+	 * @throws FileNotFoundException
+	 * @throws ValidationException
+	 */
+	void exportDeliveryLogList(DeliveryLogFilterDTO deliveryLogFilterDTO, HttpServletResponse httpServletResponse)
+			throws FileNotFoundException, ValidationException;
 }

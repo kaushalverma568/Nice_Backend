@@ -3,11 +3,14 @@
  */
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +37,7 @@ import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
 import com.nice.dto.VendorResponseDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -58,6 +62,7 @@ import com.nice.service.SettingsService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -110,6 +115,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
 	private SettingsService settingsService;
+
+	@Autowired
+	private ExportCSV exportCSV;
 
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
@@ -552,18 +560,26 @@ public class TaskServiceImpl implements TaskService {
 			deliveryLogDTO.setCustomerId(customer.getId());
 			deliveryLogDTO.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			deliveryLogDTO.setCustomerEmail(customer.getEmail());
-			deliveryLogDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
-			deliveryLogDTO.setDeliveryBoyEmail(task.getDeliveryBoy().getEmail());
+			if (task.getDeliveryBoy() != null) {
+				deliveryLogDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+				deliveryLogDTO.setDeliveryBoyEmail(task.getDeliveryBoy().getEmail());
+			}
 			deliveryLogDTO.setOrderDate(task.getOrder().getCreatedAt());
 			deliveryLogDTO.setOrderId(task.getOrder().getId());
 			deliveryLogDTO.setTaskStatus(task.getStatus());
 			deliveryLogDTO.setVendorId(task.getVendor().getId());
+			deliveryLogDTO.setTaskType(task.getTaskType());
 			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-				deliveryLogDTO.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(task.getDeliveryBoy().getLastNameEnglish()));
+				if (task.getDeliveryBoy() != null) {
+					deliveryLogDTO
+							.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameEnglish().concat(" ").concat(task.getDeliveryBoy().getLastNameEnglish()));
+				}
 				deliveryLogDTO.setVendorName(task.getVendor().getFirstNameEnglish().concat(" ").concat(task.getVendor().getLastNameEnglish()));
 				deliveryLogDTO.setVendorStoreName(task.getVendor().getStoreNameEnglish());
 			} else {
-				deliveryLogDTO.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(task.getDeliveryBoy().getLastNameArabic()));
+				if (task.getDeliveryBoy() != null) {
+					deliveryLogDTO.setDeliveryBoyName(task.getDeliveryBoy().getFirstNameArabic().concat(" ").concat(task.getDeliveryBoy().getLastNameArabic()));
+				}
 				deliveryLogDTO.setVendorName(task.getVendor().getFirstNameArabic().concat(" ").concat(task.getVendor().getLastNameArabic()));
 				deliveryLogDTO.setVendorStoreName(task.getVendor().getStoreNameArabic());
 			}
@@ -575,5 +591,20 @@ public class TaskServiceImpl implements TaskService {
 	@Override
 	public Long getTaskCountForDeliveryLog(final DeliveryLogFilterDTO deliveryLogFilterDTO) {
 		return taskRepository.getTaskCountForDeliveryLogBasedOnParams(deliveryLogFilterDTO);
+	}
+
+	@Override
+	public void exportDeliveryLogList(final DeliveryLogFilterDTO deliveryLogFilterDTO, final HttpServletResponse httpServletResponse)
+			throws FileNotFoundException, ValidationException {
+		List<DeliveryLogDTO> deliveryLogDTOs = getTaskListForDeliveryLog(deliveryLogFilterDTO, null, null);
+		final Object[] deliveryLogHeaderField = new Object[] { "Order Id", "Order Date", "Customer Name", "Customer Email", "Delivery Boy Name",
+				"Delivery Boy Email", "Assigned On", "Vendor Name", "Status", "Order type" };
+		final Object[] deliveryLogDataField = new Object[] { "orderId", "orderDate", "customerName", "customerEmail", "deliveryBoyName", "deliveryBoyEmail",
+				"assignedDate", "vendorStoreName", "taskStatus", "taskType" };
+		try {
+			exportCSV.writeCSVFile(deliveryLogDTOs, deliveryLogDataField, deliveryLogHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 }

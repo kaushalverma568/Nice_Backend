@@ -403,7 +403,7 @@ public class DeliveryBoyController {
 	/**
 	 * Get delivered orders count
 	 *
-	 * @param  deliveryBoyId
+	 * @param deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -562,6 +562,25 @@ public class DeliveryBoyController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("delivery.log.list.message", null))
 				.setData(resultDeliveryLogList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
 				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
+				.create();
+	}
+
+	/**
+	 * export delivery log list based on filters
+	 *
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param deliveryLogFilterDTO
+	 * @return
+	 * @throws ValidationException
+	 * @throws FileNotFoundException
+	 */
+	@PostMapping("/export/loglist")
+	public ResponseEntity<Object> exportDeliveryLogsList(@RequestHeader("Authorization") final String accessToken,
+			final HttpServletResponse httpServletResponse, @RequestBody final DeliveryLogFilterDTO deliveryLogFilterDTO)
+			throws ValidationException, FileNotFoundException {
+		taskService.exportDeliveryLogList(deliveryLogFilterDTO, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("delivery.log.list.message", null))
 				.create();
 	}
 }

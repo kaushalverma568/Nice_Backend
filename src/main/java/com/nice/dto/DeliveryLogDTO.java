@@ -29,4 +29,5 @@ public class DeliveryLogDTO implements Serializable {
 	private String vendorStoreName;
 	private Long vendorId;
 	private String taskStatus;
+	private String taskType;
 }
