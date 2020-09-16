@@ -1001,6 +1001,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public LoginResponse getUserInfo() throws NotFoundException {
+		final Locale locale = LocaleContextHolder.getLocale();
 		LoginResponse loginResponse = new LoginResponse();
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		BeanUtils.copyProperties(userLogin, loginResponse);
@@ -1015,16 +1016,37 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		} else if (UserType.USER.name().equals(userLogin.getEntityType())) {
 			Users users = usersService.getUsersDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(users, loginResponse);
+			if (locale.getLanguage().equals("en")) {
+				loginResponse.setFirstName(users.getFirstNameEnglish());
+				loginResponse.setLastName(users.getLastNameEnglish());
+			} else {
+				loginResponse.setFirstName(users.getFirstNameArabic());
+				loginResponse.setLastName(users.getLastNameArabic());
+			}
 			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
 					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
 		} else if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			BeanUtils.copyProperties(vendor, loginResponse);
+			if (locale.getLanguage().equals("en")) {
+				loginResponse.setFirstName(vendor.getFirstNameEnglish());
+				loginResponse.setLastName(vendor.getLastNameEnglish());
+			} else {
+				loginResponse.setFirstName(vendor.getFirstNameArabic());
+				loginResponse.setLastName(vendor.getLastNameArabic());
+			}
 			loginResponse.setCanChangePassword(!(userLogin.getPassword() == null
 					&& (userLogin.getFacebookKey() != null || userLogin.getGoogleKey() != null || userLogin.getOtp() != null)));
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
 			BeanUtils.copyProperties(deliveryBoy, loginResponse);
+			if (locale.getLanguage().equals("en")) {
+				loginResponse.setFirstName(deliveryBoy.getFirstNameEnglish());
+				loginResponse.setLastName(deliveryBoy.getLastNameEnglish());
+			} else {
+				loginResponse.setFirstName(deliveryBoy.getFirstNameArabic());
+				loginResponse.setLastName(deliveryBoy.getLastNameArabic());
+			}
 			loginResponse.setCanChangePassword(true);
 		}
 		return loginResponse;
