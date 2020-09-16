@@ -12,6 +12,7 @@ import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
+import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.util.CommonUtility;
@@ -19,7 +20,7 @@ import com.nice.util.CommonUtility;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 19, 2020
+ * @date : Jun 19, 2020
  */
 @Component
 public class DeliveryBoyValidator implements Validator {
@@ -39,7 +40,8 @@ public class DeliveryBoyValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryBoyValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from messages_en_US.properties
+	 * Locale message service - to display response messages from
+	 * messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -53,11 +55,12 @@ public class DeliveryBoyValidator implements Validator {
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return DeliveryBoyDTO.class.equals(clazz) || DeliveryBoyPersonalDetailsDTO.class.equals(clazz) || DeliveryBoyAccountDetailsDTO.class.equals(clazz)
-				|| DeliveryBoyFilterDTO.class.equals(clazz);
+				|| DeliveryBoyFilterDTO.class.equals(clazz) || DeliveryLogFilterDTO.class.equals(clazz);
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may
+	 * carry number of validation conditions.
 	 */
 
 	@Override
