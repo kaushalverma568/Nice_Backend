@@ -1,7 +1,6 @@
 package com.nice.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -27,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
+import com.nice.dto.SideBarDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -196,8 +195,8 @@ public class PermissionController {
 	 */
 	@GetMapping("/sidebar")
 	public ResponseEntity<Object> getSideBarSpectificPermissionListForUser(@RequestHeader("Authorization") final String accessToken) throws NotFoundException {
-		final Map<String, List<ModuleAndPermissionResponseDTO>> parentModuleWisePermissionMap = permissionService.getSideBarSpectificPermissionListForUser();
+		final List<SideBarDTO> sideBarDTOList = permissionService.getSideBarSpectificPermissionListForUser();
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("permission.detail.message", null))
-				.setData(parentModuleWisePermissionMap).create();
+				.setData(sideBarDTOList).create();
 	}
 }

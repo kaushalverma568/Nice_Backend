@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 
-import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
+import com.nice.dto.SideBarDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Modules;
@@ -15,7 +15,6 @@ import com.nice.model.Permission;
 import com.nice.model.Role;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
  * @date   : 26-06-2020
  */
@@ -115,6 +114,6 @@ public interface PermissionService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() throws NotFoundException;
+	List<SideBarDTO> getSideBarSpectificPermissionListForUser() throws NotFoundException;
 
 }

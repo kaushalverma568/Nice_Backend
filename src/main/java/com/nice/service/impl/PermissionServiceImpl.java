@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import com.nice.constant.UserType;
 import com.nice.dto.ModuleAndPermissionResponseDTO;
 import com.nice.dto.PermissionDTO;
 import com.nice.dto.PermissionResponseDTO;
+import com.nice.dto.SideBarDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -171,7 +173,8 @@ public class PermissionServiceImpl implements PermissionService {
 
 		if (permissionDTO.getId() != null) {
 			/**
-			 * At the time of update is role with same id for same module exist or not except it's own ID
+			 * At the time of update is role with same id for same module exist or not
+			 * except it's own ID
 			 */
 			return permissionRepository.findByRoleAndModulesAndIdNot(role, modules, permissionDTO.getId()).isPresent();
 		} else {
@@ -220,13 +223,14 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	@Override
-	public Map<String, List<ModuleAndPermissionResponseDTO>> getSideBarSpectificPermissionListForUser() throws NotFoundException {
+	public List<SideBarDTO> getSideBarSpectificPermissionListForUser() throws NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		Vendor vendor = null;
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 		}
 		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new LinkedHashMap<>();
+		List<SideBarDTO> sideBarDTOList = new ArrayList<>();
 
 		/**
 		 * get only those permissions for which particular role has access of VIEW
@@ -235,9 +239,11 @@ public class PermissionServiceImpl implements PermissionService {
 
 		for (Permission permission : permissionList) {
 			/**
-			 * If there is no inventory manage for vendor then we will not display inventory module in side bar
+			 * If there is no inventory manage for vendor then we will not display inventory
+			 * module in side bar
 			 */
-			if (permission.getModules().getParentModuleName().equals("Inventory") && vendor != null && !vendor.getBusinessCategory().getManageInventory()) {
+			if (permission.getModules().getParentModuleName().equals("Inventory") && vendor != null
+					&& !vendor.getBusinessCategory().getManageInventory().booleanValue()) {
 				continue;
 			}
 			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
@@ -249,6 +255,25 @@ public class PermissionServiceImpl implements PermissionService {
 				modulePermissionMap.put(permission.getModules().getParentModuleName(), moduleWisePermissionList);
 			}
 		}
-		return modulePermissionMap;
+		for (Entry<String, List<ModuleAndPermissionResponseDTO>> parentModule : modulePermissionMap.entrySet()) {
+			SideBarDTO sideBarDTO = new SideBarDTO();
+			/**
+			 * Below static value nowhere use. This is just for sidebar structure of
+			 * front-end.
+			 */
+			sideBarDTO.setModulesId(1L);
+			sideBarDTO.setCanView(true);
+			sideBarDTO.setCanAdd(true);
+			sideBarDTO.setCanEdit(true);
+			sideBarDTO.setCanDelete(true);
+			sideBarDTO.setModulesName(parentModule.getKey());
+			if (parentModule.getValue().size() != 1) {
+				sideBarDTO.setChildren(parentModule.getValue());
+			}
+			sideBarDTOList.add(sideBarDTO);
+
+		}
+
+		return sideBarDTOList;
 	}
 }
