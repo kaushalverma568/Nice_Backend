@@ -52,7 +52,7 @@ import com.nice.validator.ProductValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
 @RestController(value = "productController")
@@ -97,11 +97,11 @@ public class ProductController {
 	public static final String IMAGE_NOT_NULL = "image.required";
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -129,11 +129,11 @@ public class ProductController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param image
-	 * @param userId
-	 * @param productRequestDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  image
+	 * @param  userId
+	 * @param  productRequestDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -162,7 +162,7 @@ public class ProductController {
 	}
 
 	/**
-	 * @param productId
+	 * @param  productId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -180,7 +180,7 @@ public class ProductController {
 	/**
 	 * Get Cuisine with count
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -194,8 +194,8 @@ public class ProductController {
 	}
 
 	/**
-	 * @param vendorId
-	 * @param cuisineId
+	 * @param  vendorId
+	 * @param  cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -211,13 +211,12 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective
-	 * products will be shown to them.
+	 * Get product list based on parameters.This method will be used by all: Customer, Vendor and Admin and respective products will be shown to them.
 	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  productParamRequestDTO
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -238,13 +237,13 @@ public class ProductController {
 	}
 
 	/**
-	 * Get product list based on parameters.This method will be used by Customer only as for admin and vendor there is not
-	 * need to group the products based on category
+	 * Get product list based on parameters.This method will be used by Customer only as for admin and vendor there is not need to group the products based on
+	 * category
 	 *
-	 * @param accessToken
-	 * @param productParamRequestDTO
-	 * @param pageNumber
-	 * @param pageSize
+	 * @param  accessToken
+	 * @param  productParamRequestDTO
+	 * @param  pageNumber
+	 * @param  pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -262,10 +261,10 @@ public class ProductController {
 	/**
 	 * Change status of product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -285,10 +284,10 @@ public class ProductController {
 	/**
 	 * export made product list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 * @throws NotFoundException
@@ -307,15 +306,15 @@ public class ProductController {
 	/**
 	 * Upload product
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
 	@PostMapping(path = "/upload")
-	@PreAuthorize("hasPermission('Product','CAN_ADD')")
+	@PreAuthorize("hasPermission('Product List','CAN_ADD')")
 	public ResponseEntity<Object> importData(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "file", required = true) final MultipartFile file, final HttpServletResponse httpServletResponse) throws BaseException {
 		if (file == null) {
@@ -329,15 +328,15 @@ public class ProductController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param accessToken
-	 * @param imageType
-	 * @param productId
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@DeleteMapping("/{productId}")
-	@PreAuthorize("hasPermission('Product','CAN_EDIT')")
+	@PreAuthorize("hasPermission('Product List','CAN_EDIT')")
 	public ResponseEntity<Object> deleteImage(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "imageType") final String imageType, @PathVariable("productId") final Long productId)
 			throws ValidationException, NotFoundException {
