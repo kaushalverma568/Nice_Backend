@@ -233,13 +233,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 Double boyRating = deliveryBoy.getRating();
 			 Long noOfBoyRating = deliveryBoy.getNoOfRating();
 			 //goes one more rating to this boy so plus 1
-			 if (noOfBoyRating != null) {
+			 if (noOfBoyRating > 0) {
 				 noOfBoyRating = noOfBoyRating + 1;
 			 } else {
 				 noOfBoyRating = 1L;
 			 }
 			//now current rating and previous rating total divide by 2  for average and set to boy record
-			 if (boyRating != null) {
+			 if (boyRating > 0) {
 				 boyRating = (boyRating + orderRating.getDeliveryBoyRating())/2;
 			 } else {
 				 boyRating = orderRating.getDeliveryBoyRating();
@@ -257,13 +257,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 Double vendorRating = vendor.getRating();
 			 Long noOfVendorRating = vendor.getNoOfRating();
 			 //goes one more rating to this vendor so plus 1
-			 if (noOfVendorRating != null) {
+			 if (noOfVendorRating > 0) {
 				 noOfVendorRating = noOfVendorRating + 1;
 			 } else {
 				 noOfVendorRating = 1L;
 			 }
 			 //now current rating and previous rating total divide by 2 for average and set to vendor record
-			 if (vendorRating != null) {
+			 if (vendorRating > 0 ) {
 				 vendorRating = (vendorRating + orderRating.getVendorRating())/2;
 			 } else {
 				 vendorRating = orderRating.getVendorRating();
