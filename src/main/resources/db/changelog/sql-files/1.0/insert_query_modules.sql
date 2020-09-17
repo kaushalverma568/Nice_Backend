@@ -99,7 +99,7 @@ INSERT INTO modules(
  */
 INSERT INTO modules(
 	active, created_at, created_by, updated_at, updated_by, name, parent_module_name,available_for_new_role,no_parent_module)
-	VALUES (true, now(), 1, now(), 1,'Payment Transaction','Account',true,true);
+	VALUES (true, now(), 1, now(), 1,'Payment Transaction','Account',true,false);
 /**
  * Role & Permission
  */

@@ -252,7 +252,7 @@ public class PermissionServiceImpl implements PermissionService {
 				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
 			} else {
 				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = new ArrayList<>();
-				if (!permission.getModules().getNoParentModule()) {
+				if (!permission.getModules().getNoParentModule().booleanValue()) {
 					moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
 				}
 
