@@ -25,8 +25,7 @@ public class ProductVariantResponseDTO implements Serializable {
 	private Long productId;
 	private String productName;
 	private Long uomId;
-	private String uomMeasurement;
-	private String uomLabel;
+	private String measurement;
 	private Double discountedRate;
 	private Double rate;
 	private String sku;
@@ -76,12 +75,12 @@ public class ProductVariantResponseDTO implements Serializable {
 	 * @param uomLabel
 	 * @param availableQty
 	 */
-	public ProductVariantResponseDTO(final Long id, final Long productId, final String productName, final String uomLabel, final Integer availableQty) {
+	public ProductVariantResponseDTO(final Long id, final Long productId, final String productName, final String uomMeasurement, final Integer availableQty) {
 		super();
 		this.id = id;
 		this.productId = productId;
 		this.productName = productName;
-		this.uomLabel = uomLabel;
+		this.measurement = uomMeasurement;
 		this.availableQty = availableQty;
 	}
 

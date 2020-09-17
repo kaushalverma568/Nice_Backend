@@ -85,7 +85,6 @@ public class UOMServiceImpl implements UOMService {
 	public void addUOM(final UOMDTO uomDTO) throws ValidationException, NotFoundException {
 		validateDto(uomDTO);
 		UOM uom = uomMapper.toEntity(uomDTO);
-		StringBuilder label = new StringBuilder();
 		uomRepository.save(uom);
 	}
 
@@ -246,8 +245,8 @@ public class UOMServiceImpl implements UOMService {
 		for (UOM uom : uomList) {
 			uomExportList.add(uomMapper.toDto(uom));
 		}
-		final Object[] uomHeaderField = new Object[] { "Measurement English", "Measurement Arabic", "Quantity", "UOM Label English", "UOM Label Arabic" };
-		final Object[] uomDataField = new Object[] { "measurementEnglish", "measurementArabic", "quantity", "uomLabelEnglish", "uomLabelArabic" };
+		final Object[] uomHeaderField = new Object[] { "Measurement English", "Measurement Arabic" };
+		final Object[] uomDataField = new Object[] { "measurementEnglish", "measurementArabic" };
 		try {
 			exportCSV.writeCSVFile(uomExportList, uomDataField, uomHeaderField, httpServletResponse);
 		} catch (IOException e) {
@@ -267,8 +266,8 @@ public class UOMServiceImpl implements UOMService {
 				final List<UOMImport> insertListOfBean = insertListOfUoms(
 						uomImports.stream().filter(x -> CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getMeasurementEnglish())
 								&& CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(x.getMeasurementArabic())).collect(Collectors.toList()));
-				Object[] uomDetailsHeadersField = new Object[] { "UOM Measurement English", "UOM Measurement Arabic", "Quantity", "Result" };
-				Object[] uomDetailsField = new Object[] { "measurementEnglish", "measurementArabic", "Quantity", "uploadMessage" };
+				Object[] uomDetailsHeadersField = new Object[] { "UOM Measurement English", "UOM Measurement Arabic", "Result" };
+				Object[] uomDetailsField = new Object[] { "measurementEnglish", "measurementArabic", "uploadMessage" };
 				exportCSV.writeCSVFile(insertListOfBean, uomDetailsField, uomDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {

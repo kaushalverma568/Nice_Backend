@@ -308,10 +308,10 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		stockDetailsDto.setProductId(productVariant.getProduct().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameEnglish());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getMeasurementEnglish());
+			stockDetailsDto.setMeasurement(productVariant.getUom().getMeasurementEnglish());
 		} else {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameArabic());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getMeasurementArabic());
+			stockDetailsDto.setMeasurement(productVariant.getUom().getMeasurementArabic());
 		}
 		stockDetailsDto.setUomId(productVariant.getUom().getId());
 		stockDetailsDto.setSku(productVariant.getSku());
@@ -537,7 +537,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		ProductVariantResponseDTO productVariantResponse = productVariantService.getProductVariant(productVariantId);
 		return stockDetailsRepository.findByProductVariantAndLotNo(productVariant, lotNo).orElseThrow(() -> new NotFoundException(messageByLocaleService
-				.getMessage("stock.not.avaliable", new Object[] { productVariantResponse.getProductName(), productVariantResponse.getUomLabel(), lotNo })));
+				.getMessage("stock.not.avaliable", new Object[] { productVariantResponse.getProductName(), productVariantResponse.getMeasurement(), lotNo })));
 	}
 
 }
