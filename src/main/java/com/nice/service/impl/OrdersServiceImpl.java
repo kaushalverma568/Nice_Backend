@@ -1183,7 +1183,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
-				&& (OrderStatusEnum.ORDER_IS_READY.getStatusValue().equals(existingOrderStatus.getStatusValue())
+				&& (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(existingOrderStatus.getStatusValue())
 						&& !OrderStatusEnum.STOCK_ALLOCATED.getStatusValue().equals(newStatus))) {
 			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
 		}

@@ -78,7 +78,7 @@ public final class Constant {
 	public static final String CONFIRMED = "Confirmed";
 	public static final String RETURN_REQUESTED = "Return Requested";
 	public static final String RETURN_PROCESSED = "Return Processed";
-	public static final String ORDER_IS_READY = "Order Is Ready";
+	public static final String ORDER_IS_PREPARED = "Order Is Prepared";
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
