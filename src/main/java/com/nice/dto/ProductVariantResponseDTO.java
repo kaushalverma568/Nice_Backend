@@ -42,9 +42,6 @@ public class ProductVariantResponseDTO implements Serializable {
 	private String productNameArabic;
 	private String uomMeasurementEnglish;
 	private String uomMeasurementArabic;
-	private String uomLabelEnglish;
-	private String uomLabelArabic;
-
 	private Boolean productAvailable;
 
 	private List<ProductToppingResponseDTO> productToppingsDtoList;

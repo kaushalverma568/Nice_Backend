@@ -137,10 +137,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getMeasurementEnglish());
+			orderItemResponseDTO.setMeasurement(productVariant.getUom().getMeasurementEnglish());
 		} else {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getMeasurementArabic());
+			orderItemResponseDTO.setMeasurement(productVariant.getUom().getMeasurementArabic());
 		}
 		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
 		orderItemResponseDTO.setProductVariantId(productVariant.getId());
@@ -176,7 +176,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		}
 		orderItemResponseDTO.setTotalOrderItemAmount(totalOrderItemAmount);
 		orderItemResponseDTO.setSku(productVariant.getSku());
-		orderItemResponseDTO.setProductLabel(orderItemResponseDTO.getProductName().concat("-").concat(orderItemResponseDTO.getUomLabel()));
+		orderItemResponseDTO.setProductLabel(orderItemResponseDTO.getProductName().concat("-").concat(orderItemResponseDTO.getMeasurement()));
 		return orderItemResponseDTO;
 	}
 

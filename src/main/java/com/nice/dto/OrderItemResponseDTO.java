@@ -22,7 +22,7 @@ public class OrderItemResponseDTO implements Serializable {
 	private Long id;
 	private String productImage;
 	private String productName;
-	private String uomLabel;
+	private String measurement;
 	private Long orderQty;
 	private Double discount;
 	private Double totalAmt;

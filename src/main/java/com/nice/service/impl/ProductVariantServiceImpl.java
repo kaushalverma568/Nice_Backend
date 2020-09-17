@@ -217,8 +217,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		productVariantResponseDTO.setDetailImage(productVariant.getProduct().getDetailImage());
 		productVariantResponseDTO.setUomMeasurementEnglish(productVariant.getUom().getMeasurementEnglish());
 		productVariantResponseDTO.setUomMeasurementArabic(productVariant.getUom().getMeasurementArabic());
-		productVariantResponseDTO.setUomLabelEnglish(productVariant.getUom().getMeasurementEnglish());
-		productVariantResponseDTO.setUomLabelArabic(productVariant.getUom().getMeasurementArabic());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameEnglish());
 			productVariantResponseDTO.setMeasurement(productVariantResponseDTO.getUomMeasurementEnglish());
