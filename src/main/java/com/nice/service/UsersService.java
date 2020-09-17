@@ -80,4 +80,20 @@ public interface UsersService {
 	 * @throws NotFoundException
 	 */
 	Users getUsersDetails(final Long usersId) throws NotFoundException;
+
+	/**
+	 * Check is super admin contains same email address
+	 *
+	 * @param  usersDTO
+	 * @return
+	 */
+	boolean isSuperAdminExists(UsersDTO usersDTO);
+
+	/**
+	 * Check is vendor contains same email address
+	 *
+	 * @param  usersDTO
+	 * @return
+	 */
+	boolean isVendorExists(UsersDTO usersDTO);
 }

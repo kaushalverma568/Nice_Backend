@@ -160,23 +160,32 @@ public class UsersServiceImpl implements UsersService {
 
 	@Override
 	public boolean isUserExists(final UsersDTO usersDTO) {
+		if (usersDTO.getId() != null) {
+			/**
+			 * At the time of update is user with same name exist or not except it's own id
+			 */
+			return usersRepository.findByEmailAndIdNot(usersDTO.getEmail().toLowerCase(), usersDTO.getId()).isPresent();
+		} else {
+			/**
+			 * At the time of create is user with same name exist or not
+			 */
+			return usersRepository.findByEmail(usersDTO.getEmail().toLowerCase()).isPresent();
+		}
+	}
+
+	@Override
+	public boolean isSuperAdminExists(final UsersDTO usersDTO) {
 		/**
 		 * if super admin contains same email then return true
 		 */
-		if (userLoginRepository.findByEmailAndEntityTypeIsNull(usersDTO.getEmail().toLowerCase()).isPresent()) {
-			return true;
-		} else {
-			if (usersDTO.getId() != null) {
-				/**
-				 * At the time of update is user with same name exist or not except it's own id
-				 */
-				return usersRepository.findByEmailAndIdNot(usersDTO.getEmail().toLowerCase(), usersDTO.getId()).isPresent();
-			} else {
-				/**
-				 * At the time of create is user with same name exist or not
-				 */
-				return usersRepository.findByEmail(usersDTO.getEmail().toLowerCase()).isPresent();
-			}
-		}
+		return userLoginRepository.findByEmailAndEntityTypeIsNull(usersDTO.getEmail().toLowerCase()).isPresent();
+	}
+
+	@Override
+	public boolean isVendorExists(final UsersDTO usersDTO) {
+		/**
+		 * if vendor contains same email then return true
+		 */
+		return userLoginRepository.findByEmailAndEntityType(usersDTO.getEmail().toLowerCase(), UserType.VENDOR.name()).isPresent();
 	}
 }

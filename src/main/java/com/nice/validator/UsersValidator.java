@@ -8,6 +8,7 @@ import org.springframework.validation.Validator;
 import com.nice.dto.UsersDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.UsersService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -15,6 +16,11 @@ import com.nice.service.UsersService;
  */
 @Component
 public class UsersValidator implements Validator {
+
+	/**
+	 *
+	 */
+	private static final String EMAIL = "email";
 
 	/**
 	 * Locale message service - to display response messages from messages_en.properties
@@ -38,8 +44,21 @@ public class UsersValidator implements Validator {
 		/**
 		 * Check user is exists or not
 		 */
-		if (usersDTO != null && usersService.isUserExists(usersDTO)) {
-			errors.rejectValue("email", "409", messageByLocaleService.getMessage("user.email.exists", new Object[] { usersDTO.getEmail() }));
+		if (usersDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(usersDTO.getEmail()) && usersService.isUserExists(usersDTO)) {
+			errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage("user.email.exists", new Object[] { usersDTO.getEmail() }));
+		}
+		/**
+		 * Check user is exists or not
+		 */
+		if (usersDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(usersDTO.getEmail()) && usersService.isSuperAdminExists(usersDTO)) {
+			errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage("user.email.exists.super.admin", new Object[] { usersDTO.getEmail() }));
+		}
+
+		/**
+		 * Check user is exists or not
+		 */
+		if (usersDTO != null && CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(usersDTO.getEmail()) && usersService.isVendorExists(usersDTO)) {
+			errors.rejectValue(EMAIL, "409", messageByLocaleService.getMessage("user.email.exists.vendor", new Object[] { usersDTO.getEmail() }));
 		}
 	}
 }
