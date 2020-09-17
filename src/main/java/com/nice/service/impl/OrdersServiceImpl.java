@@ -285,6 +285,14 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
 
+		if (!orderRequestDto.getDeliveryType().equals(DeliveryType.PICKUP.getStatusValue())
+				&& !orderRequestDto.getDeliveryType().equals(DeliveryType.DELIVERY.getStatusValue())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
+		}
+		if (!orderRequestDto.getPaymentMode().equals(PaymentMode.COD.name()) && !orderRequestDto.getPaymentMode().equals(PaymentMode.ONLINE.name())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.mode", null));
+		}
+
 		/**
 		 * COD is not supported for pickup orders
 		 */

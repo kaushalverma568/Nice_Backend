@@ -86,4 +86,12 @@ public interface ProductToppingService {
 	 */
 	List<ProductTopping> getProductToppingListForTopping(Topping topping, Boolean active);
 
+	/**
+	 * @param productToppingId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	ProductToppingResponseDTO getProductToppingWithOutUserCheck(Long productToppingId) throws NotFoundException, ValidationException;
+
 }

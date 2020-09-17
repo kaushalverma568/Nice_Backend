@@ -102,10 +102,17 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		ProductTopping productTopping = getProductToppingDetails(productToppingId);
 		UserLogin userLogin = checkForUserLogin();
 		if (userLogin.getEntityType() == null || userLogin.getEntityId().equals(productTopping.getVendorId())) {
-			return convertFromEntityToDto(productTopping);
+			return getProductToppingWithOutUserCheck(productToppingId);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
+	}
+	
+	@Override
+	public ProductToppingResponseDTO getProductToppingWithOutUserCheck(final Long productToppingId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside getProductTopping method, with productToppingId : {}", productToppingId);
+		ProductTopping productTopping = getProductToppingDetails(productToppingId);
+			return convertFromEntityToDto(productTopping);
 	}
 
 	@Override
