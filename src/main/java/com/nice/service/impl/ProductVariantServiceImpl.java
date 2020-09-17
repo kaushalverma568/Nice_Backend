@@ -221,12 +221,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		productVariantResponseDTO.setUomLabelArabic(productVariant.getUom().getMeasurementArabic());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameEnglish());
-			productVariantResponseDTO.setUomMeasurement(productVariantResponseDTO.getUomMeasurementEnglish());
-			productVariantResponseDTO.setUomLabel(productVariantResponseDTO.getUomLabelEnglish());
+			productVariantResponseDTO.setMeasurement(productVariantResponseDTO.getUomMeasurementEnglish());
 		} else {
 			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameArabic());
-			productVariantResponseDTO.setUomMeasurement(productVariantResponseDTO.getUomMeasurementArabic());
-			productVariantResponseDTO.setUomLabel(productVariantResponseDTO.getUomLabelArabic());
+			productVariantResponseDTO.setMeasurement(productVariantResponseDTO.getUomMeasurementArabic());
 		}
 		productVariantResponseDTO.setUomId(productVariant.getUom().getId());
 

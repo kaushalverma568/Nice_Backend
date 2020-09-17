@@ -220,8 +220,8 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		else if (!stockDetailsService.getStockDetailsByProductVariantAndLotNo(stockDetailsWiseQtyDto.getProductVariantId(), stockDetailsWiseQtyDto.getLotNo())
 				.getVendorId().equals(orderService.getOrderById(orderId).getVendor().getId())) {
 			ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariant(stockDetailsWiseQtyDto.getProductVariantId());
-			throw new ValidationException(messageByLocaleService.getMessage("stock.not.avaliable",
-					new Object[] { productVariantResponseDto.getProductName(), productVariantResponseDto.getUomLabel(), stockDetailsWiseQtyDto.getLotNo() }));
+			throw new ValidationException(messageByLocaleService.getMessage("stock.not.avaliable", new Object[] { productVariantResponseDto.getProductName(),
+					productVariantResponseDto.getMeasurement(), stockDetailsWiseQtyDto.getLotNo() }));
 
 		}
 	}
