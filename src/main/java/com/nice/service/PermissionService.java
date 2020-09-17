@@ -99,16 +99,6 @@ public interface PermissionService {
 	Permission getPermissionDetail(Long permissionId) throws NotFoundException;
 
 	/**
-	 * get permission list by role or module and active
-	 *
-	 * @param  roleId
-	 * @param  existingModules
-	 * @param  true1
-	 * @throws ValidationException
-	 */
-	List<Permission> getPermissionList(Role role, Modules existingModules, Boolean true1) throws ValidationException;
-
-	/**
 	 * Get side bar specific permission list for user
 	 *
 	 * @return

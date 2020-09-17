@@ -139,7 +139,7 @@ public class RoleServiceImpl implements RoleService {
 	public RoleAndPermissionResponseDTO getRoleDetailWithPermission(final Long roleId) throws NotFoundException {
 		Role role = getRoleDetail(roleId);
 		List<ModuleAndPermissionResponseDTO> moduleAndPermissionResponseDTOs = permissionMapper
-				.toModuleAndPermissionResponseDTOs(permissionRepository.findAllByRoleAndActive(role, true));
+				.toModuleAndPermissionResponseDTOs(permissionRepository.findAllByRoleAndActiveOrderByModules(role, true));
 		RoleAndPermissionResponseDTO roleAndPermissionsDTO = new RoleAndPermissionResponseDTO();
 		roleAndPermissionsDTO.setModuleAndPermissionResponseDTOs(moduleAndPermissionResponseDTOs);
 		roleAndPermissionsDTO.setActive(role.getActive());
@@ -165,26 +165,6 @@ public class RoleServiceImpl implements RoleService {
 			} else {
 				return roleRepository.findAll(pageable);
 			}
-		}
-	}
-
-	@Override
-	public void changeStatus(final Long roleId, final Boolean isActive) throws ValidationException, NotFoundException {
-		Role existingRole = getRoleDetail(roleId);
-		LOGGER.info("Existing role details {} ", existingRole);
-		if (isActive == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else if (existingRole.getActive().equals(isActive)) {
-			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(isActive) ? "role.active" : "role.deactive", null));
-		} else {
-			if (Boolean.FALSE.equals(isActive)) {
-				List<Permission> permissionList = permissionService.getPermissionList(existingRole, null, Boolean.TRUE);
-				for (Permission Permission : permissionList) {
-					permissionService.changeStatus(Permission.getId(), false);
-				}
-			}
-			existingRole.setActive(isActive);
-			roleRepository.save(existingRole);
 		}
 	}
 

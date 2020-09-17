@@ -36,16 +36,6 @@ public interface RoleService {
 	Page<Role> getRoleList(Integer pageNumber, Integer pageSize, Boolean activeRecords, final Boolean isDefault);
 
 	/**
-	 * change status of role
-	 *
-	 * @param  roleId
-	 * @param  isActive
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	void changeStatus(Long roleId, Boolean isActive) throws ValidationException, NotFoundException;
-
-	/**
 	 * is role exist for name
 	 *
 	 * @param  roleDto

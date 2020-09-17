@@ -140,7 +140,7 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 	 * @param  active
 	 * @return
 	 */
-	List<Permission> findAllByRoleAndActive(Role role, Boolean active);
+	List<Permission> findAllByRoleAndActiveOrderByModules(Role role, Boolean active);
 
 	/**
 	 * get all by active and module

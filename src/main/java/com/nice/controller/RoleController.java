@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -136,26 +135,6 @@ public class RoleController {
 				.setData(roleMapper.toDtos(resultRes.getContent())).setHasNextPage(resultRes.hasNext()).setHasPreviousPage(resultRes.hasPrevious())
 				.setTotalPages(resultRes.getTotalPages()).setPageNumber(resultRes.getNumber() + 1).setTotalCount(resultRes.getTotalElements()).create();
 
-	}
-
-	/**
-	 * change status of role(active/deactive)
-	 *
-	 * @param  accessToken
-	 * @param  roleId
-	 * @param  isActive
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PutMapping("/status/{roleId}")
-	@PreAuthorize("hasPermission('Role-Permission','CAN_DELETE')")
-	public ResponseEntity<Object> changeStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("roleId") final Long roleId,
-			@RequestParam final Boolean isActive) throws ValidationException, NotFoundException {
-		LOGGER.info("Inside change status of role of id {} and status {}", roleId, isActive);
-		roleService.changeStatus(roleId, isActive);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("role.update.message", null))
-				.create();
 	}
 
 	/**

@@ -173,8 +173,7 @@ public class PermissionServiceImpl implements PermissionService {
 
 		if (permissionDTO.getId() != null) {
 			/**
-			 * At the time of update is role with same id for same module exist or not
-			 * except it's own ID
+			 * At the time of update is role with same id for same module exist or not except it's own ID
 			 */
 			return permissionRepository.findByRoleAndModulesAndIdNot(role, modules, permissionDTO.getId()).isPresent();
 		} else {
@@ -202,27 +201,6 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	@Override
-	public List<Permission> getPermissionList(final Role role, final Modules modules, final Boolean active) throws ValidationException {
-		if (active == null) {
-			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
-		} else {
-			if (role != null) {
-				if (modules != null) {
-					return permissionRepository.findAllByRoleAndModulesAndActive(role, modules, active);
-				} else {
-					return permissionRepository.findAllByRoleAndActive(role, active);
-				}
-			} else {
-				if (modules != null) {
-					return permissionRepository.findAllByModulesAndActive(modules, active);
-				} else {
-					return permissionRepository.findAllByActive(active);
-				}
-			}
-		}
-	}
-
-	@Override
 	public List<SideBarDTO> getSideBarSpectificPermissionListForUser() throws NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		Vendor vendor = null;
@@ -233,15 +211,13 @@ public class PermissionServiceImpl implements PermissionService {
 		List<SideBarDTO> sideBarDTOList = new ArrayList<>();
 
 		/**
-		 * get only those permissions for which particular role has access of VIEW Side
-		 * bar
+		 * get only those permissions for which particular role has access of VIEW Side bar
 		 */
 		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewSidebarAndActiveOrderByModulesAsc(userLogin.getRole(), true, true);
 
 		for (Permission permission : permissionList) {
 			/**
-			 * If there is no inventory manage for vendor then we will not display inventory
-			 * module in side bar
+			 * If there is no inventory manage for vendor then we will not display inventory module in side bar
 			 */
 			if (permission.getModules().getParentModuleName().equals("Inventory") && vendor != null
 					&& !vendor.getBusinessCategory().getManageInventory().booleanValue()) {
@@ -262,8 +238,7 @@ public class PermissionServiceImpl implements PermissionService {
 		for (Entry<String, List<ModuleAndPermissionResponseDTO>> parentModule : modulePermissionMap.entrySet()) {
 			SideBarDTO sideBarDTO = new SideBarDTO();
 			/**
-			 * Below static value nowhere use. This is just for side bar structure of
-			 * front-end.
+			 * Below static value nowhere use. This is just for side bar structure of front-end.
 			 */
 			sideBarDTO.setModulesId(1L);
 			sideBarDTO.setCanView(true);
