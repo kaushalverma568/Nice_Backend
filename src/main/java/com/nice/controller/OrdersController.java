@@ -48,7 +48,7 @@ import com.nice.util.PaginationUtil;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -72,15 +72,15 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  orderRequestDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param orderRequestDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/placeOrder")
-	@PreAuthorize("hasPermission('Orders','CAN_ADD')")
+	// @PreAuthorize("hasPermission('Orders','CAN_ADD')")
 	public ResponseEntity<Object> placeOrder(@RequestHeader("Authorization") final String token, @Valid @RequestBody final OrderRequestDTO orderRequestDto,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -113,10 +113,10 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  orderListFilterDto
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -150,9 +150,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  accessToken
-	 * @param  orderListFilterDto
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param orderListFilterDto
+	 * @param httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -162,15 +162,15 @@ public class OrdersController {
 	@PostMapping(value = "/export/list", produces = "text/csv")
 	public ResponseEntity<Object> exportOrderList(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody final OrderListFilterDto orderListFilterDto, final HttpServletResponse httpServletResponse)
-			throws NotFoundException, FileNotFoundException {
+			throws NotFoundException, FileNotFoundException, ValidationException {
 		orderService.exportOrderList(httpServletResponse, orderListFilterDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(ORDER_LIST_MESSAGE, null)).create();
 	}
 
 	/**
 	 *
-	 * @param  token
-	 * @param  orderId
+	 * @param token
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -187,9 +187,9 @@ public class OrdersController {
 
 	/**
 	 *
-	 * @param  token
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -209,7 +209,7 @@ public class OrdersController {
 		if (!OrderStatusEnum.PENDING.getStatusValue().equals(order.getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
 		}
-		orderService.cancelOrder(replaceCancelOrderDto, false);
+		orderService.cancelOrder(replaceCancelOrderDto, true);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -232,31 +232,7 @@ public class OrdersController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		orderService.cancelOrder(replaceCancelOrderDto, true);
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
-				.create();
-	}
-
-	/**
-	 * This can be accessed only by Vendor
-	 *
-	 * @param token
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	@PostMapping("/reject")
-	public ResponseEntity<Object> rejectOrder(@RequestHeader("Authorization") final String token,
-			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
-			throws ValidationException, NotFoundException {
-		LOGGER.info("Inside the cancel order method");
-		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		orderService.cancelOrder(replaceCancelOrderDto, true);
+		orderService.cancelOrder(replaceCancelOrderDto, false);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -264,10 +240,10 @@ public class OrdersController {
 	/**
 	 * replace order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -290,10 +266,10 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -317,10 +293,10 @@ public class OrdersController {
 	 * Change status of order </br>
 	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  orderId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param orderId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -365,8 +341,8 @@ public class OrdersController {
 	/**
 	 * Retry for searching delivery boys for assignment of order
 	 *
-	 * @param  accessToken
-	 * @param  orderId
+	 * @param accessToken
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -377,6 +353,46 @@ public class OrdersController {
 		LOGGER.info("retry for searching delivery boys, orderId:{} ", orderId);
 		orderService.retryForSearchingDeliveryBoys(orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
+				.create();
+	}
+
+	/**
+	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
+	 * refund would be made automatically
+	 *
+	 * @param accessToken
+	 * @param orderId
+	 * @param amount
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/{orderId}/refund/amount")
+	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId,
+			@RequestParam(required = true) final Double amount) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", orderId, amount);
+		orderService.refundAmount(orderId, amount);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
+				.create();
+	}
+
+	/**
+	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
+	 * by delivery boy.
+	 *
+	 * @param token
+	 * @param orderId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PutMapping("/deliver/pickup/order/{orderId}")
+	public ResponseEntity<Object> deliverPickupOrderByVendor(@RequestHeader("Authorization") final String token, @PathVariable final Long orderId)
+			throws NotFoundException, ValidationException {
+		LOGGER.info("Inside get order details method for orderId : {}", orderId);
+		orderService.deliverPickUpOrder(orderId);
+
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.delivered.successful", null))
 				.create();
 	}
 }

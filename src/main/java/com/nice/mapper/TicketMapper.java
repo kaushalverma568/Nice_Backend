@@ -73,11 +73,11 @@ public class TicketMapper {
 			Vendor vendor = vendorService.getVendorDetail(ticket.getEntityId());
 			ticketResponseDTO.setEmail(vendor.getEmail());
 			if (locale.getLanguage().equals("en")) {
-				ticketResponseDTO.setName(vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
+				ticketResponseDTO.setName(vendor.getStoreNameEnglish());
 			} else {
-				ticketResponseDTO.setName(vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
+				ticketResponseDTO.setName(vendor.getStoreNameEnglish());
 			}
-			ticketResponseDTO.setPhoneNumber(vendor.getPhoneNumber());
+			ticketResponseDTO.setPhoneNumber(vendor.getStorePhoneNumber());
 
 		} else if (UserType.DELIVERY_BOY.name().equals(ticket.getUserType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(ticket.getEntityId());

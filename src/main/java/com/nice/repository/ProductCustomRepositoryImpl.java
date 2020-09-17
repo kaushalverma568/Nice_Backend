@@ -23,7 +23,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Repository(value = "niceProductCustomRepository")
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
@@ -37,8 +37,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 	@Override
 	public List<Product> getProductListBasedOnParams(final ProductParamRequestDTO productParamRequestDTO, final Integer startIndex, final Integer pageSize) {
 		Map<String, Object> paramMap = new HashMap<>();
-		StringBuilder sqlQuery = new StringBuilder("select p.* from ").append(PRODUCT_TABLE_NAME).append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME)
-				.append(" pv on p.id=pv.product_id where 1=1 ");
+		StringBuilder sqlQuery = new StringBuilder("select p.* from ").append(PRODUCT_TABLE_NAME);
+
+		if (productParamRequestDTO.isFromAdmin()) {
+			sqlQuery.append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
+		} else {
+			sqlQuery.append(" p inner join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
+		}
 
 		addConditions(productParamRequestDTO, sqlQuery, paramMap);
 
@@ -69,8 +74,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 		 * Param For admin/customer/vendor
 		 */
 
-		StringBuilder sqlQuery = new StringBuilder(" select count(total)as count1 from (select p.id as total ,p.* from ").append(PRODUCT_TABLE_NAME)
-				.append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
+		StringBuilder sqlQuery = new StringBuilder(" select count(total)as count1 from (select p.id as total ,p.* from ").append(PRODUCT_TABLE_NAME);
+		if (productParamRequestDTO.isFromAdmin()) {
+			sqlQuery.append(" p left join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
+		} else {
+			sqlQuery.append(" p inner join ").append(PRODUCT_VARIANT_TABLE_NAME).append(" pv on p.id=pv.product_id where 1=1 ");
+		}
 		addConditions(productParamRequestDTO, sqlQuery, paramMap);
 		sqlQuery.append(" group by(p.id)) as abc");
 
@@ -80,9 +89,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 	}
 
 	/**
-	 * @param  productParamRequestDTO
-	 * @param  sqlQuery
-	 * @param  paramMap
+	 * @param productParamRequestDTO
+	 * @param sqlQuery
+	 * @param paramMap
 	 * @return
 	 */
 	private StringBuilder addConditions(final ProductParamRequestDTO productParamRequestDTO, final StringBuilder sqlQuery, final Map<String, Object> paramMap) {
@@ -131,14 +140,28 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 		}
 
 		/**
+		 * Product for specified business category
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getBusinessCategoryIds())) {
+			sqlQuery.append(" and p.business_category_id in ("
+					+ productParamRequestDTO.getBusinessCategoryIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
+		}
+
+		/**
+		 * Products except specified business cateogry
+		 */
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getExceptBusinessCategoryIds())) {
+			sqlQuery.append(" and p.business_category_id not in ("
+					+ productParamRequestDTO.getExceptBusinessCategoryIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + " ) ");
+		}
+
+		/**
 		 * Language specific search for products
 		 */
-		if (productParamRequestDTO.getSearchKeywordEnglish() != null) {
-			sqlQuery.append(" and lower(p.name_english) like CONCAT('%', :searchKeyword, '%')");
-			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeywordEnglish().toLowerCase());
-		} else if (productParamRequestDTO.getSearchKeywordArabic() != null) {
-			sqlQuery.append(" and lower(p.name_arabic) like CONCAT('%', :searchKeyword, '%')");
-			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeywordArabic().toLowerCase());
+		if (productParamRequestDTO.getSearchKeyword() != null) {
+			sqlQuery.append(
+					" and (lower(p.name_english) like CONCAT('%', :searchKeyword, '%') OR (lower(p.name_arabic) like CONCAT('%', :searchKeyword, '%')))");
+			paramMap.put("searchKeyword", productParamRequestDTO.getSearchKeyword().toLowerCase());
 		}
 		return sqlQuery;
 	}

@@ -173,32 +173,27 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	private StockDetails substractQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails) throws ValidationException {
 		if (Constant.AVAILABLE.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getAvailable() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.available.for.product",
-						null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.available.for.product", null));
 			}
 			stockDetails.setAvailable(stockDetails.getAvailable() - stockTransferDto.getQuantity());
 		} else if (Constant.RESERVED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReserved() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.reserved.for.product",
-						null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.reserved.for.product", null));
 			}
 			stockDetails.setReserved(stockDetails.getReserved() - stockTransferDto.getQuantity());
 		} else if (Constant.DELIVERED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getDelivered() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.delivered.for.product",
-						null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.delivered.for.product", null));
 			}
 			stockDetails.setDelivered(stockDetails.getDelivered() - stockTransferDto.getQuantity());
 		} else if (Constant.REPLACED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReplaced() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.replaced.for.product",
-						null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.replaced.for.product", null));
 			}
 			stockDetails.setReplaced(stockDetails.getReplaced() - stockTransferDto.getQuantity());
 		} else if (Constant.RETURNED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReturned() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.returned.for.product",
-						null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.returned.for.product", null));
 			}
 			stockDetails.setReturned(stockDetails.getReturned() - stockTransferDto.getQuantity());
 		} else {
@@ -313,10 +308,10 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		stockDetailsDto.setProductId(productVariant.getProduct().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameEnglish());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabelEnglish());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getMeasurementEnglish());
 		} else {
 			stockDetailsDto.setProductName(productVariant.getProduct().getNameArabic());
-			stockDetailsDto.setUomLabel(productVariant.getUom().getUomLabelArabic());
+			stockDetailsDto.setUomLabel(productVariant.getUom().getMeasurementArabic());
 		}
 		stockDetailsDto.setUomId(productVariant.getUom().getId());
 		stockDetailsDto.setSku(productVariant.getSku());
@@ -505,7 +500,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 
 	@Override
 	public Long getCountForVariant(final ProductVariant productVariant) {
-		return stockDetailsRepository.countAvailableQtyForProductVariant(productVariant);
+		Long availableProductCount = stockDetailsRepository.countAvailableQtyForProductVariant(productVariant);
+		return availableProductCount == null ? 0 : availableProductCount;
 	}
 
 	@Override

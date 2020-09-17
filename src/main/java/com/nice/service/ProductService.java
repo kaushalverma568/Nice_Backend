@@ -21,18 +21,18 @@ import com.nice.model.Product;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 public interface ProductService {
 
 	/**
 	 * add product
 	 *
-	 * @param  productRequestDTO
-	 * @param  userId
-	 * @param  image
-	 * @param  detailImage
-	 * @param  thumbnailImage
+	 * @param productRequestDTO
+	 * @param userId
+	 * @param image
+	 * @param detailImage
+	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws FileOperationException
@@ -43,8 +43,8 @@ public interface ProductService {
 	/**
 	 * get product responseDTO by id
 	 *
-	 * @param  productId
-	 * @param  uuid
+	 * @param productId
+	 * @param uuid
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -54,7 +54,7 @@ public interface ProductService {
 	/**
 	 * get product by id
 	 *
-	 * @param  productId
+	 * @param productId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -63,10 +63,10 @@ public interface ProductService {
 	/**
 	 * update product
 	 *
-	 * @param  productRequestDTO
-	 * @param  image
-	 * @param  detailImage
-	 * @param  thumbnailImage
+	 * @param productRequestDTO
+	 * @param image
+	 * @param detailImage
+	 * @param thumbnailImage
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws FileOperationException
@@ -77,8 +77,8 @@ public interface ProductService {
 	/**
 	 * get product detail list
 	 *
-	 * @param  products
-	 * @param  pincodeId
+	 * @param products
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -86,8 +86,8 @@ public interface ProductService {
 	List<ProductResponseDTO> getProductDetailList(List<Product> products) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  productId
-	 * @param  active
+	 * @param productId
+	 * @param active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -96,9 +96,9 @@ public interface ProductService {
 	/**
 	 * get product list based on parameters
 	 *
-	 * @param  productParamRequestDTO
-	 * @param  startIndex
-	 * @param  pageSize
+	 * @param productParamRequestDTO
+	 * @param startIndex
+	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -109,23 +109,24 @@ public interface ProductService {
 	/**
 	 * get product count based on parameters
 	 *
-	 * @param  productParamRequestDTO
+	 * @param productParamRequestDTO
 	 * @return
+	 * @throws NotFoundException
 	 */
-	Long getProductCountBasedOnParams(ProductParamRequestDTO productParamRequestDTO);
+	Long getProductCountBasedOnParams(ProductParamRequestDTO productParamRequestDTO) throws NotFoundException;
 
 	List<Product> getProductListBasedOnParamsWithoutPagination(ProductParamRequestDTO productParamRequestDTO);
 
 	/**
-	 * @param  vendorId
+	 * @param vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<CategoryWiseProductCountDTO> getCuisineWiseProductCountList(Long vendorId) throws NotFoundException;
 
 	/**
-	 * @param  vendorId
-	 * @param  cuisineId
+	 * @param vendorId
+	 * @param cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -134,15 +135,15 @@ public interface ProductService {
 
 	/**
 	 *
-	 * @param  productId
-	 * @param  newRating
+	 * @param productId
+	 * @param newRating
 	 * @throws NotFoundException
 	 */
 	void updateProductRating(Long productId, Double newRating) throws NotFoundException;
 
 	/**
-	 * @param  vendorId
-	 * @param  cuisineId
+	 * @param vendorId
+	 * @param cuisineId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -152,8 +153,8 @@ public interface ProductService {
 	/**
 	 * export by filter dto
 	 *
-	 * @param  httpServletResponse
-	 * @param  productParamRequestDTO
+	 * @param httpServletResponse
+	 * @param productParamRequestDTO
 	 * @throws IOException
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -163,8 +164,8 @@ public interface ProductService {
 			throws NotFoundException, ValidationException, FileNotFoundException;
 
 	/**
-	 * @param  multipartFile
-	 * @param  httpServletResponse
+	 * @param multipartFile
+	 * @param httpServletResponse
 	 * @throws FileOperationException
 	 */
 	void uploadFile(MultipartFile multipartFile, HttpServletResponse httpServletResponse) throws FileOperationException;
@@ -172,15 +173,15 @@ public interface ProductService {
 	/**
 	 * to delete image
 	 *
-	 * @param  imageType
-	 * @param  productId
+	 * @param imageType
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void deleteImage(String imageType, Long productId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  productParamRequestDTO
+	 * @param productParamRequestDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -189,14 +190,14 @@ public interface ProductService {
 			throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @return
 	 * @throws ValidationException
 	 */
 	boolean isProductExistsArabic(ProductRequestDTO productRequestDTO) throws ValidationException;
 
 	/**
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @return
 	 * @throws ValidationException
 	 */

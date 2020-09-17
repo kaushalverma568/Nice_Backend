@@ -131,4 +131,9 @@ public interface CustomerService {
 	 * @throws NotFoundException
 	 */
 	void updateWalletBalance(Double amount, Long customerId) throws NotFoundException;
+
+	/**
+	 * @return
+	 */
+	Double getWalletBalance();
 }

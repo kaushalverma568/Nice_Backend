@@ -153,4 +153,14 @@ public class Orders extends CommonModel {
 	@Column(name = "wallet_contribution", nullable = true)
 	private Double walletContribution;
 
+	@Column(name = "refunded", nullable = false, columnDefinition = "boolean default false")
+	private Boolean refunded;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "delivery_date", nullable = true)
+	private Date deliveryDate;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "payment_date", nullable = true)
+	private Date paymentDate;
 }

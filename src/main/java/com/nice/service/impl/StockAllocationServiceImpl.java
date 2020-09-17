@@ -110,8 +110,9 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		DeliveryBoy deliveryBoy = null;
 		Task task = null;
 		if (DeliveryType.DELIVERY.getStatusValue().equals(orders.getDeliveryType())) {
-			deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(stockAllocationDto.getDeliveryBoyId());
-
+			if (stockAllocationDto.getDeliveryBoyId() != null) {
+				deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(stockAllocationDto.getDeliveryBoyId());
+			}
 			task = taskService.getTaskForOrderIdAndAllocatedFor(orders, stockAllocationDto.getAllocatedFor());
 		}
 
@@ -268,7 +269,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 					ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
 
 					throw new ValidationException(messageByLocaleService.getMessage("wrong.product.assigned",
-							new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getUomLabelEnglish() }));
+							new Object[] { productVariant.getProduct().getNameEnglish(), productVariant.getUom().getMeasurementEnglish() }));
 				} else if (!orderItem.getQuantity().equals(productVariantWiseQty.get(orderItem.getProductVariant().getId()))) {
 					throw new ValidationException(messageByLocaleService.getMessage("assigned.order.qty.mismatch", new Object[] {}));
 				}
@@ -281,7 +282,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 					ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
 
 					throw new ValidationException(messageByLocaleService.getMessage("wrong.product.assigned",
-							new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getUomLabelArabic() }));
+							new Object[] { productVariant.getProduct().getNameArabic(), productVariant.getUom().getMeasurementArabic() }));
 				} else if (!orderItem.getQuantity().equals(productVariantWiseQty.get(orderItem.getProductVariant().getId()))) {
 					throw new ValidationException(messageByLocaleService.getMessage("assigned.order.qty.mismatch", new Object[] {}));
 				}
@@ -333,21 +334,13 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 			if (stockDetails.getAvailable() < barcodeWiseAloocatedStock.getValue()) {
 				ProductVariant productVariant = productVariantService.getProductVariantDetail(stockDetails.getProductVariant().getId());
 				if ("en".equals(LocaleContextHolder.getLocale().getLanguage())) {
-					throw new ValidationException(
-							messageByLocaleService.getMessage("insufficient.stock",
-									new Object[] {
-											productVariant.getProduct().getNameEnglish().concat("-")
-													.concat(String.valueOf(productVariant.getUom().getQuantity())
-															.concat(productVariant.getUom().getMeasurementEnglish())),
-											barcodeWiseAloocatedStock.getValue(), stockDetails.getAvailable() }));
+					throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock",
+							new Object[] { productVariant.getProduct().getNameEnglish().concat("-").concat(productVariant.getUom().getMeasurementEnglish()),
+									barcodeWiseAloocatedStock.getValue(), stockDetails.getAvailable() }));
 				} else {
-					throw new ValidationException(
-							messageByLocaleService.getMessage("insufficient.stock",
-									new Object[] {
-											productVariant.getProduct().getNameArabic().concat("-")
-													.concat(String.valueOf(productVariant.getUom().getQuantity())
-															.concat(productVariant.getUom().getMeasurementArabic())),
-											barcodeWiseAloocatedStock.getValue(), stockDetails.getAvailable() }));
+					throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock",
+							new Object[] { productVariant.getProduct().getNameArabic().concat("-").concat(productVariant.getUom().getMeasurementArabic()),
+									barcodeWiseAloocatedStock.getValue(), stockDetails.getAvailable() }));
 				}
 
 			}

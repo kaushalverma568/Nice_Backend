@@ -49,6 +49,7 @@ import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.Orders;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
+import com.nice.model.UserLogin;
 import com.nice.repository.DeliveryBoyCurrentStatusRepository;
 import com.nice.repository.DeliveryBoyLocationRepository;
 import com.nice.repository.OrdersRepository;
@@ -122,74 +123,79 @@ public class TaskServiceImpl implements TaskService {
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
 
-		Long deliveryBoyId = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEntityId();
-		taskDto.setDeliveryBoyId(deliveryBoyId);
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
+			taskDto.setDeliveryBoyId(userLogin.getEntityId());
+		}
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should
-		 * be assigned to it
+		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it
 		 */
-		if (DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
+		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.delivery.boy.for.order", null));
 		}
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor
-		 * for the task, this code is only for regular order, not for replacement or
-		 * return, for replacement and return the calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
+		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
-		Double orderTotal = orders.getTotalOrderAmount();
+		/**
+		 * Here order total amount would be the combination of wallet contribution and amount paid by the customer
+		 */
+		Double orderTotal = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 		Double deliveryCharge = orders.getDeliveryCharge();
 		Double adminCommissionAmt = 0.0d;
 		Double vendorPayableAmt = 0.0d;
-		if (TaskTypeEnum.DELIVERY.name().equals(taskDto.getTaskType())) {
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
 			vendorPayableAmt = orderTotal - deliveryCharge - adminCommissionAmt;
 		}
 		// TODO
 		/**
-		 * For return and replacement orders, set the values accordingly, here it is
-		 * assumed that the orderTotal will be a +ve value for return order as well in
-		 * orders table , keeping that in mind the below lines have been coded
+		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
+		 * value for return order as well in orders table , keeping that in mind the below lines have been coded
 		 *
-		 * For replacement orders, there would only be delivery charge and that would be
-		 * handled in change status method below, the vendor payable amount and admin
-		 * comission would be zero
+		 * For replacement orders, there would only be delivery charge and that would be handled in change status method below,
+		 * the vendor payable amount and admin comission would be zero
 		 */
-		else if (TaskTypeEnum.RETURN.name().equals(taskDto.getTaskType())) {
+		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
 			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * (-1);
 			adminCommissionAmt = adminCommissionAmt * (-1);
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same
-		 * order for delivery donot end up have the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
+		 * the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
 			/**
-			 * Check if the task is not already assigned to delivery person.
+			 * This is because, the task can be created without delivery boy for pickup orders
 			 */
-			Long count = taskRepository.countByOrderAndTaskType(orders, taskDto.getTaskType());
-			if (count > 0) {
-				throw new ValidationException(messageByLocaleService.getMessage("order.already.allocated", null));
+			if (taskDto.getDeliveryBoyId() != null) {
+				/**
+				 * Check if the task is not already assigned to delivery person.
+				 */
+				Long count = taskRepository.countByOrderAndTaskType(orders, taskDto.getTaskType());
+				if (count > 0) {
+					throw new ValidationException(messageByLocaleService.getMessage("order.already.allocated", null));
+				}
+				/**
+				 * Assign delivery boy to order
+				 */
+				if (TaskTypeEnum.DELIVERY.name().equals(taskDto.getTaskType()) && orders.getDeliveryBoy() != null) {
+					throw new ValidationException(messageByLocaleService.getMessage("order.already.allocated", null));
+				} else if (taskDto.getDeliveryBoyId() != null) {
+					DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(taskDto.getDeliveryBoyId());
+					orders.setDeliveryBoy(deliveryBoy);
+					ordersRepository.save(orders);
+					task.setDeliveryBoy(deliveryBoy);
+				}
 			}
-			/**
-			 * Assign delivery boy to order
-			 */
-			if (TaskTypeEnum.DELIVERY.name().equals(taskDto.getTaskType()) && orders.getDeliveryBoy() != null) {
-				throw new ValidationException(messageByLocaleService.getMessage("order.already.allocated", null));
-			} else if (taskDto.getDeliveryBoyId() != null) {
-				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(taskDto.getDeliveryBoyId());
-				orders.setDeliveryBoy(deliveryBoy);
-				ordersRepository.save(orders);
-				task.setDeliveryBoy(deliveryBoy);
-			}
-
 			/**
 			 * Task Details
 			 */
@@ -203,8 +209,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set at the time of completion of task (see:
-			 * change task status method)
+			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
 			 */
 			task.setDeliveryCharge(0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
@@ -252,17 +257,14 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is
-			 * replacement, the order is being replaced and hence the order should be moved
-			 * to replaced status, else its first time delivery and order will be moved to
-			 * delivered status, this would be applicable only if there is replacement in
-			 * place.
+			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
+			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
+			 * status, this would be applicable only if there is replacement in place.
 			 */
 			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
 
 			/**
-			 * If its a COD task then make an entry in cash collection for the delivery
-			 * person
+			 * If its a COD task then make an entry in cash collection for the delivery person
 			 */
 			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())) {
 				CashCollectionDTO cashCollection = new CashCollectionDTO();
@@ -293,11 +295,14 @@ public class TaskServiceImpl implements TaskService {
 		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
-			 * if count of today's total delivered or cancelled task for this delivery boy
-			 * is greater than minimum order delivered for a day then consider that tasks
+			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered
+			 * for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
-			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+			if (task.getDeliveryBoy() != null) {
+				taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+			}
+
 			taskFilterDTO.setCreatedAt(new Date(System.currentTimeMillis()));
 			taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 
@@ -484,8 +489,7 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not
-		 * accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -510,26 +514,29 @@ public class TaskServiceImpl implements TaskService {
 			}
 			changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 			/**
-			 * set isBusy to false if delivery boy has no any other assigned orders
+			 * set isBusy to false if delivery boy has no any other assigned orders, no changes are to be made to delivery boy in
+			 * case of pickup orders
 			 */
-			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
-			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
-			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
-			Long count = getTaskCountBasedOnParams(taskFilterDTO);
-			/**
-			 * if count > 0 means delivery boy has any orders which is not delivered yet
-			 */
-			if (count == 0) {
-				DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
-				deliveryBoyCurrentStatus.setIsBusy(false);
-				deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+			if (task.getDeliveryBoy() != null) {
+				TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+				taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+				taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+				Long count = getTaskCountBasedOnParams(taskFilterDTO);
 				/**
-				 * remove delivery boy's old location history accepts his latest location
+				 * if count > 0 means delivery boy has any orders which is not delivered yet
 				 */
-				List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
-				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
-					LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
-					deliveryBoyLocationRepository.deleteAll(oldLocations);
+				if (count == 0) {
+					DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
+					deliveryBoyCurrentStatus.setIsBusy(false);
+					deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+					/**
+					 * remove delivery boy's old location history accepts his latest location
+					 */
+					List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
+					if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
+						LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
+						deliveryBoyLocationRepository.deleteAll(oldLocations);
+					}
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,4 +41,5 @@ public class WalletTrxDTO implements Serializable {
 
 	private String lastName;
 
+	private Date createdAt;
 }

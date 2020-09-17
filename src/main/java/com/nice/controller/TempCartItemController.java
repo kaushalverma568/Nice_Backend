@@ -71,10 +71,10 @@ public class TempCartItemController {
 			LOGGER.error("Cart Item validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Long cartItemId = tempCartItemService.addTempCartItem(tempCartItemDTO);
+		List<CartItemResponseDTO> resultCartItems = tempCartItemService.addTempCartItem(tempCartItemDTO);
 		LOGGER.info("Outside add Cart Item ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(cartItemId).create();
+				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(resultCartItems).create();
 	}
 
 	/**
@@ -142,9 +142,9 @@ public class TempCartItemController {
 	public ResponseEntity<Object> updateCartQty(@PathVariable("cartItemId") final Long cartItemId, @RequestParam(name = "qty", required = true) final Long qty)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Cart Item Qty Method");
-		tempCartItemService.updateTempCartItemQty(cartItemId, qty);
+		List<CartItemResponseDTO> resultCartItems = tempCartItemService.updateTempCartItemQty(cartItemId, qty);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cart.item.quantity.updated", null))
-				.create();
+				.setData(resultCartItems).create();
 	}
 
 	/**

@@ -32,15 +32,6 @@ public class UOM extends CommonModel {
 	@Column(name = "measurement_arabic", nullable = false, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
 	private String measurementArabic;
 
-	@Column(name = "quantity", nullable = false)
-	private Double quantity;
-
-	@Column(name = "uom_label_english", columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
-	private String uomLabelEnglish;
-
-	@Column(name = "uom_label_arabic", columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
-	private String uomLabelArabic;
-
 	@Column(name = "vendor_id", nullable = false)
 	private Long vendorId;
 

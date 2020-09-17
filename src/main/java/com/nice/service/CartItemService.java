@@ -26,7 +26,7 @@ public interface CartItemService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Long addCartItem(final CartItemDTO tempCartItemDTO) throws ValidationException, NotFoundException;
+	List<CartItemResponseDTO> addCartItem(final CartItemDTO tempCartItemDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get cart item by user login id , product id and product variant id
@@ -79,10 +79,11 @@ public interface CartItemService {
 	 * @param cartItemId
 	 * @param quantity
 	 * @param userId
+	 * @return TODO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateCartItemQty(Long cartItemId, Long quantity) throws NotFoundException, ValidationException;
+	List<CartItemResponseDTO> updateCartItemQty(Long cartItemId, Long quantity) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param customerId

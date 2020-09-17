@@ -152,48 +152,20 @@ public class CategoryServiceImpl implements CategoryService {
 		} else {
 			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
 		}
-		if (vendorId != null) {
-			Vendor vendor = vendorService.getVendorDetail(vendorId);
-			if (activeRecords != null) {
-				if (searchKeyword != null) {
-					return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(
-							activeRecords, searchKeyword, vendor, activeRecords, searchKeyword, vendor, pageable);
-				} else {
-					return categoryRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
-				}
-			} else {
-				if (searchKeyword != null) {
-					return categoryRepository.findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(searchKeyword, vendor,
-							searchKeyword, vendor, pageable);
-				} else {
-					return categoryRepository.findAllByVendor(vendor, pageable);
-				}
-			}
-		} else {
-			return findAllByActiveAndSearchKeyword(activeRecords, searchKeyword, pageable);
-		}
-	}
-
-	/**
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param pageable
-	 * @return
-	 */
-	private Page<Category> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
+		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,
-						searchKeyword, activeRecords, searchKeyword, pageable);
+				return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(
+						activeRecords, searchKeyword, vendor, activeRecords, searchKeyword, vendor, pageable);
 			} else {
-				return categoryRepository.findAllByActive(activeRecords, pageable);
+				return categoryRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
 			}
-
 		} else {
 			if (searchKeyword != null) {
-				return categoryRepository.findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
+				return categoryRepository.findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(searchKeyword, vendor,
+						searchKeyword, vendor, pageable);
 			} else {
-				return categoryRepository.findAll(pageable);
+				return categoryRepository.findAllByVendor(vendor, pageable);
 			}
 		}
 	}

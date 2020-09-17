@@ -32,7 +32,7 @@ public class OrderRatingMapper {
 
 	@Autowired
 	private VendorService vendorService;
-	
+
 	@Autowired
 	private OrdersService ordersService;
 
@@ -51,13 +51,13 @@ public class OrderRatingMapper {
 				orderRatingResponseDTO.setDeliveryBoyName(boy.getFirstNameArabic().concat(" ").concat(boy.getLastNameArabic()));
 			}
 		}
-		
+
 		Orders order = ordersService.getOrderById(orderRating.getOrderId());
 		orderRatingResponseDTO.setCustomerName(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
 		if (locale.getLanguage().equals("en")) {
-			orderRatingResponseDTO.setVendorName(vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
+			orderRatingResponseDTO.setVendorName(vendor.getStoreNameEnglish());
 		} else {
-			orderRatingResponseDTO.setVendorName(vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
+			orderRatingResponseDTO.setVendorName(vendor.getStoreNameArabic());
 		}
 		return orderRatingResponseDTO;
 	}

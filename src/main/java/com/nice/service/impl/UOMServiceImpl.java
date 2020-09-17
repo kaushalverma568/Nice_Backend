@@ -86,14 +86,6 @@ public class UOMServiceImpl implements UOMService {
 		validateDto(uomDTO);
 		UOM uom = uomMapper.toEntity(uomDTO);
 		StringBuilder label = new StringBuilder();
-		if (uom.getQuantity() % 1 == 0) {
-			label.append(uom.getQuantity().intValue());
-		} else {
-			label.append(uom.getQuantity());
-		}
-
-		uom.setUomLabelEnglish(label.toString().concat(" " + uom.getMeasurementEnglish()));
-		uom.setUomLabelArabic(label.toString().concat(" " + uom.getMeasurementArabic()));
 		uomRepository.save(uom);
 	}
 
@@ -119,14 +111,6 @@ public class UOMServiceImpl implements UOMService {
 		} else {
 			getUOMDetail(resultUOMDTO.getId());
 			UOM uom = uomMapper.toEntity(resultUOMDTO);
-			StringBuilder label = new StringBuilder();
-			if (uom.getQuantity() % 1 == 0) {
-				label.append(uom.getQuantity().intValue());
-			} else {
-				label.append(uom.getQuantity());
-			}
-			uom.setUomLabelEnglish(label.toString().concat(" " + uom.getMeasurementEnglish()));
-			uom.setUomLabelArabic(label.toString().concat(" " + uom.getMeasurementArabic()).toString());
 			uomRepository.save(uom);
 		}
 	}
@@ -199,15 +183,13 @@ public class UOMServiceImpl implements UOMService {
 			/**
 			 * At the time of update is uom with same measurement exist or not except it's own id
 			 */
-			return uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorIdAndIdNot(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(),
-					uomDTO.getVendorId(), uomDTO.getId()).isPresent();
+			return uomRepository.findByMeasurementEnglishIgnoreCaseAndVendorIdAndIdNot(uomDTO.getMeasurementEnglish(), uomDTO.getVendorId(), uomDTO.getId())
+					.isPresent();
 		} else {
 			/**
 			 * At the time of create is uom with same measurement exist or not
 			 */
-			return uomRepository
-					.findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorId(uomDTO.getMeasurementEnglish(), uomDTO.getQuantity(), uomDTO.getVendorId())
-					.isPresent();
+			return uomRepository.findByMeasurementEnglishIgnoreCaseAndVendorId(uomDTO.getMeasurementEnglish(), uomDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -217,15 +199,13 @@ public class UOMServiceImpl implements UOMService {
 			/**
 			 * At the time of update is uom with same measurement exist or not except it's own id
 			 */
-			return uomRepository.findByMeasurementArabicIgnoreCaseAndQuantityAndVendorIdAndIdNot(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(),
-					uomDTO.getVendorId(), uomDTO.getId()).isPresent();
+			return uomRepository.findByMeasurementArabicIgnoreCaseAndVendorIdAndIdNot(uomDTO.getMeasurementArabic(), uomDTO.getVendorId(), uomDTO.getId())
+					.isPresent();
 		} else {
 			/**
 			 * At the time of create is uom with same measurement exist or not
 			 */
-			return uomRepository
-					.findByMeasurementArabicIgnoreCaseAndQuantityAndVendorId(uomDTO.getMeasurementArabic(), uomDTO.getQuantity(), uomDTO.getVendorId())
-					.isPresent();
+			return uomRepository.findByMeasurementArabicIgnoreCaseAndVendorId(uomDTO.getMeasurementArabic(), uomDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -306,15 +286,13 @@ public class UOMServiceImpl implements UOMService {
 					throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
-				if (uomRepository.findByMeasurementEnglishIgnoreCaseAndQuantityAndVendorIdOrMeasurementArabicIgnoreCaseAndQuantityAndVendorId(
-						uomImport.getMeasurementEnglish(), uomImport.getQuantity(), vendor.getId(), uomImport.getMeasurementArabic(), uomImport.getQuantity(),
-						vendor.getId()).isPresent()) {
+				if (uomRepository.findByMeasurementEnglishIgnoreCaseAndVendorIdOrMeasurementArabicIgnoreCaseAndVendorId(uomImport.getMeasurementEnglish(),
+						vendor.getId(), uomImport.getMeasurementArabic(), vendor.getId()).isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("uom.not.unique", null));
 				} else {
 					final UOMDTO uomDTO = new UOMDTO();
 					uomDTO.setMeasurementEnglish(uomImport.getMeasurementEnglish());
 					uomDTO.setMeasurementArabic(uomImport.getMeasurementArabic());
-					uomDTO.setQuantity(uomImport.getQuantity());
 					uomDTO.setActive(true);
 					uomDTO.setVendorId(vendor.getId());
 					addUOM(uomDTO);

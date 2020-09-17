@@ -76,7 +76,7 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 	private ProductAttributeValueService productAttributeValueService;
 
 	@Override
-	public Long addTempCartItem(final TempCartItemDTO tempCartItemDTO) throws ValidationException, NotFoundException {
+	public List<CartItemResponseDTO> addTempCartItem(final TempCartItemDTO tempCartItemDTO) throws ValidationException, NotFoundException {
 		/**
 		 * Get Existing cartItem based on uuid
 		 */
@@ -182,7 +182,7 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 			}
 			saveItemsToCart(tempCartItemEntity, tempCartItemDTO);
 		}
-		return tempCartItemEntity.getId();
+		return getTempCartItemDetailListByParam(tempCartItemDTO.getUuid());
 	}
 
 	/**
@@ -265,11 +265,15 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 	}
 
 	@Override
-	public void updateTempCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+	public List<CartItemResponseDTO> updateTempCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+
+		String uuid = null;
+
 		if (quantity <= 0 || quantity > 15) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_QTY, null));
 		} else {
 			final TempCartItem cartItem = getTempCartItemDetail(cartItemId);
+			uuid = cartItem.getUuid();
 			cartItem.setQuantity(quantity);
 			cartItemRepository.save(cartItem);
 			tempCartAddonsService.updateTempCartAddonsQty(cartItemId, quantity);
@@ -277,6 +281,7 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 			tempCartToppingsService.updateTempCartToppingsQty(cartItemId, quantity);
 			tempCartProductAttributeValueService.updateTempCartProductAttributeValueQty(cartItemId, quantity);
 		}
+		return getTempCartItemDetailListByParam(uuid);
 	}
 
 	@Override

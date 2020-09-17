@@ -363,15 +363,15 @@ public class ProductServiceImpl implements ProductService {
 		UserLogin userLogin = getUserLoginFromToken();
 		Boolean listForAdmin = true;
 		Map<Long, List<? extends Object>> cartMap = null;
-		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+		if (userLogin != null && (UserType.VENDOR.name().equals(userLogin.getEntityType()))) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
 		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			cartMap = userLogin == null ? getCartMap(null, productParamRequestDTO.getUuid()) : getCartMap(userLogin.getEntityId(), null);
 			productParamRequestDTO.setActiveRecords(true);
 			listForAdmin = false;
 		}
+		productParamRequestDTO.setFromAdmin(listForAdmin);
 		List<ProductResponseDTO> responseDTOs = new ArrayList<>();
-
 		List<Product> products = productRepository.getProductListBasedOnParams(productParamRequestDTO, startIndex, pageSize);
 		for (Product product : products) {
 			final ProductResponseDTO responseDTO = convertEntityToResponseDto(product, listForAdmin, cartMap);
@@ -576,7 +576,7 @@ public class ProductServiceImpl implements ProductService {
 		boolean makeProductVisible = false;
 
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
-			availableQty += productVariantResponseDTO.getAvailableQty();
+			availableQty += productVariantResponseDTO.getAvailableQty() != null ? productVariantResponseDTO.getAvailableQty() : 0;
 			makeProductVisible = true;
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartMap)) {
 				List<? extends Object> obj = cartMap.get(productVariantResponseDTO.getId());
@@ -598,14 +598,14 @@ public class ProductServiceImpl implements ProductService {
 			}
 		}
 
+		productResponseDTO.setProductAvailable(makeProductVisible);
+
 		/**
 		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is true then product should be made
 		 * visible else that product should be shown as out of stock
 		 */
-		if (businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_GROCERY)) {
-			productResponseDTO.setProductAvailable(availableQty > 0);
-		} else {
-			productResponseDTO.setProductAvailable(makeProductVisible);
+		if (!businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_FOOD_DELIVERY)) {
+			productResponseDTO.setProductOutOfStock(availableQty > 0);
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
@@ -700,7 +700,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Long getProductCountBasedOnParams(final ProductParamRequestDTO productParamRequestDTO) {
+	public Long getProductCountBasedOnParams(final ProductParamRequestDTO productParamRequestDTO) throws NotFoundException {
 		LOGGER.info("Inside getProductCountBasedOnParams for ProductParamRequestDTO :{}", productParamRequestDTO);
 
 		UserLogin userLogin = getUserLoginFromToken();
@@ -708,11 +708,14 @@ public class ProductServiceImpl implements ProductService {
 		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is null or the userLogin->entityType
 		 * is customer then we will give records specific to customer
 		 */
+		Boolean listForAdmin = true;
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setVendorId(userLogin.getEntityId());
 		} else if (userLogin == null || UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			productParamRequestDTO.setActiveRecords(true);
+			listForAdmin = false;
 		}
+		productParamRequestDTO.setFromAdmin(listForAdmin);
 		return productRepository.getProductCountBasedOnParams(productParamRequestDTO);
 	}
 
@@ -973,6 +976,9 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public void deleteImage(final String imageType, final Long productId) throws NotFoundException, ValidationException {
 		Product product = getProductDetail(productId);
+		if (product.getDetailImage().equals(productDetailImage) || product.getImage().equals(productListImage)) {
+			throw new ValidationException(messageByLocaleService.getMessage("default.image.can.not.delete", null));
+		}
 		if (imageType.equals("DETAIL")) {
 			deleteOldImage(product.getDetailImage());
 			product.setDetailImage(null);

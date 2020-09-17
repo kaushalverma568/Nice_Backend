@@ -30,18 +30,12 @@ public class UOMDTO implements Serializable {
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 
-	@NotNull(message = "{uom.quantity.not.null}")
-	private Double quantity;
-
 	@NotNull(message = "{vendor.id.not.null}")
 	private Long vendorId;
 
 	/**
 	 * for response purpose only
 	 */
-	private String uomLabel;
 	private String measurement;
-	private String uomLabelEnglish;
-	private String uomLabelArabic;
 
 }

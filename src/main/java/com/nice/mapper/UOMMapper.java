@@ -15,8 +15,7 @@ import com.nice.model.UOM;
  *
  * @author : Kody Technolab PVT. LTD.
  * @date : 24-Mar-2020
- * @description : Unit Of Measures Mapper Class which maps dtos to entity and
- *              vice versa
+ * @description : Unit Of Measures Mapper Class which maps dtos to entity and vice versa
  */
 @Component
 public class UOMMapper {
@@ -27,10 +26,8 @@ public class UOMMapper {
 		BeanUtils.copyProperties(uom, uomDTO);
 		if (locale.getLanguage().equals("en")) {
 			uomDTO.setMeasurement(uom.getMeasurementEnglish());
-			uomDTO.setUomLabel(uom.getUomLabelEnglish());
 		} else {
 			uomDTO.setMeasurement(uom.getMeasurementArabic());
-			uomDTO.setUomLabel(uom.getUomLabelArabic());
 		}
 		return uomDTO;
 	}

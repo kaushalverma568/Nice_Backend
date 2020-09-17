@@ -48,7 +48,7 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 		TaskStatusEnum[] nextStatus = null;
 		switch (this) {
 		case ORDER_ACCEPTED:
-			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, CANCELLED };
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, CANCELLED, ON_THE_WAY };
 			break;
 		case PICK_UP_ON_WAY:
 			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR, CANCELLED };

@@ -7,7 +7,7 @@ import lombok.Data;
 
 /**
  * @author Kody Technolab PVT. LTD.
- * @date   08-Jan-2020
+ * @date 08-Jan-2020
  */
 @Data
 public class ProductParamRequestDTO implements Serializable {
@@ -23,9 +23,7 @@ public class ProductParamRequestDTO implements Serializable {
 
 	private List<Long> brandIds;
 
-	private String searchKeywordEnglish;
-
-	private String searchKeywordArabic;
+	private String searchKeyword;
 
 	private Boolean activeRecords;
 
@@ -41,4 +39,14 @@ public class ProductParamRequestDTO implements Serializable {
 
 	private String uuid;
 
+	private List<Long> businessCategoryIds;
+
+	private List<Long> exceptBusinessCategoryIds;
+
+	/**
+	 * Used internally: If the request if from admin, then we need to display all the product even if they have no variants
+	 * associated with them, for customer requests such products should not be displayed as rates and UOM would not be
+	 * displayed for the same
+	 */
+	private boolean isFromAdmin;
 }

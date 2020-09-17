@@ -136,7 +136,7 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, boolean deductDeliveryCharge) throws NotFoundException, ValidationException;
+	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, boolean autoRefund) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param newStatus
@@ -152,8 +152,10 @@ public interface OrdersService {
 	 * @param orderListFilterDto
 	 * @throws NotFoundException
 	 * @throws FileNotFoundException
+	 * @throws ValidationException
 	 */
-	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto) throws NotFoundException, FileNotFoundException;
+	void exportOrderList(HttpServletResponse httpServletResponse, OrderListFilterDto orderListFilterDto)
+			throws NotFoundException, FileNotFoundException, ValidationException;
 
 	/**
 	 * get all qualified orders for sending accept order notification
@@ -214,6 +216,35 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 */
 	void retryForSearchingDeliveryBoys(Long orderId) throws ValidationException, NotFoundException;
+
+	/**
+	 * @param orderId
+	 * @param amount
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void refundAmount(Long orderId, Double amount) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param orderId
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	void deliverPickUpOrder(Long orderId) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param cartItemList
+	 * @return
+	 * @throws NotFoundException
+	 */
+	Double calculateTotalOrderAmt(List<CartItem> cartItemList) throws NotFoundException;
+
+	/**
+	 * @param applyDeliveryCharge
+	 * @param orderAmt
+	 * @return
+	 */
+	Double addDeliveryCharge(boolean applyDeliveryCharge, Double orderAmt);
 
 	/**
 	 * get all information for app payment

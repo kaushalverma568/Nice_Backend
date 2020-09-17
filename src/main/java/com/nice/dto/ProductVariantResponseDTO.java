@@ -26,7 +26,6 @@ public class ProductVariantResponseDTO implements Serializable {
 	private String productName;
 	private Long uomId;
 	private String uomMeasurement;
-	private Double uomQuantity;
 	private String uomLabel;
 	private Double discountedRate;
 	private Double rate;
@@ -59,6 +58,12 @@ public class ProductVariantResponseDTO implements Serializable {
 	 */
 	private List<Long> cartQtyList = new ArrayList<>();
 	private List<Long> cartIdList = new ArrayList<>();
+
+	/**
+	 * Image details
+	 */
+	private String image;
+	private String detailImage;
 
 	public ProductVariantResponseDTO() {
 

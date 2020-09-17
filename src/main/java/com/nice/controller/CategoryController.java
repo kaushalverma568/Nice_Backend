@@ -45,7 +45,7 @@ import com.nice.validator.CategoryValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 26-06-2020
+ * @date : 26-06-2020
  */
 @RequestMapping(path = "/category")
 @RestController
@@ -93,9 +93,9 @@ public class CategoryController {
 	/**
 	 * Add Category
 	 *
-	 * @param  categoryDTO
-	 * @param  result
-	 * @param  userId
+	 * @param categoryDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -121,9 +121,9 @@ public class CategoryController {
 	/**
 	 * update Category
 	 *
-	 * @param  categoryDTO
-	 * @param  result
-	 * @param  userId
+	 * @param categoryDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -149,8 +149,8 @@ public class CategoryController {
 	/**
 	 * Get Category Details based on id
 	 *
-	 * @param  categoryId
-	 * @param  userId
+	 * @param categoryId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -166,10 +166,10 @@ public class CategoryController {
 	/**
 	 * Get Category list
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  userId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -177,7 +177,7 @@ public class CategoryController {
 	public ResponseEntity<Object> getCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword,
-			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws NotFoundException {
+			@RequestParam(name = "vendorId", required = true) final Long vendorId) throws NotFoundException {
 		LOGGER.info("Inside get Category List ");
 		final Page<Category> resultCategories = categoryService.getCategoryList(pageNumber, pageSize, activeRecords, searchKeyword, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(LIST_MESSAGE, null))
@@ -189,8 +189,8 @@ public class CategoryController {
 	/**
 	 * Change status of Category (active/deActive)
 	 *
-	 * @param  categoryId
-	 * @param  active
+	 * @param categoryId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -208,10 +208,10 @@ public class CategoryController {
 	/**
 	 * export category list
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException
@@ -228,10 +228,10 @@ public class CategoryController {
 	/**
 	 * Upload category
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  file
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param userId
+	 * @param file
+	 * @param httpServletResponse
 	 * @return
 	 * @throws BaseException
 	 */
@@ -250,8 +250,8 @@ public class CategoryController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param  accessToken
-	 * @param  categoryId
+	 * @param accessToken
+	 * @param categoryId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

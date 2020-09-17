@@ -213,10 +213,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		productVariantResponseDTO.setProductId(productVariant.getProduct().getId());
 		productVariantResponseDTO.setProductNameArabic(productVariant.getProduct().getNameArabic());
 		productVariantResponseDTO.setProductNameEnglish(productVariant.getProduct().getNameEnglish());
+		productVariantResponseDTO.setImage(productVariant.getProduct().getImage());
+		productVariantResponseDTO.setDetailImage(productVariant.getProduct().getDetailImage());
 		productVariantResponseDTO.setUomMeasurementEnglish(productVariant.getUom().getMeasurementEnglish());
 		productVariantResponseDTO.setUomMeasurementArabic(productVariant.getUom().getMeasurementArabic());
-		productVariantResponseDTO.setUomLabelEnglish(productVariant.getUom().getUomLabelEnglish());
-		productVariantResponseDTO.setUomLabelArabic(productVariant.getUom().getUomLabelArabic());
+		productVariantResponseDTO.setUomLabelEnglish(productVariant.getUom().getMeasurementEnglish());
+		productVariantResponseDTO.setUomLabelArabic(productVariant.getUom().getMeasurementArabic());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			productVariantResponseDTO.setProductName(productVariantResponseDTO.getProductNameEnglish());
 			productVariantResponseDTO.setUomMeasurement(productVariantResponseDTO.getUomMeasurementEnglish());
@@ -227,8 +229,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 			productVariantResponseDTO.setUomLabel(productVariantResponseDTO.getUomLabelArabic());
 		}
 		productVariantResponseDTO.setUomId(productVariant.getUom().getId());
-
-		productVariantResponseDTO.setUomQuantity(productVariant.getUom().getQuantity());
 
 		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(productVariant.getProduct().getId());
 

@@ -34,7 +34,7 @@ import com.nice.service.ProductVariantService;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RequestMapping(path = "/product")
 @RestController(value = "productVariantController")
@@ -55,16 +55,16 @@ public class ProductVariantController {
 	/**
 	 * add/update product variant list
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  productVariantRequestDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param productVariantRequestDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/{productId}/variant")
-	@PreAuthorize("hasPermission('Product List','CAN_ADD')")
+	// @PreAuthorize("hasPermission('Product List','CAN_ADD')")
 	public ResponseEntity<Object> addUpdateProductVariantList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productId") final Long productId, @RequestBody @Valid final ProductVariantRequestDTO productVariantRequestDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
@@ -83,8 +83,8 @@ public class ProductVariantController {
 	/**
 	 * Get product variant based on id(it is used by admin)
 	 *
-	 * @param  productVariantId
-	 * @param  userId
+	 * @param productVariantId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -104,8 +104,8 @@ public class ProductVariantController {
 	/**
 	 * Get product variant based on id
 	 *
-	 * @param  productVariantId
-	 * @param  userId
+	 * @param productVariantId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -122,10 +122,10 @@ public class ProductVariantController {
 	/**
 	 * Get ProductVariant list for Admin (It will give available qty 0)
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  userId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -145,9 +145,9 @@ public class ProductVariantController {
 
 	/**
 	 *
-	 * @param  accessToken
-	 * @param  productId
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param productId
+	 * @param activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -167,10 +167,10 @@ public class ProductVariantController {
 	/**
 	 * Change status of product Variant
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  productVariantId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param productVariantId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

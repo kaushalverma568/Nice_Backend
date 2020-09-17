@@ -28,6 +28,7 @@ import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductToppingResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
+import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -47,6 +48,7 @@ import com.nice.service.CustomerService;
 import com.nice.service.ProductAttributeValueService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.TempCartItemService;
+import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -91,8 +93,11 @@ public class CartItemServiceImpl implements CartItemService {
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
 
+	@Autowired
+	private VendorService vendorService;
+
 	@Override
-	public Long addCartItem(final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
+	public List<CartItemResponseDTO> addCartItem(final CartItemDTO cartItemDTO) throws ValidationException, NotFoundException {
 		/**
 		 * Get Existing cartItem based on customerId
 		 */
@@ -216,7 +221,7 @@ public class CartItemServiceImpl implements CartItemService {
 			LOGGER.info("Existing cart is empty, adding product to cart");
 			saveItemsToCart(cartItemEntity, cartItemDTO);
 		}
-		return cartItemEntity.getId();
+		return getCartItemDetailList();
 	}
 
 	@Override
@@ -311,7 +316,7 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	@Override
-	public void updateCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
+	public List<CartItemResponseDTO> updateCartItemQty(final Long cartItemId, final Long quantity) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside updateCartItemQty for cartItemId : {}, quantity : {}", cartItemId, quantity);
 		Long customerId = getCustomerIdForLoginUser();
 		if (quantity <= 0 || quantity > 15) {
@@ -329,6 +334,7 @@ public class CartItemServiceImpl implements CartItemService {
 			cartProductAttributeValueService.updateCartProductAttributeValueQty(cartItemId, quantity);
 		}
 		LOGGER.info("After updateCartItemQty for cartItemId : {}, quantity : {}", cartItemId, quantity);
+		return getCartItemDetailList();
 	}
 
 	@Override
@@ -357,6 +363,8 @@ public class CartItemServiceImpl implements CartItemService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
+		VendorResponseDTO vendorResponseDto = vendorService.getVendor(cartItem.getProductVariant().getVendorId());
+		cartItemResponseDTO.setVendorName(vendorResponseDto.getStoreName());
 		return cartItemResponseDTO;
 	}
 
