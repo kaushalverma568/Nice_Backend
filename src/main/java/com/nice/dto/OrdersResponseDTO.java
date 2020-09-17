@@ -105,4 +105,9 @@ public class OrdersResponseDTO implements Serializable {
 	String paymentToken;
 	Double administrativeCharge;
 
+
+	/**
+	 *
+	 */
+	private Date paymentDate;
 }

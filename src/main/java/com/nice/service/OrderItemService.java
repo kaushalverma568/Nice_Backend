@@ -7,17 +7,18 @@ import java.util.List;
 
 import com.nice.dto.OrderItemResponseDTO;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
 import com.nice.model.OrdersItem;
 
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 public interface OrderItemService {
 
 	/**
-	 * @param  orderItemId
+	 * @param orderItemId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -25,31 +26,33 @@ public interface OrderItemService {
 
 	/**
 	 *
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	List<OrdersItem> getOrderItemForOrderId(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param  orderItemList
+	 * @param orderItemList
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	List<OrderItemResponseDTO> toOrderItemResponseDto(List<OrdersItem> orderItemList) throws NotFoundException;
+	List<OrderItemResponseDTO> toOrderItemResponseDto(List<OrdersItem> orderItemList) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	// List<OrderItem> getOrderItemForReplacementOrderId(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(Long orderId) throws NotFoundException;
+	List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(Long orderId) throws NotFoundException, ValidationException;
 
 }

@@ -51,7 +51,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 02-Jul-2020
+ * @date : 02-Jul-2020
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -294,10 +294,10 @@ public class ProductAttributeServiceImpl implements ProductAttributeService {
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 				if (productAttributeRepository.findByNameEnglishIgnoreCaseAndVendorId(productAttributeImport.getNameEnglish(), vendor.getId()).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("name.english.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("english.name.not.unique", null));
 				} else if (productAttributeRepository.findByNameArabicIgnoreCaseAndVendorId(productAttributeImport.getNameArabic(), vendor.getId())
 						.isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("name.arabic.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("arabic.name.not.unique", null));
 				} else {
 					final ProductAttributeDTO productAttributeDTO = new ProductAttributeDTO();
 					productAttributeDTO.setNameEnglish(productAttributeImport.getNameEnglish());

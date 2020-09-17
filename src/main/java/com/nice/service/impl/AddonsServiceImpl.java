@@ -48,7 +48,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 14-Jul-2020
+ * @date : 14-Jul-2020
  */
 @Service("addonsService")
 @Transactional(rollbackOn = Throwable.class)
@@ -177,9 +177,9 @@ public class AddonsServiceImpl implements AddonsService {
 	}
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param pageable
 	 * @return
 	 */
 	private Page<Addons> findAllByActiveAndSearchKeyword(final Boolean activeRecords, final String searchKeyword, final Pageable pageable) {
@@ -269,9 +269,9 @@ public class AddonsServiceImpl implements AddonsService {
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 				if (addonsRepository.findByNameEnglishIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("name.english.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("english.name.not.unique", null));
 				} else if (addonsRepository.findByNameArabicIgnoreCaseAndVendor(addonsImport.getNameEnglish(), vendor).isPresent()) {
-					throw new ValidationException(messageByLocaleService.getMessage("name.arabic.not.unique", null));
+					throw new ValidationException(messageByLocaleService.getMessage("arabic.name.not.unique", null));
 				} else {
 					final AddonsDTO addonsDTO = new AddonsDTO();
 					addonsDTO.setNameEnglish(addonsImport.getNameEnglish());

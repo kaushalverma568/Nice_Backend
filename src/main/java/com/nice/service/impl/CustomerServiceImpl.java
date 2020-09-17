@@ -18,9 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
 import com.nice.constant.CustomerStatus;
 import com.nice.constant.NotificationQueueConstants;
@@ -34,6 +36,7 @@ import com.nice.dto.CustomerExport;
 import com.nice.dto.CustomerPersonalDetailsDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.dto.Notification;
+import com.nice.dto.SettingsDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -49,6 +52,7 @@ import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
 import com.nice.service.OtpService;
 import com.nice.service.RoleService;
+import com.nice.service.SettingsService;
 import com.nice.service.UserLoginService;
 import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
@@ -93,6 +97,9 @@ public class CustomerServiceImpl implements CustomerService {
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
 
+	@Autowired
+	private SettingsService settingsService;
+
 	@Override
 	public CustomerResponseDTO addCustomer(final CustomerDTO customerDTO, final boolean isAuthorized) throws ValidationException, NotFoundException {
 		CustomerResponseDTO customerResponseDTO;
@@ -105,6 +112,12 @@ public class CustomerServiceImpl implements CustomerService {
 		 * Set customer preferred language to default language when customer registers.
 		 */
 		customer.setPreferredLanguage(Constant.DEFAULT_LANGUAGE);
+
+		/**
+		 * Set wallet balance for customer to the value of signup bonus intended by the user
+		 */
+		SettingsDto settingsDto = settingsService.getSettingsDetailsByNameForNonEncryptedFields(Constant.CUSTOMER_SIGNUP_REWARD);
+		customer.setWalletAmt(Double.valueOf(settingsDto.getFieldValue()));
 
 		Optional<Customer> optCustomer = Optional.empty();
 
@@ -489,4 +502,11 @@ public class CustomerServiceImpl implements CustomerService {
 		customer.setWalletAmt(amount);
 		customerRepository.save(customer);
 	}
+
+	@Override
+	public Double getWalletBalance() {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		return customerRepository.getWalletAmountForCustomer(userLogin.getEntityId());
+	}
+
 }

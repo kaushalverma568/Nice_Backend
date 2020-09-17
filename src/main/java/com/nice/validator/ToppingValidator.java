@@ -51,10 +51,10 @@ public class ToppingValidator implements Validator {
 			// to check topping duplication
 
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(toppingDTO.getNameEnglish()) && toppingService.isToppingExistsEnglish(toppingDTO).booleanValue()) {
-				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("name.english.not.unique", null));
+				errors.rejectValue("nameEnglish", "409", messageByLocaleService.getMessage("english.name.not.unique", null));
 			} else if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(toppingDTO.getNameArabic())
 					&& toppingService.isToppingExistsArabic(toppingDTO).booleanValue()) {
-				errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("name.arabic.not.unique", null));
+				errors.rejectValue("nameArabic", "409", messageByLocaleService.getMessage("arabic.name.not.unique", null));
 			}
 		} else {
 			LOGGER.info("target is not instance of ToppingDTO");

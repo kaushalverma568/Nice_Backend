@@ -31,4 +31,5 @@ public class CartItemResponseDTO implements Serializable {
 
 	private List<ProductExtrasDTO> productExtrasDtoList;
 	private Long quantity;
+	private String vendorName;
 }

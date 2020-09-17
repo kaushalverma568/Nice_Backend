@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public enum TaskTypeEnum {
-	DELIVERY("Delivery"), REPLACEMENT("Replacement"), RETURN("Return"), PICKUP("Pick-Up");
+	DELIVERY("Delivery"), REPLACEMENT("Replacement"), RETURN("Return");
 
 	private String taskValue;
 

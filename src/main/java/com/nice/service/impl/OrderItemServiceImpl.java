@@ -98,7 +98,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	@Override
-	public List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(final Long orderId) throws NotFoundException {
+	public List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(final Long orderId) throws NotFoundException, ValidationException {
 		return toOrderItemResponseDto(orderItemRepository.findAllByOrderId(orderId));
 	}
 
@@ -116,7 +116,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	// }
 
 	@Override
-	public List<OrderItemResponseDTO> toOrderItemResponseDto(final List<OrdersItem> orderItemList) throws NotFoundException {
+	public List<OrderItemResponseDTO> toOrderItemResponseDto(final List<OrdersItem> orderItemList) throws NotFoundException, ValidationException {
 		List<OrderItemResponseDTO> orderItemResponseDtoList = new ArrayList<>();
 		for (OrdersItem orderItem : orderItemList) {
 			orderItemResponseDtoList.add(toOrderItemResponseDto(orderItem));
@@ -129,7 +129,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException {
+	private OrderItemResponseDTO toOrderItemResponseDto(final OrdersItem orderItem) throws NotFoundException, ValidationException {
 		OrderItemResponseDTO orderItemResponseDTO = new OrderItemResponseDTO();
 		OrdersItem orderItemDetail = orderItemRepository.findById(orderItem.getId())
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(ORDER_ITEM_NOT_FOUND, new Object[] { orderItem.getId() })));
@@ -137,10 +137,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(orderItem.getProductVariant().getId());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameEnglish());
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabelEnglish());
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getMeasurementEnglish());
 		} else {
 			orderItemResponseDTO.setProductName(productVariant.getProduct().getNameArabic());
-			orderItemResponseDTO.setUomLabel(productVariant.getUom().getUomLabelArabic());
+			orderItemResponseDTO.setUomLabel(productVariant.getUom().getMeasurementArabic());
 		}
 		orderItemResponseDTO.setProductImage(productVariant.getProduct().getImage());
 		orderItemResponseDTO.setProductVariantId(productVariant.getId());

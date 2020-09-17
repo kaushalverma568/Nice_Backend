@@ -53,9 +53,14 @@ public class ProductResponseDTO implements Serializable {
 	private String cuisineNameArabic;
 	private Boolean combo;
 	/**
-	 * Set to true only if all the variant of the product are out of stock
+	 * Set to true only if atleast one variant of product exists
 	 */
 	private Boolean productAvailable;
+	/**
+	 * This will be set to true if product is out of stock and only for food delivery business category for others this will
+	 * be set to false
+	 */
+	private Boolean productOutOfStock;
 	private Long cartQty = 0L;
 	private String businessCategoryName;
 	private String businessCategoryNameArabic;

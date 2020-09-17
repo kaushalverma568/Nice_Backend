@@ -110,7 +110,7 @@ public class ProductController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@PostMapping()
-	// @PreAuthorize("hasPermission('Product List','CAN_ADD')")
+	@PreAuthorize("hasPermission('Product List','CAN_ADD')")
 	public ResponseEntity<Object> addProduct(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "image", required = true) final MultipartFile image,
 			@RequestParam(name = "detailImage", required = true) final MultipartFile detailImage,

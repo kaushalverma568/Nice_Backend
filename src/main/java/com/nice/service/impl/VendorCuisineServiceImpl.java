@@ -146,13 +146,11 @@ public class VendorCuisineServiceImpl implements VendorCuisineService {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		Cuisine cuisine = cuisineService.getCuisineDetails(cuisineId);
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId)
-					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("vendor.cuisine.not.found",
-							new Object[] { cuisine.getNameEnglish(), vendor.getFirstNameEnglish().concat(vendor.getLastNameEnglish()) })));
+			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId).orElseThrow(() -> new NotFoundException(
+					messageByLocaleService.getMessage("vendor.cuisine.not.found", new Object[] { cuisine.getNameEnglish(), vendor.getStoreNameEnglish() })));
 		} else {
-			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId)
-					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("vendor.cuisine.not.found",
-							new Object[] { cuisine.getNameArabic(), vendor.getFirstNameArabic().concat(vendor.getLastNameArabic()) })));
+			return vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendorId, cuisineId).orElseThrow(() -> new NotFoundException(
+					messageByLocaleService.getMessage("vendor.cuisine.not.found", new Object[] { cuisine.getNameArabic(), vendor.getStoreNameArabic() })));
 		}
 	}
 

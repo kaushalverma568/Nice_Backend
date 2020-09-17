@@ -50,12 +50,10 @@ public class UOMValidator implements Validator {
 		if (target instanceof UOMDTO) {
 			final UOMDTO uomDTO = (UOMDTO) target;
 			// to check uom duplication
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementEnglish()) && uomDTO.getQuantity() != null
-					&& uomService.isUOMExistsEnglish(uomDTO).booleanValue()) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementEnglish()) && uomService.isUOMExistsEnglish(uomDTO).booleanValue()) {
 				errors.rejectValue("measurementEnglish", "409", messageByLocaleService.getMessage("english.measurement.not.unique", null));
 			}
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementArabic()) && uomDTO.getQuantity() != null
-					&& uomService.isUOMExistsArabic(uomDTO).booleanValue()) {
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(uomDTO.getMeasurementArabic()) && uomService.isUOMExistsArabic(uomDTO).booleanValue()) {
 				errors.rejectValue("measurementArabic", "409", messageByLocaleService.getMessage("arabic.measurement.not.unique", null));
 			}
 		} else {

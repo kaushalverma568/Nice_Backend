@@ -72,10 +72,10 @@ public class CartItemController {
 			LOGGER.error("Cart Item validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Long cartItemId = cartItemService.addCartItem(cartItemDTO);
+		List<CartItemResponseDTO> cartItemsList = cartItemService.addCartItem(cartItemDTO);
 		LOGGER.info("Outside add Cart Item ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(cartItemId).create();
+				.setMessage(messageByLocaleService.getMessage("cart.item.create.successfully", null)).setData(cartItemsList).create();
 	}
 
 	/**
@@ -166,10 +166,10 @@ public class CartItemController {
 	public ResponseEntity<Object> updateCartQty(@RequestHeader("Authorization") final String accessToken, @PathVariable("cartItemId") final Long cartItemId,
 			@RequestParam(name = "qty", required = true) final Long qty) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Cart Item Qty Method for cartItemId : {}, qty : {}", cartItemId, qty);
-		cartItemService.updateCartItemQty(cartItemId, qty);
+		List<CartItemResponseDTO> cartItemResponseList = cartItemService.updateCartItemQty(cartItemId, qty);
 		LOGGER.info("After successfully update Cart Item Qty Method for cartItemId : {} with qty : {}", cartItemId, qty);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("cart.item.quantity.updated", null))
-				.create();
+				.setData(cartItemResponseList).create();
 	}
 
 	/**
@@ -205,4 +205,5 @@ public class CartItemController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(cartItemService.checkIfExistsCartItemWithDifferentVendor(vendorId))
 				.setMessage(messageByLocaleService.getMessage("cart.item.checked.successfully", null)).create();
 	}
+
 }

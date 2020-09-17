@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-	 <changeSet id="1" author="jigar.shah"
+	<changeSet id="1" author="jigar.shah"
 		context="post-process-db-changes">
 		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
 			path="sql-files/1.0/initialSchema.sql" relativeToChangelogFile="true"
@@ -82,7 +82,6 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet> 	
-	<!--  Changes by Het -->
 	<changeSet id="13" author="het.shah"
 			context="post-process-db-changes">
 			<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
@@ -205,6 +204,19 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>	
-	
+	 <changeSet id="31" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/insert_settings_query_for_wallet.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	 <changeSet id="32" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/alter_order_add_refunded.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
 
 </databaseChangeLog>

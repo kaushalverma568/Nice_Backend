@@ -5,7 +5,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -104,9 +104,10 @@ public final class Constant {
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
 	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
 
+	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission and not the vendor, once changed in
-	 * the settings table , replace the same name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
+	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "VENDOR_COMISSION";
 	/**
@@ -132,4 +133,5 @@ public final class Constant {
 	public static final int SUB_CATEGORY_IMAGE_HEIGHT = 70;
 	public static final int SLIDER_IMAGE_WIDTH = 335;
 	public static final int SLIDER_IMAGE_HEIGHT = 170;
+
 }

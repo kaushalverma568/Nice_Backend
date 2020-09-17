@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.Customer;
@@ -89,5 +90,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	 * @return
 	 */
 	Optional<Customer> findByPhoneNumberIgnoreCase(String phoneNumber);
+
+	/**
+	 * @param entityId
+	 */
+	@Query(value = "Select cust.walletAmt from Customer cust where cust.id = :id")
+	Double getWalletAmountForCustomer(Long id);
 
 }
