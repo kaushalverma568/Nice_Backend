@@ -54,7 +54,7 @@ public class OrderToppingsServiceImpl implements OrderToppingsService {
 		BeanUtils.copyProperties(orderToppings, orderToppingsDto);
 		orderToppingsDto.setOrderItemId(orderToppings.getOrderItem().getId());
 		orderToppingsDto.setProductToppingsId(orderToppings.getProductToppings().getId());
-		ProductToppingResponseDTO productToppingResponseDto = productToppingService.getProductTopping(orderToppings.getProductToppings().getId());
+		ProductToppingResponseDTO productToppingResponseDto = productToppingService.getProductToppingWithOutUserCheck(orderToppings.getProductToppings().getId());
 		orderToppingsDto.setToppingsName(productToppingResponseDto.getName());
 		return orderToppingsDto;
 	}

@@ -285,6 +285,14 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
 
+		if (!orderRequestDto.getDeliveryType().equals(DeliveryType.PICKUP.getStatusValue())
+				&& !orderRequestDto.getDeliveryType().equals(DeliveryType.DELIVERY.getStatusValue())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
+		}
+		if (!orderRequestDto.getPaymentMode().equals(PaymentMode.COD.name()) && !orderRequestDto.getPaymentMode().equals(PaymentMode.ONLINE.name())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.mode", null));
+		}
+
 		/**
 		 * COD is not supported for pickup orders
 		 */
@@ -1165,13 +1173,12 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
 		 * placing a validation allowing only delivery boy to do the same
 		 */
-		// if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue())
-		// && ((DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType()) &&
-		// !UserType.VENDOR.name().equals(userLogin.getEntityType()))
-		// || (DeliveryType.DELIVERY.getStatusValue().equals(order.getDeliveryType())
-		// && !UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())))) {
-		// throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		// }
+		if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue())
+				&& ((DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType()) && !UserType.VENDOR.name().equals(userLogin.getEntityType()))
+						|| (DeliveryType.DELIVERY.getStatusValue().equals(order.getDeliveryType())
+								&& !UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())))) {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 		String allocatedFor = TaskTypeEnum.DELIVERY.name();
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
 		final String existingStockStatus = existingOrderStatus.getStockValue();
