@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @Data
 public class CashCollectionDTO implements Serializable {
@@ -38,6 +38,8 @@ public class CashCollectionDTO implements Serializable {
 	private String deliveryBoyName;
 	private String deliveryBoyNameEnglish;
 	private String deliveryBoyNameArabic;
+
+	private String customerName;
 
 	private Date createdAt;
 }
