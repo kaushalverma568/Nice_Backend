@@ -22,7 +22,6 @@ public class WalletTrxDTO implements Serializable {
 
 	private Long id;
 
-	@NotNull(message = "{order.id.not.null}")
 	private Long orderId;
 
 	@NotNull(message = "{customer.id.not.null}")
@@ -34,6 +33,7 @@ public class WalletTrxDTO implements Serializable {
 	@NotNull(message = "{amount.not.null}")
 	private Double amount;
 
+	private String description;
 	/**
 	 * for response only
 	 */

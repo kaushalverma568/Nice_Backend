@@ -593,6 +593,7 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setAssignmentTryCount(0);
 		order.setNotificationTimer(new Date(System.currentTimeMillis()));
 		order.setDescription(orderRequestDto.getDescription());
+		order.setRefunded(false);
 		Long vendorId = cartItemList.get(0).getProductVariant().getVendorId();
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
@@ -834,7 +835,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Make an entry in wallet txn table
 		 */
 		if (orderRequestDto.getWalletContribution() != 0) {
-			addWalletTxn(orderRequestDto.getWalletContribution(), orderRequestDto.getCustomerId(), order.getId());
+			addWalletTxn(orderRequestDto.getWalletContribution() * (-1), orderRequestDto.getCustomerId(), order.getId(), null);
 			/**
 			 * Set updated wallet balance
 			 */
@@ -876,16 +877,18 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
+	 * @param description     TODO
 	 * @param orderRequestDto
 	 * @param order
 	 * @throws NotFoundException
 	 */
-	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId) throws NotFoundException {
+	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description) throws NotFoundException {
 		WalletTrxDTO walletTxnDto = new WalletTrxDTO();
 		walletTxnDto.setActive(true);
 		walletTxnDto.setAmount(transactionAmount);
 		walletTxnDto.setCustomerId(customerId);
 		walletTxnDto.setOrderId(orderId);
+		walletTxnDto.setDescription(description);
 		walletTrxService.addupdateWalletTrx(walletTxnDto);
 	}
 
@@ -1014,6 +1017,14 @@ public class OrdersServiceImpl implements OrdersService {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
+
+		/**
+		 * If status is stock allocted then for display purpose we will display as waiting for pickup
+		 */
+		if (OrderStatusEnum.STOCK_ALLOCATED.getStatusValue().equals(orders.getOrderStatus())) {
+			orderResponseDto.setOrderStatus(Constant.WAITING_FOR_PICKUP);
+		}
+
 		/**
 		 * set city field for email
 		 */
@@ -1438,7 +1449,9 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public void cancelOrder(final ReplaceCancelOrderDto replaceCancelOrderDto, final boolean autoRefund) throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
-
+		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(orders.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("cannot.cancel.deliverd.order", null));
+		}
 		/**
 		 * Cancel task if exists for the order
 		 */
@@ -1475,7 +1488,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * make an entry in wallet txn
 			 */
-			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId());
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null);
 		}
 
 		/**
@@ -1587,7 +1600,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * make an entry in wallet txn
 			 */
-			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId());
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null);
 		}
 	}
 
@@ -1623,9 +1636,13 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void refundAmount(final Long orderId, final Double amount) throws NotFoundException, ValidationException {
+	public void refundAmount(final Long orderId, final Double amount, final String description) throws NotFoundException, ValidationException {
 
 		Orders orders = getOrderById(orderId);
+
+		if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+			throw new ValidationException(messageByLocaleService.getMessage("COD.orders.not.refunded", null));
+		}
 
 		Double totalOrderAmount = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 
@@ -1647,7 +1664,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * make an entry in wallet txn
 		 */
-		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId());
+		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId(), description);
 
 		orders.setRefunded(true);
 		ordersRepository.save(orders);

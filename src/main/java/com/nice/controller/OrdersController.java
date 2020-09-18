@@ -35,6 +35,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
@@ -358,7 +359,8 @@ public class OrdersController {
 
 	/**
 	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
-	 * refund would be made automatically
+	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
+	 * refund would be made automatically if the payment mode is not COD
 	 *
 	 * @param accessToken
 	 * @param orderId
@@ -367,11 +369,20 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	@PutMapping("/{orderId}/refund/amount")
-	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken, @PathVariable final Long orderId,
-			@RequestParam(required = true) final Double amount) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", orderId, amount);
-		orderService.refundAmount(orderId, amount);
+	@PostMapping("/refund/amount")
+	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken,
+			@Valid @RequestBody final RefundAmountDto refundAmountDto, final BindingResult bindingResult) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", refundAmountDto.getOrderId(), refundAmountDto.getAmount());
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		String description = refundAmountDto.getDescription();
+		if (description != null && description.length() > 255) {
+			throw new ValidationException(messageByLocaleService.getMessage("description.max.length", null));
+
+		}
+		orderService.refundAmount(refundAmountDto.getOrderId(), refundAmountDto.getAmount(), refundAmountDto.getDescription());
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
 				.create();
 	}

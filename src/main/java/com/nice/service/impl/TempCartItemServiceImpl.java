@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.CartItemResponseDTO;
 import com.nice.dto.ProductAddonsDTO;
+import com.nice.dto.ProductAttributeResponseDTO;
 import com.nice.dto.ProductAttributeValueDTO;
 import com.nice.dto.ProductExtrasDTO;
 import com.nice.dto.ProductToppingResponseDTO;
@@ -23,6 +24,7 @@ import com.nice.dto.TempCartExtrasDto;
 import com.nice.dto.TempCartItemDTO;
 import com.nice.dto.TempCartProductAttributeValueDTO;
 import com.nice.dto.TempCartToppingsDto;
+import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -38,6 +40,7 @@ import com.nice.service.TempCartExtrasService;
 import com.nice.service.TempCartItemService;
 import com.nice.service.TempCartProductAttributeValueService;
 import com.nice.service.TempCartToppingsService;
+import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -74,6 +77,9 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 	@Autowired
 	private ProductAttributeValueService productAttributeValueService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@Override
 	public List<CartItemResponseDTO> addTempCartItem(final TempCartItemDTO tempCartItemDTO) throws ValidationException, NotFoundException {
@@ -296,7 +302,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 		ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariantInternal(cartItem.getProductVariant().getId(), false);
 		cartItemResponseDTO.setProductVariantResponseDto(productVariantResponseDto);
 		cartItemResponseDTO.setProductExtrasDtoList(tempCartExtrasService.getTempCartExtrasListForCartItem(cartItem.getId()));
-
+		cartItemResponseDTO.setProductAddonsDtoList(tempCartAddonsService.getTempCartAddonsListForCartItem(cartItem.getId()));
+		cartItemResponseDTO.setProductToppingsDtoList(tempCartToppingsService.getTempCartToppingsListForCartItem(cartItem.getId()));
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = tempCartProductAttributeValueService
 				.getTempCartProductAttributeValueListForCartItem(cartItem.getId());
 		Map<String, List<ProductAttributeValueDTO>> productAttributeValueDtoMap = new HashMap<>();
@@ -309,6 +316,23 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
+		/**
+		 * Convert Map to List
+		 *
+		 **/
+		List<ProductAttributeResponseDTO> productAttributeResponseDtoList = new ArrayList<>();
+		for (Map.Entry<String, List<ProductAttributeValueDTO>> productAttributeValueDto : productAttributeValueDtoMap.entrySet()) {
+			List<ProductAttributeValueDTO> productAttributeValDtoList = productAttributeValueDto.getValue();
+			ProductAttributeResponseDTO productAttributeResponseDto = new ProductAttributeResponseDTO();
+			productAttributeResponseDto.setProductAttributeValueList(productAttributeValDtoList);
+			productAttributeResponseDto.setAttributeName(productAttributeValueDto.getKey());
+			productAttributeResponseDtoList.add(productAttributeResponseDto);
+		}
+		cartItemResponseDTO.setProductAttributeValuesDtoList(productAttributeResponseDtoList);
+
+		VendorResponseDTO vendorResponseDto = vendorService.getVendor(cartItem.getProductVariant().getVendorId());
+		cartItemResponseDTO.setVendorName(vendorResponseDto.getStoreName());
+
 		return cartItemResponseDTO;
 	}
 
