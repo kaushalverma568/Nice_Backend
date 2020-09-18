@@ -56,7 +56,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("categoryService")
@@ -152,20 +152,41 @@ public class CategoryServiceImpl implements CategoryService {
 		} else {
 			pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("nameArabic"));
 		}
-		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		if (vendorId != null) {
+			Vendor vendor = vendorService.getVendorDetail(vendorId);
+			if (activeRecords != null) {
+				if (searchKeyword != null) {
+					return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(
+							activeRecords, searchKeyword, vendor, activeRecords, searchKeyword, vendor, pageable);
+				} else {
+					return categoryRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
+				}
+			} else {
+				if (searchKeyword != null) {
+					return categoryRepository.findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(searchKeyword, vendor,
+							searchKeyword, vendor, pageable);
+				} else {
+					return categoryRepository.findAllByVendor(vendor, pageable);
+				}
+			}
+		} else {
+			return findByActiveAndName(activeRecords, searchKeyword, pageable);
+		}
+	}
+
+	private Page<Category> findByActiveAndName(final Boolean activeRecords, final String searchKeyword, Pageable pageable) {
 		if (activeRecords != null) {
 			if (searchKeyword != null) {
-				return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseAndVendorOrActiveAndNameArabicContainingIgnoreCaseAndVendor(
-						activeRecords, searchKeyword, vendor, activeRecords, searchKeyword, vendor, pageable);
+				return categoryRepository.findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(activeRecords,
+						searchKeyword, activeRecords, searchKeyword, pageable);
 			} else {
-				return categoryRepository.findAllByActiveAndVendor(activeRecords, vendor, pageable);
+				return categoryRepository.findAllByActive(activeRecords, pageable);
 			}
 		} else {
 			if (searchKeyword != null) {
-				return categoryRepository.findAllByNameEnglishContainingIgnoreCaseAndVendorOrNameArabicContainingIgnoreCaseAndVendor(searchKeyword, vendor,
-						searchKeyword, vendor, pageable);
+				return categoryRepository.findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
 			} else {
-				return categoryRepository.findAllByVendor(vendor, pageable);
+				return categoryRepository.findAll(pageable);
 			}
 		}
 	}
@@ -180,7 +201,8 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ValidationException(messageByLocaleService.getMessage(Boolean.TRUE.equals(active) ? "category.active" : "category.deactive", null));
 		} else {
 			/**
-			 * deActive All subCategories related to this category at the time of deActivating Category
+			 * deActive All subCategories related to this category at the time of
+			 * deActivating Category
 			 */
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("DeActivating  Category {}", existingCategory);
@@ -190,7 +212,8 @@ public class CategoryServiceImpl implements CategoryService {
 				}
 
 				/**
-				 * deActive All discount related to this category at the time of deActivating Brand
+				 * deActive All discount related to this category at the time of deActivating
+				 * Brand
 				 */
 				List<Discount> discountList = discountRepository.findAllByCategoryIdAndStatusIn(categoryId,
 						Arrays.asList(DiscountStatusEnum.ACTIVE.getStatusValue(), DiscountStatusEnum.UPCOMING.getStatusValue()));
@@ -212,7 +235,8 @@ public class CategoryServiceImpl implements CategoryService {
 		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name(English) exist or not except it's own id
+			 * At the time of update is category with same name(English) exist or not except
+			 * it's own id
 			 */
 			return categoryRepository.findByNameEnglishIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameEnglish(), vendor, categoryDTO.getId()).isPresent();
 		} else {
@@ -228,7 +252,8 @@ public class CategoryServiceImpl implements CategoryService {
 		Vendor vendor = vendorService.getVendorDetail(categoryDTO.getVendorId());
 		if (categoryDTO.getId() != null) {
 			/**
-			 * At the time of update is category with same name(Arabic) exist or not except it's own id
+			 * At the time of update is category with same name(Arabic) exist or not except
+			 * it's own id
 			 */
 			return categoryRepository.findByNameArabicIgnoreCaseAndVendorAndIdNot(categoryDTO.getNameArabic(), vendor, categoryDTO.getId()).isPresent();
 		} else {
@@ -242,8 +267,8 @@ public class CategoryServiceImpl implements CategoryService {
 	/**
 	 * upload image of product
 	 *
-	 * @param image
-	 * @param product
+	 * @param  image
+	 * @param  product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -302,8 +327,8 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	/**
-	 * @param categoryImports
-	 * @param userId
+	 * @param  categoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<CategoryImport> insertListOfCategories(final List<CategoryImport> categoryImports) {
