@@ -171,9 +171,10 @@ public class SubCategoryController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getSubCategoryList(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "categoryId", required = false) final Long categoryId) throws NotFoundException {
+			@RequestParam(name = "categoryId", required = false) final Long categoryId, @RequestParam(name = "vendorId", required = false) final Long vendorId)
+			throws NotFoundException {
 		LOGGER.info("Inside get sub category List");
-		final Page<SubCategory> resultSubCategories = subCategoryService.getSubCategoryList(pageNumber, pageSize, activeRecords, categoryId);
+		final Page<SubCategory> resultSubCategories = subCategoryService.getSubCategoryList(pageNumber, pageSize, activeRecords, categoryId, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("subcategory.list.message", null))
 				.setData(subCategoryMapper.toDtos(resultSubCategories.getContent())).setHasNextPage(resultSubCategories.hasNext())
 				.setHasPreviousPage(resultSubCategories.hasPrevious()).setTotalPages(resultSubCategories.getTotalPages())
