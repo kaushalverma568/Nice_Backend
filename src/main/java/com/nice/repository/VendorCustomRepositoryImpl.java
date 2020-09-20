@@ -47,7 +47,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 29-06-2020
+ * @date : 29-06-2020
  */
 @Repository(value = "vendorCustomRepository")
 public class VendorCustomRepositoryImpl implements VendorCustomRepository {
@@ -73,7 +73,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -105,8 +106,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
 		fetchGraph.addSubgraph(BUSINESS_CATEGORY_PARAM);
@@ -191,7 +192,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -351,12 +353,14 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	@Override
 	public Long getVendorCountForCustomerBasedOnParams(final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
-		StringBuilder sqlQuery = new StringBuilder(" select count(*) FROM vendor v ");
+		StringBuilder sqlQuery = new StringBuilder("select count(*) from ( select count(*) FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
 			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true ");
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue()
+				+ "' and v.is_order_service_enable = true and v.profile_completed = true");
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
+		sqlQuery.append(" group by (v.id)) as abc ");
 		Query q = entityManager.createNativeQuery(sqlQuery.toString());
 		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
 		return ((BigInteger) q.getSingleResult()).longValue();
