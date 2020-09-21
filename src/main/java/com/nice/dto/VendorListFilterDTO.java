@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,6 +24,7 @@ public class VendorListFilterDTO implements Serializable {
 	*/
 	private static final long serialVersionUID = -9104413848520087852L;
 
+	@NotNull(message = "{business.category.id.not.null}")
 	private Long businessCategoryId;
 
 	private String deliveryType;
@@ -53,6 +55,7 @@ public class VendorListFilterDTO implements Serializable {
 
 	private Double distance;
 
+	@NotNull(message = "{city.id.not.null}")
 	private Long cityId;
 
 	private Boolean isPopular;

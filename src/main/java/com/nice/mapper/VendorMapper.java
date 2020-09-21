@@ -71,7 +71,7 @@ public class VendorMapper {
 					locale.getLanguage().equals("en") ? vendor.getSubscriptionPlan().getNameEnglish() : vendor.getSubscriptionPlan().getNameArabic());
 		}
 		vendorResponseDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
-
+		vendorResponseDTO.setManageInventory(vendor.getBusinessCategory().getManageInventory());
 		vendorResponseDTO.setPincodeId(vendor.getPincode().getId());
 		vendorResponseDTO.setCodeValue(vendor.getPincode().getCodeValue());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
