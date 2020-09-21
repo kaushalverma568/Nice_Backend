@@ -140,6 +140,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 		}
 
 		/**
+		 * Filter based in productFoodType: Veg, Egg and Nonveg
+		 */
+		if (productParamRequestDTO.getProductFoodType() != null) {
+			sqlQuery.append(" and p.product_food_type <= (" + productParamRequestDTO.getProductFoodType() + " ) ");
+		}
+
+		/**
 		 * Product for specified business category
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productParamRequestDTO.getBusinessCategoryIds())) {

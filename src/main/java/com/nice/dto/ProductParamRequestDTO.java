@@ -43,6 +43,8 @@ public class ProductParamRequestDTO implements Serializable {
 
 	private List<Long> exceptBusinessCategoryIds;
 
+	private Integer productFoodType;
+
 	/**
 	 * Used internally: If the request if from admin, then we need to display all the product even if they have no variants
 	 * associated with them, for customer requests such products should not be displayed as rates and UOM would not be
