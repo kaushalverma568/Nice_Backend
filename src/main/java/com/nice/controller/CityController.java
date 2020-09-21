@@ -40,7 +40,7 @@ import com.nice.validator.CityValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date : 22-Jun-2020
  */
 @RequestMapping(path = "/city")
 @RestController
@@ -78,9 +78,9 @@ public class CityController {
 	/**
 	 * Add City
 	 *
-	 * @param  accessToken
-	 * @param  cityDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param cityDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -112,9 +112,9 @@ public class CityController {
 	/**
 	 * Update City
 	 *
-	 * @param  accessToken
-	 * @param  cityDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param cityDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -145,7 +145,7 @@ public class CityController {
 	/**
 	 * Get City Details based on id
 	 *
-	 * @param  cityId
+	 * @param cityId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -159,11 +159,11 @@ public class CityController {
 	/**
 	 * Get City list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  stateId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param stateId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -187,9 +187,9 @@ public class CityController {
 	/**
 	 * Change status of city (active/deActive)
 	 *
-	 * @param  accessToken
-	 * @param  cityId
-	 * @param  active
+	 * @param accessToken
+	 * @param cityId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -204,6 +204,20 @@ public class CityController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.update.message", null))
 				.create();
 
+	}
+
+	/**
+	 * check city is serviceable or not
+	 *
+	 * @param cityName
+	 * @return
+	 * @throws ValidationException
+	 */
+	@GetMapping("/check/serviceable/{cityName}")
+	public ResponseEntity<Object> checkCityServiceableByName(@PathVariable("cityName") final String cityName) throws ValidationException {
+		final CityResponseDTO cityResponseDTO = cityService.checkCityServicableByName(cityName);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.detail.message", null))
+				.setData(cityResponseDTO).create();
 	}
 
 }

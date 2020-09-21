@@ -78,4 +78,13 @@ public interface CityRepository extends JpaRepository<City, Long>, CityCustomRep
 	 */
 	Optional<City> findByNameArabicIgnoreCaseAndState(String nameArabic, State state);
 
+	/**
+	 * get city based on english or arabic name
+	 *
+	 * @param nameEnglish
+	 * @param nameArabic
+	 * @return
+	 */
+	Optional<City> findByNameEnglishOrNameArabic(String nameEnglish, String nameArabic);
+
 }
