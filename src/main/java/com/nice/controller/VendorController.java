@@ -541,6 +541,13 @@ public class VendorController {
 		}
 	}
 
+	/**
+	 * get subscription history
+	 *
+	 * @param accessToken
+	 * @param vendorId
+	 * @return
+	 */
 	@GetMapping("/subscription/history/{vendorId}")
 	public ResponseEntity<Object> getVendorPaymentHistory(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("vendorId") final Long vendorId) {
@@ -549,5 +556,4 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.payment.list.message", null))
 				.setData(vendorBasicDetailDTO).create();
 	}
-
 }

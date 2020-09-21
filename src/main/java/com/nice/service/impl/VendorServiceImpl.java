@@ -78,6 +78,7 @@ import com.nice.model.VendorBankDetails;
 import com.nice.model.VendorCuisine;
 import com.nice.model.VendorPayment;
 import com.nice.repository.VendorBankDetailsRepository;
+import com.nice.repository.VendorCuisineRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.AddonsService;
 import com.nice.service.AssetService;
@@ -182,6 +183,9 @@ public class VendorServiceImpl implements VendorService {
 
 	@Autowired
 	private RoleService roleService;
+
+	@Autowired
+	private VendorCuisineRepository vendorCuisineRepository;
 
 	@Override
 	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
@@ -571,6 +575,9 @@ public class VendorServiceImpl implements VendorService {
 	public void updateRestaurantDetails(final VendorRestaurantDetailsDTO vendorRestaurantDetailsDTO, final MultipartFile storeImage,
 			final MultipartFile storeDetailImage, final MultipartFile featuredImage) throws NotFoundException, ValidationException, FileOperationException {
 		Vendor vendor = getVendorDetail(vendorRestaurantDetailsDTO.getVendorId());
+		if (!vendor.getBusinessCategory().getManageInventory().booleanValue() && vendorRestaurantDetailsDTO.getCuisineIds() == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("cuisine.ids.not.null", null));
+		}
 		if (vendor.getActive().booleanValue() && VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 			BeanUtils.copyProperties(vendorRestaurantDetailsDTO, vendor);
 			if (VendorAccepts.getByValue(vendorRestaurantDetailsDTO.getAccepts()) == null) {
@@ -619,7 +626,7 @@ public class VendorServiceImpl implements VendorService {
 			/**
 			 * set vendor cuisine
 			 */
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorRestaurantDetailsDTO.getCuisineIds())) {
+			if (!vendor.getBusinessCategory().getManageInventory().booleanValue() && vendorRestaurantDetailsDTO.getCuisineIds() != null) {
 				List<VendorCuisine> existingVendorCuisines = vendorCuisineService.getVendorCuisineListByVendor(vendor.getId(), true);
 				List<Long> existingCuisines = existingVendorCuisines.stream().map(x -> x.getCuisine().getId()).collect(Collectors.toList());
 				List<Long> newCuisines = new ArrayList<>(vendorRestaurantDetailsDTO.getCuisineIds());
@@ -641,6 +648,10 @@ public class VendorServiceImpl implements VendorService {
 				vendorCuisineService.bulkChangeAllStatus(deletedVendorCuisines, false);
 				for (Long cuisineId : newCuisines) {
 					VendorCuisineDTO vendorCuisineDTO = new VendorCuisineDTO();
+					Optional<VendorCuisine> vendorCuisine = vendorCuisineRepository.findAllByVendorIdAndCuisineId(vendor.getId(), cuisineId);
+					if (vendorCuisine.isPresent()) {
+						vendorCuisineDTO.setId(vendorCuisine.get().getId());
+					}
 					vendorCuisineDTO.setActive(true);
 					vendorCuisineDTO.setCuisineId(cuisineId);
 					vendorCuisineDTO.setVendorId(vendor.getId());

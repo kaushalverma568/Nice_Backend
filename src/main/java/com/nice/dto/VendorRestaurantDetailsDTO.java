@@ -18,7 +18,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 26, 2020
+ * @date : Jun 26, 2020
  */
 @Data
 public class VendorRestaurantDetailsDTO implements Serializable {
@@ -59,7 +59,6 @@ public class VendorRestaurantDetailsDTO implements Serializable {
 	@NotBlank(message = "{deliveryType.not.null}")
 	private String deliveryType;
 
-	@NotNull(message = "{cuisine.ids.not.null}")
 	private List<Long> cuisineIds;
 
 	private List<VendorCuisineDTO> vendorCuisineDTOs;
