@@ -18,7 +18,7 @@ public class MessageByLocaleServiceImpl implements MessageByLocaleService {
 	private MessageSource messageSource;
 
 	/**
-	 * If no locale specified take english as local and display messages.
+	 * If no locale specified take English as local and display messages.
 	 */
 	@Override
 	public String getMessage(final String id, final Object[] arg) {

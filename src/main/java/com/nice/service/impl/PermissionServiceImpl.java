@@ -173,7 +173,8 @@ public class PermissionServiceImpl implements PermissionService {
 
 		if (permissionDTO.getId() != null) {
 			/**
-			 * At the time of update is role with same id for same module exist or not except it's own ID
+			 * At the time of update is role with same id for same module exist or not
+			 * except it's own ID
 			 */
 			return permissionRepository.findByRoleAndModulesAndIdNot(role, modules, permissionDTO.getId()).isPresent();
 		} else {
@@ -207,48 +208,61 @@ public class PermissionServiceImpl implements PermissionService {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 		}
-		Map<String, List<ModuleAndPermissionResponseDTO>> modulePermissionMap = new LinkedHashMap<>();
+		Map<String, SideBarDTO> modulePermissionMap = new LinkedHashMap<>();
 		List<SideBarDTO> sideBarDTOList = new ArrayList<>();
 
 		/**
-		 * get only those permissions for which particular role has access of VIEW Side bar
+		 * get only those permissions for which particular role has access of VIEW Side
+		 * bar
 		 */
 		List<Permission> permissionList = permissionRepository.findAllByRoleAndCanViewSidebarAndActiveOrderByModulesAsc(userLogin.getRole(), true, true);
 
 		for (Permission permission : permissionList) {
 			/**
-			 * If there is no inventory manage for vendor then we will not display inventory module in side bar
+			 * If there is no inventory manage for vendor then we will not display inventory
+			 * module in side bar
 			 */
-			if (permission.getModules().getParentModuleName().equals("Inventory") && vendor != null
-					&& !vendor.getBusinessCategory().getManageInventory().booleanValue()) {
-				continue;
+			if (vendor != null && !vendor.getBusinessCategory().getManageInventory().booleanValue()) {
+				if (permission.getModules().getParentModuleName().equals("Inventory") || permission.getModules().getName().equals("Product Attribute")
+						|| permission.getModules().getName().equals("Product Toppings") || permission.getModules().getName().equals("Product Extras")
+						|| permission.getModules().getName().equals("Product Addons")) {
+					continue;
+				}
 			}
 			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
-				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = modulePermissionMap.get(permission.getModules().getParentModuleName());
+				SideBarDTO sideBarDTO = modulePermissionMap.get(permission.getModules().getParentModuleName());
+				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = sideBarDTO.getChildren();
 				moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+				sideBarDTO.setChildren(moduleWisePermissionList);
+				modulePermissionMap.put(permission.getModules().getParentModuleName(), sideBarDTO);
 			} else {
 				List<ModuleAndPermissionResponseDTO> moduleWisePermissionList = new ArrayList<>();
+				SideBarDTO sideBarDTO = new SideBarDTO();
 				if (!permission.getModules().getNoParentModule().booleanValue()) {
-					moduleWisePermissionList.add(permissionMapper.toModuleAndPermissionResponseDTO(permission));
+					ModuleAndPermissionResponseDTO moduleAndPermissionResponseDTO = permissionMapper.toModuleAndPermissionResponseDTO(permission);
+					moduleWisePermissionList.add(moduleAndPermissionResponseDTO);
+					sideBarDTO.setModulesId(1L);
+					sideBarDTO.setCanView(true);
+					sideBarDTO.setCanAdd(true);
+					sideBarDTO.setCanEdit(true);
+					sideBarDTO.setCanDelete(true);
+					sideBarDTO.setCanViewSidebar(true);
+				} else {
+					sideBarDTO.setModulesId(permission.getModules().getId());
+					sideBarDTO.setCanView(permission.getCanView());
+					sideBarDTO.setCanAdd(permission.getCanAdd());
+					sideBarDTO.setCanEdit(permission.getCanEdit());
+					sideBarDTO.setCanDelete(permission.getCanDelete());
+					sideBarDTO.setCanViewSidebar(permission.getCanViewSidebar());
 				}
+				sideBarDTO.setModulesName(permission.getModules().getParentModuleName());
+				sideBarDTO.setChildren(moduleWisePermissionList);
+				modulePermissionMap.put(permission.getModules().getParentModuleName(), sideBarDTO);
 
-				modulePermissionMap.put(permission.getModules().getParentModuleName(), moduleWisePermissionList);
 			}
 		}
-		for (Entry<String, List<ModuleAndPermissionResponseDTO>> parentModule : modulePermissionMap.entrySet()) {
-			SideBarDTO sideBarDTO = new SideBarDTO();
-			/**
-			 * Below static value nowhere use. This is just for side bar structure of front-end.
-			 */
-			sideBarDTO.setModulesId(1L);
-			sideBarDTO.setCanView(true);
-			sideBarDTO.setCanAdd(true);
-			sideBarDTO.setCanEdit(true);
-			sideBarDTO.setCanDelete(true);
-			sideBarDTO.setCanViewSidebar(true);
-			sideBarDTO.setModulesName(parentModule.getKey());
-			sideBarDTO.setChildren(parentModule.getValue());
-			sideBarDTOList.add(sideBarDTO);
+		for (Entry<String, SideBarDTO> parentModule : modulePermissionMap.entrySet()) {
+			sideBarDTOList.add(parentModule.getValue());
 
 		}
 
