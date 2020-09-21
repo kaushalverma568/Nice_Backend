@@ -3,10 +3,15 @@
  */
 package com.nice.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,7 +55,10 @@ public class PaymentController {
 	private static final String REDIRECT = "redirect:";
 
 	@GetMapping(path = "/check")
-	public ModelAndView checkPayment(@RequestParam(name = "data") final String data) throws NotFoundException {
+	public ModelAndView checkPayment(@RequestParam(name = "language", required = true) final String langauge,
+			@RequestParam(name = "data") final String data) throws NotFoundException, UnsupportedEncodingException {
+		Locale locale = new Locale(langauge);
+		LocaleContextHolder.setLocale(locale);
 		String result = hesabePaymentService.decrypt(data);
 		LOGGER.info("hesabe response {} ", result);
 		Gson gson = new Gson();
@@ -67,9 +75,10 @@ public class PaymentController {
 			msg = e.getMessage();
 		}
 		if (response) {
-			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
+			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type="
+					+ SuccessErrorType.PAYMENT);
 		} else {
-			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + msg + " &type=" + SuccessErrorType.PAYMENT);
+			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + URLEncoder.encode(msg, "UTF-8") + " &type=" + SuccessErrorType.PAYMENT);
 		}
 	}
 }

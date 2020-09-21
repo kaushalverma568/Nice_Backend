@@ -9,6 +9,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -64,14 +65,15 @@ public class HesabePaymentServiceImpl implements HesabePaymentService {
 	}
 
 	private String encryptData(final Double amount, final String orderId, final String redirectUrl) {
+		String language = LocaleContextHolder.getLocale().getLanguage();
 		LOGGER.info("inside encrypt data for vendor");
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(hesabeUrl.concat("api/encrypt"));
 		builder.queryParam("amount", amount);
 		builder.queryParam("currency", "KWD");
 		builder.queryParam("merchantCode", merchantCode);
 		builder.queryParam("paymentType", paymentType);
-		builder.queryParam("responseUrl", redirectUrl);
-		builder.queryParam("failureUrl", redirectUrl);
+		builder.queryParam("responseUrl", redirectUrl+"?language=" + language + "&");
+		builder.queryParam("failureUrl", redirectUrl+"?language=" + language + "&");
 		builder.queryParam("variable1", orderId);
 		builder.queryParam("version", version);
 		HttpHeaders headers = new HttpHeaders();

@@ -34,4 +34,6 @@ public class Notification implements Serializable {
 	private Long vendorId;
 
 	private String sendingType;
+	
+	private String language;
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.mail.MessagingException;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -275,6 +277,8 @@ public class CustomerServiceImpl implements CustomerService {
 		notification.setEmail(email);
 		notification.setUserType(UserType.CUSTOMER.name());
 		notification.setSendingType(SendingType.OTP.name());
+		Locale locale = LocaleContextHolder.getLocale();
+		notification.setLanguage(locale.getLanguage());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}

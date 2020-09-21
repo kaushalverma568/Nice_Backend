@@ -1,8 +1,11 @@
 package com.nice.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
@@ -12,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -160,10 +164,14 @@ public class UserLoginController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws UnsupportedEncodingException 
 	 */
 	@GetMapping("/verify/email/{userId}")
-	public ModelAndView verifyEmail(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp)
-			throws ValidationException, NotFoundException {
+	public ModelAndView verifyEmail(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp,
+			@RequestParam(name = "lang") final String lang)
+			throws ValidationException, NotFoundException, UnsupportedEncodingException {
+		Locale locale = new Locale(lang);
+		LocaleContextHolder.setLocale(locale);
 		String redirectUrl;
 		UserLogin userLogin = userLoginService.getUserLoginDetail(userId);
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
@@ -181,9 +189,12 @@ public class UserLoginController {
 			 * send email code ends from here
 			 */
 			String message = messageByLocaleService.getMessage("verify.email.success", null);
-			return new ModelAndView(REDIRECT + redirectUrl + "auth/thank-you?message=" + message + TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(
+					REDIRECT + redirectUrl + "auth/thank-you?message=" + URLEncoder.encode(messageByLocaleService.getMessage(message, null), "UTF-8")
+					 + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		} catch (Exception e) {
-			return new ModelAndView(REDIRECT + redirectUrl + "auth/failed-error?message=" + e.getMessage() + TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(REDIRECT + redirectUrl + "auth/failed-error?message=" + URLEncoder.encode(messageByLocaleService.getMessage(e.getMessage(), null), "UTF-8")
+			+ TYPE + SuccessErrorType.VERIFY_EMAIL);
 		}
 	}
 

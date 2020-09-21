@@ -197,7 +197,9 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
-			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?otp=" + emailNotification.getOtp());
+			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/"
+			+ emailNotification.getUserId() 
+			+ "?lang=" + emailNotification.getLanguage() + "&otp=" + emailNotification.getOtp());
 			emailParameterMap.put("OTP", emailNotification.getOtp());
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 
