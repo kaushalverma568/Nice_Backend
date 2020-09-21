@@ -222,11 +222,16 @@ public class PermissionServiceImpl implements PermissionService {
 			 * If there is no inventory manage for vendor then we will not display inventory
 			 * module in side bar
 			 */
-			if (vendor != null && !vendor.getBusinessCategory().getManageInventory().booleanValue()) {
-				if (permission.getModules().getParentModuleName().equals("Inventory") || permission.getModules().getName().equals("Product Attribute")
-						|| permission.getModules().getName().equals("Product Toppings") || permission.getModules().getName().equals("Product Extras")
-						|| permission.getModules().getName().equals("Product Addons")) {
-					continue;
+			if (vendor != null) {
+				if (vendor.getBusinessCategory().getManageInventory().booleanValue()) {
+					if (permission.getModules().getName().equals("Product Attribute") || permission.getModules().getName().equals("Product Toppings")
+							|| permission.getModules().getName().equals("Product Extras") || permission.getModules().getName().equals("Product Addons")) {
+						continue;
+					}
+				} else {
+					if (permission.getModules().getParentModuleName().equals("Inventory")) {
+						continue;
+					}
 				}
 			}
 			if (modulePermissionMap.containsKey(permission.getModules().getParentModuleName())) {
