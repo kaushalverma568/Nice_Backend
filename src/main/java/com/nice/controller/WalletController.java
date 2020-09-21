@@ -67,11 +67,11 @@ public class WalletController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getWalletTrxList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "customerId", required = false) final Long customerId) throws NotFoundException {
-		final Page<WalletTrx> resultCountries = walletTrxService.getWalletTrxList(pageNumber, pageSize, customerId);
+		final Page<WalletTrx> walletTransactions = walletTrxService.getWalletTrxList(pageNumber, pageSize, customerId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("walletTrx.list.message", null))
-				.setData(walletTrxMapper.toDtos(resultCountries.getContent())).setHasNextPage(resultCountries.hasNext())
-				.setHasPreviousPage(resultCountries.hasPrevious()).setTotalPages(resultCountries.getTotalPages()).setPageNumber(resultCountries.getNumber() + 1)
-				.setTotalCount(resultCountries.getTotalElements()).create();
+				.setData(walletTrxMapper.toDtos(walletTransactions.getContent())).setHasNextPage(walletTransactions.hasNext())
+				.setHasPreviousPage(walletTransactions.hasPrevious()).setTotalPages(walletTransactions.getTotalPages()).setPageNumber(walletTransactions.getNumber() + 1)
+				.setTotalCount(walletTransactions.getTotalElements()).create();
 
 	}
 

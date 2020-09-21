@@ -22,12 +22,9 @@ public class CartItemResponseDTO implements Serializable {
 	private String razorPayOrderId;
 	private String uuid;
 	private ProductVariantResponseDTO productVariantResponseDto;
-	// private List<ProductAddonsDTO> productAddonsDtoList;
-	// private List<ProductToppingResponseDTO> productToppingsDtoList;
-	/**
-	 * This Map<AttributeName, List<AttributeValues>>
-	 */
-	// private Map<String, List<ProductAttributeValueDTO>> productAttributeValuesDtoMap;
+	private List<ProductAddonsDTO> productAddonsDtoList;
+	private List<ProductToppingResponseDTO> productToppingsDtoList;
+	private List<ProductAttributeResponseDTO> productAttributeValuesDtoList;
 
 	private List<ProductExtrasDTO> productExtrasDtoList;
 	private Long quantity;

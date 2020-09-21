@@ -47,6 +47,7 @@ public class WalletTrxServiceImpl implements WalletTrxService {
 		WalletTrx wallet = walletTrxMapper.toEntity(walletTrxDTO);
 		wallet.setCustomer(customer);
 		wallet.setOrder(order);
+		wallet.setDescription(walletTrxDTO.getDescription());
 		walletTrxRepository.save(wallet);
 	}
 

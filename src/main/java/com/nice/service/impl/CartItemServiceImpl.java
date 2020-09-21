@@ -349,6 +349,8 @@ public class CartItemServiceImpl implements CartItemService {
 		CartItemResponseDTO cartItemResponseDTO = cartItemMapper.toDto(cartItem);
 		ProductVariantResponseDTO productVariantResponseDto = productVariantService.getProductVariantInternal(cartItem.getProductVariant().getId(), false);
 		cartItemResponseDTO.setProductVariantResponseDto(productVariantResponseDto);
+		cartItemResponseDTO.setProductAddonsDtoList(cartAddonsService.getCartAddonsDtoListForCartItem(cartItem.getId()));
+		cartItemResponseDTO.setProductToppingsDtoList(cartToppingsService.getProductToppingsDtoListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setProductExtrasDtoList(cartExtrasService.getCartExtrasDtoListForCartItem(cartItem.getId()));
 		cartItemResponseDTO.setCustomerId(cartItem.getCustomer().getId());
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = cartProductAttributeValueService
@@ -363,6 +365,24 @@ public class CartItemServiceImpl implements CartItemService {
 				productAttributeValueDtoMap.get(productAttributeValueDTO.getProductAttributeName()).add(productAttributeValueDTO);
 			}
 		}
+
+		/**
+		 * Convert Map to List
+		 *
+		 **/
+		List<ProductAttributeResponseDTO> productAttributeResponseDtoList = new ArrayList<>();
+		for (Map.Entry<String, List<ProductAttributeValueDTO>> productAttributeValueDto : productAttributeValueDtoMap.entrySet()) {
+			List<ProductAttributeValueDTO> productAttributeValDtoList = productAttributeValueDto.getValue();
+			ProductAttributeResponseDTO productAttributeResponseDto = new ProductAttributeResponseDTO();
+			productAttributeResponseDto.setProductAttributeValueList(productAttributeValDtoList);
+			productAttributeResponseDto.setAttributeName(productAttributeValueDto.getKey());
+			productAttributeResponseDtoList.add(productAttributeResponseDto);
+		}
+		cartItemResponseDTO.setProductAttributeValuesDtoList(productAttributeResponseDtoList);
+
+		/**
+		 * Set Vendor name
+		 */
 		VendorResponseDTO vendorResponseDto = vendorService.getVendor(cartItem.getProductVariant().getVendorId());
 		cartItemResponseDTO.setVendorName(vendorResponseDto.getStoreName());
 		return cartItemResponseDTO;
@@ -505,20 +525,18 @@ public class CartItemServiceImpl implements CartItemService {
 			List<Long> productExtrasList = cartItemResponseDto.getProductExtrasDtoList().stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
 			cartItemDto.setProductExtrasId(productExtrasList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductAddonsDtoList())) {
-			List<Long> productAddonsList = cartItemResponseDto.getProductVariantResponseDto().getProductAddonsDtoList().stream().map(ProductAddonsDTO::getId)
-					.collect(Collectors.toList());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductAddonsDtoList())) {
+			List<Long> productAddonsList = cartItemResponseDto.getProductAddonsDtoList().stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
 			cartItemDto.setProductAddonsId(productAddonsList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductToppingsDtoList())) {
-			List<Long> productToppingsList = cartItemResponseDto.getProductVariantResponseDto().getProductToppingsDtoList().stream()
-					.map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductToppingsDtoList())) {
+			List<Long> productToppingsList = cartItemResponseDto.getProductToppingsDtoList().stream().map(ProductToppingResponseDTO::getId)
+					.collect(Collectors.toList());
 			cartItemDto.setProductToppingsIds(productToppingsList);
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductVariantResponseDto().getProductAttributeValuesDtoList())) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseDto.getProductAttributeValuesDtoList())) {
 			List<Long> attributeValueList = new ArrayList<>();
-			for (ProductAttributeResponseDTO productAttributeResponseDto : cartItemResponseDto.getProductVariantResponseDto()
-					.getProductAttributeValuesDtoList()) {
+			for (ProductAttributeResponseDTO productAttributeResponseDto : cartItemResponseDto.getProductAttributeValuesDtoList()) {
 				List<Long> attValList = productAttributeResponseDto.getProductAttributeValueList().stream().map(ProductAttributeValueDTO::getId)
 						.collect(Collectors.toList());
 				attributeValueList.addAll(attValList);

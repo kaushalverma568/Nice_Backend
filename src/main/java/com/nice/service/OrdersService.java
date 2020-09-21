@@ -220,10 +220,11 @@ public interface OrdersService {
 	/**
 	 * @param orderId
 	 * @param amount
+	 * @param description TODO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void refundAmount(Long orderId, Double amount) throws NotFoundException, ValidationException;
+	void refundAmount(Long orderId, Double amount, String description) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param orderId

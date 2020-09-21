@@ -66,6 +66,10 @@ public final class Constant {
 	public static final String SECRET_ID = "kody-secret";
 	public static final String UNAUTHORIZED = "unauthorized";
 	public static final String AWAITING_APPROVAL = "Awaiting Approval";
+
+	/**
+	 * All order status
+	 */
 	public static final String AVAILABLE = "Available";
 	public static final String IN_PROCESS = "In-Process";
 	public static final String RESERVED = "Reserved";
@@ -83,6 +87,12 @@ public final class Constant {
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
 	public static final String STOCK_ALLOCATED = "Stock Allocated";
+	/**
+	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
+	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
+	 */
+	public static final String WAITING_FOR_PICKUP = "Waiting for pickup";
+
 	public static final String BUSINESS_CATEGORY_FOOD_ENGLISH = "Food Delivery";
 	public static final String BUSINESS_CATEGORY_FOOD_ARABIC = "توصيل طلبات الطعام";
 	public static final String VENDOR_STORE_IMAGE = "VENDOR_STORE_IMAGE";

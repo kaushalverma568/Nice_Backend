@@ -45,4 +45,6 @@ public class WalletTrx extends CommonModel {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Customer customer;
 
+	@Column(name = "description", nullable = true)
+	private String description;
 }

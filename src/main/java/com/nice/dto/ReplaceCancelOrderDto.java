@@ -23,7 +23,7 @@ public class ReplaceCancelOrderDto implements Serializable {
 
 	@NotNull(message = "{order.id.not.null}")
 	private Long orderId;
-	@NotBlank(message = "{reason.required}")
+	@NotNull(message = "{reason.required}")
 	private Long reasonId;
 	@NotBlank(message = "{description.required}")
 	private String description;
