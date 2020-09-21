@@ -13,7 +13,7 @@ import com.nice.model.CashCollection;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component
 public class CashCollectionMapper {
@@ -28,8 +28,7 @@ public class CashCollectionMapper {
 				.setDeliveryBoyNameEnglish(cashCollection.getDeliveryBoy().getFirstNameEnglish() + " " + cashCollection.getDeliveryBoy().getLastNameEnglish());
 		cashCollectionResponseDTO
 				.setDeliveryBoyNameArabic(cashCollection.getDeliveryBoy().getFirstNameArabic() + " " + cashCollection.getDeliveryBoy().getLastNameArabic());
-		cashCollectionResponseDTO.setCustomerName(
-				cashCollection.getOrder().getCustomer().getFirstName().concat(" ").concat(cashCollection.getOrder().getCustomer().getLastName()));
+		cashCollectionResponseDTO.setCustomerName(cashCollection.getOrder().getFirstName().concat(" ").concat(cashCollection.getOrder().getLastName()));
 		if (locale.getLanguage().equals("en")) {
 			cashCollectionResponseDTO
 					.setDeliveryBoyName(cashCollection.getDeliveryBoy().getFirstNameEnglish() + " " + cashCollection.getDeliveryBoy().getLastNameEnglish());

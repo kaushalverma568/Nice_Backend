@@ -53,7 +53,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("subCategoryService")
@@ -139,8 +139,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	@Override
-	public Page<SubCategory> getSubCategoryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long categoryId)
-			throws NotFoundException {
+	public Page<SubCategory> getSubCategoryList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords, final Long categoryId,
+			final Long vendorId) throws NotFoundException {
 		Pageable pageable;
 		Locale locale = LocaleContextHolder.getLocale();
 		if (locale.getLanguage().equals("en")) {
@@ -155,10 +155,19 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 			} else {
 				return subCategoryRepository.findAllByCategory(category, pageable);
 			}
-		} else if (activeRecords != null) {
-			return subCategoryRepository.findAllByActive(activeRecords, pageable);
+		} else if (vendorId != null) {
+			Vendor vendor = vendorService.getVendorDetail(vendorId);
+			if (activeRecords != null) {
+				return subCategoryRepository.findAllByActiveAndCategoryVendor(activeRecords, vendor, pageable);
+			} else {
+				return subCategoryRepository.findAllByCategoryVendor(vendor, pageable);
+			}
 		} else {
-			return subCategoryRepository.findAll(pageable);
+			if (activeRecords != null) {
+				return subCategoryRepository.findAllByActive(activeRecords, pageable);
+			} else {
+				return subCategoryRepository.findAll(pageable);
+			}
 		}
 	}
 
@@ -247,8 +256,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	/**
 	 * upload image of sub category
 	 *
-	 * @param image
-	 * @param product
+	 * @param  image
+	 * @param  product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -312,8 +321,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	}
 
 	/**
-	 * @param subCategoryImports
-	 * @param userId
+	 * @param  subCategoryImports
+	 * @param  userId
 	 * @return
 	 */
 	private List<SubCategoryImport> insertListOfSubCategories(final List<SubCategoryImport> subCategoryImports) {

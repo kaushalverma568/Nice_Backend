@@ -759,6 +759,7 @@ public class VendorServiceImpl implements VendorService {
 			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
 			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+			vendorListFilterDTO.setCityId(customerAddress.getCity().getId());
 		}
 		/**
 		 * for sorting for popular and new arrival only one of them is allowed at time
@@ -786,6 +787,7 @@ public class VendorServiceImpl implements VendorService {
 			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
 			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
 			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+			vendorListFilterDTO.setCityId(customerAddress.getCity().getId());
 		}
 		return vendorRepository.getVendorCountForCustomerBasedOnParams(vendorListFilterDTO);
 	}

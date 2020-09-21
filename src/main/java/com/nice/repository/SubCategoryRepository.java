@@ -15,7 +15,7 @@ import com.nice.model.Vendor;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Repository
 public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> {
@@ -23,8 +23,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get Page of sub categories by active
 	 *
-	 * @param pageable
-	 * @param activeRecords
+	 * @param  pageable
+	 * @param  activeRecords
 	 * @return
 	 */
 	Page<SubCategory> findAllByActive(Boolean activeRecords, Pageable pageable);
@@ -32,8 +32,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get list of sub category by category and active
 	 *
-	 * @param category
-	 * @param active
+	 * @param  category
+	 * @param  active
 	 * @return
 	 */
 	List<SubCategory> findByCategoryAndActive(Category category, Boolean active);
@@ -41,9 +41,9 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get Page of sub categories by active and category
 	 *
-	 * @param activeRecords
-	 * @param category
-	 * @param pageable
+	 * @param  activeRecords
+	 * @param  category
+	 * @param  pageable
 	 * @return
 	 */
 	Page<SubCategory> findAllByActiveAndCategory(Boolean activeRecords, Category category, Pageable pageable);
@@ -51,8 +51,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get Page of sub categories by category
 	 *
-	 * @param category
-	 * @param pageable
+	 * @param  category
+	 * @param  pageable
 	 * @return
 	 */
 	Page<SubCategory> findAllByCategory(Category category, Pageable pageable);
@@ -60,7 +60,7 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get List of sub categories by category
 	 *
-	 * @param category
+	 * @param  category
 	 * @return
 	 */
 	List<SubCategory> findAllByCategory(Category category);
@@ -68,7 +68,7 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get sub category list by active
 	 *
-	 * @param active
+	 * @param  active
 	 * @return
 	 */
 	List<SubCategory> findAllByActive(Boolean active);
@@ -76,10 +76,10 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get sub category list by active and name containing search keyword
 	 *
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param activeRecords2
-	 * @param searchKeyword2
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  activeRecords2
+	 * @param  searchKeyword2
 	 * @return
 	 */
 	List<SubCategory> findAllByActiveAndNameEnglishContainingIgnoreCaseOrActiveAndNameArabicContainingIgnoreCase(Boolean activeRecords, String searchKeyword,
@@ -88,8 +88,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	/**
 	 * get sub category list by name containing search keyword
 	 *
-	 * @param searchKeyword
-	 * @param searchKeyword2
+	 * @param  searchKeyword
+	 * @param  searchKeyword2
 	 * @return
 	 */
 	List<SubCategory> findAllByNameEnglishContainingIgnoreCaseOrNameArabicContainingIgnoreCase(String searchKeyword, String searchKeyword2);
@@ -98,41 +98,56 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	List<SubCategory> getAllByVendor(Vendor vendor);
 
 	/**
-	 * @param nameEnglish
-	 * @param category
-	 * @param id
+	 * @param  nameEnglish
+	 * @param  category
+	 * @param  id
 	 * @return
 	 */
 	Optional<SubCategory> findByNameEnglishIgnoreCaseAndCategoryAndIdNot(String nameEnglish, Category category, Long id);
 
 	/**
-	 * @param nameEnglish
-	 * @param category
+	 * @param  nameEnglish
+	 * @param  category
 	 * @return
 	 */
 	Optional<SubCategory> findByNameEnglishIgnoreCaseAndCategory(String nameEnglish, Category category);
 
 	/**
-	 * @param nameArabic
-	 * @param category
-	 * @param id
+	 * @param  nameArabic
+	 * @param  category
+	 * @param  id
 	 * @return
 	 */
 	Optional<SubCategory> findByNameArabicIgnoreCaseAndCategoryAndIdNot(String nameArabic, Category category, Long id);
 
 	/**
-	 * @param nameArabic
-	 * @param category
+	 * @param  nameArabic
+	 * @param  category
 	 * @return
 	 */
 	Optional<SubCategory> findByNameArabicIgnoreCaseAndCategory(String nameArabic, Category category);
 
 	/**
-	 * @param nameEnglish
-	 * @param categoryNameArabic
-	 * @param category
+	 * @param  nameEnglish
+	 * @param  categoryNameArabic
+	 * @param  category
 	 * @return
 	 */
 	Optional<SubCategory> findByNameEnglishIgnoreCaseAndNameArabicIgnoreCaseAndCategory(String nameEnglish, String categoryNameArabic, Category category);
+
+	/**
+	 * @param  activeRecords
+	 * @param  vendor
+	 * @param  pageable
+	 * @return
+	 */
+	Page<SubCategory> findAllByActiveAndCategoryVendor(Boolean activeRecords, Vendor vendor, Pageable pageable);
+
+	/**
+	 * @param  vendor
+	 * @param  pageable
+	 * @return
+	 */
+	Page<SubCategory> findAllByCategoryVendor(Vendor vendor, Pageable pageable);
 
 }

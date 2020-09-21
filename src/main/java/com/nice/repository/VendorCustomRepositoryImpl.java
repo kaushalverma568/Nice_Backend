@@ -158,21 +158,17 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorFilterDTO.getIsFeatured()));
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {
-			Expression<String> fullName;
-			Predicate predicateForStoreName;
-			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-				Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameEnglish")), " ");
-				fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastNameEnglish")));
-				predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameEnglish")),
-						"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
-			} else {
-				Expression<String> concatOfFirstName = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameArabic")), " ");
-				fullName = criteriaBuilder.concat(concatOfFirstName, criteriaBuilder.lower(vendor.get("lastNameArabic")));
-				predicateForStoreName = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameArabic")),
-						"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
-			}
-			predicates.add(
-					criteriaBuilder.or(criteriaBuilder.like(fullName, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"), predicateForStoreName));
+			Expression<String> concatOfFirstNameEnglish = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameEnglish")), " ");
+			Expression<String> fullNameEnglish = criteriaBuilder.concat(concatOfFirstNameEnglish, criteriaBuilder.lower(vendor.get("lastNameEnglish")));
+			Predicate predicateForStoreNameEnglish = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameEnglish")),
+					"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			Expression<String> concatOfFirstNameArabic = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameArabic")), " ");
+			Expression<String> fullNameArabic = criteriaBuilder.concat(concatOfFirstNameArabic, criteriaBuilder.lower(vendor.get("lastNameArabic")));
+			Predicate predicateForStoreNameArabic = criteriaBuilder.like(criteriaBuilder.lower(vendor.get("storeNameArabic")),
+					"%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%");
+			predicates.add(criteriaBuilder.or(criteriaBuilder.like(fullNameEnglish, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"),
+					criteriaBuilder.like(fullNameArabic, "%" + vendorFilterDTO.getSearchKeyword().toLowerCase() + "%"), predicateForStoreNameEnglish,
+					predicateForStoreNameArabic));
 		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getStatus())) {
@@ -334,7 +330,7 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorListFilterDTO.getSearchKeyword())) {
 			sqlQuery.append(
-					" and ( lower(v.store_name_engish) like CONCAT('%', :searchKeyword, '%')  or  lower(v.store_name_arabic) like CONCAT('%', :searchKeyword, '%) )");
+					" and ( lower(v.store_name_english) like CONCAT('%', :searchKeyword, '%')  or  lower(v.store_name_arabic) like CONCAT('%', :searchKeyword, '%') )");
 			paramMap.put("searchKeyword", vendorListFilterDTO.getSearchKeyword().toLowerCase());
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
@@ -357,12 +353,14 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 	@Override
 	public Long getVendorCountForCustomerBasedOnParams(final VendorListFilterDTO vendorListFilterDTO) {
 		Map<String, Object> paramMap = new HashMap<>();
-		StringBuilder sqlQuery = new StringBuilder(" select count(*) FROM vendor v ");
+		StringBuilder sqlQuery = new StringBuilder("select count(*) from ( select count(*) FROM vendor v ");
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
 			sqlQuery.append(" left join vendor_cuisine vc on v.id = vc.vendor_id left join cuisine cuisine on vc.cuisine_id = cuisine.id");
 		}
-		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue() + "' and v.is_order_service_enable = true ");
+		sqlQuery.append(" where v.active = true and v.status = '" + VendorStatus.ACTIVE.getStatusValue()
+				+ "' and v.is_order_service_enable = true and v.profile_completed = true");
 		addConditionsForCustomerApp(vendorListFilterDTO, sqlQuery, paramMap);
+		sqlQuery.append(" group by (v.id)) as abc ");
 		Query q = entityManager.createNativeQuery(sqlQuery.toString());
 		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
 		return ((BigInteger) q.getSingleResult()).longValue();

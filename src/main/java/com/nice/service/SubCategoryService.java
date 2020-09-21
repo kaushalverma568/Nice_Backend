@@ -61,10 +61,12 @@ public interface SubCategoryService {
 	 * @param  pageSize
 	 * @param  allRecords
 	 * @param  categoryId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
-	Page<SubCategory> getSubCategoryList(final Integer pageNumber, final Integer pageSize, Boolean allRecords, Long categoryId) throws NotFoundException;
+	Page<SubCategory> getSubCategoryList(final Integer pageNumber, final Integer pageSize, Boolean allRecords, Long categoryId, Long vendorId)
+			throws NotFoundException;
 
 	/**
 	 * change status of sub category (active/deActive)
