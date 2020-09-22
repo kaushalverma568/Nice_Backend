@@ -119,7 +119,7 @@ public class RatingQuestionController {
 
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "type", required = false) final String type) {
+			@RequestParam(name = "type", required = false) final String type) throws ValidationException {
 		final Page<RatingQuestion> resultRatingQuestion = ratingQuestionService.getList(pageNumber, pageSize, type);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("rating.question.list.message", null))

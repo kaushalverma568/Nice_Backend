@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.DeliveryType;
 import com.nice.dto.RatingQuestionDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -72,11 +73,16 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 	}
 
 	@Override
-	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String type) {
+	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String type) throws ValidationException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (type != null) {
-			return ratingQuestionRepository.findAllByType(type, pageable);
-
+            if ( DeliveryType.PICKUP.getStatusValue().equals(type) ) {
+				return ratingQuestionRepository.findAllByType("Vendor", pageable);	
+            } else if (DeliveryType.DELIVERY.getStatusValue().equals(type) || DeliveryType.BOTH.getStatusValue().equals(type)) {
+            	return ratingQuestionRepository.findAll(pageable);
+            } else {
+            	throw new ValidationException(messageByLocaleService.getMessage("delivery.type.not.valid", null));
+            }
 		} else {
 			return ratingQuestionRepository.findAll(pageable);
 		}

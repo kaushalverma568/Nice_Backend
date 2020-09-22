@@ -49,8 +49,9 @@ public interface RatingQuestionService {
 	 * @param  activeRecords
 	 * @param  searchKeyWord
 	 * @return
+	 * @throws ValidationException 
 	 */
-	Page<RatingQuestion> getList(Integer pageNumber, Integer pageSize, String type);
+	Page<RatingQuestion> getList(Integer pageNumber, Integer pageSize, String type) throws ValidationException;
 
 	/**
 	 * @param  ratingQuestionId

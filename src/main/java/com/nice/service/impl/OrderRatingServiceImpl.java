@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,7 +157,7 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 
 	@Override
 	public Page<OrderRating> getList(final Integer pageNumber, final Integer pageSize, final Boolean activeRecords,String searchKeyWord) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC,"id"));
 		if (activeRecords != null) {
 			if (searchKeyWord != null) {
 				return orderRatingRepository.findAllByActiveAndReviewContainingIgnoreCase(activeRecords, searchKeyWord, pageable);
@@ -190,13 +191,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	
 	@Override
 	public List<OrderRating> getOrderRatingByDeliveryBoyId (final Integer pageNumber, final Integer pageSize, final Long deliveryBoyId){
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC,"id"));
 		return  orderRatingRepository.findByDeliveryBoyId(deliveryBoyId,pageable);
 	}
 
 	@Override
 	public List<OrderRating> getOrderRatingByVendorId (final Integer pageNumber, final Integer pageSize, final Long vendorId){
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC,"id"));
 		return  orderRatingRepository.findByVendorId(vendorId,pageable);
 	}
 	
