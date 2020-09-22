@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -1234,26 +1235,39 @@ public class OrdersServiceImpl implements OrdersService {
 		 * order. </br>
 		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
 		 */
-		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
-			if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
-				order.setOrderStatus(newStatus);
-				ordersRepository.save(order);
-				saveOrderStatusHistory(order);
-				/**
-				 * Create task for the order
-				 */
-				TaskDto taskDto = new TaskDto();
-				taskDto.setOrderId(order.getId());
-				taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
-				taskService.createTask(taskDto);
-				newStatus = OrderStatusEnum.IN_PROCESS.getStatusValue();
-			} /*
-				 * else if (OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equals(newStatus)) { order.setOrderStatus(newStatus);
-				 * ordersRepository.save(order); saveOrderStatusHistory(order); newStatus = OrderStatusEnum.DELIVERED.getStatusValue();
-				 * }
-				 */
-
+		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType()) && OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
+			order.setOrderStatus(newStatus);
+			ordersRepository.save(order);
+			saveOrderStatusHistory(order);
+			/**
+			 * Create task for the order
+			 */
+			TaskDto taskDto = new TaskDto();
+			taskDto.setOrderId(order.getId());
+			taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+			taskService.createTask(taskDto);
+			newStatus = OrderStatusEnum.IN_PROCESS.getStatusValue();
 		}
+
+		/**
+		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
+		 * from Order_Prepared Status to Stock_Allocated status
+		 */
+		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
+			/**
+			 * If order is ready move it to the stock allocation status directly for orders not requiring any stock allocation for
+			 * order.
+			 */
+			order.setOrderStatus(newStatus);
+			ordersRepository.save(order);
+			saveOrderStatusHistory(order);
+
+			/**
+			 * Set new status to stock allocation
+			 */
+			newStatus = OrderStatusEnum.STOCK_ALLOCATED.getStatusValue();
+		}
+
 		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(newStatus)) {
 			order.setDeliveryDate(new Date());
 			if (PaymentMode.COD.name().equals(order.getPaymentMode())) {
@@ -1627,14 +1641,53 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Override
 	public List<String> getNextStatus(final Long orderId) throws NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		Orders order = getOrderById(orderId);
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
 		BasicStatus<OrderStatusEnum>[] nextOrderStatus = existingOrderStatus.nextStatus();
+
 		List<String> nextStatus = new ArrayList<>();
-		for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
-			nextStatus.add(status.getStatusValue());
+		/**
+		 * If the user is vendor
+		 */
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+
+			// TODO : add replace and return status here.
+			/**
+			 * Vendor cannot move the order in In-Process, Delivered, Cancelled,
+			 */
+			List<String> statusListInWhichVendorCannotMoveOrder = Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
+					OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue());
+			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
+				nextStatus.add(status.getStatusValue());
+			}
+			nextStatus.removeAll(statusListInWhichVendorCannotMoveOrder);
+			return nextStatus;
 		}
-		return nextStatus;
+		/**
+		 * if user is customer
+		 */
+		else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			/**
+			 * If required then add code here for customer. Currently its not required as it should be handled from front end.
+			 */
+			return nextStatus;
+		}
+		/**
+		 * if user is Admin, then he can only cancel order, if the order is not in the below mentioned status. If the order is
+		 * in below mentioned status he cannot do the cancellation as well.
+		 */
+		else {
+
+			if (!Arrays
+					.asList(OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue(),
+							OrderStatusEnum.REPLACED.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue())
+					.contains(existingOrderStatus.getStatusValue())) {
+				nextStatus.add(OrderStatusEnum.CANCELLED.getStatusValue());
+			}
+			return nextStatus;
+		}
+
 	}
 
 	@Override
