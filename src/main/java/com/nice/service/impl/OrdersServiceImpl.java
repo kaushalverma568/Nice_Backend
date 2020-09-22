@@ -303,6 +303,15 @@ public class OrdersServiceImpl implements OrdersService {
 
 		Long customerId = getCustomerIdForLoginUser();
 		orderRequestDto.setCustomerId(customerId);
+
+		/**
+		 * Check if the customer has any ongoing orders
+		 */
+		Long count = ongoingOrderCount(customerId);
+		if (count > 0) {
+			throw new ValidationException(messageByLocaleService.getMessage("ongoing.order.present", null));
+		}
+
 		CustomerAddress customerAddress = customerAddressService.getAddressDetails(orderRequestDto.getShippingAddressId());
 		City city = customerAddress.getCity();
 		Customer customer = customerService.getCustomerDetails(customerId);
@@ -540,6 +549,16 @@ public class OrdersServiceImpl implements OrdersService {
 			LOGGER.info("outside hesabe gateway for generate url");
 			return url;
 		}
+	}
+
+	/**
+	 * This method is used to check if the customer has any ongoing orders
+	 *
+	 * @param customerId
+	 * @return
+	 */
+	private Long ongoingOrderCount(final Long customerId) {
+		return ordersRepository.getCountofOngoingOrdersForCustomer(customerId, Constant.getCompletedOrderStatusList());
 	}
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
@@ -1017,7 +1036,6 @@ public class OrdersServiceImpl implements OrdersService {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
-
 		/**
 		 * If status is stock allocted then for display purpose we will display as waiting for pickup
 		 */
@@ -1029,13 +1047,17 @@ public class OrdersServiceImpl implements OrdersService {
 		 * set city field for email
 		 */
 		if (locale.getLanguage().equals("en")) {
+			Vendor vendor = orders.getVendor();
 			orderResponseDto.setCity(orders.getCity().getNameEnglish());
-			orderResponseDto.setVendorName(orders.getVendor().getStoreNameEnglish());
+			orderResponseDto.setVendorName(vendor.getStoreNameEnglish());
 			orderResponseDto.setAddress(orders.getAddressEnglish());
+			orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 		} else {
+			Vendor vendor = orders.getVendor();
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
-			orderResponseDto.setVendorName(orders.getVendor().getStoreNameArabic());
+			orderResponseDto.setVendorName(vendor.getStoreNameArabic());
 			orderResponseDto.setAddress(orders.getAddressArabic());
+			orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 		}
 		/**
 		 * Set reason for the order if any
@@ -1353,7 +1375,6 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusRepository.findAllByOrderId(orderId));
 		ordersResponseDTO.setOrderStatusDtoList(orderStatusDtoList);
-		ordersResponseDTO.setOrderDate(order.getCreatedAt());
 		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(ordersResponseDTO.getOrderStatus())) {
 			for (OrderStatusDto orderStatusDto : orderStatusDtoList) {
 				if (OrderStatusEnum.CANCELLED.getStatusValue().equals(orderStatusDto.getStatus())) {
@@ -1700,5 +1721,12 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 
+	}
+
+	@Override
+	public OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException {
+		Long customerId = getCustomerIdForLoginUser();
+		Long orderId = ordersRepository.getOrderIdOfOngoingOrdersForCustomer(customerId, Constant.getCompletedOrderStatusList());
+		return getOrderDetails(orderId);
 	}
 }

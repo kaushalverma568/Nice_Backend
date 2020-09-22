@@ -248,6 +248,13 @@ public interface OrdersService {
 	Double addDeliveryCharge(boolean applyDeliveryCharge, Double orderAmt);
 
 	/**
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 *
+	 */
+	OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException;
+
+	/**
 	 * get all information for app payment
 	 *
 	 * @param razorPayOrderId

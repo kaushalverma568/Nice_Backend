@@ -87,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
 			orderRequestDTO.setPaymentMode(PaymentMode.ONLINE.name());
 			orderRequestDTO.setDescription(onlineCart.getDescription());
 			orderRequestDTO.setWalletContribution(onlineCart.getWalletContirbution());
-			calculatedOrderAmt += onlineCart.getPaymentAmount();
+			calculatedOrderAmt = onlineCart.getPaymentAmount();
 		}
 		orderRequestDTO.setOnlineOrderId(hesabePaymentDTO.getVariable1());
 		orderRequestDTO.setPaymentToken(hesabePaymentDTO.getPaymentToken());

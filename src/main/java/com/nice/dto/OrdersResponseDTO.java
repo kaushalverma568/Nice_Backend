@@ -26,8 +26,7 @@ public class OrdersResponseDTO implements Serializable {
 	private String phoneNumber;
 	private Double totalOrderAmount;
 	/**
-	 * This field contains the amount of order after discount, not including
-	 * delivery charge
+	 * This field contains the amount of order after discount, not including delivery charge
 	 */
 	private Double grossOrderAmount;
 	private String paymentMode;
@@ -47,7 +46,6 @@ public class OrdersResponseDTO implements Serializable {
 	private String rejectReason;
 	private String returnReason;
 	private String replaceReason;
-	private Date orderDate;
 	private List<OrderItemResponseDTO> orderItemResponseDtoList;
 	private Long count;
 	private String description;
@@ -73,15 +71,13 @@ public class OrdersResponseDTO implements Serializable {
 	 */
 	private String city;
 	/**
-	 * pincode field is added for set pincode in email and push notification
-	 * templates
+	 * pincode field is added for set pincode in email and push notification templates
 	 */
 	private String pincode;
 
 	/**
-	 * This field will contain the count of items in the order for list display,
-	 * this will include all the main product variants, excluding extras, addons,
-	 * product attributes, toppings
+	 * This field will contain the count of items in the order for list display, this will include all the main product
+	 * variants, excluding extras, addons, product attributes, toppings
 	 */
 	private Long itemCount;
 
@@ -105,9 +101,15 @@ public class OrdersResponseDTO implements Serializable {
 	String paymentToken;
 	Double administrativeCharge;
 
-
 	/**
 	 *
 	 */
 	private Date paymentDate;
+
+	/**
+	 * true if the vendor is configure for replace order, if false that means the vendor has configuration related to
+	 * return.
+	 */
+	private Boolean replace;
+
 }

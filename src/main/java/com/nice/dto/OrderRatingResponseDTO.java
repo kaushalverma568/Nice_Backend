@@ -1,12 +1,13 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Data
 public class OrderRatingResponseDTO implements Serializable {
@@ -48,6 +49,8 @@ public class OrderRatingResponseDTO implements Serializable {
 	private Double avgOrderRating;
 
 	private String review;
-	
+
 	private String customerName;
+
+	private Date orderDate;
 }

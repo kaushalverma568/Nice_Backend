@@ -53,6 +53,7 @@ public class OrderRatingMapper {
 		}
 
 		Orders order = ordersService.getOrderById(orderRating.getOrderId());
+		orderRatingResponseDTO.setOrderDate(order.getCreatedAt());
 		orderRatingResponseDTO.setCustomerName(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
 		if (locale.getLanguage().equals("en")) {
 			orderRatingResponseDTO.setVendorName(vendor.getStoreNameEnglish());

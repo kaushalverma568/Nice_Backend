@@ -3,6 +3,9 @@
  */
 package com.nice.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date : 17-Jun-2020
@@ -143,5 +146,25 @@ public final class Constant {
 	public static final int SUB_CATEGORY_IMAGE_HEIGHT = 70;
 	public static final int SLIDER_IMAGE_WIDTH = 335;
 	public static final int SLIDER_IMAGE_HEIGHT = 170;
+	public static final String RETURN = "Return";
+
+	/**
+	 * Status for vendor return/replace
+	 */
+
+	/**
+	 * This are order status for which the order would be considered as delivered
+	 */
+	private static List<String> completedOrderStatusList = Arrays.asList(OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(),
+			OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue(),
+			OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
+			OrderStatusEnum.RETURN_PROCESSED.getStatusValue(), OrderStatusEnum.RETURN_REQUESTED.getStatusValue());
+
+	/**
+	 * @return the completedOrderStatusList
+	 */
+	public static List<String> getCompletedOrderStatusList() {
+		return completedOrderStatusList;
+	}
 
 }

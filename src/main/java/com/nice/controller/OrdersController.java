@@ -81,7 +81,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/placeOrder")
-	// @PreAuthorize("hasPermission('Orders','CAN_ADD')")
+	@PreAuthorize("hasPermission('Orders','CAN_ADD')")
 	public ResponseEntity<Object> placeOrder(@RequestHeader("Authorization") final String token, @Valid @RequestBody final OrderRequestDTO orderRequestDto,
 			final BindingResult bindingResult) throws ValidationException, NotFoundException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -405,5 +405,21 @@ public class OrdersController {
 
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.delivered.successful", null))
 				.create();
+	}
+
+	/**
+	 * Gives the details of current ongoing orders for a customer.
+	 *
+	 * @param token
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@GetMapping("/ongoing")
+	public ResponseEntity<Object> checkForOngoingOrder(@RequestHeader("Authorization") final String token) throws ValidationException, NotFoundException {
+		OrdersResponseDTO ordersResponseDto = orderService.getOngoingOrderForCustomer();
+		return new GenericResponseHandlers.Builder().setData(ordersResponseDto).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("ongoing.order.display", null)).create();
+
 	}
 }
