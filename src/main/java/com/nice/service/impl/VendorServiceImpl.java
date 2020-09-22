@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -475,6 +477,8 @@ public class VendorServiceImpl implements VendorService {
 		notification.setSendingType(SendingType.LINK.name());
 		notification.setUserType(UserType.VENDOR.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
+		Locale locale = LocaleContextHolder.getLocale();
+		notification.setLanguage(locale.getLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
