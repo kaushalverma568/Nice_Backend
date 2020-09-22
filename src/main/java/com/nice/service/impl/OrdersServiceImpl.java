@@ -1658,6 +1658,14 @@ public class OrdersServiceImpl implements OrdersService {
 			 */
 			List<String> statusListInWhichVendorCannotMoveOrder = Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
 					OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue());
+			/**
+			 * If the order delivery type is not pick-up then the order cannot be moved into order_pickup status by vendor, that
+			 * will be done by delivery boy when he picks up the order from the restaurant.
+			 */
+			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
+				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
+			}
+
 			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
 				nextStatus.add(status.getStatusValue());
 			}
