@@ -8,6 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.nice.dto.TaskDto;
+import com.nice.dto.TaskFilterDTO;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -18,7 +19,7 @@ public class TaskValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return TaskDto.class.equals(clazz);
+		return TaskDto.class.equals(clazz) || TaskFilterDTO.class.equals(clazz);
 	}
 
 	@Override

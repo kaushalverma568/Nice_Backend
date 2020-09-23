@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -89,6 +90,7 @@ public class PaymentDetailsController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_ADD')")
 	public ResponseEntity<Object> addPaymentDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final PaymentDetailsDTO paymentDetailsDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add PaymentDetails {}", paymentDetailsDTO);
@@ -130,6 +132,7 @@ public class PaymentDetailsController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/deliveryboy/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_VIEW')")
 	public ResponseEntity<Object> getDeliveryBoyPayout(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "searchId", required = false) final Long searchId,
 			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,

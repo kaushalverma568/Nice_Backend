@@ -473,6 +473,11 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
+	public List<Task> getTaskListForPayout(final TaskFilterDTO taskFilterDTO, final Integer startIndex, final Integer pageSize) {
+		return taskRepository.getTaskListBasedOnParams(taskFilterDTO, startIndex, pageSize);
+	}
+
+	@Override
 	public Task getTaskDetail(final Long taskId) throws NotFoundException {
 		return taskRepository.findById(taskId)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage(TASK_NOT_FOUND, new Object[] { taskId })));

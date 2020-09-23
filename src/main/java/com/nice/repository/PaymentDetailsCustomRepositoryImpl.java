@@ -43,7 +43,7 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 			paramMap.put("deliveryBoyId", deliveryBoyId);
 		}
 		if (registeredOn != null) {
-			sqlQuery.append(" and d.created_at = :registeredOn ");
+			sqlQuery.append(" and d.created_at::date = :registeredOn ");
 			paramMap.put("registeredOn", registeredOn);
 		}
 

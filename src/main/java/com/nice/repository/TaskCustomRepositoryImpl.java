@@ -3,8 +3,8 @@
  */
 package com.nice.repository;
 
+import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityGraph;
@@ -32,7 +32,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 13-Apr-2020
+ * @date   : 13-Apr-2020
  */
 @Repository
 public class TaskCustomRepositoryImpl implements TaskCustomRepository {
@@ -104,6 +104,36 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 			Join<Task, DeliveryBoy> deliveryBoy = task.join(DELIVERY_BOY, JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(deliveryBoy.get("id"), parameterObject.getDeliveryBoyId()));
 		}
+		if (parameterObject.getVendorId() != null) {
+			Join<Task, Vendor> vendor = task.join(DELIVERY_BOY, JoinType.INNER);
+			predicates.add(criteriaBuilder.equal(vendor.get("id"), parameterObject.getVendorId()));
+		}
+		if (parameterObject.getDeliveryBoyPaymentPending() != null) {
+			if (parameterObject.getDeliveryBoyPaymentPending().booleanValue()) {
+				predicates.add(criteriaBuilder.and(task.get("deliveryBoyPaymentDetails").isNull()));
+			} else {
+				predicates.add(criteriaBuilder.and(task.get("deliveryBoyPaymentDetails").isNotNull()));
+			}
+		}
+		if (parameterObject.getVendorPaymentPending() != null) {
+			if (parameterObject.getVendorPaymentPending().booleanValue()) {
+				predicates.add(criteriaBuilder.and(task.get("vendorPaymentDetails").isNull()));
+			} else {
+				predicates.add(criteriaBuilder.and(task.get("vendorPaymentDetails").isNotNull()));
+			}
+		}
+		if (parameterObject.getOrderDateFrom() != null) {
+			if (parameterObject.getOrderDateTo() != null) {
+				predicates.add(
+						criteriaBuilder.between(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateFrom(), parameterObject.getOrderDateTo()));
+			} else {
+				predicates.add(criteriaBuilder.greaterThanOrEqualTo(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateFrom()));
+			}
+		} else {
+			if (parameterObject.getOrderDateTo() != null) {
+				predicates.add(criteriaBuilder.lessThanOrEqualTo(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateTo()));
+			}
+		}
 
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(parameterObject.getSearchKeyWord())) {
 			Predicate predicateForFirstname = criteriaBuilder.like(criteriaBuilder.lower(orders.get("firstName")),
@@ -142,8 +172,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -203,8 +233,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -255,7 +285,7 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 				predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), deliveryLogFilterDTO.getFromDate()));
 			}
 		} else {
-			deliveryLogFilterDTO.setFromDate(new Date());
+			deliveryLogFilterDTO.setFromDate(new java.util.Date());
 			predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), deliveryLogFilterDTO.getFromDate()));
 		}
 	}
