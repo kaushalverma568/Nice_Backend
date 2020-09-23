@@ -226,7 +226,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		}
 		productVariantResponseDTO.setUomId(productVariant.getUom().getId());
 
-		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(productVariant.getProduct().getId());
+		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(productVariant.getProduct().getBusinessCategoryId());
 
 		if (!businessCategory.getNameEnglish().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_FOOD_DELIVERY)) {
 			productVariantResponseDTO.setAvailableQty(stockDetailsService.getCountForVariant(productVariant).intValue());

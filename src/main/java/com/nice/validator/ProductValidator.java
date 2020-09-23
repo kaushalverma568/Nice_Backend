@@ -37,12 +37,6 @@ public class ProductValidator implements Validator {
 	public void validate(final Object target, final Errors errors) {
 		if (target instanceof ProductRequestDTO) {
 			ProductRequestDTO productRequestDto = (ProductRequestDTO) target;
-			/**
-			 * Check if brandId or cuisineId already exists
-			 */
-			if (productRequestDto.getCuisineId() == null && productRequestDto.getBrandId() == null) {
-				errors.rejectValue("brandId", "409", messageByLocaleService.getMessage("brand.cuisine.required", null));
-			}
 
 			/**
 			 * Check for the already existing product

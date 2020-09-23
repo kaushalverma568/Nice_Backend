@@ -83,7 +83,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -386,7 +386,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param  productRequestDTO
+	 * @param productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -415,12 +415,15 @@ public class ProductServiceImpl implements ProductService {
 		 */
 		categoryService.getCategoryDetail(productRequestDTO.getCategoryId());
 		subCategoryService.getSubCategoryDetail(productRequestDTO.getSubcategoryId());
-		if (productRequestDTO.getBrandId() != null) {
-			brandService.getBrandDetail(productRequestDTO.getBrandId());
-		} else {
-			cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
-			vendorCuisineService.getVendorCuisineByVendorIdAndCuisineId(productRequestDTO.getVendorId(), productRequestDTO.getCuisineId());
+		if (Constant.BUSINESS_CATEGORY_FOOD_ENGLISH.equals(vendor.getBusinessCategory().getNameEnglish())) {
+			if (productRequestDTO.getCuisineId() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("cuisine.required", null));
+			} else {
+				cuisineService.getCuisineDetails(productRequestDTO.getCuisineId());
+				vendorCuisineService.getVendorCuisineByVendorIdAndCuisineId(productRequestDTO.getVendorId(), productRequestDTO.getCuisineId());
+			}
 		}
+
 		LOGGER.info("After validationForProduct for ProductRequestDto : {}", productRequestDTO);
 	}
 
@@ -495,12 +498,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert entity to response dto
+	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
+	 * entity to response dto
 	 *
-	 * @param  product
-	 * @param  listForAdmin
-	 * @param  productParamRequestDTO
-	 * @param  pincodeId
+	 * @param product
+	 * @param listForAdmin
+	 * @param productParamRequestDTO
+	 * @param pincodeId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -601,8 +605,8 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setProductAvailable(makeProductVisible);
 
 		/**
-		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is true then product should be made
-		 * visible else that product should be shown as out of stock
+		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is
+		 * true then product should be made visible else that product should be shown as out of stock
 		 */
 		if (!businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_FOOD_DELIVERY)) {
 			productResponseDTO.setProductOutOfStock(availableQty > 0);
@@ -643,9 +647,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  active
-	 * @param  existingProduct
-	 * @param  productId
+	 * @param active
+	 * @param existingProduct
+	 * @param productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -675,7 +679,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param  existingProduct
+	 * @param existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -705,8 +709,8 @@ public class ProductServiceImpl implements ProductService {
 
 		UserLogin userLogin = getUserLoginFromToken();
 		/**
-		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is null or the userLogin->entityType
-		 * is customer then we will give records specific to customer
+		 * In case of customer the userLogin might be anonymous user, resulting in no user login and hence if the userLogin is
+		 * null or the userLogin->entityType is customer then we will give records specific to customer
 		 */
 		Boolean listForAdmin = true;
 		if (userLogin != null && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
@@ -722,8 +726,8 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * upload image of product
 	 *
-	 * @param  image
-	 * @param  product
+	 * @param image
+	 * @param product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -843,8 +847,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTOs
-	 * @param  userId
+	 * @param productImportDTOs
+	 * @param userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -897,12 +901,12 @@ public class ProductServiceImpl implements ProductService {
 				|| EGG.equalsIgnoreCase(productImportDTO.getProductFoodType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage("food.type.not.proper", new Object[] { messageByLocaleService.getMessage(VEG, null),
 					messageByLocaleService.getMessage(NON_VEG, null), messageByLocaleService.getMessage(EGG, null) }));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameEnglish())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameEnglish())) {
-			throw new ValidationException(messageByLocaleService.getMessage("brand.or.cuisine.english.required", null));
-		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameArabic())
-				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getBrandNameArabic())) {
-			throw new ValidationException(messageByLocaleService.getMessage("brand.or.cuisine.arabic.required", null));
+		} else if (Constant.BUSINESS_CATEGORY_FOOD_ENGLISH.equals(vendor.getBusinessCategory().getNameEnglish())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameEnglish())) {
+			throw new ValidationException(messageByLocaleService.getMessage("cuisine.english.required", null));
+		} else if (Constant.BUSINESS_CATEGORY_FOOD_ENGLISH.equals(vendor.getBusinessCategory().getNameEnglish())
+				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(productImportDTO.getCuisineNameArabic())) {
+			throw new ValidationException(messageByLocaleService.getMessage("cuisine.arabic.required", null));
 		}
 		if (VEG.equalsIgnoreCase(productImportDTO.getProductFoodType())) {
 			productRequestDTO.setProductFoodType(1);
@@ -916,10 +920,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param  productImportDTO
-	 * @param  brandId
-	 * @param  vendor
-	 * @param  productRequestDTO
+	 * @param productImportDTO
+	 * @param brandId
+	 * @param vendor
+	 * @param productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, final Long brandId, final Vendor vendor,
