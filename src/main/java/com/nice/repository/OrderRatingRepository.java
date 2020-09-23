@@ -49,14 +49,14 @@ public interface OrderRatingRepository extends JpaRepository<OrderRating, Long> 
 	 * @param pageable 
 	 * @return
 	 */
-	List<OrderRating> findByDeliveryBoyId(Long deliveryBoyId, Pageable pageable);
+	Page<OrderRating> findByDeliveryBoyId(Long deliveryBoyId, Pageable pageable);
 
 	/**
 	 * 
 	 * @param vendorId
 	 * @return
 	 */
-	List<OrderRating> findByVendorId(Long vendorId, Pageable pageable);
+	Page<OrderRating> findByVendorId(Long vendorId, Pageable pageable);
 
 	/**
 	 * 
