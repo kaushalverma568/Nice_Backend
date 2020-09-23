@@ -7,15 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	/**
 	 * For Regular Delivery
 	 */
-	ORDER_ACCEPTED("Order Accepted"), PICK_UP_ON_WAY("Pick Up On Way"), REACHED_VENDOR("Reached Vendor"), ON_THE_WAY("Delivery On The Way"),
+	ORDER_ACCEPTED("Order Accepted"), PICK_UP_ON_WAY("Pick Up On Way"), REACHED_VENDOR("Reached At Vendor"), ON_THE_WAY("Order On The Way"),
 	DELIVERED("Delivered"), CANCELLED("Cancelled");
 
 	private String statusValue;

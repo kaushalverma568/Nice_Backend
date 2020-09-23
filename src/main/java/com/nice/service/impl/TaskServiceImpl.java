@@ -29,7 +29,6 @@ import com.nice.constant.SettingsConstant;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserType;
-import com.nice.dto.CashCollectionDTO;
 import com.nice.dto.DeliveryBoyOrderCountDto;
 import com.nice.dto.DeliveryLogDTO;
 import com.nice.dto.DeliveryLogFilterDTO;
@@ -67,7 +66,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -156,10 +155,9 @@ public class TaskServiceImpl implements TaskService {
 		// TODO
 		/**
 		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
-		 * value for return order as well in orders table , keeping that in mind the below lines have been coded
-		 *
-		 * For replacement orders, there would only be delivery charge and that would be handled in change status method below,
-		 * the vendor payable amount and admin comission would be zero
+		 * value for return order as well in orders table , keeping that in mind the below lines have been coded For replacement
+		 * orders, there would only be delivery charge and that would be handled in change status method below, the vendor
+		 * payable amount and admin comission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
@@ -264,16 +262,11 @@ public class TaskServiceImpl implements TaskService {
 			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
 
 			/**
-			 * If its a COD task then make an entry in cash collection for the delivery person
+			 * If its a COD task then check cash collected or not
 			 */
-			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())) {
-				CashCollectionDTO cashCollection = new CashCollectionDTO();
-				cashCollection.setAmount(task.getOrder().getTotalOrderAmount());
-				cashCollection.setDeliveryboyId(task.getOrder().getDeliveryBoy().getId());
-				cashCollection.setOrderId(task.getOrder().getId());
-				cashCollection.setTaskId(task.getId());
-				cashCollection.setActive(true);
-				cashCollectionService.addCashCollection(cashCollection);
+			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())
+					&& !cashCollectionService.getCashCollectionDetailForTask(task.getId()).isPresent()) {
+				throw new ValidationException(messageByLocaleService.getMessage("cash.collection.not.found.order", new Object[] { task.getOrder().getId() }));
 			}
 		} else if (taskStatus.equals(TaskStatusEnum.ON_THE_WAY.getStatusValue())) {
 			task.setStatus(TaskStatusEnum.ON_THE_WAY.getStatusValue());
@@ -411,7 +404,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */

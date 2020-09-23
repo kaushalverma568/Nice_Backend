@@ -32,7 +32,7 @@ import com.nice.util.PaginationUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 
 @RequestMapping(path = "/cashCollection")
@@ -55,7 +55,7 @@ public class CashCollectionController {
 
 	@PostMapping
 	public ResponseEntity<Object> addCashCollection(@RequestHeader("Authorization") final String accessToken,
-			@RequestBody @Valid final CashCollectionDTO cashCollectionDTO) throws ValidationException, NotFoundException {
+			@RequestBody @Valid final CashCollectionDTO cashCollectionDTO) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside add CashCollection {}", cashCollectionDTO);
 		CashCollectionDTO resultCashCollection = cashCollectionService.addCashCollection(cashCollectionDTO);
 		LOGGER.info("Outside add CashCollection {}", resultCashCollection);
@@ -63,10 +63,9 @@ public class CashCollectionController {
 				.setMessage(messageByLocaleService.getMessage("cash.collection.create.message", null)).setData(resultCashCollection).create();
 	}
 
-
 	@GetMapping(value = "/{cashCollectionId}")
-	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken, @PathVariable("cashCollectionId") final Long cashCollectionId)
-			throws NotFoundException {
+	public ResponseEntity<Object> getById(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("cashCollectionId") final Long cashCollectionId) throws NotFoundException {
 		CashCollectionDTO resultCashCollection = cashCollectionService.getCashCollection(cashCollectionId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cash.collection.detail.message", null)).setData(resultCashCollection).create();
@@ -75,17 +74,17 @@ public class CashCollectionController {
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getList(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
-			@RequestParam(name = "paidDate", required = false) final Date createdAt ) throws  ValidationException {
-		
+			@RequestParam(name = "paidDate", required = false) final Date createdAt) throws ValidationException {
+
 		Long totalCount = cashCollectionService.getCountBasedOnParams(deliveryBoyId, createdAt);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
-		final List<CashCollection> collectionList = cashCollectionService.getListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, deliveryBoyId, createdAt);
+		final List<CashCollection> collectionList = cashCollectionService.getListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, deliveryBoyId,
+				createdAt);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("cash.collection.list.message", null)).setData(cashCollectionMapper.toDtos(collectionList))
 				.setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.create();
 	}
-
 
 }

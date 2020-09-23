@@ -11,7 +11,6 @@ import java.util.List;
 import lombok.Data;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
  * @date   : Sep 4, 2020
  */
@@ -84,5 +83,7 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 	private String dropContactNo;
 
 	private Double distance;
+
+	private Boolean cashCollected;
 
 }

@@ -29,7 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.dto.UOMDTO;
+import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
+import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.UOMMapper;
 import com.nice.model.UOM;
@@ -39,7 +42,7 @@ import com.nice.validator.UOMValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @RequestMapping(path = "/uom")
 @RestController
@@ -76,9 +79,9 @@ public class UOMController {
 	/**
 	 * Add UOM
 	 *
-	 * @param uomDTO
-	 * @param result
-	 * @param userId
+	 * @param  uomDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -102,8 +105,8 @@ public class UOMController {
 	/**
 	 * update UOM
 	 *
-	 * @param uomDTO
-	 * @param result
+	 * @param  uomDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -127,8 +130,8 @@ public class UOMController {
 	/**
 	 * Get UOM Details based on id
 	 *
-	 * @param uomId
-	 * @param userId
+	 * @param  uomId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -144,10 +147,10 @@ public class UOMController {
 	/**
 	 * Get UOM list
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param userId
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -165,8 +168,8 @@ public class UOMController {
 	/**
 	 * Change status of UOM (active/deActive)
 	 *
-	 * @param uomId
-	 * @param active
+	 * @param  uomId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -190,9 +193,9 @@ public class UOMController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param file
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  file
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws ValidationException
 	 * @throws FileOperationException

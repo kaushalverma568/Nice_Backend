@@ -1,6 +1,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -24,7 +25,14 @@ public class PaymentDetailsResponseDTO implements Serializable {
 
 	private String deliveryBoyName;
 
+	private Long vendorId;
+
+	private String vendorName;
+
 	private Double paymentAmount;
 
 	private String transactionNo;
+
+	private Date paidOn;
+
 }
