@@ -570,6 +570,7 @@ public class ProductServiceImpl implements ProductService {
 			 * If the list is not for admin then display only active records
 			 */
 			productVariantList = productVariantService.getProductVariantDetailByProduct(product, true, listForAdmin);
+			productResponseDTO.setProductAvailable(false);
 		}
 		LOGGER.info("Before setting available qty");
 
@@ -577,11 +578,10 @@ public class ProductServiceImpl implements ProductService {
 		/**
 		 * This variable will be used only to decide if the product will be visible on front end.
 		 */
-		boolean makeProductVisible = false;
 
 		for (ProductVariantResponseDTO productVariantResponseDTO : productVariantList) {
 			availableQty += productVariantResponseDTO.getAvailableQty() != null ? productVariantResponseDTO.getAvailableQty() : 0;
-			makeProductVisible = true;
+			productResponseDTO.setProductAvailable(true);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_MAP.test(cartMap)) {
 				List<? extends Object> obj = cartMap.get(productVariantResponseDTO.getId());
 				if (obj != null && !obj.isEmpty()) {
@@ -602,14 +602,13 @@ public class ProductServiceImpl implements ProductService {
 			}
 		}
 
-		productResponseDTO.setProductAvailable(makeProductVisible);
-
+		productResponseDTO.setProductOutOfStock(false);
 		/**
 		 * Here flag is set to determine whether to make product visible to customer or not, if the setProductAvailable flag is
 		 * true then product should be made visible else that product should be shown as out of stock
 		 */
 		if (!businessCategoryDto.getName().equalsIgnoreCase(Constant.BUSINESS_CATEGORY_FOOD_DELIVERY)) {
-			productResponseDTO.setProductOutOfStock(availableQty > 0);
+			productResponseDTO.setProductOutOfStock(availableQty <= 0);
 		}
 
 		productResponseDTO.setProductVariantList(CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productVariantList) ? productVariantList : Collections.emptyList());
