@@ -592,6 +592,13 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.delivery.type", null));
 			}
 			/**
+			 * validation for payment type and delivery type
+			 */
+			if (PaymentMethod.COD.getStatusValue().equals(vendorRestaurantDetailsDTO.getPaymentMethod())
+					&& DeliveryType.PICKUP.getStatusValue().equals(vendorRestaurantDetailsDTO.getDeliveryType())) {
+				throw new ValidationException(messageByLocaleService.getMessage("cod.pickup.both.not.allowed", null));
+			}
+			/**
 			 * if order service is enable by vendor then check he has active subscription
 			 * plan or not
 			 */
@@ -1037,5 +1044,27 @@ public class VendorServiceImpl implements VendorService {
 			return null;
 		}
 		return ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+	}
+
+	@Override
+	public VendorResponseDTO getVendorDetailForApp(final Long vendorId, final VendorListFilterDTO vendorListFilterDTO)
+			throws ValidationException, NotFoundException {
+		Vendor vendor = getVendorDetail(vendorId);
+		/**
+		 * if customer address is not there then lat long should be there for
+		 * calculating distance.
+		 */
+		if (vendorListFilterDTO.getCustomerAddressId() == null) {
+			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
+				throw new ValidationException(messageByLocaleService.getMessage("location.address.required", null));
+			}
+		} else {
+			CustomerAddress customerAddress = customerAddressService.getAddressDetails(vendorListFilterDTO.getCustomerAddressId());
+			vendorListFilterDTO.setLatitude(customerAddress.getLatitude());
+			vendorListFilterDTO.setLongitude(customerAddress.getLongitude());
+		}
+		vendor.setDistance(
+				vendorRepository.getVendorDistanceForCustomerBasedOnParams(vendorId, vendorListFilterDTO.getLatitude(), vendorListFilterDTO.getLongitude()));
+		return vendorMapper.toDto(vendor, true);
 	}
 }
