@@ -43,6 +43,7 @@ import com.nice.constant.TicketReasonType;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorAccepts;
 import com.nice.constant.VendorStatus;
+import com.nice.constant.WalletTransactionTypeEnum;
 import com.nice.dto.BusinessCategoryDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.dto.OrderListFilterDto;
@@ -855,7 +856,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Make an entry in wallet txn table
 		 */
 		if (orderRequestDto.getWalletContribution() != 0) {
-			addWalletTxn(orderRequestDto.getWalletContribution() * (-1), orderRequestDto.getCustomerId(), order.getId(), null);
+			addWalletTxn(orderRequestDto.getWalletContribution() * (-1), orderRequestDto.getCustomerId(), order.getId(), null,
+					WalletTransactionTypeEnum.PAYMENT.name());
 			/**
 			 * Set updated wallet balance
 			 */
@@ -897,18 +899,21 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param description     TODO
+	 * @param description
+	 * @param transactionType
 	 * @param orderRequestDto
 	 * @param order
 	 * @throws NotFoundException
 	 */
-	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description) throws NotFoundException {
+	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description, final String transactionType)
+			throws NotFoundException {
 		WalletTrxDTO walletTxnDto = new WalletTrxDTO();
 		walletTxnDto.setActive(true);
 		walletTxnDto.setAmount(transactionAmount);
 		walletTxnDto.setCustomerId(customerId);
 		walletTxnDto.setOrderId(orderId);
 		walletTxnDto.setDescription(description);
+		walletTxnDto.setTransactionType(transactionType);
 		walletTrxService.addupdateWalletTrx(walletTxnDto);
 	}
 
@@ -1040,7 +1045,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * If status is stock allocted then for display purpose we will display as waiting for pickup
 		 */
-		if (OrderStatusEnum.STOCK_ALLOCATED.getStatusValue().equals(orders.getOrderStatus())) {
+		if (OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(orders.getOrderStatus())) {
 			orderResponseDto.setOrderStatus(Constant.WAITING_FOR_PICKUP);
 		}
 
@@ -1226,7 +1231,7 @@ public class OrdersServiceImpl implements OrdersService {
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
 				&& (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(existingOrderStatus.getStatusValue())
-						&& !OrderStatusEnum.STOCK_ALLOCATED.getStatusValue().equals(newStatus))) {
+						&& !OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(newStatus))) {
 			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
 		}
 
@@ -1265,7 +1270,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * Set new status to stock allocation
 			 */
-			newStatus = OrderStatusEnum.STOCK_ALLOCATED.getStatusValue();
+			newStatus = OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue();
 		}
 
 		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(newStatus)) {
@@ -1523,7 +1528,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * make an entry in wallet txn
 			 */
-			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null);
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
 		}
 
 		/**
@@ -1635,7 +1640,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * make an entry in wallet txn
 			 */
-			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null);
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
 		}
 	}
 
@@ -1656,8 +1661,8 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * Vendor cannot move the order in In-Process, Delivered, Cancelled,
 			 */
-			List<String> statusListInWhichVendorCannotMoveOrder = Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
-					OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue());
+			List<String> statusListInWhichVendorCannotMoveOrder = new ArrayList<>(Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
+					OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue()));
 			/**
 			 * If the order delivery type is not pick-up then the order cannot be moved into order_pickup status by vendor, that
 			 * will be done by delivery boy when he picks up the order from the restaurant.
@@ -1746,7 +1751,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * make an entry in wallet txn
 		 */
-		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId(), description);
+		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId(), description, WalletTransactionTypeEnum.REFUND.name());
 
 		orders.setRefunded(true);
 		ordersRepository.save(orders);
@@ -1789,5 +1794,11 @@ public class OrdersServiceImpl implements OrdersService {
 		Long customerId = getCustomerIdForLoginUser();
 		Long orderId = ordersRepository.getOrderIdOfOngoingOrdersForCustomer(customerId, Constant.getCompletedOrderStatusList());
 		return getOrderDetails(orderId);
+	}
+
+	@Override
+	public WalletTrxDTO getRefundDetailsForOrder(final Long orderId) throws NotFoundException, ValidationException {
+
+		return walletTrxService.getWalletTxnByOrderIdAndTxnType(orderId, WalletTransactionTypeEnum.REFUND.name());
 	}
 }

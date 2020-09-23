@@ -37,6 +37,7 @@ import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
+import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -419,6 +420,15 @@ public class OrdersController {
 	public ResponseEntity<Object> checkForOngoingOrder(@RequestHeader("Authorization") final String token) throws ValidationException, NotFoundException {
 		OrdersResponseDTO ordersResponseDto = orderService.getOngoingOrderForCustomer();
 		return new GenericResponseHandlers.Builder().setData(ordersResponseDto).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("ongoing.order.display", null)).create();
+
+	}
+
+	@GetMapping("/{orderId}/refund/detail")
+	public ResponseEntity<Object> checkForOngoingOrder(@RequestHeader("Authorization") final String token, @PathVariable final Long orderId)
+			throws ValidationException, NotFoundException {
+		WalletTrxDTO walletTxnDto = orderService.getRefundDetailsForOrder(orderId);
+		return new GenericResponseHandlers.Builder().setData(walletTxnDto).setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("ongoing.order.display", null)).create();
 
 	}

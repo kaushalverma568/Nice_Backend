@@ -1,5 +1,7 @@
 package com.nice.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.NotFoundException;
+import com.nice.exception.ValidationException;
 import com.nice.mapper.WalletTrxMapper;
 import com.nice.model.Customer;
 import com.nice.model.Orders;
@@ -47,7 +50,6 @@ public class WalletTrxServiceImpl implements WalletTrxService {
 		WalletTrx wallet = walletTrxMapper.toEntity(walletTrxDTO);
 		wallet.setCustomer(customer);
 		wallet.setOrder(order);
-		wallet.setDescription(walletTrxDTO.getDescription());
 		walletTrxRepository.save(wallet);
 	}
 
@@ -59,6 +61,18 @@ public class WalletTrxServiceImpl implements WalletTrxService {
 		} else {
 			return walletTrxRepository.findAll(pageable);
 		}
+	}
+
+	@Override
+	public WalletTrxDTO getWalletTxnByOrderIdAndTxnType(final Long orderId, final String transactionType) throws NotFoundException, ValidationException {
+
+		Orders order = orderService.getOrderById(orderId);
+		Optional<WalletTrx> walletTrx = walletTrxRepository.findByOrderAndTransactionType(order, transactionType);
+		if (!walletTrx.isPresent()) {
+			throw new ValidationException("order.not.refunded", null);
+		}
+		return walletTrxMapper.toDto(walletTrx.get());
+
 	}
 
 }

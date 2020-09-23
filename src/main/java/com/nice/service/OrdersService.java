@@ -13,6 +13,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ReplaceCancelOrderDto;
+import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.AuthorizationException;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
@@ -253,6 +254,14 @@ public interface OrdersService {
 	 *
 	 */
 	OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException;
+
+	/**
+	 * @param orderId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	WalletTrxDTO getRefundDetailsForOrder(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
 	 * get all information for app payment
