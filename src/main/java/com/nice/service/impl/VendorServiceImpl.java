@@ -211,7 +211,7 @@ public class VendorServiceImpl implements VendorService {
 		/**
 		 * Set vendor preferred language to default language when vendor registers.
 		 */
-		vendor.setPreferredLanguage(Constant.DEFAULT_LANGUAGE);
+		vendor.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 
 		BusinessCategory businessCategory = businessCategoryService.getBusinessCategoryDetail(vendorDTO.getBusinessCategoryId());
 		Country country = countryService.getCountryDetails(vendorDTO.getCountryId());
