@@ -1,6 +1,6 @@
 package com.nice.service;
 
-import com.nice.dto.OrderLocationDTO;
+import java.util.Map;
 
 public interface SocketIOService {
 	/**
@@ -19,5 +19,6 @@ public interface SocketIOService {
 	 * @param userId:     Client Unique Identification
 	 * @param msgContent: Message Content
 	 */
-	void pushMessageToUser(String orderId, OrderLocationDTO msgContent);
+	void pushMessageToUser(String orderId, Map<String, String> msgContent);
+
 }

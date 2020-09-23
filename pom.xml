@@ -200,11 +200,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- web socket -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-websocket</artifactId>
-		</dependency>
 
 		<!-- Swagger dependencies -->
 		<dependency>
@@ -232,12 +227,6 @@
 			<groupId>com.corundumstudio.socketio</groupId>
 			<artifactId>netty-socketio</artifactId>
 			<version>1.7.7</version>
-		</dependency>
-		<!-- socket.io Client -->
-		<dependency>
-			<groupId>io.socket</groupId>
-			<artifactId>socket.io-client</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 		
 		<!-- Image Resize dependency -->

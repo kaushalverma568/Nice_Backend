@@ -1,6 +1,7 @@
 package com.nice.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -568,14 +569,15 @@ public class VendorController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/app/detail/{vendorId}")
+	@GetMapping("/app/detail/{vendorId}")
 	public ResponseEntity<Object> getVendorCustomerDetailsBasedOnParams(@PathVariable("vendorId") final Long vendorId,
-			@RequestBody @Valid final VendorListFilterDTO vendorListFilterDTO, final BindingResult result) throws ValidationException, NotFoundException {
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error(VENDOR_VALIDATION_FAILED);
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
+			@RequestParam(name = "latitude", required = false) final BigDecimal latitude,
+			@RequestParam(name = "longitude", required = false) final BigDecimal longitude,
+			@RequestParam(name = "customerAddressId", required = false) final Long customerAddressId) throws ValidationException, NotFoundException {
+		VendorListFilterDTO vendorListFilterDTO = new VendorListFilterDTO();
+		vendorListFilterDTO.setLatitude(latitude);
+		vendorListFilterDTO.setLongitude(longitude);
+		vendorListFilterDTO.setCustomerAddressId(customerAddressId);
 		VendorResponseDTO vendor = vendorService.getVendorDetailForApp(vendorId, vendorListFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_DETAIL_MESSAGE, null))
 				.setData(vendor).create();

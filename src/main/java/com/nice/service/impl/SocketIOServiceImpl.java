@@ -1,5 +1,7 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nice.dto.OrderLocationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -23,13 +26,17 @@ import com.nice.service.SocketIOService;
 @Service(value = "socketIOService")
 public class SocketIOServiceImpl implements SocketIOService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SocketIOServiceImpl.class);
-
+	private static final String LATITUDE = "latitude";
+	private static final String LONGITUDE = "longitude";
+	private static final String DELIVERY_BOY_ID = "deliveryBoyId";
+	private static final String ORDER_ID = "orderId";
+	private static final String CUSTOMER_ID = "customerId";
 	@Autowired
 	private OrderLocationService orderLocationService;
 	/**
 	 * Store connected orders
 	 */
-	private static Map<String, SocketIOClient> clientMap = new ConcurrentHashMap<>();
+	private static Map<String, SocketIOClient> connectedClients = new ConcurrentHashMap<>();
 
 	/**
 	 * Custom Event`push_data_event` for service side to client communication
@@ -57,41 +64,58 @@ public class SocketIOServiceImpl implements SocketIOService {
 		stop();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void start() {
 		// Listen for client connections
-		socketIOServer.addConnectListener(client -> {
-			LOGGER.debug("************ Client: ".concat(getIpByClient(client)).concat(" Connected ************"));
+		socketIOServer.addConnectListener(order -> {
+			LOGGER.debug("************ Client: ".concat(getIpByClient(order)).concat(" Connected ************"));
 			// Custom Events `connected` -> communicate with clients (built-in events such
 			// as Socket.EVENT_CONNECT can also be used)
-			client.sendEvent("connected", "You're connected successfully...");
-			String orderId = getParamsByClient(client);
+			order.sendEvent("connected", "You're connected successfully...");
+			String orderId = getParamsByClient(order);
 			if (orderId != null) {
-				clientMap.put(orderId, client);
+				connectedClients.put(orderId, order);
 			}
 		});
 
 		// Listening Client Disconnect
-		socketIOServer.addDisconnectListener(client -> {
-			String clientIp = getIpByClient(client);
+		socketIOServer.addDisconnectListener(order -> {
+			String clientIp = getIpByClient(order);
 			LOGGER.debug(clientIp.concat(" *********************** Client disconnected"));
-			String orderId = getParamsByClient(client);
+			String orderId = getParamsByClient(order);
 			if (orderId != null) {
-				clientMap.remove(orderId);
-				client.disconnect();
+				connectedClients.remove(orderId);
+				order.disconnect();
 			}
 		});
 
 		// Custom Event`client_info_event` ->Listen for client messages
-		socketIOServer.addEventListener(PUSH_DATA_EVENT, OrderLocationDTO.class, (client, data, ackSender) -> {
-			// When a client pushes a `client_info_event` event, onData accepts data, which
-			// is json data of type string here and can
-			// be Byte[], other types of object
-			if (validateSocketMessage(data)) {
+		socketIOServer.addEventListener(PUSH_DATA_EVENT, String.class, (client, data, ackSender) -> {
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, String> messageConverted = null;
+			try {
+				messageConverted = mapper.readValue(data, Map.class);
+			} catch (IOException e) {
+				messageConverted = null;
+			}
+			if (validateSocketMessage(messageConverted)) {
 				try {
-					orderLocationService.addOrderLocation(data);
-					pushMessageToUser(data.getOrderId().toString() + ' ' + data.getCustomerId().toString() + "_receiver", data);
-					pushMessageToUser(data.getOrderId().toString() + ' ' + data.getDeliveryBoyId().toString() + "_sender", data);
+					OrderLocationDTO locationDTO = new OrderLocationDTO();
+					locationDTO.setDeliveryBoyId(Long.parseLong(messageConverted.get(DELIVERY_BOY_ID)));
+					locationDTO.setCustomerId(Long.parseLong(messageConverted.get(CUSTOMER_ID)));
+					locationDTO.setOrderId(Long.parseLong(messageConverted.get(ORDER_ID)));
+					locationDTO.setLatitude(new BigDecimal(messageConverted.get(LATITUDE)));
+					locationDTO.setLongitude(new BigDecimal(messageConverted.get(LONGITUDE)));
+					orderLocationService.addOrderLocation(locationDTO);
+					/**
+					 * here for customer orderId will be orderId_customerId_receiver and for
+					 * delivery Boy orderId will be orderId_deliveryBoyId_sender
+					 */
+					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getCustomerId().toString()).concat("_receiver"),
+							messageConverted);
+					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getDeliveryBoyId().toString()).concat("_sender"),
+							messageConverted);
 				} catch (ValidationException e) {
 					LOGGER.info("valiation error occur while add location with message : {}", e.getMessage());
 				} catch (NotFoundException e) {
@@ -113,8 +137,8 @@ public class SocketIOServiceImpl implements SocketIOService {
 	}
 
 	@Override
-	public void pushMessageToUser(final String orderId, final OrderLocationDTO msgContent) {
-		SocketIOClient client = clientMap.get(orderId);
+	public void pushMessageToUser(final String orderId, final Map<String, String> msgContent) {
+		SocketIOClient client = connectedClients.get(orderId);
 		if (client != null) {
 			client.sendEvent(PUSH_DATA_EVENT, msgContent);
 		}
@@ -128,9 +152,9 @@ public class SocketIOServiceImpl implements SocketIOService {
 	 * @return: java.lang.String
 	 */
 	private String getParamsByClient(final SocketIOClient client) {
-		// Get the client url parameter (where userId is the unique identity)
+		// Get the client url parameter (where orderId is the unique identity)
 		Map<String, List<String>> params = client.getHandshakeData().getUrlParams();
-		List<String> userIdList = params.get("orderId");
+		List<String> userIdList = params.get(ORDER_ID);
 		if (!userIdList.isEmpty()) {
 			return userIdList.get(0);
 		}
@@ -148,9 +172,10 @@ public class SocketIOServiceImpl implements SocketIOService {
 		return sa.substring(1, sa.indexOf(":"));
 	}
 
-	private boolean validateSocketMessage(final OrderLocationDTO orderLocationDTO) {
-		return orderLocationDTO != null && orderLocationDTO.getCustomerId() != null && orderLocationDTO.getDeliveryBoyId() != null
-				&& orderLocationDTO.getLatitude() != null && orderLocationDTO.getLongitude() != null && orderLocationDTO.getOrderId() != null;
+	private boolean validateSocketMessage(final Map<String, String> messageConverted) {
+		return messageConverted != null && messageConverted.containsKey(LATITUDE) && messageConverted.get(LATITUDE) != null
+				&& messageConverted.containsKey(LONGITUDE) && messageConverted.get(LONGITUDE) != null && messageConverted.containsKey(DELIVERY_BOY_ID)
+				&& messageConverted.get(DELIVERY_BOY_ID) != null && messageConverted.containsKey(CUSTOMER_ID) && messageConverted.get(CUSTOMER_ID) != null
+				&& messageConverted.containsKey(ORDER_ID) && messageConverted.get(ORDER_ID) != null;
 	}
-
 }
