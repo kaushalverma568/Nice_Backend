@@ -15,18 +15,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.constant.TaskStatusEnum;
+import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
+import com.nice.mapper.TaskMapper;
+import com.nice.model.Task;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.TaskService;
+import com.nice.util.PaginationUtil;
 import com.nice.validator.TaskValidator;
 
 /**
@@ -50,6 +56,9 @@ public class TaskController {
 
 	@Autowired
 	private TaskValidator taskValidator;
+
+	@Autowired
+	private TaskMapper taskMapper;
 
 	@InitBinder
 	public void initialiseBinder(final WebDataBinder binder) {
@@ -147,4 +156,25 @@ public class TaskController {
 				.setData(taskResponseDtoList).create();
 	}
 
+	/**
+	 * Get task list for payout based on parameters
+	 *
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  taskFilterDTO
+	 * @return
+	 * @throws ValidationException
+	 */
+	@GetMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getTaskListForPayoutBasedOnParams(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestBody final TaskFilterDTO taskFilterDTO) throws ValidationException {
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		final List<Task> resulttasks = taskService.getTaskListBasedOnParams(taskFilterDTO, paginationUtilDto.getStartIndex(), pageSize);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
+				.setData(taskMapper.toPayoutResponseDtos(resulttasks)).setHasNextPage(paginationUtilDto.getHasNextPage())
+				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
+				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
+	}
 }

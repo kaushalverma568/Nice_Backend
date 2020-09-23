@@ -300,7 +300,8 @@ public class VendorController {
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/{vendorId}")
-	public ResponseEntity<Object> getVendor(@PathVariable("vendorId") final Long vendorId) throws NotFoundException {
+	public ResponseEntity<Object> getVendor(@PathVariable("vendorId") final Long vendorId,
+			@RequestParam(name = "isAdmin", required = false) final Boolean isAdmin) throws NotFoundException {
 		LOGGER.info("Inside get Vendor for id:{}", vendorId);
 		final VendorResponseDTO resultVendorResponseDTO = vendorService.getVendor(vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_DETAIL_MESSAGE, null))
@@ -556,4 +557,29 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.payment.list.message", null))
 				.setData(vendorBasicDetailDTO).create();
 	}
+
+	/**
+	 * get detail for app
+	 *
+	 * @param vendorId
+	 * @param vendorListFilterDTO
+	 * @param result
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/app/detail/{vendorId}")
+	public ResponseEntity<Object> getVendorCustomerDetailsBasedOnParams(@PathVariable("vendorId") final Long vendorId,
+			@RequestBody @Valid final VendorListFilterDTO vendorListFilterDTO, final BindingResult result) throws ValidationException, NotFoundException {
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error(VENDOR_VALIDATION_FAILED);
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		VendorResponseDTO vendor = vendorService.getVendorDetailForApp(vendorId, vendorListFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_DETAIL_MESSAGE, null))
+				.setData(vendor).create();
+
+	}
+
 }

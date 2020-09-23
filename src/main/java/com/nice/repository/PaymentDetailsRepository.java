@@ -1,28 +1,29 @@
 package com.nice.repository;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nice.model.DeliveryBoy;
 import com.nice.model.PaymentDetails;
+import com.nice.model.Vendor;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Repository
-public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, Long> {
+public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, Long>, PaymentDetailsCustomRepository {
 
 	/**
-	 * Get PaymentDetails by paymentDetails transactionNo and paymentDetails Id not
-	 * equal if exist
+	 * Get PaymentDetails by paymentDetails transactionNo and paymentDetails Id not equal if exist
 	 *
-	 * @param transactionNo
-	 * @param id
+	 * @param  transactionNo
+	 * @param  id
 	 * @return
 	 */
 	Optional<PaymentDetails> findByTransactionNoIgnoreCaseAndIdNot(String transactionNo, Long id);
@@ -30,33 +31,82 @@ public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, 
 	/**
 	 * Get PaymentDetails by paymentDetails transactionNo if exist
 	 *
-	 * @param transactionNo
+	 * @param  transactionNo
 	 * @return
 	 */
 	Optional<PaymentDetails> findByTransactionNoIgnoreCase(String transactionNo);
 
 	/**
-	 * find all by paidOn between from date and to date
+	 * Get payment details page by paidOn between from date and to date for vendor
 	 *
 	 * @param fromDate
 	 * @param toDate
 	 */
-	List<PaymentDetails> findAllByPaidOnBetween(Date fromDate, Date toDate);
+	Page<PaymentDetails> findAllByPaidOnBetweenAndVendor(Date fromDate, Date toDate, Vendor vendor, Pageable pageable);
 
 	/**
-	 * find all by paidOn greater than from date
+	 * Get payment details page by paidOn greater than from date for vendor
 	 *
-	 * @param fromDate
+	 * @param  fromDate
 	 * @return
 	 */
-	List<PaymentDetails> findAllByPaidOnGreaterThanEqual(Date fromDate);
+	Page<PaymentDetails> findAllByPaidOnGreaterThanEqualAndVendor(Date fromDate, Vendor vendor, Pageable pageable);
 
 	/**
-	 * find all by paidOn less than to date
+	 * Get payment details page by paidOn less than to date for vendor
 	 *
-	 * @param toDate
+	 * @param  toDate
 	 * @return
 	 */
-	List<PaymentDetails> findAllByPaidOnLessThanEqual(Date toDate);
+	Page<PaymentDetails> findAllByPaidOnLessThanEqualAndVendor(Date toDate, Vendor vendor, Pageable pageable);
+
+	/**
+	 * Get payment details page by vendor
+	 *
+	 * @param  vendor
+	 * @param  pageable
+	 * @return
+	 */
+	Page<PaymentDetails> findAllByVendor(Vendor vendor, Pageable pageable);
+
+	/**
+	 * Get payment details page by delivery boy
+	 *
+	 * @param  deliveryBoy
+	 * @param  pageable
+	 * @return
+	 */
+	Page<PaymentDetails> findAllByDeliveryBoy(DeliveryBoy deliveryBoy, Pageable pageable);
+
+	/**
+	 * Get payment details page by paidOn less than to date for delivery boy
+	 *
+	 * @param  toDate
+	 * @param  deliveryBoy
+	 * @param  pageable
+	 * @return
+	 */
+	Page<PaymentDetails> findAllByPaidOnLessThanEqualAndDeliveryBoy(Date toDate, DeliveryBoy deliveryBoy, Pageable pageable);
+
+	/**
+	 * Get payment details page by paidOn greater than from date for delivery boy
+	 *
+	 * @param  fromDate
+	 * @param  deliveryBoy
+	 * @param  pageable
+	 * @return
+	 */
+	Page<PaymentDetails> findAllByPaidOnGreaterThanEqualAndDeliveryBoy(Date fromDate, DeliveryBoy deliveryBoy, Pageable pageable);
+
+	/**
+	 * Get payment details page by paidOn between from date and to date for delivery boy
+	 *
+	 * @param  fromDate
+	 * @param  toDate
+	 * @param  deliveryBoy
+	 * @param  pageable
+	 * @return
+	 */
+	Page<PaymentDetails> findAllByPaidOnBetweenAndDeliveryBoy(Date fromDate, Date toDate, DeliveryBoy deliveryBoy, Pageable pageable);
 
 }

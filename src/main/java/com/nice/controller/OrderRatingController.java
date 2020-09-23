@@ -150,10 +150,11 @@ public class OrderRatingController {
 			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("vendorId") final Long vendorId)
 			throws NotFoundException {
-		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(pageNumber, pageSize, vendorId);
+		Page<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(pageNumber, pageSize, vendorId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
-				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();
+				.setMessage(messageByLocaleService.getMessage("order.rating.list.message", null)).setData(orderRatingMapper.toResponseDtos(resultOrderRating.getContent()))
+				.setHasNextPage(resultOrderRating.hasNext()).setHasPreviousPage(resultOrderRating.hasPrevious()).setTotalPages(resultOrderRating.getTotalPages())
+				.setPageNumber(resultOrderRating.getNumber() + 1).setTotalCount(resultOrderRating.getTotalElements()).create();
 	}
 
 	
@@ -162,10 +163,11 @@ public class OrderRatingController {
 			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId)
 			throws NotFoundException {
-		List<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(pageNumber, pageSize, deliveryBoyId);
+		Page<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(pageNumber, pageSize, deliveryBoyId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage(DETAIL_MSG, null))
-				.setData(orderRatingMapper.toResponseDtos(resultOrderRating)).create();
+				.setMessage(messageByLocaleService.getMessage("order.rating.list.message", null)).setData(orderRatingMapper.toResponseDtos(resultOrderRating.getContent()))
+				.setHasNextPage(resultOrderRating.hasNext()).setHasPreviousPage(resultOrderRating.hasPrevious()).setTotalPages(resultOrderRating.getTotalPages())
+				.setPageNumber(resultOrderRating.getNumber() + 1).setTotalCount(resultOrderRating.getTotalElements()).create();
 	}
 
 	

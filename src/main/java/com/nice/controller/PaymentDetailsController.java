@@ -9,8 +9,10 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -33,14 +37,14 @@ import com.nice.mapper.PaymentDetailsMapper;
 import com.nice.model.PaymentDetails;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.PaymentDetailsService;
+import com.nice.util.PaginationUtil;
 import com.nice.validator.PaymentDetailsValidator;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 15-07-2020
+ * @date   : 15-07-2020
  */
-@RequestMapping(path = "/paymentdetails")
+@RequestMapping(path = "/payment/details")
 @RestController
 public class PaymentDetailsController {
 	/*
@@ -48,8 +52,7 @@ public class PaymentDetailsController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentDetailsController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -79,14 +82,15 @@ public class PaymentDetailsController {
 	/**
 	 * Add PaymentDetails
 	 *
-	 * @param paymentDetailsDTO
-	 * @param result
-	 * @param userId
+	 * @param  paymentDetailsDTO
+	 * @param  result
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@PostMapping
+	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_ADD')")
 	public ResponseEntity<Object> addPaymentDetails(@RequestHeader("Authorization") final String accessToken,
 			@RequestBody @Valid final PaymentDetailsDTO paymentDetailsDTO, final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside add PaymentDetails {}", paymentDetailsDTO);
@@ -104,8 +108,8 @@ public class PaymentDetailsController {
 	/**
 	 * Get PaymentDetails Details based on id
 	 *
-	 * @param paymentDetailsId
-	 * @param userId
+	 * @param  paymentDetailsId
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -119,20 +123,55 @@ public class PaymentDetailsController {
 	}
 
 	/**
+	 * Get delivery boy payout
+	 *
+	 * @param  paymentDetailsId
+	 * @param  userId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/deliveryboy/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_VIEW')")
+	public ResponseEntity<Object> getDeliveryBoyPayout(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "searchId", required = false) final Long searchId,
+			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
+			@RequestParam(name = "registeredOn", required = false) final Date registeredOn, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize) throws ValidationException {
+		LOGGER.info("Inside  Get delivery boy payout for searchId:{} ,deliveryBoyId:{},registeredOn:{} ", searchId, deliveryBoyId, registeredOn);
+		Long totalCount = paymentDetailsService.getDeliveryBoyPayoutCountBasedOnParam(searchId, deliveryBoyId, registeredOn);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		final List<DeliveryBoyPayoutDTO> resultPaymentDetailsDTO = paymentDetailsService.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn,
+				paginationUtilDto.getStartIndex(), pageSize);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("deliveryboy.payout.detail.message", null)).setData(resultPaymentDetailsDTO)
+				.setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
+				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
+				.create();
+	}
+
+	/**
 	 * Get payment History
 	 *
-	 * @param accessToken
-	 * @param fromDate
-	 * @param toDate
+	 * @param  accessToken
+	 * @param  fromDate
+	 * @param  toDate
 	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
-	@GetMapping("/history")
-	public ResponseEntity<Object> getPaymentHistory(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "fromDate", required = false) final Date fromDate, @RequestParam(name = "toDate", required = false) final Date toDate) {
-		LOGGER.info("Inside get payment history for fromDate:{} and toDate:{} ", fromDate, toDate);
-		final List<PaymentDetails> paymentHistory = paymentDetailsService.getPaymentHistory(fromDate, toDate);
+	@GetMapping("/history/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getPaymentHistory(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "fromDate", required = false) final Date fromDate,
+			@RequestParam(name = "toDate", required = false) final Date toDate,
+			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside get payment history for deliveryBoyId:{},vendorId:{}, fromDate:{} and toDate:{} ", deliveryBoyId, vendorId, fromDate, toDate);
+		final Page<PaymentDetails> paymentHistory = paymentDetailsService.getPaymentHistory(deliveryBoyId, vendorId, fromDate, toDate, pageNumber, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null)).setData(paymentDetailsMapper.toDtos(paymentHistory))
-				.create();
+				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null))
+				.setData(paymentDetailsMapper.toDtos(paymentHistory.getContent())).setHasNextPage(paymentHistory.hasNext())
+				.setHasPreviousPage(paymentHistory.hasPrevious()).setTotalPages(paymentHistory.getTotalPages()).setPageNumber(paymentHistory.getNumber() + 1)
+				.setTotalCount(paymentHistory.getTotalElements()).create();
 	}
 }

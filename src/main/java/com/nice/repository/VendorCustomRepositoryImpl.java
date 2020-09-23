@@ -365,4 +365,21 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
 		return ((BigInteger) q.getSingleResult()).longValue();
 	}
+
+	@Override
+	public Double getVendorDistanceForCustomerBasedOnParams(final Long vendorId, final BigDecimal latitude, final BigDecimal longitude) {
+		Map<String, Object> paramMap = new HashMap<>();
+		StringBuilder sqlQuery = new StringBuilder(
+				"SELECT (( 3959 * acos( cos( radians(:customerLatitude) ) * cos( radians(latitude) ) * cos( radians(longitude) "
+						+ "- radians(:customerLongitude) ) + sin( radians(:customerLatitude) ) * sin( radians(latitude) ) ) )*1.60934) AS distance "
+						+ "FROM vendor v ");
+		sqlQuery.append(" where v.id = :vendorId ");
+		paramMap.put("vendorId", vendorId);
+		paramMap.put("customerLatitude", latitude);
+		paramMap.put("customerLongitude", longitude);
+		Query q = entityManager.createNativeQuery(sqlQuery.toString());
+		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
+		return (Double) q.getSingleResult();
+	}
+
 }

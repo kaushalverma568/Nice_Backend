@@ -6,10 +6,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.UserType;
+import com.nice.dto.DeliveryBoyPayoutDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -22,12 +28,14 @@ import com.nice.model.Task;
 import com.nice.model.Vendor;
 import com.nice.repository.PaymentDetailsRepository;
 import com.nice.repository.TaskRepository;
+import com.nice.service.DeliveryBoyService;
 import com.nice.service.PaymentDetailsService;
 import com.nice.service.TaskService;
+import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("paymentDetailsService")
@@ -48,6 +56,12 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	@Autowired
 	private TaskRepository taskRepository;
 
+	@Autowired
+	private DeliveryBoyService deliveryBoyService;
+
+	@Autowired
+	private VendorService vendorService;
+
 	@Override
 	public void addPaymentDetails(final PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException {
 		List<Task> taskList = new ArrayList<>();
@@ -56,7 +70,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			taskList.add(taskService.getTaskDetail(taskId));
 		}
 		PaymentDetails paymentDetails = paymentDetailsMapper.toEntity(paymentDetailsDTO);
-
+		paymentDetails.setActive(true);
 		/**
 		 * if tasks do not have unique delivery boy OR vendor then throw exception
 		 */
@@ -142,19 +156,53 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public List<PaymentDetails> getPaymentHistory(final Date fromDate, final Date toDate) {
-		if (fromDate != null) {
-			if (toDate != null) {
-				return paymentDetailsRepository.findAllByPaidOnBetween(fromDate, toDate);
+	public Page<PaymentDetails> getPaymentHistory(final Long deliveryBoyId, final Long vendorId, final Date fromDate, final Date toDate,
+			final Integer pageNumber, final Integer pageSize) throws ValidationException, NotFoundException {
+		if ((deliveryBoyId == null && vendorId == null) || (deliveryBoyId != null && vendorId != null)) {
+			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.or.vendor.required", null));
+		}
+		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
+		if (deliveryBoyId != null) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
+			if (fromDate != null) {
+				if (toDate != null) {
+					return paymentDetailsRepository.findAllByPaidOnBetweenAndDeliveryBoy(fromDate, toDate, deliveryBoy, pageable);
+				} else {
+					return paymentDetailsRepository.findAllByPaidOnGreaterThanEqualAndDeliveryBoy(fromDate, deliveryBoy, pageable);
+				}
 			} else {
-				return paymentDetailsRepository.findAllByPaidOnGreaterThanEqual(fromDate);
+				if (toDate != null) {
+					return paymentDetailsRepository.findAllByPaidOnLessThanEqualAndDeliveryBoy(toDate, deliveryBoy, pageable);
+				} else {
+					return paymentDetailsRepository.findAllByDeliveryBoy(deliveryBoy, pageable);
+				}
 			}
 		} else {
-			if (toDate != null) {
-				return paymentDetailsRepository.findAllByPaidOnLessThanEqual(toDate);
+			Vendor vendor = vendorService.getVendorDetail(vendorId);
+			if (fromDate != null) {
+				if (toDate != null) {
+					return paymentDetailsRepository.findAllByPaidOnBetweenAndVendor(fromDate, toDate, vendor, pageable);
+				} else {
+					return paymentDetailsRepository.findAllByPaidOnGreaterThanEqualAndVendor(fromDate, vendor, pageable);
+				}
 			} else {
-				return paymentDetailsRepository.findAll();
+				if (toDate != null) {
+					return paymentDetailsRepository.findAllByPaidOnLessThanEqualAndVendor(toDate, vendor, pageable);
+				} else {
+					return paymentDetailsRepository.findAllByVendor(vendor, pageable);
+				}
 			}
 		}
+	}
+
+	@Override
+	public List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final Integer startIndex,
+			final Integer pageSize) {
+		return paymentDetailsRepository.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, startIndex, pageSize);
+	}
+
+	@Override
+	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long searchId, final Long deliveryBoyId, final Date registeredOn) {
+		return paymentDetailsRepository.getDeliveryBoyPayoutCountBasedOnParam(searchId, deliveryBoyId, registeredOn);
 	}
 }

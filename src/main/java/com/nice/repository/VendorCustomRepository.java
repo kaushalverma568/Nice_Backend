@@ -3,6 +3,7 @@
  */
 package com.nice.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.nice.dto.VendorFilterDTO;
@@ -45,10 +46,18 @@ public interface VendorCustomRepository {
 
 	/**
 	 * get count of vendor for customer based on filter parameters
-	 * 
+	 *
 	 * @param vendorListFilterDTO
 	 * @return
 	 */
 	Long getVendorCountForCustomerBasedOnParams(VendorListFilterDTO vendorListFilterDTO);
+
+	/**
+	 * get vendor detail based on filters
+	 *
+	 * @param vendorListFilterDTO
+	 * @return
+	 */
+	Double getVendorDistanceForCustomerBasedOnParams(final Long vendorId, final BigDecimal latitude, BigDecimal longitude);
 
 }

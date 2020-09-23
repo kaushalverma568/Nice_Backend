@@ -3,6 +3,8 @@ package com.nice.model;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,16 +12,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
+
+import com.nice.dto.DeliveryBoyPayoutDTO;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 15-07-2020
+ * @date   : 15-07-2020
  */
+@SqlResultSetMapping(name = "DeliveryBoyPayout", classes = { @ConstructorResult(targetClass = DeliveryBoyPayoutDTO.class, columns = {
+		@ColumnResult(name = "delivery_boy_id", type = Long.class), @ColumnResult(name = "delivery_boy_name", type = String.class),
+		@ColumnResult(name = "delivery_boy_phone_number", type = String.class), @ColumnResult(name = "registered_on", type = Date.class),
+		@ColumnResult(name = "cart_orders", type = Integer.class), @ColumnResult(name = "replace_orders", type = Integer.class),
+		@ColumnResult(name = "return_orders", type = Integer.class), @ColumnResult(name = "total_attened", type = Integer.class),
+		@ColumnResult(name = "last_payment_on", type = Date.class), @ColumnResult(name = "total_paid", type = Double.class) }) })
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "payment_details")

@@ -190,13 +190,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	}
 	
 	@Override
-	public List<OrderRating> getOrderRatingByDeliveryBoyId (final Integer pageNumber, final Integer pageSize, final Long deliveryBoyId){
+	public  Page<OrderRating> getOrderRatingByDeliveryBoyId (final Integer pageNumber, final Integer pageSize, final Long deliveryBoyId){
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC,"id"));
 		return  orderRatingRepository.findByDeliveryBoyId(deliveryBoyId,pageable);
 	}
 
 	@Override
-	public List<OrderRating> getOrderRatingByVendorId (final Integer pageNumber, final Integer pageSize, final Long vendorId){
+	public  Page<OrderRating> getOrderRatingByVendorId (final Integer pageNumber, final Integer pageSize, final Long vendorId){
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC,"id"));
 		return  orderRatingRepository.findByVendorId(vendorId,pageable);
 	}

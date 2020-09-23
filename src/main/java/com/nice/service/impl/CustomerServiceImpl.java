@@ -113,10 +113,11 @@ public class CustomerServiceImpl implements CustomerService {
 		/**
 		 * Set customer preferred language to default language when customer registers.
 		 */
-		customer.setPreferredLanguage(Constant.DEFAULT_LANGUAGE);
+		customer.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 
 		/**
-		 * Set wallet balance for customer to the value of signup bonus intended by the user
+		 * Set wallet balance for customer to the value of signup bonus intended by the
+		 * user
 		 */
 		SettingsDto settingsDto = settingsService.getSettingsDetailsByNameForNonEncryptedFields(Constant.CUSTOMER_SIGNUP_REWARD);
 		customer.setWalletAmt(Double.valueOf(settingsDto.getFieldValue()));
@@ -420,8 +421,9 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
-				 * if the email is verified then we will be returning true.
+				 * If the customer is present and his email not verified, then we will be
+				 * sending the verification link for him again, if the email is verified then we
+				 * will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();

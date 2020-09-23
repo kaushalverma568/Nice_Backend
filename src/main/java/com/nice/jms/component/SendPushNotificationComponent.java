@@ -49,24 +49,26 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION.equalsIgnoreCase(pushNotification.getType())
 				&& CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(pushNotification.getDeliveryBoyIds()) && pushNotification.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			message = message.append("New Order for Delivery, OrderId : ").append(pushNotification.getOrderId());
+			JsonObject dataObject = new JsonObject();
+			JsonObject notificationObject = new JsonObject();
+			message = message.append("New Order for Delivery");
+			notificationObject.addProperty("message", message.toString());
+			dataObject.addProperty("orderId", pushNotification.getOrderId());
 			for (Long deliveryBoyId : pushNotification.getDeliveryBoyIds()) {
 				UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
 				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
 				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotification.getOrderId());
 				for (DeviceDetail deviceDetail : deviceDetailList) {
-					sendPushNotificationToDeliveryBoy(message.toString(), deviceDetail.getDeviceId());
+					sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
 				}
 			}
 		}
 	}
 
-	public void sendPushNotificationToDeliveryBoy(final String message, final String deviceId) {
+	public void sendPushNotificationToDeliveryBoy(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(DELIVERY_BOY_KEY);
-		JsonObject dataObject = new JsonObject();
-		dataObject.addProperty("body", message);
-		dataObject.addProperty("title", applicationName);
-		String result = fcm.sendNotification(FCMRestHelper.TYPE_TO, deviceId, dataObject);
+		notificationObject.addProperty("title", applicationName);
+		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
 		LOGGER.info("push notification result {}", resultObject);
 	}

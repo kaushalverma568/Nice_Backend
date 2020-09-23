@@ -1,7 +1,5 @@
 package com.nice.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.OrderRatingDTO;
@@ -67,7 +65,7 @@ public interface OrderRatingService {
 	 * @param  deliveryBoyId
 	 * @return
 	 */
-	List<OrderRating> getOrderRatingByDeliveryBoyId(Integer pageNumber, Integer pageSize, Long deliveryBoyId);
+	Page<OrderRating> getOrderRatingByDeliveryBoyId(Integer pageNumber, Integer pageSize, Long deliveryBoyId);
 
 	/**
 	 * @param pageSize 
@@ -75,7 +73,7 @@ public interface OrderRatingService {
 	 * @param  vendorId
 	 * @return
 	 */
-	List<OrderRating> getOrderRatingByVendorId(Integer pageNumber, Integer pageSize, Long vendorId);
+	Page<OrderRating> getOrderRatingByVendorId(Integer pageNumber, Integer pageSize, Long vendorId);
 
 	/**
 	 * @throws NotFoundException
