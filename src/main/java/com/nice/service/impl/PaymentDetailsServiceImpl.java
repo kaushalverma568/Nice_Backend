@@ -94,6 +94,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			 */
 			Double sum = 0d;
 			for (Task task : taskList) {
+				if (task.getDeliveryBoyPaymentDetails() != null) {
+					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+				}
 				sum += task.getDeliveryCharge();
 			}
 			if (!sum.equals(paymentDetailsDTO.getPaymentAmount())) {
@@ -110,6 +113,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			 */
 			Double sum = 0d;
 			for (Task task : taskList) {
+				if (task.getVendorPaymentDetails() != null) {
+					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+				}
 				sum += task.getVendorPayableAmt();
 			}
 			if (!sum.equals(paymentDetailsDTO.getPaymentAmount())) {
@@ -246,6 +252,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.delivery.boy", null));
 			}
 			for (Task task : taskList) {
+				if (task.getDeliveryBoyPaymentDetails() != null) {
+					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+				}
 				sum += task.getDeliveryCharge();
 			}
 		} else {
@@ -254,6 +263,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.vendor", null));
 			}
 			for (Task task : taskList) {
+				if (task.getVendorPaymentDetails() != null) {
+					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+				}
 				sum += task.getVendorPayableAmt();
 			}
 		}
