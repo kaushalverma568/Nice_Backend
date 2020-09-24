@@ -255,14 +255,10 @@ public interface OrdersService {
 	OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException;
 
 	/**
-	 * get all information for app payment
+	 * send push notification to vendor about new order
 	 *
-	 * @param razorPayOrderId
-	 * @return
+	 * @param orderId
 	 * @throws NotFoundException
-	 * @throws ValidationException
 	 */
-	// AppPaymentDTO getDataByRazorpayOrder(String razorPayOrderId) throws
-	// NotFoundException, ValidationException;
-
+	void sendPushNotification(Long orderId) throws NotFoundException;
 }

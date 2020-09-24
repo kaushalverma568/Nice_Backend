@@ -37,7 +37,7 @@ import com.nice.validator.TaskValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -70,9 +70,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  taskId
+	 * @param token
+	 * @param userId
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -85,14 +85,22 @@ public class TaskController {
 		/**
 		 * send email start here
 		 */
+		/**
+		 * send email ends here
+		 */
+
+		/**
+		 * send push notification to vendor about order delivery
+		 */
+		taskService.sendOrderDeliveryPushNotification(taskId);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -108,8 +116,8 @@ public class TaskController {
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -125,8 +133,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -140,8 +148,8 @@ public class TaskController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  paymentDetailsId
+	 * @param token
+	 * @param paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -159,10 +167,10 @@ public class TaskController {
 	/**
 	 * Get task list for payout based on parameters
 	 *
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  taskFilterDTO
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param taskFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */

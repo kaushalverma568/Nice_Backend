@@ -232,7 +232,6 @@ public class TicketServiceImpl implements TicketService {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
 		pushNotificationDTO.setTicketId(ticketId);
 		pushNotificationDTO.setType(NotificationQueueConstants.NEW_TICKET_PUSH_NOTIFICATION);
-		pushNotificationDTO.setLanguage(LocaleContextHolder.getLocale().getLanguage());
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 

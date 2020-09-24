@@ -33,4 +33,6 @@ public class PushNotificationDTO implements Serializable {
 	private Long deliveryBoyId;
 
 	private Long ticketId;
+
+	private Long taskId;
 }

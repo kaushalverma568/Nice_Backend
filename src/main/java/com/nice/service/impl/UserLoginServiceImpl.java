@@ -1079,15 +1079,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public void sendPushNotificationForNewProfile(final Long entityId, final String entityType) throws NotFoundException {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
 		if (UserType.VENDOR.name().equals(entityType)) {
-			Vendor vendor = vendorService.getVendorDetail(entityId);
 			pushNotificationDTO.setVendorId(entityId);
 			pushNotificationDTO.setType(NotificationQueueConstants.NEW_VENDOR_PUSH_NOTIFICATION);
-			pushNotificationDTO.setLanguage(vendor.getPreferredLanguage());
 		} else {
-			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(entityId);
 			pushNotificationDTO.setDeliveryBoyId(entityId);
 			pushNotificationDTO.setType(NotificationQueueConstants.NEW_DB_PUSH_NOTIFICATION);
-			pushNotificationDTO.setLanguage(deliveryBoy.getPreferredLanguage());
 		}
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}

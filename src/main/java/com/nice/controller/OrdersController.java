@@ -97,14 +97,11 @@ public class OrdersController {
 		 * send email to customer when he/she place order and payment type is cod
 		 */
 		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
-			// TODO
+			// TODO send email
 			/**
-			 * Uncomment and modify once clarity on notification
+			 * send email is remaining just send push notification added
 			 */
-			// orderService.sendEmailOnOrderStatusChange(Long.valueOf(orderId),
-			// NotificationQueueConstants.PLACE_ORDER);
-			// orderService.sendPushNotificationOnStatus(Long.valueOf(orderId),
-			// NotificationQueueConstants.PLACE_ORDER);
+			orderService.sendPushNotification(Long.getLong(orderId));
 		} /**
 			 * send email ends here
 			 */
@@ -292,7 +289,8 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for
+	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
 	 * @param accessToken
 	 * @param userId
@@ -358,9 +356,11 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
-	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
-	 * refund would be made automatically if the payment mode is not COD
+	 * This method is used to refund amount for the orders that are cancelled by
+	 * admin, as for orders cancelled by admin no refund would be made
+	 * automatically, for other type of cancelled order (Cancelled By
+	 * Customer/Rejected by Vendor) refund would be made automatically if the
+	 * payment mode is not COD
 	 *
 	 * @param accessToken
 	 * @param orderId
@@ -388,8 +388,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
-	 * by delivery boy.
+	 * This method will only be used to deliver pickup type order by vendor, for all
+	 * other orders the delivery would be done by delivery boy.
 	 *
 	 * @param token
 	 * @param orderId

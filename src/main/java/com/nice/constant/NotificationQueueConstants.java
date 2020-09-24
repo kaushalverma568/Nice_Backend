@@ -26,6 +26,8 @@ public final class NotificationQueueConstants {
 	public static final String NEW_VENDOR_PUSH_NOTIFICATION = "New Vendor Push Notification";
 	public static final String NEW_DB_PUSH_NOTIFICATION = "New Delivery Boy Push Notification";
 	public static final String NEW_TICKET_PUSH_NOTIFICATION = "New Ticket Push Notification";
+	public static final String NEW_ORDER_PUSH_NOTIFICATION = "New Order Push Notification";
+	public static final String ORDER_DELIVERY_PUSH_NOTIFICATION = "Order Delivery Push Notification";
 	public static final String GENERAL_PUSH_NOTIFICATION_QUEUE = "Nice General Push Notification Queue";
 
 }
