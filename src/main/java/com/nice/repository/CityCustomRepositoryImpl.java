@@ -51,7 +51,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword, final Set<Long> idsIn) {
+			final String searchKeyword, final Set<Long> idsIn, final Boolean isDefault) {
 		Locale locale = LocaleContextHolder.getLocale();
 		/**
 		 * Create Criteria builder instance using entity manager
@@ -91,6 +91,9 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		if (idsIn != null && !idsIn.isEmpty()) {
 			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
 		}
+		if (isDefault != null) {
+			predicates.add(criteriaBuilder.equal(city.get("isDefault"), isDefault));
+		}
 		/**
 		 * Add the clauses for the query.
 		 */
@@ -105,7 +108,8 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<City> fetchGraph = entityManager.createEntityGraph(City.class);
 		fetchGraph.addSubgraph(STATE_PARAM);
@@ -118,7 +122,8 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Set<Long> idsIn) {
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Set<Long> idsIn,
+			final Boolean isDefault) {
 		/**
 		 * Create Criteria builder instance using entity manager
 		 */
@@ -155,6 +160,9 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		}
 		if (idsIn != null && !idsIn.isEmpty()) {
 			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
+		}
+		if (isDefault != null) {
+			predicates.add(criteriaBuilder.equal(city.get("isDefault"), isDefault));
 		}
 		/**
 		 * Add the clauses for the query.

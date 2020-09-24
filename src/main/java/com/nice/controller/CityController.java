@@ -40,7 +40,7 @@ import com.nice.validator.CityValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @RequestMapping(path = "/city")
 @RestController
@@ -78,9 +78,9 @@ public class CityController {
 	/**
 	 * Add City
 	 *
-	 * @param accessToken
-	 * @param cityDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  cityDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -112,9 +112,9 @@ public class CityController {
 	/**
 	 * Update City
 	 *
-	 * @param accessToken
-	 * @param cityDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  cityDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -145,7 +145,7 @@ public class CityController {
 	/**
 	 * Get City Details based on id
 	 *
-	 * @param cityId
+	 * @param  cityId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -159,11 +159,11 @@ public class CityController {
 	/**
 	 * Get City list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param stateId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  stateId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -171,12 +171,12 @@ public class CityController {
 	public ResponseEntity<Object> getCityListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
 			@RequestParam(name = "isPincodeExist", required = false) final Boolean isPincodeExist,
-			@RequestParam(name = "stateId", required = false) final Long stateId,
+			@RequestParam(name = "isDefault", required = false) final Boolean isDefault, @RequestParam(name = "stateId", required = false) final Long stateId,
 			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws ValidationException {
-		Long totalCount = cityService.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, isPincodeExist);
+		Long totalCount = cityService.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, isPincodeExist, isDefault);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<City> resultStates = cityService.getCityListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, activeRecords, stateId, searchKeyword,
-				isPincodeExist);
+				isPincodeExist, isDefault);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.list.message", null))
 				.setData(cityMapper.toDtos(resultStates)).setHasNextPage(paginationUtilDto.getHasNextPage())
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
@@ -187,9 +187,9 @@ public class CityController {
 	/**
 	 * Change status of city (active/deActive)
 	 *
-	 * @param accessToken
-	 * @param cityId
-	 * @param active
+	 * @param  accessToken
+	 * @param  cityId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -209,7 +209,7 @@ public class CityController {
 	/**
 	 * check city is serviceable or not
 	 *
-	 * @param cityName
+	 * @param  cityName
 	 * @return
 	 * @throws ValidationException
 	 */

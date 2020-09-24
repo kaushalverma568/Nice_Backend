@@ -54,6 +54,7 @@ public class CityServiceImpl implements CityService {
 	public void addCity(final CityDTO cityDTO) throws ValidationException, NotFoundException {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		City city = cityMapper.toEntity(cityDTO);
+		city.setIsDefault(false);
 		city.setState(state);
 		cityRepository.save(city);
 	}
@@ -66,9 +67,14 @@ public class CityServiceImpl implements CityService {
 		/**
 		 * Check whether city is exists or not.
 		 */
-		getCityDetails(cityDTO.getId());
+		City existingCity = getCityDetails(cityDTO.getId());
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		City city = cityMapper.toEntity(cityDTO);
+		city.setIsDefault(existingCity.getIsDefault());
+		if (existingCity.getLatitude() != null && existingCity.getLongitude() != null) {
+			city.setLatitude(existingCity.getLatitude());
+			city.setLongitude(existingCity.getLongitude());
+		}
 		city.setState(state);
 		cityRepository.save(city);
 	}
@@ -143,6 +149,9 @@ public class CityServiceImpl implements CityService {
 	 */
 	private void changeStatusOfDependantEntity(final City existingCity, final Boolean active) throws ValidationException, NotFoundException {
 		if (Boolean.FALSE.equals(active)) {
+			if (existingCity.getIsDefault().booleanValue()) {
+				throw new ValidationException(messageByLocaleService.getMessage("default.city.cannot.deactivate", null));
+			}
 			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, existingCity.getId(), null);
 			for (Pincode pincode : pincodeList) {
 				LOGGER.info("Deactive pincode for id : {} , because of city deactive", pincode.getId());
@@ -156,7 +165,8 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Boolean isPincodeExist) {
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Boolean isPincodeExist,
+			final Boolean isDefault) {
 		Set<Long> idsIn = new HashSet<>();
 		/**
 		 * For getting only those cities which has active pin codes
@@ -167,12 +177,12 @@ public class CityServiceImpl implements CityService {
 				idsIn.add(pincode.getCity().getId());
 			}
 		}
-		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, idsIn);
+		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, idsIn, isDefault);
 	}
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword, final Boolean isPincodeExist) {
+			final String searchKeyword, final Boolean isPincodeExist, final Boolean isDefault) {
 		Set<Long> idsIn = new HashSet<>();
 		/**
 		 * For getting only those cities which has active pin codes
@@ -183,7 +193,7 @@ public class CityServiceImpl implements CityService {
 				idsIn.add(pincode.getCity().getId());
 			}
 		}
-		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword, idsIn);
+		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword, idsIn, isDefault);
 	}
 
 	@Override

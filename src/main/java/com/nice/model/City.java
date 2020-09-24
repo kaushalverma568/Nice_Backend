@@ -1,5 +1,7 @@
 package com.nice.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,7 +17,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Entity
 @Table(name = "city")
@@ -43,4 +45,12 @@ public class City extends CommonModel {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private State state;
 
+	@Column(name = "is_default", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private Boolean isDefault;
+
+	@Column(name = "latitude")
+	private BigDecimal latitude;
+
+	@Column(name = "longitude")
+	private BigDecimal longitude;
 }
