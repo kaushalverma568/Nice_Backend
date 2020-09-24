@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -102,10 +102,8 @@ public final class Constant {
 	public static final String REJECTED = "Rejected";
 	public static final String STOCK_ALLOCATED = "Stock Allocated";
 	/**
-	 * The below order status will be used only for display purpose, of the stock is
-	 * allocated then the order status would
-	 * be Waiting for pickup for display purpose, it has no role in the order flow
-	 * of system
+	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
+	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
 	 */
 	public static final String WAITING_FOR_PICKUP = "Waiting for pickup";
 
@@ -127,15 +125,15 @@ public final class Constant {
 	public static final String ORDER_DELIVERY_CHARGE = "ORDER_DELIVERY_CHARGE";
 	public static final String ORDER_AMOUNT_FOR_FREE_DELIVERY = "ORDER_AMOUNT_FOR_FREE_DELIVERY";
 	public static final String DAY_MIN_ORDER_DELIVERED = "DAY_MIN_ORDER_DELIVERED";
-	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
-	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
+	public static final String COMMISION_PER_ORDER = "COMMISION_PER_ORDER";
+	public static final String COMMISION_PER_REPLACE_ORDER = "COMMISION_PER_REPLACE_ORDER";
+	public static final String COMMISION_PER_RETURN_ORDER = "COMMISION_PER_RETURN_ORDER";
+	public static final String INCENTIVE_AMOUNT_FOR_DAY = "INCENTIVE_AMOUNT_FOR_DAY";
 
 	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it
-	 * is the admin that takes the comission
-	 * and not the vendor, once changed in the settings table , replace the same
-	 * name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
+	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "VENDOR_COMISSION";
 	/**
