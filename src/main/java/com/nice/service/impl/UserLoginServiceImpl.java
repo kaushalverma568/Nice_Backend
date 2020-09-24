@@ -1090,7 +1090,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public UserLogin getSuperAdminLoginDetail() throws NotFoundException, ValidationException {
-		Optional<List<UserLogin>> userLoginList = userLoginRepository.findAllByRole(Role.SUPER_ADMIN.getStatusValue());
+		com.nice.model.Role role = roleService.getRoleDetailByName(Role.SUPER_ADMIN.getStatusValue());
+		Optional<List<UserLogin>> userLoginList = userLoginRepository.findAllByRole(role);
 		if (!userLoginList.isPresent()) {
 			throw new NotFoundException(messageByLocaleService.getMessage("super.admin.not.found", null));
 		} else if (userLoginList.get().size() > 1) {

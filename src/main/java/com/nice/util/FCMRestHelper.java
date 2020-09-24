@@ -16,7 +16,7 @@ import com.google.gson.JsonObject;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 10-Jul-2020
+ * @date : 10-Jul-2020
  */
 public class FCMRestHelper {
 
@@ -47,7 +47,7 @@ public class FCMRestHelper {
 	/**
 	 * Your SECRET server key
 	 */
-	private static final String FCM_SERVER_KEY = "AAAAdaCL7Gg:APA91bEn8ZGna_WMN6EdFM8u9s9nIRrxRu_Wp31BiOtsuzy3hBnFFPBgUM0O_bAOHXjIQqWkOV-H1DKXI6rSfStcXnLuCT5dCyjSC4UjOe9tcxKuqsXHmI3mGMtaybthyNr_3RLFZlQo";
+//	private static final String FCM_SERVER_KEY = "AAAAdaCL7Gg:APA91bEn8ZGna_WMN6EdFM8u9s9nIRrxRu_Wp31BiOtsuzy3hBnFFPBgUM0O_bAOHXjIQqWkOV-H1DKXI6rSfStcXnLuCT5dCyjSC4UjOe9tcxKuqsXHmI3mGMtaybthyNr_3RLFZlQo";
 
 	public static FCMRestHelper getInstance(final String fcmKey) {
 
@@ -64,54 +64,55 @@ public class FCMRestHelper {
 	/**
 	 * Send notification
 	 *
-	 * @param  type
-	 * @param  typeParameter
-	 * @param  notificationObject
+	 * @param type
+	 * @param typeParameter
+	 * @param notificationObject
 	 * @return
 	 */
-	public String sendNotification(final String type, final String typeParameter, final JsonObject notificationObject) {
-		return sendNotifictaionAndData(type, typeParameter, notificationObject, null);
+	public String sendNotification(final String type, final String typeParameter, final JsonObject notificationObject, final String fcmKey) {
+		return sendNotifictaionAndData(type, typeParameter, notificationObject, null, fcmKey);
 	}
 
 	/**
 	 * Send data
 	 *
-	 * @param  type
-	 * @param  typeParameter
-	 * @param  dataObject
+	 * @param type
+	 * @param typeParameter
+	 * @param dataObject
 	 * @return
 	 */
-	public String sendData(final String type, final String typeParameter, final JsonObject dataObject) {
-		return sendNotifictaionAndData(type, typeParameter, null, dataObject);
+	public String sendData(final String type, final String typeParameter, final JsonObject dataObject, final String fcmKey) {
+		return sendNotifictaionAndData(type, typeParameter, null, dataObject, fcmKey);
 	}
 
 	/**
 	 * Send data on multiple devices
 	 *
-	 * @param  type
-	 * @param  typeParameter
-	 * @param  dataObject
+	 * @param type
+	 * @param typeParameter
+	 * @param dataObject
 	 * @return
 	 */
-	public String sendDataMulti(final String type, final List<String> recipientList, final JsonObject dataObject) {
-		return sendNotifictaionAndDataMulti(type, recipientList, null, dataObject);
+	public String sendDataMulti(final String type, final List<String> recipientList, final JsonObject dataObject, final String fcmKey) {
+		return sendNotifictaionAndDataMulti(type, recipientList, null, dataObject, fcmKey);
 	}
 
 	/**
 	 * Send notification and data
 	 *
-	 * @param  type
-	 * @param  typeParameter
-	 * @param  notificationObject
-	 * @param  dataObject
+	 * @param type
+	 * @param typeParameter
+	 * @param notificationObject
+	 * @param dataObject
 	 * @return
 	 */
-	public String sendNotifictaionAndData(final String type, final String typeParameter, final JsonObject notificationObject, final JsonObject dataObject) {
+	public String sendNotifictaionAndData(final String type, final String typeParameter, final JsonObject notificationObject, final JsonObject dataObject,
+			final String fcmKey) {
 		String result = null;
 		if (type.equals(TYPE_TO) || type.equals(TYPE_CONDITION)) {
 			JsonObject sendObject = new JsonObject();
 			sendObject.addProperty(type, typeParameter);
-			result = sendFcmMessage(sendObject, notificationObject, dataObject);
+			result = sendFcmMessage(sendObject, notificationObject, dataObject, fcmKey);
 		}
 		return result;
 	}
@@ -119,14 +120,14 @@ public class FCMRestHelper {
 	/**
 	 * Send notification and data on multiple devices
 	 *
-	 * @param  type
-	 * @param  recipientList
-	 * @param  notificationObject
-	 * @param  dataObject
+	 * @param type
+	 * @param recipientList
+	 * @param notificationObject
+	 * @param dataObject
 	 * @return
 	 */
 	public String sendNotifictaionAndDataMulti(final String type, final List<String> recipientList, final JsonObject notificationObject,
-			final JsonObject dataObject) {
+			final JsonObject dataObject, final String fcmKey) {
 		String result = null;
 		if (type.equals(TYPE_REGISTRATION)) {
 			JsonObject sendObject = new JsonObject();
@@ -135,7 +136,7 @@ public class FCMRestHelper {
 				jsonArray.add(string);
 			}
 			sendObject.add(type, jsonArray);
-			result = sendFcmMessage(sendObject, notificationObject, dataObject);
+			result = sendFcmMessage(sendObject, notificationObject, dataObject, fcmKey);
 		}
 		return result;
 	}
@@ -143,51 +144,51 @@ public class FCMRestHelper {
 	/**
 	 * Send data to a topic
 	 *
-	 * @param  topic
-	 * @param  dataObject
+	 * @param topic
+	 * @param dataObject
 	 * @return
 	 */
-	public String sendTopicData(final String topic, final JsonObject dataObject) {
-		return sendData(TYPE_TO, TOPICS + topic, dataObject);
+	public String sendTopicData(final String topic, final JsonObject dataObject, final String fcmKey) {
+		return sendData(TYPE_TO, TOPICS + topic, dataObject, fcmKey);
 	}
 
 	/**
 	 * Send notification to a topic
 	 *
-	 * @param  topic
-	 * @param  notificationObject
+	 * @param topic
+	 * @param notificationObject
 	 * @return
 	 */
-	public String sendTopicNotification(final String topic, final JsonObject notificationObject) {
-		return sendNotification(TYPE_TO, TOPICS + topic, notificationObject);
+	public String sendTopicNotification(final String topic, final JsonObject notificationObject, final String fcmKey) {
+		return sendNotification(TYPE_TO, TOPICS + topic, notificationObject, fcmKey);
 	}
 
 	/**
 	 * Send notification and data to a topic
 	 *
-	 * @param  topic
-	 * @param  notificationObject
-	 * @param  dataObject
+	 * @param topic
+	 * @param notificationObject
+	 * @param dataObject
 	 * @return
 	 */
-	public String sendTopicNotificationAndData(final String topic, final JsonObject notificationObject, final JsonObject dataObject) {
-		return sendNotifictaionAndData(TYPE_TO, TOPICS + topic, notificationObject, dataObject);
+	public String sendTopicNotificationAndData(final String topic, final JsonObject notificationObject, final JsonObject dataObject, final String fcmKey) {
+		return sendNotifictaionAndData(TYPE_TO, TOPICS + topic, notificationObject, dataObject, fcmKey);
 	}
 
 	/**
 	 * Send a Firebase Cloud Message
 	 *
-	 * @param  sendObject         - Contains to or condition
-	 * @param  notificationObject - Notification Data
-	 * @param  dataObject         - Data
+	 * @param sendObject         - Contains to or condition
+	 * @param notificationObject - Notification Data
+	 * @param dataObject         - Data
 	 * @return
 	 */
-	private String sendFcmMessage(final JsonObject sendObject, final JsonObject notificationObject, final JsonObject dataObject) {
+	private String sendFcmMessage(final JsonObject sendObject, final JsonObject notificationObject, final JsonObject dataObject, final String fcmKey) {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders httpHeaders = new HttpHeaders();
 
 		httpHeaders.set("Content-Type", "application/json");
-		httpHeaders.set("Authorization", "key=" + FCM_SERVER_KEY);
+		httpHeaders.set("Authorization", "key=" + fcmKey);
 
 		if (notificationObject != null) {
 			sendObject.add("notification", notificationObject);

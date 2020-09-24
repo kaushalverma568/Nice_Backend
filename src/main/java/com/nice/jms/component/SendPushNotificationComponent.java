@@ -16,6 +16,7 @@ import com.nice.constant.NotificationMessageConstantsArabic;
 import com.nice.constant.NotificationMessageConstantsEnglish;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.UserType;
+import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -29,6 +30,7 @@ import com.nice.model.Task;
 import com.nice.model.Ticket;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
+import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
@@ -50,8 +52,10 @@ import com.nice.util.FCMRestHelper;
 public class SendPushNotificationComponent {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendPushNotificationComponent.class);
+	private static final String TITLE = "title";
 	private static final String MESSAGE = "message";
 	private static final String ORDER_ID = "orderId";
+	private static final String IMAGE = "image";
 	private static final String DELIVERY_BOY_KEY = "";
 	private static final String CUSTOMER_KEY = "";
 	private static final String WEB_KEY = "AAAAGiFgaEY:APA91bFMLBoCm4dH8EMKu5dZ8mogU87S0Nh_fXWIn0w1xt03rCS-Q7KDHvzLKvoUDAiBZq-nb9DLufdeFc0qpBizALDfxPwh8UbuVQLf7D3euIdAbtD3AGjPynnIiPcUBrYV5RciCZ5k";
@@ -85,6 +89,9 @@ public class SendPushNotificationComponent {
 
 	@Autowired
 	private OrdersService ordersService;
+
+	@Autowired
+	private CompanyService companyService;
 
 	@Value("${application.name}")
 	private String applicationName;
@@ -139,7 +146,10 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty(ORDER_ID, task.getOrder().getId());
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
@@ -184,7 +194,10 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
@@ -244,7 +257,10 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty("ticketId", pushNotificationDTO.getTicketId());
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
@@ -291,7 +307,10 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty("deliveryBoyId", pushNotificationDTO.getDeliveryBoyId());
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
@@ -337,7 +356,10 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty("vendorId", pushNotificationDTO.getVendorId());
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
@@ -382,16 +404,16 @@ public class SendPushNotificationComponent {
 
 	public void sendPushNotificationToDeliveryBoy(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(DELIVERY_BOY_KEY);
-		notificationObject.addProperty("title", applicationName);
-		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject);
+		notificationObject.addProperty(TITLE, applicationName);
+		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, DELIVERY_BOY_KEY);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
 		LOGGER.info("push notification result {}", resultObject);
 	}
 
 	public void sendPushNotificationToAdminOrVendor(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(WEB_KEY);
-		notificationObject.addProperty("title", applicationName);
-		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject);
+		notificationObject.addProperty(TITLE, applicationName);
+		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, WEB_KEY);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
 		LOGGER.info("push notification result {}", resultObject);
 	}

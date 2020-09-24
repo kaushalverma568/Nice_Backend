@@ -183,7 +183,9 @@ public class UserLoginController {
 			/**
 			 * send email code starts from here
 			 */
-			userLoginService.sendWelComeEmail(userId);
+			if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+				userLoginService.sendWelComeEmail(userId);
+			}
 			/**
 			 * send email code ends from here
 			 */
