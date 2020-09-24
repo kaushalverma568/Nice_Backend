@@ -300,8 +300,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSortByDirection())
-				&& !(Constant.SORT_DIRECTION_ASC.equals(deliveryBoyFilterDTO.getSortByDirection())
-						|| Constant.SORT_DIRECTION_DESC.equals(deliveryBoyFilterDTO.getSortByDirection()))) {
+				&& !Constant.SORT_DIRECTION_ASC.equals(deliveryBoyFilterDTO.getSortByDirection())
+				&& !Constant.SORT_DIRECTION_DESC.equals(deliveryBoyFilterDTO.getSortByDirection())) {
 			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
 		}
 	}
@@ -364,7 +364,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				/**
 				 * if delivery boy has assigned orders and not delivered yet then can't deactive
 				 */
-				if (deliveryBoyCurrentStatus.getIsBusy().booleanValue()) {
+				if (deliveryBoyCurrentStatus.getIsBusy()) {
 					throw new ValidationException(messageByLocaleService.getMessage("deactive.assigned.order.exist", null));
 				}
 				deliveryBoy.setStatus(DeliveryBoyStatus.DE_ACTIVE.getStatusValue());
@@ -483,7 +483,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(userLogin.getEntityId()));
 			if (deliveryBoyCurrentStatus.getIsAvailable().equals(isAvailable)) {
-				if (isAvailable.booleanValue()) {
+				if (isAvailable) {
 					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.available", null));
 				} else {
 					throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.unavailable", null));
@@ -634,7 +634,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public synchronized void acceptOrder(final Long orderId) throws NotFoundException, ValidationException {
+	public synchronized void acceptOrder(final Long orderId, final String taskType) throws NotFoundException, ValidationException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			/**
@@ -642,7 +642,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			 * order
 			 */
 			Orders orders = ordersService.getOrderById(orderId);
-			if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+			if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
+					|| !OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
+					|| !OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
 			}
 			/**
@@ -655,8 +657,21 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			/**
 			 * change order status
 			 */
-			orders.setDeliveryBoy(deliveryBoy);
-			ordersService.changeStatus(Constant.IN_PROCESS, orders);
+			String nextOrderStatus;
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(taskType)) {
+				orders.setDeliveryBoy(deliveryBoy);
+				nextOrderStatus = Constant.IN_PROCESS;
+			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskType)) {
+				orders.setReplacementDeliveryBoy(deliveryBoy);
+				nextOrderStatus = Constant.RETURN_PROCESSED;
+			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskType)) {
+				orders.setReplacementDeliveryBoy(deliveryBoy);
+				nextOrderStatus = Constant.REPLACE_PROCESSED;
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("invalid.task.status", null));
+			}
+
+			ordersService.changeStatus(nextOrderStatus, orders);
 
 			/**
 			 * create a delivery task for delivery boy
@@ -664,7 +679,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			TaskDto taskDto = new TaskDto();
 			taskDto.setDeliveryBoyId(deliveryBoy.getId());
 			taskDto.setOrderId(orders.getId());
-			taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+			taskDto.setTaskType(taskType);
 
 			taskService.createTask(taskDto);
 
@@ -689,7 +704,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			/**
 			 * If assigned order exist then can't logged out
 			 */
-			if (deliveryBoyCurrentStatus.getIsBusy().booleanValue()) {
+			if (deliveryBoyCurrentStatus.getIsBusy()) {
 				throw new ValidationException(messageByLocaleService.getMessage("logout.assigned.order.exist", null));
 			} else {
 				deliveryBoyCurrentStatus.setIsLogin(false);
@@ -701,7 +716,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public synchronized void updateDeliveryBoyRating(final Long deliveryBoyId, final Double ratingByClient) throws NotFoundException {
 		DeliveryBoy deliveryBoy = getDeliveryBoyDetail(deliveryBoyId);
-		Double updatedRating = ((deliveryBoy.getRating() * deliveryBoy.getNoOfRating()) + ratingByClient) / (deliveryBoy.getNoOfRating() + 1);
+		Double updatedRating = (deliveryBoy.getRating() * deliveryBoy.getNoOfRating() + ratingByClient) / (deliveryBoy.getNoOfRating() + 1);
 		deliveryBoy.setRating(updatedRating);
 		deliveryBoy.setNoOfRating(deliveryBoy.getNoOfRating() + 1);
 		deliveryBoyRepository.save(deliveryBoy);
@@ -837,7 +852,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public OrdersDetailDTOForDeliveryBoy getOrderDetails(final Long taskId, final Long orderId) throws NotFoundException, ValidationException {
-		if ((orderId == null && taskId == null) || (orderId != null && taskId != null)) {
+		if (orderId == null && taskId == null || orderId != null && taskId != null) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.id.task.id.not.null", null));
 		}
 		Locale locale = LocaleContextHolder.getLocale();

@@ -26,17 +26,16 @@ import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 
 public interface DeliveryBoyService {
 	/**
 	 * persist deliveryBoy object
 	 *
-	 * @param deliveryBoyDTO
-	 * @param profilePicture
+	 * @param  deliveryBoyDTO
+	 * @param  profilePicture
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -48,7 +47,7 @@ public interface DeliveryBoyService {
 	/**
 	 * get DTO object of deliveryBoy
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -57,8 +56,8 @@ public interface DeliveryBoyService {
 	/**
 	 * change status of deliveryBoy (active/deActive)
 	 *
-	 * @param deliveryBoyId
-	 * @param isActive
+	 * @param  deliveryBoyId
+	 * @param  isActive
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -68,7 +67,7 @@ public interface DeliveryBoyService {
 	/**
 	 * check deliveryBoy duplication and returning Boolean value.
 	 *
-	 * @param deliveryBoyDTO
+	 * @param  deliveryBoyDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -78,7 +77,7 @@ public interface DeliveryBoyService {
 	/**
 	 * get detail object of deliveryBoy
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -87,8 +86,8 @@ public interface DeliveryBoyService {
 	/**
 	 * update profile picture
 	 *
-	 * @param profilePicture
-	 * @param deliveryBoyId
+	 * @param  profilePicture
+	 * @param  deliveryBoyId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws FileOperationException
@@ -98,7 +97,7 @@ public interface DeliveryBoyService {
 	/**
 	 * Update personal details
 	 *
-	 * @param deliveryBoyPersonalDetailsDTO
+	 * @param  deliveryBoyPersonalDetailsDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -107,7 +106,7 @@ public interface DeliveryBoyService {
 	/**
 	 * Update account details
 	 *
-	 * @param deliveryBoyAccountDetailsDTO
+	 * @param  deliveryBoyAccountDetailsDTO
 	 * @throws NotFoundException
 	 */
 	void updateAccountDetails(DeliveryBoyAccountDetailsDTO deliveryBoyAccountDetailsDTO) throws NotFoundException;
@@ -115,7 +114,7 @@ public interface DeliveryBoyService {
 	/**
 	 * update email verified status of delivery boy
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @throws NotFoundException
 	 */
 	void verifyEmail(Long deliveryBoyId) throws NotFoundException;
@@ -123,11 +122,12 @@ public interface DeliveryBoyService {
 	/**
 	 * accept order
 	 *
-	 * @param orderId
+	 * @param  orderId
+	 * @param  taskType
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void acceptOrder(Long orderId) throws NotFoundException, ValidationException;
+	void acceptOrder(Long orderId, String taskType) throws NotFoundException, ValidationException;
 
 	/**
 	 * validate is log out possible or not
@@ -140,8 +140,8 @@ public interface DeliveryBoyService {
 	/**
 	 * get three nearest delivery boys
 	 *
-	 * @param orderId
-	 * @param vendorId
+	 * @param  orderId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -150,7 +150,7 @@ public interface DeliveryBoyService {
 	/**
 	 * set is login flag to true when delivery boy successfully logged in
 	 *
-	 * @param userName
+	 * @param  userName
 	 * @throws NotFoundException
 	 */
 	void updateIsLogin(String userName) throws NotFoundException;
@@ -159,8 +159,8 @@ public interface DeliveryBoyService {
 	 * update the rating of the delivery boy.(provide the rating provided by the
 	 * client and deliveryBoyId)
 	 *
-	 * @param deliveryBoyId
-	 * @param ratingByClient
+	 * @param  deliveryBoyId
+	 * @param  ratingByClient
 	 * @throws NotFoundException
 	 */
 	void updateDeliveryBoyRating(Long deliveryBoyId, Double ratingByClient) throws NotFoundException;
@@ -168,16 +168,15 @@ public interface DeliveryBoyService {
 	/**
 	 * delivery boy with phone number exist
 	 *
-	 * @param deliveryBoyDTO
+	 * @param  deliveryBoyDTO
 	 * @return
 	 */
 	Boolean isPhoneNumberExists(DeliveryBoyDTO deliveryBoyDTO);
 
 	/**
-	 *
-	 * @param activeRecords
-	 * @param searchKeyword
-	 * @param httpServletResponse
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  httpServletResponse
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -186,7 +185,7 @@ public interface DeliveryBoyService {
 	/**
 	 * get delivery boy current status details
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -195,7 +194,7 @@ public interface DeliveryBoyService {
 	/**
 	 * update delivery boy is available for delivering orders
 	 *
-	 * @param isAvailable
+	 * @param  isAvailable
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -204,7 +203,7 @@ public interface DeliveryBoyService {
 	/**
 	 * Get Order detail in delivery boy accept notification
 	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -214,9 +213,10 @@ public interface DeliveryBoyService {
 	/**
 	 * get assigned ordres count(regular orders ,return orders,replace orders
 	 * separate counts)
-	 * get assigned/delivered orders count(regular orders ,return orders,replace orders separate counts)
+	 * get assigned/delivered orders count(regular orders ,return orders,replace
+	 * orders separate counts)
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @param  taskFilterDTO
 	 * @return
 	 * @throws NotFoundException
@@ -227,7 +227,7 @@ public interface DeliveryBoyService {
 	/**
 	 * get delivery boy dash board
 	 *
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -237,7 +237,7 @@ public interface DeliveryBoyService {
 	/**
 	 * get delivery boy count based on param
 	 *
-	 * @param deliveryBoyFilterDTO
+	 * @param  deliveryBoyFilterDTO
 	 * @return
 	 */
 	Long getDeliveryBoyCountBasedOnParams(DeliveryBoyFilterDTO deliveryBoyFilterDTO);
@@ -245,9 +245,9 @@ public interface DeliveryBoyService {
 	/**
 	 * get list of delivery boy by parameters
 	 *
-	 * @param startIndex
-	 * @param pageSize
-	 * @param deliveryBoyFilterDTO
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  deliveryBoyFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -255,10 +255,10 @@ public interface DeliveryBoyService {
 			throws ValidationException;
 
 	/**
-	 * @param deliveryBoyId
-	 * @param startIndex
-	 * @param pageSize
-	 * @param taskFilterDTO
+	 * @param  deliveryBoyId
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  taskFilterDTO
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -268,8 +268,8 @@ public interface DeliveryBoyService {
 	/**
 	 * Get order details for delivery boy
 	 *
-	 * @param taskId
-	 * @param orderId
+	 * @param  taskId
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException

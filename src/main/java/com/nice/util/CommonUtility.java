@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 19-Jun-2020
+ * @date   : 19-Jun-2020
  */
 @Component
 public class CommonUtility {
@@ -33,18 +33,18 @@ public class CommonUtility {
 		super();
 	}
 
-	public static final Predicate<String> NOT_NULL_NOT_EMPTY_STRING = s -> (s != null) && !s.isEmpty();
+	public static final Predicate<String> NOT_NULL_NOT_EMPTY_STRING = s -> s != null && !s.isEmpty();
 
-	public static final Predicate<String> NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING = s -> (s != null) && !s.isEmpty() && !s.isBlank();
+	public static final Predicate<String> NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING = s -> s != null && !s.isEmpty() && !s.isBlank();
 
-	public static final Predicate<List<?>> NOT_NULL_NOT_EMPTY_LIST = s -> (s != null) && !s.isEmpty();
+	public static final Predicate<List<?>> NOT_NULL_NOT_EMPTY_LIST = s -> s != null && !s.isEmpty();
 
-	public static final Predicate<Map<?, ?>> NOT_NULL_NOT_EMPTY_MAP = s -> (s != null) && !s.isEmpty();
+	public static final Predicate<Map<?, ?>> NOT_NULL_NOT_EMPTY_MAP = s -> s != null && !s.isEmpty();
 
 	/**
 	 * Encoding String in BCryptPasswordEncoder Used for Oauth
 	 *
-	 * @param string
+	 * @param  string
 	 * @return
 	 */
 	public static String generateBcrypt(final String string) {
@@ -64,7 +64,7 @@ public class CommonUtility {
 	/**
 	 * Return Map with new DistinctFileName,fileNameWithOutExtension,extension
 	 *
-	 * @param file
+	 * @param  file
 	 * @return
 	 */
 	public static Map<String, String> getDistinctFileProperties(final MultipartFile file) {
@@ -143,8 +143,12 @@ public class CommonUtility {
 		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	public static LocalDateTime convertDateToLocalDateTime(final Date dateToConvert) {
+		return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
 	public static Double distance(final Double lat1, final Double lon1, final Double lat2, final Double lon2) {
-		if ((lat1.equals(lat2)) && (lon1.equals(lon2))) {
+		if (lat1.equals(lat2) && lon1.equals(lon2)) {
 			return 0d;
 		} else {
 			Double theta = lon1 - lon2;
@@ -160,7 +164,7 @@ public class CommonUtility {
 	/**
 	 * This method returns the 2 decimal value of any given double value
 	 *
-	 * @param doubleValue
+	 * @param  doubleValue
 	 * @return
 	 */
 	public static Double round(final Double doubleValue) {

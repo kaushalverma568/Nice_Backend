@@ -38,10 +38,11 @@ public interface TaskService {
 	/**
 	 * @param  taskId
 	 * @param  taskStatus
+	 * @param  taskType
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void changeTaskStatus(Long taskId, String taskStatus) throws ValidationException, NotFoundException;
+	void changeTaskStatus(Long taskId, String taskStatus, String taskType) throws ValidationException, NotFoundException;
 
 	/**
 	 * get orders count according to status and taskType for delivery boy
@@ -54,7 +55,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType);
 
 	/**
-	 * get orders count according to status ,taskType and date for delivery boy(get today's delivered /replaced count)
+	 * get orders count according to status ,taskType and date for delivery boy(get
+	 * today's delivered /replaced count)
 	 *
 	 * @param  deliveryBoy
 	 * @param  status
@@ -65,7 +67,8 @@ public interface TaskService {
 	Integer getOrdersCountAccordingToStatusAndTaskTypeAndDateForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType, Date date);
 
 	/**
-	 * get task list count based on parameters (for today's delivered/replaced order list for delivery boy created at will
+	 * get task list count based on parameters (for today's delivered/replaced order
+	 * list for delivery boy created at will
 	 * be current date)
 	 *
 	 * @param  taskFilterDTO
@@ -162,19 +165,21 @@ public interface TaskService {
 	 * update task status to pick up on way
 	 *
 	 * @param  taskId
+	 * @param  taskType
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateStatusToPickOnWay(Long taskId) throws NotFoundException, ValidationException;
+	void updateStatusToPickOnWay(Long taskId, String taskType) throws NotFoundException, ValidationException;
 
 	/**
 	 * update task status to delivered
 	 *
 	 * @param  taskId
+	 * @param  taskType
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void completeTask(Long taskId) throws NotFoundException, ValidationException;
+	void completeTask(Long taskId, String taskType) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param  deliveryBoyId

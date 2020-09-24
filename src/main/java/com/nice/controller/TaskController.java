@@ -77,11 +77,11 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/deliver/{taskId}")
-	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
-			throws ValidationException, NotFoundException {
+	@PutMapping("/deliver/{taskId}/type/{taskType}")
+	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
+			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside complete task method for task Id: {}", taskId);
-		taskService.completeTask(taskId);
+		taskService.completeTask(taskId, taskType);
 		/**
 		 * send email start here
 		 */
@@ -97,11 +97,11 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/pickup/{taskId}")
-	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
-			throws NotFoundException, ValidationException {
+	@PutMapping("/pickup/{taskId}/type/{taskType}")
+	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
+			@PathVariable("taskType") final String taskType) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
-		taskService.updateStatusToPickOnWay(taskId);
+		taskService.updateStatusToPickOnWay(taskId, taskType);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
@@ -110,15 +110,16 @@ public class TaskController {
 	 *
 	 * @param  token
 	 * @param  taskId
+	 * @param  taskType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/reach/restaurant/{taskId}")
-	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
-			throws ValidationException, NotFoundException {
+	@PutMapping("/reach/restaurant/{taskId}/type/{taskType}")
+	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
+			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at restaurant method for task Id: {}", taskId);
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue());
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue(), taskType);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
@@ -131,11 +132,11 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/ontheway/{taskId}")
-	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
-			throws ValidationException, NotFoundException {
+	@PutMapping("/ontheway/{taskId}/type/{taskType}")
+	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
+			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to one the way method for task Id: {}", taskId);
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue());
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue(), taskType);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 

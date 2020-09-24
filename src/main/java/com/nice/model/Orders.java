@@ -83,6 +83,10 @@ public class Orders extends CommonModel {
 	@Column(name = "total_order_amt", nullable = false)
 	private Double totalOrderAmount;
 
+	/**
+	 * This field contains the amount of order after discount, not including
+	 * delivery charge
+	 */
 	@Column(name = "gross_order_amount", nullable = false)
 	private Double grossOrderAmount;
 

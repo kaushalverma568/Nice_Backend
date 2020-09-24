@@ -55,7 +55,8 @@ public class AcceptingOrderNotificationScheduler {
 	@Scheduled(fixedRate = 70000)
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
 		/**
-		 * get order list which is appproved and notification not sended more then three times and next time we have to send is
+		 * get order list which is appproved and notification not sended more then three
+		 * times and next time we have to send is
 		 * less then current time
 		 */
 		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(OrderStatusEnum.CONFIRMED.getStatusValue(),
@@ -64,10 +65,14 @@ public class AcceptingOrderNotificationScheduler {
 
 			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 			/**
-			 * if not a single delivery boy is logged in for accepting order then throw exception
+			 * if not a single delivery boy is logged in for accepting order then throw
+			 * exception
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+				/**
+				 * We will send notification to vendor / admin
+				 */
 			} else {
 				PushNotification pushNotification = new PushNotification();
 				pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
