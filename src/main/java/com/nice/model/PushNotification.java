@@ -36,9 +36,6 @@ public class PushNotification extends CommonModel {
 	@Column(name = "entity_type")
 	private String entityType;
 
-	@Column(name = "order_id")
-	private Long orderId;
-
 	@Column(name = "message_english")
 	private String messageEnglish;
 

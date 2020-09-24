@@ -401,6 +401,7 @@ public class SendPushNotificationComponent {
 		pushNotification.setEntityId(entityId);
 		pushNotification.setEntityType(entityType);
 		pushNotification.setActive(true);
+		pushNotification.setSuccessAll(false);
 		pushNotification.setMessageEnglish(messageEnglish);
 		pushNotification.setMessageArabic(messageArabic);
 		return pushNotification;
