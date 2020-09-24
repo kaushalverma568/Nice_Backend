@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import javax.mail.MessagingException;
@@ -268,18 +267,17 @@ public class CustomerServiceImpl implements CustomerService {
 		userOtpDto.setUserId(userLogin.getId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 
-		sendEmail(otp.getOtp(), userLogin.getId(), resultCustomer.getEmail());
+		sendEmail(otp.getOtp(), userLogin.getId(), resultCustomer.getEmail(), resultCustomer.getPreferredLanguage());
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email) {
+	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setUserId(userId);
 		notification.setEmail(email);
 		notification.setUserType(UserType.CUSTOMER.name());
 		notification.setSendingType(SendingType.OTP.name());
-		Locale locale = LocaleContextHolder.getLocale();
-		notification.setLanguage(locale.getLanguage());
+		notification.setLanguage(language);
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}

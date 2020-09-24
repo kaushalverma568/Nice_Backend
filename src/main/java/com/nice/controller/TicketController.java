@@ -40,7 +40,7 @@ import com.nice.util.PaginationUtil;
 /**
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : Aug 7, 2020
+ * @date : Aug 7, 2020
  */
 @RequestMapping(path = "/ticket")
 @RestController
@@ -59,8 +59,8 @@ public class TicketController {
 	/**
 	 * Create Ticket
 	 *
-	 * @param  TicketReason
-	 * @param  result
+	 * @param TicketReason
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -77,6 +77,10 @@ public class TicketController {
 		}
 		ticketService.addTicket(ticketDTO);
 		LOGGER.info("Outside add Ticket");
+		/**
+		 * send push notification to admin
+		 */
+
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.create.message", null))
 				.create();
 	}
@@ -84,7 +88,7 @@ public class TicketController {
 	/**
 	 * Update Ticket
 	 *
-	 * @param  ticketDTO
+	 * @param ticketDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -104,7 +108,7 @@ public class TicketController {
 	/**
 	 * Get ticket detail based on ticketId
 	 *
-	 * @param  ticketId
+	 * @param ticketId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -121,12 +125,12 @@ public class TicketController {
 	/**
 	 * Get ticket list based on parameters for user
 	 *
-	 * @param  accessToken
-	 * @param  userType
-	 * @param  name
-	 * @param  entityId
-	 * @param  pageNumber
-	 * @param  pageSize
+	 * @param accessToken
+	 * @param userType
+	 * @param name
+	 * @param entityId
+	 * @param pageNumber
+	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -151,10 +155,10 @@ public class TicketController {
 	/**
 	 * Export ticket
 	 *
-	 * @param  accessToken
-	 * @param  httpServletResponse
-	 * @param  name
-	 * @param  userType
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param name
+	 * @param userType
 	 * @return
 	 * @throws FileNotFoundException
 	 * @throws NotFoundException

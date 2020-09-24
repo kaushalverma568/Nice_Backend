@@ -14,7 +14,7 @@ public interface PushNotificationReceiverService {
 	 *
 	 * @param pushNotification
 	 */
-	void addUpdatePushNotificationReceiver(PushNotificationReceiver pushNotificationReceiver);
+	PushNotificationReceiver addUpdatePushNotificationReceiver(PushNotificationReceiver pushNotificationReceiver);
 
 	/**
 	 * get Push notification receiver by id

@@ -290,8 +290,9 @@ public interface VendorService {
 	 * send email for change vendor status
 	 *
 	 * @param vendorId
+	 * @throws NotFoundException
 	 */
-	void sendEmailForChangeVendorStatus(Long vendorId);
+	void sendEmailForChangeVendorStatus(Long vendorId) throws NotFoundException;
 
 	/**
 	 * vendor count for app list

@@ -510,10 +510,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		userOtpDto.setUserId(userLogin.getId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 
-		sendEmail(otp.getOtp(), userLogin.getId(), deliveryBoy.getEmail());
+		sendEmail(otp.getOtp(), userLogin.getId(), deliveryBoy.getEmail(), deliveryBoy.getPreferredLanguage());
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email) {
+	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setUserId(userId);
@@ -521,6 +521,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		notification.setUserType(UserType.DELIVERY_BOY.name());
 		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
+		notification.setLanguage(language);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 

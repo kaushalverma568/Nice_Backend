@@ -30,24 +30,23 @@ public class PushNotification extends CommonModel {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "vendor_id")
-	private Long vendorId;
+	@Column(name = "entity_id")
+	private Long entityId;
 
-	@Column(name = "delivery_boy_id")
-	private Long deliveryBoyId;
+	@Column(name = "entity_type")
+	private String entityType;
 
 	@Column(name = "order_id")
 	private Long orderId;
 
-	@Column(name = "customer_id")
-	private Long customerId;
+	@Column(name = "message_english")
+	private String messageEnglish;
 
-	@Column(name = "processed")
-	private Boolean processed;
-
-	@Column(name = "success")
-	private Boolean success;
-
-	@Column(name = "message")
-	private String message;
+	@Column(name = "message_arabic")
+	private String messageArabic;
+	/**
+	 * future purpose only we have not implemented yet
+	 */
+	@Column(name = "success_all")
+	private Boolean successAll;
 }

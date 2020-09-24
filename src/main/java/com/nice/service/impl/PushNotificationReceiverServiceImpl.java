@@ -27,8 +27,8 @@ public class PushNotificationReceiverServiceImpl implements PushNotificationRece
 	private MessageByLocaleService messageByLocaleService;
 
 	@Override
-	public void addUpdatePushNotificationReceiver(final PushNotificationReceiver pushNotificationReceiver) {
-		pushNotificationReceiverRepository.save(pushNotificationReceiver);
+	public PushNotificationReceiver addUpdatePushNotificationReceiver(final PushNotificationReceiver pushNotificationReceiver) {
+		return pushNotificationReceiverRepository.save(pushNotificationReceiver);
 	}
 
 	@Override

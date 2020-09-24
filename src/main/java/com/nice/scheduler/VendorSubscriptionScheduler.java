@@ -9,11 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.nice.exception.NotFoundException;
 import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 
 @Component
@@ -34,7 +35,11 @@ public class VendorSubscriptionScheduler {
 	public void expiredSubscription(final Date runDate) {
 		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(new Date());
 		for (Long vendorId : vendorIds) {
-			vendorService.sendEmailForChangeVendorStatus(vendorId);
+			try {
+				vendorService.sendEmailForChangeVendorStatus(vendorId);
+			} catch (NotFoundException e) {
+				LOGGER.info("not found exception while processing vendor subscription", e.getMessage());
+			}
 		}
 	}
 

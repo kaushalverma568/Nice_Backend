@@ -192,7 +192,7 @@ public class UserLoginController {
 			 * send push notification for new vendor to admin
 			 */
 			if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-				userLoginService.sendPushNotificationForNewVendor(userLogin.getEntityId());
+				userLoginService.sendPushNotificationForNewProfile(userLogin.getEntityId(), userLogin.getEntityType());
 			}
 			String message = messageByLocaleService.getMessage("verify.email.success", null);
 			return new ModelAndView(REDIRECT + redirectUrl + "auth/thank-you?message="
@@ -232,9 +232,17 @@ public class UserLoginController {
 			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VERIFY_USER_SUCCESS, null))
 					.setData(customerService.getCustomer(userLogin.getEntityId())).create();
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
+			/**
+			 * send push notification
+			 */
+			userLoginService.sendPushNotificationForNewProfile(userLogin.getEntityId(), userLogin.getEntityType());
 			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VERIFY_USER_SUCCESS, null))
 					.setData(deliveryBoyService.getDeliveryBoy(userLogin.getEntityId())).create();
 		} else if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			/**
+			 * send push notification
+			 */
+			userLoginService.sendPushNotificationForNewProfile(userLogin.getEntityId(), userLogin.getEntityType());
 			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VERIFY_USER_SUCCESS, null))
 					.setData(vendorService.getVendor(userLogin.getEntityId())).create();
 		} else {

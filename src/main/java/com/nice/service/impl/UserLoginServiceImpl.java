@@ -357,6 +357,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		notification.setUserType(userType);
 		notification.setSendingType(sendingType);
 		notification.setType(NotificationQueueConstants.FORGOT_PASS);
+		notification.setLanguage(LocaleContextHolder.getLocale().getLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
@@ -498,9 +499,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void sendWelComeEmail(final Long userId) throws NotFoundException {
 		final Notification notification = new Notification();
-		notification.setCustomerId(getUserLoginDetail(userId).getEntityId());
+		Customer customer = customerService.getCustomerDetails(getUserLoginDetail(userId).getEntityId());
+		notification.setCustomerId(customer.getId());
 		notification.setType(NotificationQueueConstants.CUSTOMER_REGISTRATION);
-//		notifi
+		notification.setLanguage(customer.getPreferredLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 	}
 
@@ -1062,14 +1064,21 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	@Override
-	public void sendPushNotificationForNewVendor(final Long vendorId) throws NotFoundException {
-		Vendor vendor = vendorService.getVendorDetail(vendorId);
+	public void sendPushNotificationForNewProfile(final Long entityId, final String entityType) throws NotFoundException {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
-		pushNotificationDTO.setVendorId(vendorId);
-		pushNotificationDTO.setType(NotificationQueueConstants.NEW_VENDOR_PUSH_NOTIFICATION);
-		pushNotificationDTO.setLanguage(vendor.getPreferredLanguage());
-		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
+		if (UserType.VENDOR.name().equals(entityType)) {
+			Vendor vendor = vendorService.getVendorDetail(entityId);
+			pushNotificationDTO.setVendorId(entityId);
+			pushNotificationDTO.setType(NotificationQueueConstants.NEW_VENDOR_PUSH_NOTIFICATION);
+			pushNotificationDTO.setLanguage(vendor.getPreferredLanguage());
+		} else {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(entityId);
+			pushNotificationDTO.setDeliveryBoyId(entityId);
+			pushNotificationDTO.setType(NotificationQueueConstants.NEW_DB_PUSH_NOTIFICATION);
+			pushNotificationDTO.setLanguage(deliveryBoy.getPreferredLanguage());
+		}
 	}
+
 
 	@Override
 	public UserLogin getSuperAdminLoginDetail() throws NotFoundException, ValidationException {

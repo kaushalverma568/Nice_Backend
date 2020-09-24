@@ -14,7 +14,7 @@ public interface PushNotificationService {
 	 *
 	 * @param pushNotification
 	 */
-	void addUpdatePushNotification(PushNotification pushNotification);
+	PushNotification addUpdatePushNotification(PushNotification pushNotification);
 
 	/**
 	 * get Push notification by id

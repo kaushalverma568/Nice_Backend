@@ -8,6 +8,7 @@ import javax.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -89,7 +90,8 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if
+		 * yes update the existing row, if not make a new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -117,6 +119,7 @@ public class OtpServiceImpl implements OtpService {
 					.setEmail(CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userOtpDto.getEmail()) ? userOtpDto.getEmail().toLowerCase() : userlogin.getEmail());
 			notification.setType(NotificationQueueConstants.SEND_OTP);
 			notification.setSendingType(userOtpDto.getSendingType());
+			notification.setLanguage(LocaleContextHolder.getLocale().getLanguage());
 			jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 		} else if (UserOtpTypeEnum.SMS.name().equals(userOtpDto.getType())) {
 			String otpMessage = "OTP for your Nice application is : ";
@@ -159,12 +162,14 @@ public class OtpServiceImpl implements OtpService {
 				if (optionalUserOtp.get().getActive().booleanValue()) {
 					Date updatedAt = optionalUserOtp.get().getUpdatedAt();
 					/**
-					 * Check if the otp is generated only before a specified interval, if not return false
+					 * Check if the otp is generated only before a specified interval, if not return
+					 * false
 					 */
 					if ((System.currentTimeMillis() - updatedAt.getTime()) / 60000 < Constant.OTP_VALIDITY_TIME_IN_MIN) {
 						UserOtp userOtp = optionalUserOtp.get();
 						/**
-						 * active needs to be FALSE every time except you want same otp to be used for verification more then one time
+						 * active needs to be FALSE every time except you want same otp to be used for
+						 * verification more then one time
 						 */
 						userOtp.setActive(active);
 						userOtpRepository.save(userOtp);

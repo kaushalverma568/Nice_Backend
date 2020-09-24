@@ -40,14 +40,16 @@ public class PushNotificationReceiver extends CommonModel {
 	private Long receiverId;
 
 	@Column(name = "device_id")
-	private Long deviceId;
-
-	@Column(name = "processed")
-	private Boolean processed;
-
+	private String deviceId;
+	/**
+	 * future purpose only we have not implemented yet
+	 */
 	@Column(name = "success")
 	private Boolean success;
 
-	@Column(name = "message")
-	private String message;
+	@Column(name = "message_english")
+	private String messageEnglish;
+
+	@Column(name = "message_arabic")
+	private String messageArabic;
 }

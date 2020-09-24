@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -463,10 +462,10 @@ public class VendorServiceImpl implements VendorService {
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
 		userOtpDto.setUserId(userLogin.getId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
-		sendEmail(otp.getOtp(), userLogin.getId(), vendor.getEmail());
+		sendEmail(otp.getOtp(), userLogin.getId(), vendor.getEmail(), vendor.getPreferredLanguage());
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email) {
+	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setUserId(userId);
@@ -477,8 +476,7 @@ public class VendorServiceImpl implements VendorService {
 		notification.setSendingType(SendingType.LINK.name());
 		notification.setUserType(UserType.VENDOR.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
-		Locale locale = LocaleContextHolder.getLocale();
-		notification.setLanguage(locale.getLanguage());
+		notification.setLanguage(language);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
@@ -864,6 +862,7 @@ public class VendorServiceImpl implements VendorService {
 			notification.setVendorId(vendor.getId());
 			notification.setUserType(UserType.VENDOR.name());
 			notification.setType(NotificationQueueConstants.VENDOR_SUBSCRIPTION_EXPIRY_REMINDER);
+			notification.setLanguage(vendor.getPreferredLanguage());
 			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 		}
 
@@ -971,10 +970,12 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void sendEmailForChangeVendorStatus(final Long vendorId) {
+	public void sendEmailForChangeVendorStatus(final Long vendorId) throws NotFoundException {
 		Notification notification = new Notification();
+		Vendor vendor = getVendorDetail(vendorId);
 		notification.setVendorId(vendorId);
 		notification.setType(NotificationQueueConstants.VENDOR_STATUS_CHANGE);
+		notification.setLanguage(vendor.getPreferredLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 
