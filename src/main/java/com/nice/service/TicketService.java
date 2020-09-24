@@ -25,10 +25,11 @@ public interface TicketService {
 	 *
 	 * @param ticketDTO
 	 * @param userId
+	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void addTicket(TicketDTO ticketDTO) throws ValidationException, NotFoundException;
+	Ticket addTicket(TicketDTO ticketDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get ticket by ticketId
@@ -110,5 +111,12 @@ public interface TicketService {
 	 * @throws ValidationException
 	 */
 	List<String> getTicketReasonList(String type) throws ValidationException;
+
+	/**
+	 *
+	 * @param ticketId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationForNewTicket(Long ticketId) throws NotFoundException;
 
 }

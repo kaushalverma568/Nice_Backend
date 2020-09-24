@@ -22,14 +22,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.TicketReasonType;
 import com.nice.constant.TicketStatusEnum;
 import com.nice.constant.UserType;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.TicketMapper;
 import com.nice.model.Ticket;
@@ -44,7 +47,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("ticketService")
@@ -75,8 +78,11 @@ public class TicketServiceImpl implements TicketService {
 	@Autowired
 	private ExportCSV exportCSV;
 
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
+
 	@Override
-	public void addTicket(final TicketDTO ticketDTO) throws ValidationException, NotFoundException {
+	public Ticket addTicket(final TicketDTO ticketDTO) throws ValidationException, NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		LOGGER.info("Inside add ticket method for user {}", userLogin.getId());
 		final Ticket ticket = ticketMapper.toEntity(ticketDTO);
@@ -97,6 +103,7 @@ public class TicketServiceImpl implements TicketService {
 			ticket.setTicketReason(ticketReason);
 			ticket.setActive(true);
 			ticketRepository.save(ticket);
+			return ticket;
 		}
 	}
 
@@ -176,7 +183,8 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Inside get ticket list for user {}", userLogin.getId());
 		Long entityId = null;
 		/**
-		 * if login user is delivery boy , vendor or customer then get ticket list of that user only
+		 * if login user is delivery boy , vendor or customer then get ticket list of
+		 * that user only
 		 */
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())
 				|| UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
@@ -217,6 +225,15 @@ public class TicketServiceImpl implements TicketService {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 
+	}
+
+	@Override
+	public void sendPushNotificationForNewTicket(final Long ticketId) throws NotFoundException {
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setTicketId(ticketId);
+		pushNotificationDTO.setType(NotificationQueueConstants.NEW_TICKET_PUSH_NOTIFICATION);
+		pushNotificationDTO.setLanguage(LocaleContextHolder.getLocale().getLanguage());
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
 }

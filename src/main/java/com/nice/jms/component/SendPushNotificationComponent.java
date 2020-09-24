@@ -252,15 +252,13 @@ public class SendPushNotificationComponent {
 			StringBuilder message = new StringBuilder();
 			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			for (Long deliveryBoyId : pushNotificationDTO.getDeliveryBoyIds()) {
-				UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
-				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
-				PushNotification pushNotification = new PushNotification();
-				pushNotification.setEntityId(deliveryBoyId);
-				pushNotification.setEntityType(UserType.DELIVERY_BOY.name());
-				pushNotification.setActive(true);
-				pushNotification.setMessageEnglish(NotificationMessageConstantsEnglish.NEW_ORDER_DELIVERY);
-				pushNotification.setMessageArabic(NotificationMessageConstantsArabic.NEW_ORDER_DELIVERY);
+				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
+				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+				String messageEnglish = NotificationMessageConstantsEnglish.NEW_ORDER_DELIVERY;
+				String messageArabic = NotificationMessageConstantsArabic.NEW_ORDER_DELIVERY;
+				PushNotification pushNotification = setPushNotification(deliveryBoyId, UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 				if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 					message = message.append(pushNotification.getMessageEnglish());
@@ -269,8 +267,6 @@ public class SendPushNotificationComponent {
 				}
 				notificationObject.addProperty(MESSAGE, message.toString());
 				dataObject.addProperty("orderId", pushNotificationDTO.getOrderId());
-				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
-				UserLogin userLoginReceiver = userLoginService.getSuperAdminLoginDetail();
 				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotificationDTO.getOrderId());
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList) {

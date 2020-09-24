@@ -75,12 +75,12 @@ public class TicketController {
 			LOGGER.error("Ticket validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		ticketService.addTicket(ticketDTO);
+		Ticket ticket = ticketService.addTicket(ticketDTO);
 		LOGGER.info("Outside add Ticket");
 		/**
 		 * send push notification to admin
 		 */
-
+		ticketService.sendPushNotificationForNewTicket(ticket.getId());
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.create.message", null))
 				.create();
 	}
