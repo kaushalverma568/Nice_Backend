@@ -70,7 +70,8 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 	Optional<UserLogin> findByEmailAndEntityTypeOrPhoneNumberIgnoreCaseAndEntityType(String userName, String entityType, String userName1, String entityType1);
 
 	/**
-	 * get admin panel user's login detail based entity type(null or admin panel user's user Type) and user name(email or phone number)
+	 * get admin panel user's login detail based entity type(null or admin panel user's user Type) and user name(email or
+	 * phone number)
 	 *
 	 * @param  userName
 	 * @param  adminPanelUserList
@@ -88,4 +89,14 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
 	 * @return
 	 */
 	Optional<UserLogin> findByEmailAndEntityTypeIn(String email, List<String> adminPanelUserList);
+
+	/**
+	 * get user login list based on role : this method is used for get super admin
+	 *
+	 * @param  email
+	 * @param  adminPanelUserList
+	 * @return
+	 */
+	Optional<List<UserLogin>> findAllByRole(String role);
+
 }
