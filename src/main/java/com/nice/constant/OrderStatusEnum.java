@@ -12,8 +12,8 @@ import java.util.Map;
  */
 public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	PENDING(Constant.PENDING, Constant.AVAILABLE), REJECTED(Constant.REJECTED, Constant.AVAILABLE), CONFIRMED(Constant.CONFIRMED, Constant.AVAILABLE),
-	IN_PROCESS(Constant.IN_PROCESS, Constant.AVAILABLE), STOCK_ALLOCATED(Constant.STOCK_ALLOCATED, Constant.RESERVED),
-	ORDER_IS_PREPARED(Constant.ORDER_IS_PREPARED, Constant.AVAILABLE), ORDER_PICKED_UP(Constant.ORDER_PICKED_UP, Constant.RESERVED),
+	IN_PROCESS(Constant.IN_PROCESS, Constant.AVAILABLE), ORDER_IS_PREPARED(Constant.ORDER_IS_PREPARED, Constant.AVAILABLE),
+	STOCK_ALLOCATED(Constant.STOCK_ALLOCATED, Constant.RESERVED), ORDER_PICKED_UP(Constant.ORDER_PICKED_UP, Constant.RESERVED),
 	DELIVERED(Constant.DELIVERED, Constant.DELIVERED),
 
 	REPLACE_REQUESTED(Constant.REPLACE_REQUESTED, Constant.AVAILABLE), REPLACE_CONFIRMED(Constant.REPLACE_CONFIRMED, Constant.AVAILABLE),
@@ -22,10 +22,9 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	REPLACE_PICKUP(Constant.REPLACE_PICKUP, Constant.AVAILABLE), REPLACE_STOCK_ALLOCATED(Constant.REPLACE_STOCK_ALLOCATED, Constant.RESERVED),
 	REPLACED(Constant.REPLACED, Constant.DELIVERED), CANCELLED(Constant.CANCELLED, Constant.AVAILABLE),
 
-	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.DELIVERED), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.AVAILABLE),
-	RETURN_REJECTED(Constant.RETURN_REJECTED, Constant.AVAILABLE), RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.DELIVERED),
-	RETURN_ORDER_PREPARED(Constant.RETURN_ORDER_PREPARED, Constant.DELIVERED), RETURN_ORDER_PICKUP(Constant.RETURN_ORDER_PICKUP, Constant.DELIVERED),
-	RETURNED(Constant.RETURNED, Constant.RETURNED);
+	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.AVAILABLE), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.AVAILABLE),
+	RETURN_REJECTED(Constant.RETURN_REJECTED, Constant.AVAILABLE), RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.AVAILABLE),
+	RETURN_ORDER_PICKUP(Constant.RETURN_ORDER_PICKUP, Constant.AVAILABLE), RETURNED(Constant.RETURNED, Constant.RETURNED);
 
 	String statusValue;
 	String stockStatus;
@@ -111,9 +110,6 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED };
 			break;
 		case RETURN_PROCESSED:
-			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PREPARED };
-			break;
-		case RETURN_ORDER_PREPARED:
 			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PICKUP };
 			break;
 		case RETURN_ORDER_PICKUP:
@@ -126,11 +122,9 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	}
 
 	public boolean contains(final String newStatus) {
-		if (nextStatus() != null) {
-			for (final BasicStatus<OrderStatusEnum> status : nextStatus()) {
-				if (newStatus.equals(status.getStatusValue())) {
-					return true;
-				}
+		for (final BasicStatus<OrderStatusEnum> status : nextStatus()) {
+			if (newStatus.equals(status.getStatusValue())) {
+				return true;
 			}
 		}
 		return false;

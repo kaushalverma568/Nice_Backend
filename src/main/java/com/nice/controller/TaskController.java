@@ -77,11 +77,11 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/deliver/{taskId}/type/{taskType}")
+	@PutMapping("/deliver/{taskId}")
 	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
 			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside complete task method for task Id: {}", taskId);
-		taskService.completeTask(taskId, taskType);
+		taskService.completeTask(taskId);
 		/**
 		 * send email start here
 		 */
@@ -98,10 +98,10 @@ public class TaskController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/pickup/{taskId}/type/{taskType}")
-	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
-			@PathVariable("taskType") final String taskType) throws NotFoundException, ValidationException {
+	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
-		taskService.updateStatusToPickOnWay(taskId, taskType);
+		taskService.updateStatusToPickOnWay(taskId);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
@@ -116,10 +116,28 @@ public class TaskController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/reach/restaurant/{taskId}/type/{taskType}")
-	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
-			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at restaurant method for task Id: {}", taskId);
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue(), taskType);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+	}
+
+	/**
+	 * Update task status to reached at customer
+	 *
+	 * @param  token
+	 * @param  taskId
+	 * @param  taskType
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/reach/customer/{taskId}/type/{taskType}")
+	public ResponseEntity<Object> updateStatusToReachToCustomer(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update task status to reach at customer method for task Id: {}", taskId);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_CUSTOMER.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
@@ -133,10 +151,10 @@ public class TaskController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/ontheway/{taskId}/type/{taskType}")
-	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
-			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to one the way method for task Id: {}", taskId);
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue(), taskType);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
