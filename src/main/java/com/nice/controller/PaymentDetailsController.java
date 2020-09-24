@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.ws.rs.Produces;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
 import com.nice.dto.VendorPayoutDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -49,6 +52,7 @@ import com.nice.validator.PaymentDetailsValidator;
 @RequestMapping(path = "/payment/details")
 @RestController
 public class PaymentDetailsController {
+	private static final String PAYMENT_DETAILS_DETAIL_MESSAGE = "payment.details.detail.message";
 	/*
 	 * by logging, display operation detail in console
 	 */
@@ -121,7 +125,7 @@ public class PaymentDetailsController {
 		LOGGER.info("Inside get PaymentDetails for id:{} ", paymentDetailsId);
 		final PaymentDetailsResponseDTO resultPaymentDetailsDTO = paymentDetailsService.getPaymentDetails(paymentDetailsId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null)).setData(resultPaymentDetailsDTO).create();
+				.setMessage(messageByLocaleService.getMessage(PAYMENT_DETAILS_DETAIL_MESSAGE, null)).setData(resultPaymentDetailsDTO).create();
 	}
 
 	/**
@@ -153,6 +157,29 @@ public class PaymentDetailsController {
 	}
 
 	/**
+	 * export delivery boy payout
+	 *
+	 * @param  paymentDetailsId
+	 * @param  userId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws FileOperationException
+	 */
+	@GetMapping("/deliveryboy/export")
+	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_VIEW')")
+	public ResponseEntity<Object> exportDeliveryBoyPayout(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "searchId", required = false) final Long searchId,
+			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
+			@RequestParam(name = "registeredOn", required = false) final Date registeredOn, final HttpServletResponse httpServletResponse)
+			throws FileOperationException {
+		LOGGER.info("Inside  export delivery boy payout for searchId:{} ,deliveryBoyId:{},registeredOn:{} ", searchId, deliveryBoyId, registeredOn);
+		paymentDetailsService.exportDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("deliveryboy.payout.detail.message", null)).create();
+	}
+
+	/**
 	 * Get vendor payout
 	 *
 	 * @param  paymentDetailsId
@@ -180,6 +207,28 @@ public class PaymentDetailsController {
 	}
 
 	/**
+	 * Export vendor payout
+	 *
+	 * @param  accessToken
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @param  httpServletResponse
+	 * @return
+	 * @throws FileOperationException
+	 */
+	@GetMapping("/vendor/export")
+	@PreAuthorize("hasPermission('Vendor Payout','CAN_VIEW')")
+	public ResponseEntity<Object> exportVendorPayout(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId,
+			@RequestParam(name = "businessCategoryId", required = false) final Long businessCategoryId, final HttpServletResponse httpServletResponse)
+			throws FileOperationException {
+		LOGGER.info("Inside  export vendor payout for vendorId:{},businessCategoryId:{} ", vendorId, businessCategoryId);
+		paymentDetailsService.exportVendorPayout(vendorId, businessCategoryId, httpServletResponse);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("vendor.payout.detail.message", null)).create();
+	}
+
+	/**
 	 * Get payment History
 	 *
 	 * @param  accessToken
@@ -198,10 +247,33 @@ public class PaymentDetailsController {
 		LOGGER.info("Inside get payment history for deliveryBoyId:{},vendorId:{}, fromDate:{} and toDate:{} ", deliveryBoyId, vendorId, fromDate, toDate);
 		final Page<PaymentDetails> paymentHistory = paymentDetailsService.getPaymentHistory(deliveryBoyId, vendorId, fromDate, toDate, pageNumber, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null))
+				.setMessage(messageByLocaleService.getMessage(PAYMENT_DETAILS_DETAIL_MESSAGE, null))
 				.setData(paymentDetailsMapper.toDtos(paymentHistory.getContent())).setHasNextPage(paymentHistory.hasNext())
 				.setHasPreviousPage(paymentHistory.hasPrevious()).setTotalPages(paymentHistory.getTotalPages()).setPageNumber(paymentHistory.getNumber() + 1)
 				.setTotalCount(paymentHistory.getTotalElements()).create();
+	}
+
+	/**
+	 * export payment history
+	 *
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
+	 * @return
+	 * @throws FileOperationException
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@Produces("text/csv")
+	@GetMapping("/export/history")
+	public ResponseEntity<Object> exportPaymentHistory(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
+			@RequestParam(name = "fromDate", required = false) final Date fromDate, @RequestParam(name = "toDate", required = false) final Date toDate,
+			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws FileOperationException, ValidationException, NotFoundException {
+		paymentDetailsService.exportPaymentHistory(httpServletResponse, deliveryBoyId, vendorId, fromDate, toDate);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage(PAYMENT_DETAILS_DETAIL_MESSAGE, null)).create();
 	}
 
 	/**
@@ -225,6 +297,6 @@ public class PaymentDetailsController {
 		}
 		final Double amount = paymentDetailsService.getPayableAmountForTaskList(payableAmountDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null)).setData(amount).create();
+				.setMessage(messageByLocaleService.getMessage(PAYMENT_DETAILS_DETAIL_MESSAGE, null)).setData(amount).create();
 	}
 }

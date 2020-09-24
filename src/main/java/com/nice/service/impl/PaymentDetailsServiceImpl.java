@@ -1,9 +1,12 @@
 package com.nice.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,7 @@ import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
 import com.nice.dto.VendorPayoutDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -34,6 +38,7 @@ import com.nice.service.DeliveryBoyService;
 import com.nice.service.PaymentDetailsService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
+import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -63,6 +68,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 
 	@Autowired
 	private VendorService vendorService;
+
+	@Autowired
+	private ExportCSV exportCSV;
 
 	@Override
 	public void addPaymentDetails(final PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException {
@@ -250,5 +258,98 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			}
 		}
 		return sum;
+	}
+
+	@Override
+	public void exportPaymentHistory(final HttpServletResponse httpServletResponse, final Long deliveryBoyId, final Long vendorId, final Date fromDate,
+			final Date toDate) throws NotFoundException, ValidationException, FileOperationException {
+		if ((deliveryBoyId == null && vendorId == null) || (deliveryBoyId != null && vendorId != null)) {
+			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.or.vendor.required", null));
+		}
+		List<PaymentDetails> paymentDetailsList = new ArrayList<>();
+		if (deliveryBoyId != null) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
+			if (fromDate != null) {
+				if (toDate != null) {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnBetweenAndDeliveryBoy(fromDate, toDate, deliveryBoy);
+				} else {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnGreaterThanEqualAndDeliveryBoy(fromDate, deliveryBoy);
+				}
+			} else {
+				if (toDate != null) {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnLessThanEqualAndDeliveryBoy(toDate, deliveryBoy);
+				} else {
+					paymentDetailsList = paymentDetailsRepository.findAllByDeliveryBoy(deliveryBoy);
+				}
+			}
+		} else {
+			Vendor vendor = vendorService.getVendorDetail(vendorId);
+			if (fromDate != null) {
+				if (toDate != null) {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnBetweenAndVendor(fromDate, toDate, vendor);
+				} else {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnGreaterThanEqualAndVendor(fromDate, vendor);
+				}
+			} else {
+				if (toDate != null) {
+					paymentDetailsList = paymentDetailsRepository.findAllByPaidOnLessThanEqualAndVendor(toDate, vendor);
+				} else {
+					paymentDetailsList = paymentDetailsRepository.findAllByVendor(vendor);
+				}
+			}
+		}
+		List<PaymentDetailsResponseDTO> paymentDetailsResponseDTOs = paymentDetailsMapper.toDtos(paymentDetailsList);
+		String idHeader;
+		String nameHeader;
+		String nameData;
+		String idData;
+		if (deliveryBoyId != null) {
+			idHeader = "Delivery Boy Id";
+			idData = "deliveryBoyId";
+			nameHeader = "Delivery Boy Name";
+			nameData = "deliveryBoyName";
+		} else {
+			idHeader = "Vendor Id";
+			idData = "vendorId";
+			nameHeader = "Vendor Name";
+			nameData = "vendorName";
+		}
+		final Object[] paymentDetailsHeaderField = new Object[] { idHeader, nameHeader, "Payment Date", "Transaction Id", "No. Of Orders", "Payment Amount" };
+		final Object[] paymentDetailsDataField = new Object[] { idData, nameData, "paidOn", "transactionNo", "noOfOrders", "paymentAmount" };
+		try {
+			exportCSV.writeCSVFile(paymentDetailsResponseDTOs, paymentDetailsDataField, paymentDetailsHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
+	}
+
+	@Override
+	public void exportVendorPayout(final Long vendorId, final Long businessCategoryId, final HttpServletResponse httpServletResponse)
+			throws FileOperationException {
+		List<VendorPayoutDTO> vendorPayoutDTOs = paymentDetailsRepository.getVendorPayout(vendorId, businessCategoryId, null, null);
+		final Object[] vendorPayoutHeaderField = new Object[] { "Business Name", "Business Contact Number", "Vendor Name", "Vendor Contact Number", "Vendor Id",
+				"Business Category", "Registered On", "Cart Orders", "Replacement Orders", "Return Orders", "Total Orders", "Total Paid", "Last Paid On" };
+		final Object[] vendorPayoutDataField = new Object[] { "storeName", "storePhoneNumber", "name", "phoneNumber", "id", "businessCategoryName",
+				"registeredOn", "cartOrders", "replacementOrders", "returnOrders", "totalAttended", "totalPaid", "lastPaymentOn" };
+		try {
+			exportCSV.writeCSVFile(vendorPayoutDTOs, vendorPayoutDataField, vendorPayoutHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
+	}
+
+	@Override
+	public void exportDeliveryBoyPayout(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final HttpServletResponse httpServletResponse)
+			throws FileOperationException {
+		List<DeliveryBoyPayoutDTO> deliveryBoyPayoutDTOs = paymentDetailsRepository.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, null, null);
+		final Object[] deliveryBoyPayoutHeaderField = new Object[] { "Delivery Boy Name", "Delivery Boy Contact Number", "Delivery Boy Id", "Registered On",
+				"Cart Orders", "Replacement Orders", "Return Orders", "Total Orders", "Total Paid", "Last Paid On" };
+		final Object[] deliveryBoyPayoutDataField = new Object[] { "name", "phoneNumber", "id", "registeredOn", "cartOrders", "replacementOrders",
+				"returnOrders", "totalAttended", "totalPaid", "lastPaymentOn" };
+		try {
+			exportCSV.writeCSVFile(deliveryBoyPayoutDTOs, deliveryBoyPayoutDataField, deliveryBoyPayoutHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
 	}
 }

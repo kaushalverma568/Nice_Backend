@@ -34,9 +34,11 @@ import com.nice.dto.DeliveryLogDTO;
 import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
+import com.nice.dto.TaskPayoutDTO;
 import com.nice.dto.TaskResponseDto;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -610,6 +612,53 @@ public class TaskServiceImpl implements TaskService {
 			exportCSV.writeCSVFile(deliveryLogDTOs, deliveryLogDataField, deliveryLogHeaderField, httpServletResponse);
 		} catch (IOException e) {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
+	}
+
+	@Override
+	public void exportTaskListForPayout(final HttpServletResponse httpServletResponse, final TaskFilterDTO taskFilterDTO) throws FileOperationException {
+		final Object[] taskPayoutHeaderField;
+		final Object[] taskPayoutDataField;
+		List<TaskPayoutDTO> taskPayoutDTOs = taskMapper.toPayoutResponseDtos(getTaskListBasedOnParams(taskFilterDTO, null, null));
+		for (TaskPayoutDTO taskPayoutDTO : taskPayoutDTOs) {
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(taskPayoutDTO.getTaskType())) {
+				taskPayoutDTO.setOrderType("Cart Order");
+			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskPayoutDTO.getTaskType())) {
+				taskPayoutDTO.setOrderType("Replacement Order");
+			} else {
+				taskPayoutDTO.setOrderType("Return Order");
+			}
+			if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
+				if (taskPayoutDTO.getDeliveryBoyPaymentDetailsId() != null) {
+					taskPayoutDTO.setPaidOn(taskPayoutDTO.getDeliveryBoyPaidOn());
+					taskPayoutDTO.setTransactionId(taskPayoutDTO.getDeliveryBoyTransactionId());
+				} else {
+					taskPayoutDTO.setPaymentStatus("Pending");
+				}
+			} else {
+				if (taskPayoutDTO.getVendorPaymentDetailsId() != null) {
+					taskPayoutDTO.setPaidOn(taskPayoutDTO.getVendorPaidOn());
+					taskPayoutDTO.setTransactionId(taskPayoutDTO.getVendorTransactionId());
+				} else {
+					taskPayoutDTO.setPaymentStatus("Pending");
+				}
+			}
+		}
+		if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
+			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
+					"Order Amount", "Payment Status", "Paid On", "Transaction Id" };
+			taskPayoutDataField = new Object[] { "orderId", "orderDate", "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
+					"paymentStatus", "paidOn", "transactionId" };
+		} else {
+			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
+					"Payable Amount", "Payment Status", "Paid On", "Transaction Id" };
+			taskPayoutDataField = new Object[] { "orderId", "orderDate", "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
+					"vendorPayableAmt", "paymentStatus", "paidOn", "transactionId" };
+		}
+		try {
+			exportCSV.writeCSVFile(taskPayoutDTOs, taskPayoutDataField, taskPayoutHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 	}
 }

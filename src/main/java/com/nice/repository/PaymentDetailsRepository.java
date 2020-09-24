@@ -1,6 +1,7 @@
 package com.nice.repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -108,4 +109,72 @@ public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, 
 	 * @return
 	 */
 	Page<PaymentDetails> findAllByPaidOnBetweenAndDeliveryBoy(Date fromDate, Date toDate, DeliveryBoy deliveryBoy, Pageable pageable);
+
+	/**
+	 * Get payment details list by paidOn between from date and to date for vendor
+	 *
+	 * @param fromDate
+	 * @param toDate
+	 */
+	List<PaymentDetails> findAllByPaidOnBetweenAndVendor(Date fromDate, Date toDate, Vendor vendor);
+
+	/**
+	 * Get payment details list by paidOn greater than from date for vendor
+	 *
+	 * @param  fromDate
+	 * @return
+	 */
+	List<PaymentDetails> findAllByPaidOnGreaterThanEqualAndVendor(Date fromDate, Vendor vendor);
+
+	/**
+	 * Get payment details list by paidOn less than to date for vendor
+	 *
+	 * @param  toDate
+	 * @return
+	 */
+	List<PaymentDetails> findAllByPaidOnLessThanEqualAndVendor(Date toDate, Vendor vendor);
+
+	/**
+	 * Get payment details list by vendor
+	 *
+	 * @param  vendor
+	 * @return
+	 */
+	List<PaymentDetails> findAllByVendor(Vendor vendor);
+
+	/**
+	 * Get payment details list by delivery boy
+	 *
+	 * @param  deliveryBoy
+	 * @return
+	 */
+	List<PaymentDetails> findAllByDeliveryBoy(DeliveryBoy deliveryBoy);
+
+	/**
+	 * Get payment details list by paidOn less than to date for delivery boy
+	 *
+	 * @param  toDate
+	 * @param  deliveryBoy
+	 * @return
+	 */
+	List<PaymentDetails> findAllByPaidOnLessThanEqualAndDeliveryBoy(Date toDate, DeliveryBoy deliveryBoy);
+
+	/**
+	 * Get payment details list by paidOn greater than from date for delivery boy
+	 *
+	 * @param  fromDate
+	 * @param  deliveryBoy
+	 * @return
+	 */
+	List<PaymentDetails> findAllByPaidOnGreaterThanEqualAndDeliveryBoy(Date fromDate, DeliveryBoy deliveryBoy);
+
+	/**
+	 * Get payment details list by paidOn between from date and to date for delivery boy
+	 *
+	 * @param  fromDate
+	 * @param  toDate
+	 * @param  deliveryBoy
+	 * @return
+	 */
+	List<PaymentDetails> findAllByPaidOnBetweenAndDeliveryBoy(Date fromDate, Date toDate, DeliveryBoy deliveryBoy);
 }
