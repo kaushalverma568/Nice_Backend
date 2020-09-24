@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.PaymentDetailsService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 26-06-2020
+ * @date   : 26-06-2020
  */
 @Component
 public class PaymentDetailsValidator implements Validator {
@@ -25,8 +25,7 @@ public class PaymentDetailsValidator implements Validator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentDetailsValidator.class);
 
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -39,12 +38,11 @@ public class PaymentDetailsValidator implements Validator {
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
-		return PaymentDetailsDTO.class.equals(clazz);
+		return PaymentDetailsDTO.class.equals(clazz) || PayableAmountDTO.class.equals(clazz);
 	}
 
 	/**
-	 * purpose - to validate object and apply various validations. this method may
-	 * carry number of validation conditions.
+	 * purpose - to validate object and apply various validations. this method may carry number of validation conditions.
 	 */
 
 	@Override

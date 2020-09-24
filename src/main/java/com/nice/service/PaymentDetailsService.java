@@ -3,11 +3,15 @@ package com.nice.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
+import com.nice.dto.VendorPayoutDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.PaymentDetails;
@@ -95,4 +99,34 @@ public interface PaymentDetailsService {
 	 * @return
 	 */
 	Long getDeliveryBoyPayoutCountBasedOnParam(Long searchId, Long deliveryBoyId, Date registeredOn);
+
+	/**
+	 * Get vendor's payout count based on param
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @return
+	 */
+	Long getVendorPayoutCountBasedOnParam(Long vendorId, Long businessCategoryId);
+
+	/**
+	 * Get all vendor's payout details
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @return
+	 */
+	List<VendorPayoutDTO> getVendorPayout(Long vendorId, Long businessCategoryId, Integer startIndex, Integer pageSize);
+
+	/**
+	 * get payable amount for task list
+	 *
+	 * @param  payableAmountDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	Double getPayableAmountForTaskList(@Valid PayableAmountDTO payableAmountDTO) throws NotFoundException, ValidationException;
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.VendorPayoutDTO;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -35,5 +36,25 @@ public interface PaymentDetailsCustomRepository {
 	 * @return
 	 */
 	Long getDeliveryBoyPayoutCountBasedOnParam(Long searchId, Long deliveryBoyId, Date registeredOn);
+
+	/**
+	 * Get vendor pay out count based on params
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @return
+	 */
+	Long getVendorPayoutCountBasedOnParam(Long vendorId, Long businessCategoryId);
+
+	/**
+	 * Get vendor pay out based on params
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @return
+	 */
+	List<VendorPayoutDTO> getVendorPayout(Long vendorId, Long businessCategoryId, Integer startIndex, Integer pageSize);
 
 }

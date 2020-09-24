@@ -16,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.UserType;
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
+import com.nice.dto.VendorPayoutDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -204,5 +206,49 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	@Override
 	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long searchId, final Long deliveryBoyId, final Date registeredOn) {
 		return paymentDetailsRepository.getDeliveryBoyPayoutCountBasedOnParam(searchId, deliveryBoyId, registeredOn);
+	}
+
+	@Override
+	public Long getVendorPayoutCountBasedOnParam(final Long vendorId, final Long businessCategoryId) {
+		return paymentDetailsRepository.getVendorPayoutCountBasedOnParam(vendorId, businessCategoryId);
+	}
+
+	@Override
+	public List<VendorPayoutDTO> getVendorPayout(final Long vendorId, final Long businessCategoryId, final Integer startIndex, final Integer pageSize) {
+		return paymentDetailsRepository.getVendorPayout(vendorId, businessCategoryId, startIndex, pageSize);
+	}
+
+	@Override
+	public Double getPayableAmountForTaskList(final PayableAmountDTO payableAmountDTO) throws NotFoundException, ValidationException {
+		List<Task> taskList = new ArrayList<>();
+		/**
+		 * get task list calculate amount and validate it
+		 */
+		Double sum = 0d;
+
+		for (Long taskId : payableAmountDTO.getTaskIds()) {
+			taskList.add(taskService.getTaskDetail(taskId));
+		}
+		/**
+		 * if tasks do not have unique delivery boy OR vendor then throw exception
+		 */
+		if (UserType.DELIVERY_BOY.name().equals(payableAmountDTO.getEntityType())) {
+			List<DeliveryBoy> deliveryBoys = taskList.stream().map(Task::getDeliveryBoy).distinct().collect(Collectors.toList());
+			if (!deliveryBoys.isEmpty() && deliveryBoys.size() > 1) {
+				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.delivery.boy", null));
+			}
+			for (Task task : taskList) {
+				sum += task.getDeliveryCharge();
+			}
+		} else {
+			List<Vendor> vendors = taskList.stream().map(Task::getVendor).distinct().collect(Collectors.toList());
+			if (!vendors.isEmpty() && vendors.size() > 1) {
+				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.vendor", null));
+			}
+			for (Task task : taskList) {
+				sum += task.getVendorPayableAmt();
+			}
+		}
+		return sum;
 	}
 }

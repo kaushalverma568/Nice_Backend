@@ -28,8 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.dto.DeliveryBoyPayoutDTO;
 import com.nice.dto.PaginationUtilDto;
+import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
+import com.nice.dto.VendorPayoutDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -151,6 +153,33 @@ public class PaymentDetailsController {
 	}
 
 	/**
+	 * Get vendor payout
+	 *
+	 * @param  paymentDetailsId
+	 * @param  userId
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/vendor/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PreAuthorize("hasPermission('Vendor Payout','CAN_VIEW')")
+	public ResponseEntity<Object> getVendorPayout(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId,
+			@RequestParam(name = "businessCategoryId", required = false) final Long businessCategoryId, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize) throws ValidationException {
+		LOGGER.info("Inside  get vendor payout for vendorId:{},businessCategoryId:{} ", vendorId, businessCategoryId);
+		Long totalCount = paymentDetailsService.getVendorPayoutCountBasedOnParam(vendorId, businessCategoryId);
+		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		final List<VendorPayoutDTO> resultPaymentDetailsDTO = paymentDetailsService.getVendorPayout(vendorId, businessCategoryId,
+				paginationUtilDto.getStartIndex(), pageSize);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("vendor.payout.detail.message", null)).setData(resultPaymentDetailsDTO)
+				.setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
+				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
+				.create();
+	}
+
+	/**
 	 * Get payment History
 	 *
 	 * @param  accessToken
@@ -173,5 +202,29 @@ public class PaymentDetailsController {
 				.setData(paymentDetailsMapper.toDtos(paymentHistory.getContent())).setHasNextPage(paymentHistory.hasNext())
 				.setHasPreviousPage(paymentHistory.hasPrevious()).setTotalPages(paymentHistory.getTotalPages()).setPageNumber(paymentHistory.getNumber() + 1)
 				.setTotalCount(paymentHistory.getTotalElements()).create();
+	}
+
+	/**
+	 * Get payable amount from task list
+	 *
+	 * @param  accessToken
+	 * @param  fromDate
+	 * @param  toDate
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PostMapping("/payable")
+	public ResponseEntity<Object> getPayableAmountForTaskList(@RequestHeader("Authorization") final String accessToken,
+			@RequestBody @Valid final PayableAmountDTO payableAmountDTO, final BindingResult result) throws ValidationException, NotFoundException {
+		LOGGER.info("Inside get payable amount for task list :{}", payableAmountDTO);
+		final List<FieldError> fieldErrors = result.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			LOGGER.error("PaymentDetails validation failed");
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		final Double amount = paymentDetailsService.getPayableAmountForTaskList(payableAmountDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("payment.details.detail.message", null)).setData(amount).create();
 	}
 }

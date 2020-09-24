@@ -16,6 +16,7 @@ import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.VendorPayoutDTO;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,15 @@ import lombok.EqualsAndHashCode;
 @SqlResultSetMapping(name = "DeliveryBoyPayout", classes = { @ConstructorResult(targetClass = DeliveryBoyPayoutDTO.class, columns = {
 		@ColumnResult(name = "delivery_boy_id", type = Long.class), @ColumnResult(name = "delivery_boy_name", type = String.class),
 		@ColumnResult(name = "delivery_boy_phone_number", type = String.class), @ColumnResult(name = "registered_on", type = Date.class),
+		@ColumnResult(name = "cart_orders", type = Integer.class), @ColumnResult(name = "replace_orders", type = Integer.class),
+		@ColumnResult(name = "return_orders", type = Integer.class), @ColumnResult(name = "total_attened", type = Integer.class),
+		@ColumnResult(name = "last_payment_on", type = Date.class), @ColumnResult(name = "total_paid", type = Double.class) }) })
+
+@SqlResultSetMapping(name = "VendorPayout", classes = { @ConstructorResult(targetClass = VendorPayoutDTO.class, columns = {
+		@ColumnResult(name = "vendor_id", type = Long.class), @ColumnResult(name = "vendor_name", type = String.class),
+		@ColumnResult(name = "store_name", type = String.class), @ColumnResult(name = "business_category_name", type = String.class),
+		@ColumnResult(name = "vendor_phone_number", type = String.class), @ColumnResult(name = "store_phone_number", type = String.class),
+		@ColumnResult(name = "registered_on", type = Date.class), @ColumnResult(name = "business_category_id", type = Long.class),
 		@ColumnResult(name = "cart_orders", type = Integer.class), @ColumnResult(name = "replace_orders", type = Integer.class),
 		@ColumnResult(name = "return_orders", type = Integer.class), @ColumnResult(name = "total_attened", type = Integer.class),
 		@ColumnResult(name = "last_payment_on", type = Date.class), @ColumnResult(name = "total_paid", type = Double.class) }) })

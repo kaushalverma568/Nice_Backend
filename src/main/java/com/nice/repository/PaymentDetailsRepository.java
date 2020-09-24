@@ -108,5 +108,4 @@ public interface PaymentDetailsRepository extends JpaRepository<PaymentDetails, 
 	 * @return
 	 */
 	Page<PaymentDetails> findAllByPaidOnBetweenAndDeliveryBoy(Date fromDate, Date toDate, DeliveryBoy deliveryBoy, Pageable pageable);
-
 }
