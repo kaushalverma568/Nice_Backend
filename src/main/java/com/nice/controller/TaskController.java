@@ -14,6 +14,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -166,7 +167,7 @@ public class TaskController {
 	 * @return
 	 * @throws ValidationException
 	 */
-	@GetMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PostMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getTaskListForPayoutBasedOnParams(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final TaskFilterDTO taskFilterDTO) throws ValidationException {
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
