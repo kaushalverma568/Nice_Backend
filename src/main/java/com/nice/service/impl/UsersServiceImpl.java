@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ import com.nice.service.UsersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "usersService")
 @Transactional(rollbackFor = Throwable.class)
@@ -65,6 +66,7 @@ public class UsersServiceImpl implements UsersService {
 			throw new ValidationException(messageByLocaleService.getMessage("default.user.not.creatable", null));
 		}
 		Users users = usersMapper.toEntity(usersDTO);
+		users.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 		users.setRole(role);
 		users = usersRepository.save(users);
 		UserLogin userLogin = new UserLogin();
@@ -112,7 +114,7 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	/**
-	 * @param  usersId
+	 * @param usersId
 	 * @return
 	 * @throws NotFoundException
 	 */

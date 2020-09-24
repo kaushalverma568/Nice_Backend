@@ -43,7 +43,7 @@ import com.nice.service.GmailService;
  * This is the default Gmail Java class to send emails.
  *
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 public final class GmailServiceImpl implements GmailService {
 
@@ -133,8 +133,8 @@ public final class GmailServiceImpl implements GmailService {
 		return message;
 	}
 
-	public static String createEmailBody(final Map<String, String> bodyMap, final String template) throws IOException {
-		final TemplateLoader templateLoader = new ClassPathTemplateLoader("/templates", ".html");
+	public static String createEmailBody(final Map<String, String> bodyMap, final String template, final String language) throws IOException {
+		final TemplateLoader templateLoader = new ClassPathTemplateLoader("/templates/".concat(language), ".html");
 		final Handlebars handlebars = new Handlebars(templateLoader);
 		final Template emailTemplate = handlebars.compile(template.toLowerCase());
 		return emailTemplate.apply(bodyMap);

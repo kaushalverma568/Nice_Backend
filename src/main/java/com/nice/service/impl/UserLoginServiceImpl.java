@@ -49,6 +49,7 @@ import com.nice.dto.ForgotPasswordParameterDTO;
 import com.nice.dto.LoginResponse;
 import com.nice.dto.Notification;
 import com.nice.dto.PasswordDTO;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.ResetPasswordParameterDTO;
 import com.nice.dto.SocialLoginDto;
 import com.nice.dto.UserCheckPasswordDTO;
@@ -196,7 +197,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			try {
@@ -277,8 +279,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
-			 * active but customer can not login with email and password but it can login with OTP.
+			 * This case possible when first login with OTP and then sign-up with email +
+			 * mobile. In this case userLogin can be active but customer can not login with
+			 * email and password but it can login with OTP. This case possible when first
+			 * login with OTP and then sign-up with email + mobile. In this case userLogin
+			 * can be active but customer can not login with email and password but it can
+			 * login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
 					&& !RegisterVia.OTP.getStatusValue().equals(requestVia)) {
@@ -496,6 +502,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		final Notification notification = new Notification();
 		notification.setCustomerId(getUserLoginDetail(userId).getEntityId());
 		notification.setType(NotificationQueueConstants.CUSTOMER_REGISTRATION);
+//		notifi
 		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 	}
 
@@ -564,7 +571,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms then phone number is required
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
 		 */
 		if (!(forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				|| forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
@@ -611,7 +619,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin
+		 * or any admin panel users
 		 */
 		if (UserType.USER.name().equals(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -652,7 +661,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber
+		 * and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent()) {
@@ -673,7 +683,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in
+			 * userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -768,7 +779,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
-			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
+			 * OTP Verified. Check userLogin is active or not . if not then activate
+			 * customer and activate userLogin
 			 */
 			if (!optUserLogin.get().getActive().booleanValue()) {
 				UserLogin userLogin = optUserLogin.get();
@@ -796,7 +808,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
 			return checkUserLogin(userLoginDto);
 		} else {
-			
+
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.username", null));
 		}
 	}
@@ -812,7 +824,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String addUpdateEmail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
 		/**
-		 * Note : For all admin panel user(super admin,vendor) userType will come as User
+		 * Note : For all admin panel user(super admin,vendor) userType will come as
+		 * User
 		 */
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp(), false);
 
@@ -860,7 +873,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
 		String userName = null;
 		/**
-		 * if email is not null it means there is possibility that user is logged in with old email right now
+		 * if email is not null it means there is possibility that user is logged in
+		 * with old email right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail())) {
 			/**
@@ -913,7 +927,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public String addUpdatePhoneNumber(final String phoneNumber, final String otp, final String userType, final UserLogin userLogin)
 			throws NotFoundException, ValidationException {
 		/**
-		 * Note : For all admin panel user(super admin,vendor) userType will come as User
+		 * Note : For all admin panel user(super admin,vendor) userType will come as
+		 * User
 		 */
 
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp, false);
@@ -952,7 +967,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		String userName = null;
 		/**
-		 * if phone number is not null it means there is possibility that customer is logged in with old phone number right now
+		 * if phone number is not null it means there is possibility that customer is
+		 * logged in with old phone number right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPhoneNumber())) {
 			/**
@@ -1054,5 +1070,15 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			loginResponse.setCanChangePassword(true);
 		}
 		return loginResponse;
+	}
+
+	@Override
+	public void sendPushNotificationForNewVendor(final Long vendorId) throws NotFoundException {
+		Vendor vendor = vendorService.getVendorDetail(vendorId);
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setVendorId(vendorId);
+		pushNotificationDTO.setType(NotificationQueueConstants.NEW_VENDOR_PUSH_NOTIFICATION);
+		pushNotificationDTO.setLanguage(vendor.getPreferredLanguage());
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 }

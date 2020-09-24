@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.dto.Notification;
-import com.nice.dto.PushNotification;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.component.SendEmailNotificationComponent;
@@ -73,9 +73,9 @@ public class JMSDequeuer {
 	 * @throws ValidationException
 	 * @throws IOException
 	 */
-	@JmsListener(destination = NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE)
-	@JsonDeserialize(as = PushNotification.class)
-	public void receiveAllPushNotifications(@Payload final PushNotification pushNotification) throws NotFoundException, ValidationException, IOException {
+	@JmsListener(destination = NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE)
+	@JsonDeserialize(as = PushNotificationDTO.class)
+	public void receiveAllPushNotifications(@Payload final PushNotificationDTO pushNotification) throws NotFoundException, ValidationException, IOException {
 		sendPushNotifictionComponent.addPushNotification(pushNotification);
 	}
 }

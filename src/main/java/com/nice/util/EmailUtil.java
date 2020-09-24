@@ -33,7 +33,7 @@ import com.nice.service.impl.GmailServiceImpl;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Component
 public class EmailUtil {
@@ -44,22 +44,24 @@ public class EmailUtil {
 	private String applicationName;
 
 	/**
-	 * Send email generic method, sends email to the specified recepients in sendTo (as To)(List) in sendCc(as Cc)(List),
-	 * specify the subject of the email in email Subject, also specify the template with which the email is to be sent and
-	 * the emailParameterMap contains the place holders to specify for the dynamic template values.
+	 * Send email generic method, sends email to the specified recepients in sendTo
+	 * (as To)(List) in sendCc(as Cc)(List), specify the subject of the email in
+	 * email Subject, also specify the template with which the email is to be sent
+	 * and the emailParameterMap contains the place holders to specify for the
+	 * dynamic template values.
 	 *
-	 * @param  emailSubject
-	 * @param  sendTo
-	 * @param  emailParameterMap
-	 * @param  sendCc
-	 * @param  sendBcc
-	 * @param  emailTemplateName
+	 * @param emailSubject
+	 * @param sendTo
+	 * @param emailParameterMap
+	 * @param sendCc
+	 * @param sendBcc
+	 * @param emailTemplateName
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 * @throws MessagingException
 	 */
 	public void sendEmail(final String emailSubject, final List<String> sendTo, final Map<String, String> emailParameterMap, final List<String> sendCc,
-			final List<String> sendBcc, final String emailTemplateName, final Path reportLocation)
+			final List<String> sendBcc, final String emailTemplateName, final Path reportLocation, final String language)
 			throws GeneralSecurityException, IOException, MessagingException {
 		if (sendTo == null || sendTo.isEmpty()) {
 			LOGGER.error("No recipient specified to email");
@@ -73,7 +75,7 @@ public class EmailUtil {
 		 * Create an EmailContentDTO Object
 		 */
 		EmailContentDTO emailContent = new EmailContentDTO();
-		emailContent.setEmailBody(GmailServiceImpl.createEmailBody(emailParameterMap, emailTemplateName));
+		emailContent.setEmailBody(GmailServiceImpl.createEmailBody(emailParameterMap, emailTemplateName, language));
 		emailContent.setEmailSubject(emailSubject);
 		emailContent.setEmailTo(sendTo);
 		emailContent.setEmailBcc(sendBcc);
@@ -143,39 +145,41 @@ public class EmailUtil {
 	/**
 	 * Use this method to send emails without any attachments.
 	 *
-	 * @param  emailSubject
-	 * @param  sendTo
-	 * @param  emailParameterMap
-	 * @param  sendCc
-	 * @param  sendBcc
-	 * @param  emailTemplateName
+	 * @param emailSubject
+	 * @param sendTo
+	 * @param emailParameterMap
+	 * @param sendCc
+	 * @param sendBcc
+	 * @param emailTemplateName
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 * @throws MessagingException
 	 */
 	public void sendEmail(final String emailSubject, final List<String> sendTo, final Map<String, String> emailParameterMap, final List<String> sendCc,
-			final List<String> sendBcc, final String emailTemplateName) throws GeneralSecurityException, IOException, MessagingException {
-		sendEmail(emailSubject, sendTo, emailParameterMap, sendCc, sendBcc, emailTemplateName, null);
+			final List<String> sendBcc, final String emailTemplateName, final String language)
+			throws GeneralSecurityException, IOException, MessagingException {
+		sendEmail(emailSubject, sendTo, emailParameterMap, sendCc, sendBcc, emailTemplateName, null, language);
 	}
 
 	/**
 	 * Use this method to send emails to a single person without attachments.
 	 *
-	 * @param  emailSubject
-	 * @param  sendTo
-	 * @param  emailParameterMap
-	 * @param  sendCc
-	 * @param  sendBcc
-	 * @param  emailTemplateName
+	 * @param emailSubject
+	 * @param sendTo
+	 * @param emailParameterMap
+	 * @param sendCc
+	 * @param sendBcc
+	 * @param emailTemplateName
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 * @throws MessagingException
 	 */
 	public void sendEmail(final String emailSubject, final String sendTo, final Map<String, String> emailParameterMap, final List<String> sendCc,
-			final List<String> sendBcc, final String emailTemplateName) throws GeneralSecurityException, IOException, MessagingException {
+			final List<String> sendBcc, final String emailTemplateName, final String language)
+			throws GeneralSecurityException, IOException, MessagingException {
 		List<String> sendToList = new ArrayList<>();
 		sendToList.add(sendTo);
-		sendEmail(emailSubject, sendToList, emailParameterMap, sendCc, sendBcc, emailTemplateName, null);
+		sendEmail(emailSubject, sendToList, emailParameterMap, sendCc, sendBcc, emailTemplateName, language);
 	}
 
 }

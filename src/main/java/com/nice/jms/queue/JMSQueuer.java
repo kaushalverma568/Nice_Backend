@@ -5,7 +5,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.nice.dto.Notification;
-import com.nice.dto.PushNotification;
+import com.nice.dto.PushNotificationDTO;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -21,7 +21,7 @@ public class JMSQueuer {
 		jmsTemplate.convertAndSend(queueName, emailNotification);
 	}
 
-	public void sendPushNotification(final String queueName, final PushNotification pushNotification) {
+	public void sendPushNotification(final String queueName, final PushNotificationDTO pushNotification) {
 		jmsTemplate.convertAndSend(queueName, pushNotification);
 	}
 }

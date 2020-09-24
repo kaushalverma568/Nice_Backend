@@ -43,7 +43,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -99,7 +99,7 @@ public class SendEmailNotificationComponent {
 	private MessageByLocaleService messageByLocaleService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -141,7 +141,8 @@ public class SendEmailNotificationComponent {
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
 			String welcomeEmailSubject = "Welcome to " + applicationName;
-			emailUtil.sendEmail(welcomeEmailSubject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name());
+			emailUtil.sendEmail(welcomeEmailSubject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
+					emailNotification.getLanguage());
 		}
 	}
 
@@ -170,18 +171,19 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name());
+						EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name(), emailNotification.getLanguage());
 			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name());
+						EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name(), emailNotification.getLanguage());
 			} else {
 				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name());
+						EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name(), emailNotification.getLanguage());
 			}
 		}
 	}
@@ -197,9 +199,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
-			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/"
-			+ emailNotification.getUserId() 
-			+ "?lang=" + emailNotification.getLanguage() + "&otp=" + emailNotification.getOtp());
+			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?lang=" + emailNotification.getLanguage()
+					+ "&otp=" + emailNotification.getOtp());
 			emailParameterMap.put("OTP", emailNotification.getOtp());
 			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 
@@ -214,18 +215,19 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name());
+						EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name(), emailNotification.getLanguage());
 			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
 				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name());
+						EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name(), emailNotification.getLanguage());
 			} else {
 				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name());
+						EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name(), emailNotification.getLanguage());
 			}
 		}
 	}
@@ -234,14 +236,16 @@ public class SendEmailNotificationComponent {
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put("otp", emailNotification.getOtp());
 		String sendOtpSubject = applicationName + " : OTP";
-		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.OTP_VERIFICATION.name());
+		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.OTP_VERIFICATION.name(),
+				emailNotification.getLanguage());
 	}
 
 	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
 		Map<String, String> paramMap = new HashMap<>();
 		String sendOtpSubject = applicationName + " Subscription Expire Reminder";
 		paramMap.put("message", messageByLocaleService.getMessage("subscription.plan.reminder.message", null));
-		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name());
+		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name(),
+				emailNotification.getLanguage());
 	}
 
 	private void sendEmailForChangeVendorStatus(final Notification emailNotification)
@@ -251,7 +255,8 @@ public class SendEmailNotificationComponent {
 		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
 			message = messageByLocaleService.getMessage("vendor.approve.message", null);
 		} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
-			message = messageByLocaleService.getMessage("vendor.suspend.message", null);
+			message = messageByLocaleService.getMessage("vendor.suspend.message", new Object[] { applicationName, applicationName });
+			message.concat(" ").concat(messageByLocaleService.getMessage("vendor.contact.customer.care", null));
 		} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
 			message = messageByLocaleService.getMessage("vendor.reject.messag", null);
 		} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
@@ -265,7 +270,8 @@ public class SendEmailNotificationComponent {
 				vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
 						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 		emailParameterMap.put("message", message);
-		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name());
+		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name(),
+				emailNotification.getLanguage());
 	}
 
 }

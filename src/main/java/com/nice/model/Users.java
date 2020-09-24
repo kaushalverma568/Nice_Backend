@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Entity
 @Table(name = "users")
@@ -48,6 +48,9 @@ public class Users extends CommonModel {
 
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
+
+	@Column(name = "preferred_language")
+	private String preferredLanguage;
 
 	@JoinColumn(name = "role_id", nullable = false)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })

@@ -3,10 +3,11 @@ package com.nice.jms.queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nice.constant.Constant;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.SettingsConstant;
 import com.nice.dto.Notification;
-import com.nice.dto.PushNotification;
+import com.nice.dto.PushNotificationDTO;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -24,11 +25,14 @@ public class JMSQueuerService {
 		 */
 		if (((emailNotification != null) && "true".equals(SettingsConstant.getSettingsValue("SEND_EMAIL")))
 				|| NotificationQueueConstants.NON_NOTIFICATION_QUEUE.equals(queueName)) {
+			if ((emailNotification != null) && emailNotification.getLanguage() == null) {
+				emailNotification.setLanguage(Constant.DEFAULT_LANGUAGE);
+			}
 			jmsQueuer.sendEmail(queueName, emailNotification);
 		}
 	}
 
-	public void sendPushNotification(final String queueName, final PushNotification pushNotification) {
+	public void sendPushNotification(final String queueName, final PushNotificationDTO pushNotification) {
 		/**
 		 * if send push notification only when dto is not null
 		 */

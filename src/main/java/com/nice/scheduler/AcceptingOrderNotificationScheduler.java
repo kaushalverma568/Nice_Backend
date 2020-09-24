@@ -12,7 +12,7 @@ import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.OrderStatusEnum;
-import com.nice.dto.PushNotification;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -28,7 +28,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 
 @Component
@@ -55,8 +55,8 @@ public class AcceptingOrderNotificationScheduler {
 	@Scheduled(fixedRate = 70000)
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
 		/**
-		 * get order list which is appproved and notification not sended more then three times and next time we have to send is
-		 * less then current time
+		 * get order list which is appproved and notification not sended more then three
+		 * times and next time we have to send is less then current time
 		 */
 		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(OrderStatusEnum.CONFIRMED.getStatusValue(),
 				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date(System.currentTimeMillis()));
@@ -64,16 +64,17 @@ public class AcceptingOrderNotificationScheduler {
 
 			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 			/**
-			 * if not a single delivery boy is logged in for accepting order then throw exception
+			 * if not a single delivery boy is logged in for accepting order then throw
+			 * exception
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
 			} else {
-				PushNotification pushNotification = new PushNotification();
+				PushNotificationDTO pushNotification = new PushNotificationDTO();
 				pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
 				pushNotification.setOrderId(orders.getId());
 				pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
-				jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
+				jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotification);
 				/**
 				 * update delivery boy notification history
 				 */

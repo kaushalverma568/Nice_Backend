@@ -7,10 +7,10 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
-public class PushNotification implements Serializable {
+public class PushNotificationDTO implements Serializable {
 	/**
 	 *
 	 */
@@ -25,5 +25,9 @@ public class PushNotification implements Serializable {
 	private String type;
 
 	private String deviceId;
+
+	private Long vendorId;
+
+	private String language;
 
 }

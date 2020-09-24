@@ -65,7 +65,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -112,8 +112,8 @@ public class UserLoginController {
 	/**
 	 * Generic Forgot password API
 	 *
-	 * @param  forgotPasswordParameterDTO
-	 * @param  result
+	 * @param forgotPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -136,11 +136,11 @@ public class UserLoginController {
 	/**
 	 * Reset password after forgot password based on OTP, USER TYPE and TYPE
 	 *
-	 * @param  email
-	 * @param  otp
-	 * @param  password
-	 * @param  type
-	 * @param  userType
+	 * @param email
+	 * @param otp
+	 * @param password
+	 * @param type
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -159,17 +159,16 @@ public class UserLoginController {
 	/**
 	 * Verify email by userLogin Id
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
-	 * @throws UnsupportedEncodingException 
+	 * @throws UnsupportedEncodingException
 	 */
 	@GetMapping("/verify/email/{userId}")
 	public ModelAndView verifyEmail(@PathVariable("userId") final Long userId, @RequestParam(name = "otp") final String otp,
-			@RequestParam(name = "lang") final String lang)
-			throws ValidationException, NotFoundException, UnsupportedEncodingException {
+			@RequestParam(name = "lang") final String lang) throws ValidationException, NotFoundException, UnsupportedEncodingException {
 		Locale locale = new Locale(lang);
 		LocaleContextHolder.setLocale(locale);
 		String redirectUrl;
@@ -188,21 +187,27 @@ public class UserLoginController {
 			/**
 			 * send email code ends from here
 			 */
+
+			/**
+			 * send push notification for new vendor to admin
+			 */
+			if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+				userLoginService.sendPushNotificationForNewVendor(userLogin.getEntityId());
+			}
 			String message = messageByLocaleService.getMessage("verify.email.success", null);
-			return new ModelAndView(
-					REDIRECT + redirectUrl + "auth/thank-you?message=" + URLEncoder.encode(messageByLocaleService.getMessage(message, null), "UTF-8")
-					 + TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(REDIRECT + redirectUrl + "auth/thank-you?message="
+					+ URLEncoder.encode(messageByLocaleService.getMessage(message, null), "UTF-8") + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		} catch (Exception e) {
-			return new ModelAndView(REDIRECT + redirectUrl + "auth/failed-error?message=" + URLEncoder.encode(messageByLocaleService.getMessage(e.getMessage(), null), "UTF-8")
-			+ TYPE + SuccessErrorType.VERIFY_EMAIL);
+			return new ModelAndView(REDIRECT + redirectUrl + "auth/failed-error?message="
+					+ URLEncoder.encode(messageByLocaleService.getMessage(e.getMessage(), null), "UTF-8") + TYPE + SuccessErrorType.VERIFY_EMAIL);
 		}
 	}
 
 	/**
 	 * verify email by userName(email) and userType
 	 *
-	 * @param  resetPasswordParameterDTO
-	 * @param  result
+	 * @param resetPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -241,9 +246,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -253,7 +258,8 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user token
+		 * When password is changed and the user is not super admin, revoke the user
+		 * token
 		 */
 		if (!(Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName()))) {
 			revokeToken(userLogin.getEmail());
@@ -265,7 +271,7 @@ public class UserLoginController {
 	/**
 	 * Logout API : Also revoke access of token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@GetMapping(path = "/logout")
@@ -276,10 +282,11 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists then will sent generated token.
+	 * Login using Facebook and Google. If User is not registered then we will add
+	 * that user's information and if exists then will sent generated token.
 	 *
-	 * @param  socialLoginDto
-	 * @param  result
+	 * @param socialLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -316,8 +323,8 @@ public class UserLoginController {
 	/**
 	 * ADMIN & USER Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -338,8 +345,8 @@ public class UserLoginController {
 	/**
 	 * Customer Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -365,8 +372,8 @@ public class UserLoginController {
 	/**
 	 * Delivery boy Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -384,7 +391,8 @@ public class UserLoginController {
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 
 		/**
-		 * if at a time same delivery boy is login more than once then revoke all tokens other then this
+		 * if at a time same delivery boy is login more than once then revoke all tokens
+		 * other then this
 		 */
 		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID,
 				userLoginDto.getUserName().concat("!!").concat(UserType.DELIVERY_BOY.name()));
@@ -410,8 +418,8 @@ public class UserLoginController {
 	/**
 	 * Login with OTP for customer
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -437,9 +445,10 @@ public class UserLoginController {
 
 	/**
 	 * API is useful for generate OTP for login. </br>
-	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
+	 * If customer is not exist with respect to mobile then it will create customer
+	 * based on phoneNumber.
 	 *
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -455,10 +464,10 @@ public class UserLoginController {
 	/**
 	 * check password for user
 	 *
-	 * @param  accessToken
-	 * @param  entityId
-	 * @param  entityType
-	 * @param  password
+	 * @param accessToken
+	 * @param entityId
+	 * @param entityType
+	 * @param password
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -477,9 +486,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update email
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -523,9 +532,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update phone number
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -566,7 +575,7 @@ public class UserLoginController {
 	/**
 	 * Get user info based on token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
