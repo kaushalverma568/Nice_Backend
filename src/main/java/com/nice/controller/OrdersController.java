@@ -429,7 +429,7 @@ public class OrdersController {
 			throws ValidationException, NotFoundException {
 		WalletTrxDTO walletTxnDto = orderService.getRefundDetailsForOrder(orderId);
 		return new GenericResponseHandlers.Builder().setData(walletTxnDto).setStatus(HttpStatus.OK)
-				.setMessage(messageByLocaleService.getMessage("ongoing.order.display", null)).create();
+				.setMessage(messageByLocaleService.getMessage("refund.details.display", null)).create();
 
 	}
 }
