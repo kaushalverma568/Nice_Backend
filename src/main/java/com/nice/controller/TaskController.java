@@ -5,6 +5,9 @@ package com.nice.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Produces;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -25,6 +29,7 @@ import com.nice.constant.TaskStatusEnum;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -185,7 +190,7 @@ public class TaskController {
 	 * @return
 	 * @throws ValidationException
 	 */
-	@GetMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	@PostMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getTaskListForPayoutBasedOnParams(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final TaskFilterDTO taskFilterDTO) throws ValidationException {
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
@@ -195,5 +200,27 @@ public class TaskController {
 				.setData(taskMapper.toPayoutResponseDtos(resulttasks)).setHasNextPage(paginationUtilDto.getHasNextPage())
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
+	}
+
+	/**
+	 * export task list for payout history
+	 *
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
+	 * @return
+	 * @throws FileOperationException
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@Produces("text/csv")
+	@PostMapping("/export/payout")
+	public ResponseEntity<Object> exportTaskListForPayout(@RequestHeader("Authorization") final String accessToken,
+			final HttpServletResponse httpServletResponse, @RequestBody final TaskFilterDTO taskFilterDTO)
+			throws FileOperationException, ValidationException, NotFoundException {
+		taskService.exportTaskListForPayout(httpServletResponse, taskFilterDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
+				.create();
 	}
 }

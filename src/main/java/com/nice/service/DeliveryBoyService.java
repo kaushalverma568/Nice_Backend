@@ -92,7 +92,7 @@ public interface DeliveryBoyService {
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
-	void updateProfilePicture(MultipartFile profilePicture, Long deliveryBoyId) throws NotFoundException, ValidationException, FileOperationException;
+	void updateProfilePicture(MultipartFile profilePicture) throws NotFoundException, ValidationException, FileOperationException;
 
 	/**
 	 * Update personal details
@@ -156,8 +156,7 @@ public interface DeliveryBoyService {
 	void updateIsLogin(String userName) throws NotFoundException;
 
 	/**
-	 * update the rating of the delivery boy.(provide the rating provided by the
-	 * client and deliveryBoyId)
+	 * update the rating of the delivery boy.(provide the rating provided by the client and deliveryBoyId)
 	 *
 	 * @param  deliveryBoyId
 	 * @param  ratingByClient
@@ -222,7 +221,7 @@ public interface DeliveryBoyService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	OrdersCountDTO getOrdersCount(Long deliveryBoyId, TaskFilterDTO taskFilterDTO) throws NotFoundException, ValidationException;
+	OrdersCountDTO getOrdersCount(TaskFilterDTO taskFilterDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * get delivery boy dash board
@@ -232,7 +231,7 @@ public interface DeliveryBoyService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	DashBoardDetailDTO getDashBoard(Long deliveryBoyId) throws NotFoundException, ValidationException;
+	DashBoardDetailDTO getDashBoard() throws NotFoundException, ValidationException;
 
 	/**
 	 * get delivery boy count based on param
@@ -275,5 +274,13 @@ public interface DeliveryBoyService {
 	 * @throws ValidationException
 	 */
 	OrdersDetailDTOForDeliveryBoy getOrderDetails(Long taskId, Long orderId) throws NotFoundException, ValidationException;
+
+	/**
+	 * get delivery boy id from token : This will use internally
+	 *
+	 * @return
+	 * @throws ValidationException
+	 */
+	Long getDeliveryBoyIdFromToken() throws ValidationException;
 
 }

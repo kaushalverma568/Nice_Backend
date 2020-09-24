@@ -46,4 +46,12 @@ public class TaskPayoutDTO implements Serializable {
 	private String vendorTransactionId;
 	private Date vendorPaidOn;
 
+	/**
+	 * for export
+	 */
+	private String paymentStatus;
+	private String orderType;
+	private Date paidOn;
+	private String transactionId;
+
 }
