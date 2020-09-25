@@ -903,6 +903,7 @@ public class OrdersServiceImpl implements OrdersService {
 			}
 		}
 		saveOrderStatusHistory(order);
+
 		return order;
 	}
 
@@ -1822,10 +1823,13 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void sendPushNotification(final Long orderId) throws NotFoundException {
+	public void sendPushNotificationForOrder(final String orderPushNotificationCustomer, final Long orderId) throws NotFoundException {
+		Orders orders = getOrderById(orderId);
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setModule(Constant.ORDER_MODULE);
 		pushNotificationDTO.setOrderId(orderId);
-		pushNotificationDTO.setType(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION);
+		pushNotificationDTO.setCustomerId(orders.getCustomer().getId());
+		pushNotificationDTO.setType(orderPushNotificationCustomer);
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 }

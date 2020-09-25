@@ -255,10 +255,17 @@ public interface OrdersService {
 	OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException;
 
 	/**
-	 * send push notification to vendor about new order
-	 *
+	 * @param orderPushNotificationCustomer
 	 * @param orderId
 	 * @throws NotFoundException
 	 */
-	void sendPushNotification(Long orderId) throws NotFoundException;
+	void sendPushNotificationForOrder(String orderPushNotificationCustomer, Long orderId) throws NotFoundException;
+
+	// /**
+	// * get all information for app payment
+	// *
+	// * @param orderId
+	// * @throws NotFoundException
+	// */
+	// void sendPushNotification(Long orderId) throws NotFoundException;
 }

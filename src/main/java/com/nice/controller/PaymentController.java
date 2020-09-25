@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.SuccessErrorType;
 import com.nice.dto.HesabeDecryptPaymentDTO;
 import com.nice.dto.HesabePaymentResponseDTO;
@@ -31,7 +32,7 @@ import com.nice.service.PaymentService;
 /**
  *
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 13-07-2020
+ * @date : 13-07-2020
  */
 
 @RequestMapping(path = "/payment")
@@ -55,8 +56,8 @@ public class PaymentController {
 	private static final String REDIRECT = "redirect:";
 
 	@GetMapping(path = "/check")
-	public ModelAndView checkPayment(@RequestParam(name = "language", required = true) final String langauge,
-			@RequestParam(name = "data") final String data) throws NotFoundException, UnsupportedEncodingException {
+	public ModelAndView checkPayment(@RequestParam(name = "language", required = true) final String langauge, @RequestParam(name = "data") final String data)
+			throws NotFoundException, UnsupportedEncodingException {
 		Locale locale = new Locale(langauge);
 		LocaleContextHolder.setLocale(locale);
 		String result = hesabePaymentService.decrypt(data);
@@ -64,19 +65,23 @@ public class PaymentController {
 		Gson gson = new Gson();
 		HesabePaymentResponseDTO hesabePaymentResponseDTO = gson.fromJson(result, HesabePaymentResponseDTO.class);
 		HesabeDecryptPaymentDTO decryptPaymentDTO = gson.fromJson(hesabePaymentResponseDTO.getResponse().get("data"), HesabeDecryptPaymentDTO.class);
-		boolean response;
+		Long orderId;
 		String msg;
 		try {
-			response = paymentService.checkPaymentTransaction(decryptPaymentDTO.getResponse());
+			orderId = paymentService.checkPaymentTransaction(decryptPaymentDTO.getResponse());
 			msg = messageByLocaleService.getMessage("payment.success", null);
 			// TODO send email
 		} catch (NotFoundException | ValidationException e) {
-			response = false;
+			orderId = 0l;
 			msg = e.getMessage();
 		}
-		if (response) {
-			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type="
-					+ SuccessErrorType.PAYMENT);
+		if (orderId.compareTo(0l) != 0) {
+			/**
+			 * Send Push Notification for order placed
+			 */
+			paymentService.sendPushNotificationForPlacedOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, orderId);
+
+			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type=" + SuccessErrorType.PAYMENT);
 		} else {
 			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + URLEncoder.encode(msg, "UTF-8") + " &type=" + SuccessErrorType.PAYMENT);
 		}

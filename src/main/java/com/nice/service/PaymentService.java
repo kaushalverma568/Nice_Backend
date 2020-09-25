@@ -20,11 +20,18 @@ public interface PaymentService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	Boolean checkPaymentTransaction(HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException;
+	Long checkPaymentTransaction(HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param razorpayOrderId
 	 */
 	void failedTransaction(String razorPayOrderId);
+
+	/**
+	 * @param orderPushNotificationCustomer
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationForPlacedOrder(String orderPushNotificationCustomer, Long orderId) throws NotFoundException;
 
 }

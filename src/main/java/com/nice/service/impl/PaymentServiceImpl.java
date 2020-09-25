@@ -14,13 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.CartItemStatus;
 import com.nice.constant.Constant;
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.PaymentMode;
 import com.nice.dto.HesabePaymentDTO;
 import com.nice.dto.OrderRequestDTO;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.model.CartItem;
 import com.nice.model.OnlineCart;
+import com.nice.model.Orders;
 import com.nice.repository.OnlineCartRepository;
 import com.nice.service.CartItemService;
 import com.nice.service.OrdersService;
@@ -44,19 +48,22 @@ public class PaymentServiceImpl implements PaymentService {
 	@Autowired
 	private CartItemService cartItemService;
 
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
 	@Override
-	public Boolean checkPaymentTransaction(final HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException {
-		boolean result = false;
+	public Long checkPaymentTransaction(final HesabePaymentDTO hesabePaymentDTO) throws NotFoundException, ValidationException {
+		Long orderId = 0l;
 		List<OnlineCart> onlineCartList = onlineCartRepository.findAllByOnlineOrderIdAndStatus(hesabePaymentDTO.getVariable1(),
 				CartItemStatus.PAYMENT_WAITING.getStatusValue());
 		if (!hesabePaymentDTO.getResultCode().equals(Constant.HESABE_CAPTURE)) {
 			failedTransaction(hesabePaymentDTO.getVariable1());
-			return result;
+			return orderId;
 		}
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(onlineCartList)) {
-			return result;
+			return orderId;
 		}
 
 		OrderRequestDTO orderRequestDTO = new OrderRequestDTO();
@@ -93,8 +100,8 @@ public class PaymentServiceImpl implements PaymentService {
 		orderRequestDTO.setPaymentToken(hesabePaymentDTO.getPaymentToken());
 		orderRequestDTO.setPaymentId(hesabePaymentDTO.getPaymentId());
 		orderRequestDTO.setAdministrativeCharge(hesabePaymentDTO.getAdministrativeCharge());
-		orderService.createOrder(cartItemList, orderRequestDTO, calculatedOrderAmt);
-		result = true;
+		Orders orders = orderService.createOrder(cartItemList, orderRequestDTO, calculatedOrderAmt);
+		orderId = orders.getId();
 		for (OnlineCart onlineCart : onlineCartList) {
 			onlineCart.setPaymentId(hesabePaymentDTO.getPaymentId());
 			onlineCart.setPaymentToken(hesabePaymentDTO.getPaymentToken());
@@ -106,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
 		 * Delete the entry from cart for the successful orders
 		 */
 		cartItemService.deleteCartItemForOnlineOrderId(hesabePaymentDTO.getVariable1());
-		return result;
+		return orderId;
 	}
 
 	@Override
@@ -118,6 +125,17 @@ public class PaymentServiceImpl implements PaymentService {
 			onlineCart.setStatus(CartItemStatus.PAYMENT_FAIL.getStatusValue());
 			onlineCartRepository.save(onlineCart);
 		}
+	}
+
+	@Override
+	public void sendPushNotificationForPlacedOrder(final String orderPushNotificationCustomer, final Long orderId) throws NotFoundException {
+		Orders orders = orderService.getOrderById(orderId);
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setModule(Constant.ORDER_MODULE);
+		pushNotificationDTO.setOrderId(orderId);
+		pushNotificationDTO.setCustomerId(orders.getCustomer().getId());
+		pushNotificationDTO.setType(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER);
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
 }

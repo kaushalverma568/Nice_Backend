@@ -149,6 +149,11 @@ public final class Constant {
 	public static final String RETURN = "Return";
 
 	/**
+	 * Push notification Module name
+	 */
+	public static final String ORDER_MODULE = "Orders";
+
+	/**
 	 * Status for vendor return/replace
 	 */
 

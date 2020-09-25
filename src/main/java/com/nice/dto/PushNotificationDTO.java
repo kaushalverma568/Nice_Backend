@@ -35,4 +35,7 @@ public class PushNotificationDTO implements Serializable {
 	private Long ticketId;
 
 	private Long taskId;
+
+	private String module;
+
 }

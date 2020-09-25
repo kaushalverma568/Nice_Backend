@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.PaymentMode;
 import com.nice.dto.OrderListFilterDto;
@@ -91,17 +92,13 @@ public class OrdersController {
 		String orderId = orderService.validateOrder(orderRequestDto);
 		LOGGER.info("Inside the validate order method");
 		/**
-		 * send email start here
-		 */
-		/**
 		 * send email to customer when he/she place order and payment type is cod
 		 */
 		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
-			// TODO send email
-			/**
-			 * send email is remaining just send push notification added
-			 */
-			orderService.sendPushNotification(Long.getLong(orderId));
+
+			orderService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
+			// TODO send email code here
+
 		} /**
 			 * send email ends here
 			 */
@@ -208,6 +205,7 @@ public class OrdersController {
 			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
 		}
 		orderService.cancelOrder(replaceCancelOrderDto, true);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, order.getId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -231,6 +229,7 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		orderService.cancelOrder(replaceCancelOrderDto, false);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -289,8 +288,7 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for
-	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
 	 * @param accessToken
 	 * @param userId
@@ -309,6 +307,9 @@ public class OrdersController {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.status", null));
 		}
 		orderService.changeStatus(ordersId, status);
+		if (!OrderStatusEnum.DELIVERED.getStatusValue().equals(status)) {
+			orderService.sendPushNotificationForOrder(NotificationQueueConstants.ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER, ordersId);
+		}
 		LOGGER.info("Outside change status of order");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.change.status.messege", null))
 				.create();
@@ -356,11 +357,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method is used to refund amount for the orders that are cancelled by
-	 * admin, as for orders cancelled by admin no refund would be made
-	 * automatically, for other type of cancelled order (Cancelled By
-	 * Customer/Rejected by Vendor) refund would be made automatically if the
-	 * payment mode is not COD
+	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
+	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
+	 * refund would be made automatically if the payment mode is not COD
 	 *
 	 * @param accessToken
 	 * @param orderId
@@ -388,8 +387,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method will only be used to deliver pickup type order by vendor, for all
-	 * other orders the delivery would be done by delivery boy.
+	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
+	 * by delivery boy.
 	 *
 	 * @param token
 	 * @param orderId
@@ -402,7 +401,7 @@ public class OrdersController {
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside get order details method for orderId : {}", orderId);
 		orderService.deliverPickUpOrder(orderId);
-
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.DELIVER_ORDER_PUSH_NOTIFICATION_CUSTOMER, orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.delivered.successful", null))
 				.create();
 	}
