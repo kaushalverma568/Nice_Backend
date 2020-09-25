@@ -154,7 +154,8 @@ public final class Constant {
 	public static final String ORDER_MODULE = "Orders";
 
 	public static final String TICKET_MODULE = "Tickets";
-	public static final String PROFILE_MODULE = "Profile";
+	public static final String VENDOR_PROFILE = "Vendor Profile";
+	public static final String DELIVERY_BOY_PROFILE = "Delivery Boy Profile";
 	public static final String VENDOR_MODULE = "Vendor";
 	/**
 	 * Status for vendor return/replace

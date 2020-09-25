@@ -11,8 +11,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.nice.dto.NotificationPayloadDto;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -47,7 +49,8 @@ public class FCMRestHelper {
 	/**
 	 * Your SECRET server key
 	 */
-//	private static final String FCM_SERVER_KEY = "AAAAdaCL7Gg:APA91bEn8ZGna_WMN6EdFM8u9s9nIRrxRu_Wp31BiOtsuzy3hBnFFPBgUM0O_bAOHXjIQqWkOV-H1DKXI6rSfStcXnLuCT5dCyjSC4UjOe9tcxKuqsXHmI3mGMtaybthyNr_3RLFZlQo";
+	// private static final String FCM_SERVER_KEY =
+	// "AAAAdaCL7Gg:APA91bEn8ZGna_WMN6EdFM8u9s9nIRrxRu_Wp31BiOtsuzy3hBnFFPBgUM0O_bAOHXjIQqWkOV-H1DKXI6rSfStcXnLuCT5dCyjSC4UjOe9tcxKuqsXHmI3mGMtaybthyNr_3RLFZlQo";
 
 	public static FCMRestHelper getInstance(final String fcmKey) {
 
@@ -81,7 +84,7 @@ public class FCMRestHelper {
 	 * @param dataObject
 	 * @return
 	 */
-	public String sendData(final String type, final String typeParameter, final JsonObject dataObject, final String fcmKey) {
+	public String sendData(final String type, final String typeParameter, final Object dataObject, final String fcmKey) {
 		return sendNotifictaionAndData(type, typeParameter, null, dataObject, fcmKey);
 	}
 
@@ -93,7 +96,7 @@ public class FCMRestHelper {
 	 * @param dataObject
 	 * @return
 	 */
-	public String sendDataMulti(final String type, final List<String> recipientList, final JsonObject dataObject, final String fcmKey) {
+	public String sendDataMulti(final String type, final List<String> recipientList, final Object dataObject, final String fcmKey) {
 		return sendNotifictaionAndDataMulti(type, recipientList, null, dataObject, fcmKey);
 	}
 
@@ -106,7 +109,7 @@ public class FCMRestHelper {
 	 * @param dataObject
 	 * @return
 	 */
-	public String sendNotifictaionAndData(final String type, final String typeParameter, final JsonObject notificationObject, final JsonObject dataObject,
+	public String sendNotifictaionAndData(final String type, final String typeParameter, final JsonObject notificationObject, final Object dataObject,
 			final String fcmKey) {
 		String result = null;
 		if (type.equals(TYPE_TO) || type.equals(TYPE_CONDITION)) {
@@ -127,7 +130,7 @@ public class FCMRestHelper {
 	 * @return
 	 */
 	public String sendNotifictaionAndDataMulti(final String type, final List<String> recipientList, final JsonObject notificationObject,
-			final JsonObject dataObject, final String fcmKey) {
+			final Object dataObject, final String fcmKey) {
 		String result = null;
 		if (type.equals(TYPE_REGISTRATION)) {
 			JsonObject sendObject = new JsonObject();
@@ -183,7 +186,7 @@ public class FCMRestHelper {
 	 * @param dataObject         - Data
 	 * @return
 	 */
-	private String sendFcmMessage(final JsonObject sendObject, final JsonObject notificationObject, final JsonObject dataObject, final String fcmKey) {
+	private String sendFcmMessage(final JsonObject sendObject, final JsonObject notificationObject, final Object dataObject, final String fcmKey) {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -194,7 +197,7 @@ public class FCMRestHelper {
 			sendObject.add("notification", notificationObject);
 		}
 		if (dataObject != null) {
-			sendObject.add("data", dataObject);
+			sendObject.add("data", new Gson().toJsonTree(dataObject, NotificationPayloadDto.class));
 		}
 
 		HttpEntity<String> httpEntity = new HttpEntity<>(sendObject.toString(), httpHeaders);

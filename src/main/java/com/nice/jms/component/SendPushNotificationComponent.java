@@ -62,7 +62,6 @@ public class SendPushNotificationComponent {
 	private static final String CUSTOMER_KEY = "";
 	private static final String WEB_KEY = "AAAAGiFgaEY:APA91bFMLBoCm4dH8EMKu5dZ8mogU87S0Nh_fXWIn0w1xt03rCS-Q7KDHvzLKvoUDAiBZq-nb9DLufdeFc0qpBizALDfxPwh8UbuVQLf7D3euIdAbtD3AGjPynnIiPcUBrYV5RciCZ5k";
 
-	private static final String MODULE = "module";
 	@Autowired
 	private UserLoginService userLoginService;
 
@@ -95,9 +94,6 @@ public class SendPushNotificationComponent {
 
 	@Autowired
 	private CompanyService companyService;
-
-	@Autowired
-	private ObjectMapper mapper;
 
 	@Value("${application.name}")
 	private String applicationName;
@@ -170,8 +166,11 @@ public class SendPushNotificationComponent {
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty(ORDER_ID, task.getOrder().getId());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(task.getOrder().getId());
+			notificationPayloadDto.setModule(Constant.ORDER_MODULE);
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
-				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 			}
 		}
 	}
@@ -207,7 +206,6 @@ public class SendPushNotificationComponent {
 			}
 
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			if (orders.getVendor().getPreferredLanguage().equals("en")) {
 				message = message.append(pushNotification.getMessageEnglish());
@@ -218,9 +216,11 @@ public class SendPushNotificationComponent {
 			notificationObject.addProperty("body", message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(Constant.ORDER_MODULE);
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
-				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 			}
 		}
 	}
@@ -271,7 +271,6 @@ public class SendPushNotificationComponent {
 			}
 
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 				message = message.append(pushNotification.getMessageEnglish());
@@ -282,9 +281,11 @@ public class SendPushNotificationComponent {
 			notificationObject.addProperty("body", message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
-			dataObject.addProperty("ticketId", pushNotificationDTO.getTicketId());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getTicketId());
+			notificationPayloadDto.setModule(Constant.TICKET_MODULE);
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
-				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 			}
 		}
 	}
@@ -306,7 +307,7 @@ public class SendPushNotificationComponent {
 			String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(deliveryBoy.getFirstNameArabic()).concat(" ")
 					.concat(deliveryBoy.getLastNameArabic());
 			PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
-					Constant.PROFILE_MODULE);
+					Constant.DELIVERY_BOY_PROFILE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be delivery boy and receiver will be admin
@@ -322,7 +323,6 @@ public class SendPushNotificationComponent {
 			}
 
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 				message = message.append(pushNotification.getMessageEnglish());
@@ -333,9 +333,11 @@ public class SendPushNotificationComponent {
 			notificationObject.addProperty("body", message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
-			dataObject.addProperty("deliveryBoyId", pushNotificationDTO.getDeliveryBoyId());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getDeliveryBoyId());
+			notificationPayloadDto.setModule(Constant.DELIVERY_BOY_PROFILE);
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
-				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 			}
 		}
 
@@ -356,7 +358,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.getNewProfileMessage(vendor.getStoreNameEnglish());
 			String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(vendor.getStoreNameArabic());
 			PushNotification pushNotification = setPushNotification(vendor.getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
-					Constant.VENDOR_MODULE);
+					Constant.VENDOR_PROFILE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be vendor and receiver will be admin
@@ -372,7 +374,6 @@ public class SendPushNotificationComponent {
 			}
 
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 				message = message.append(pushNotification.getMessageEnglish());
@@ -383,9 +384,11 @@ public class SendPushNotificationComponent {
 			notificationObject.addProperty("body", message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
-			dataObject.addProperty("vendorId", pushNotificationDTO.getVendorId());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getVendorId());
+			notificationPayloadDto.setModule(Constant.VENDOR_PROFILE);
 			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
-				sendPushNotificationToAdminOrVendor(notificationObject, dataObject, pushNotificationReceiver.getDeviceId());
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 			}
 		}
 
@@ -396,7 +399,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(pushNotificationDTO.getDeliveryBoyIds()) && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			for (Long deliveryBoyId : pushNotificationDTO.getDeliveryBoyIds()) {
@@ -413,20 +415,24 @@ public class SendPushNotificationComponent {
 					message = message.append(pushNotification.getMessageArabic());
 				}
 				notificationObject.addProperty(MESSAGE, message.toString());
-				dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
+				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
+				// TODO : set the task type here
+				notificationPayloadDto.setTaskType("");
 				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotificationDTO.getOrderId());
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList) {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 							userLoginSender.getId(), userLoginReceiver.getId());
 					pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-					sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+					sendPushNotificationToDeliveryBoy(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 				}
 			}
 		}
 	}
 
-	public void sendPushNotificationToDeliveryBoy(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
+	public void sendPushNotificationToDeliveryBoy(final JsonObject notificationObject, final Object dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(DELIVERY_BOY_KEY);
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, DELIVERY_BOY_KEY);
@@ -434,7 +440,7 @@ public class SendPushNotificationComponent {
 		LOGGER.info("push notification result {}", resultObject);
 	}
 
-	public void sendPushNotificationToAdminOrVendor(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
+	public void sendPushNotificationToAdminOrVendor(final JsonObject notificationObject, final Object dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(WEB_KEY);
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, WEB_KEY);
@@ -442,7 +448,7 @@ public class SendPushNotificationComponent {
 		LOGGER.info("push notification result {}", resultObject);
 	}
 
-	public void sendPushNotificationToCustomer(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
+	public void sendPushNotificationToCustomer(final JsonObject notificationObject, final Object dataObject, final String deviceId) {
 		FCMRestHelper fcm = FCMRestHelper.getInstance(CUSTOMER_KEY);
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, CUSTOMER_KEY);
@@ -482,7 +488,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -504,14 +509,13 @@ public class SendPushNotificationComponent {
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
-			dataObject.add("data", new Gson().toJsonTree(notificationPayloadDto, NotificationPayloadDto.class));
 			LOGGER.info("Customer place order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -521,7 +525,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -542,14 +545,13 @@ public class SendPushNotificationComponent {
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
-			dataObject.addProperty("", pushNotificationDTO.getModule());
 			LOGGER.info("Customer cancel order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -559,7 +561,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -577,15 +578,16 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
 			LOGGER.info("Customer order status change notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -595,7 +597,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.DELIVER_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -613,15 +614,16 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
 			LOGGER.info("Order deliver notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -631,7 +633,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.REPLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -649,15 +650,16 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
 			LOGGER.info("Order replacement notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -667,7 +669,6 @@ public class SendPushNotificationComponent {
 				&& NotificationQueueConstants.RETURN_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
 			StringBuilder message = new StringBuilder();
-			JsonObject dataObject = new JsonObject();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
@@ -685,15 +686,16 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
 			LOGGER.info("Order return notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 			}
 		}
 	}
