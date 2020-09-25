@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -99,10 +99,8 @@ public final class Constant {
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
 	/**
-	 * The below order status will be used only for display purpose, of the stock is
-	 * allocated then the order status would
-	 * be Waiting for pickup for display purpose, it has no role in the order flow
-	 * of system
+	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
+	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
 	 */
 	public static final String WAITING_FOR_PICKUP = "Waiting for pickup";
 
@@ -131,10 +129,8 @@ public final class Constant {
 
 	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it
-	 * is the admin that takes the comission
-	 * and not the vendor, once changed in the settings table , replace the same
-	 * name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
+	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "VENDOR_COMISSION";
 	/**
@@ -170,8 +166,8 @@ public final class Constant {
 	 * This are order status for which the order would be considered as ongoing
 	 */
 	private static List<String> ongoingOrderStatusList = Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.CONFIRMED.getStatusValue(),
-			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(), OrderStatusEnum.STOCK_ALLOCATED.getStatusValue(),
-			OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
+			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(),
+			OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 
 	/**
 	 * @return
