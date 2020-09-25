@@ -59,7 +59,7 @@ public class SendPushNotificationComponent {
 	private static final String MESSAGE = "message";
 	private static final String ORDER_ID = "orderId";
 	private static final String IMAGE = "image";
-	private static final String DELIVERY_BOY_KEY = "";
+	private static final String DELIVERY_BOY_KEY = "AAAA3whS1Sc:APA91bHgG8IwQ1Vxvt4K-bot5pgT0NH68cXIpIbt8NtTBmCNFo4V2iO0kImfw-Q0OWuUNm0dmQhBOZcDNj0QQ-BY3qgB9B2q1oCFMt4sIgB4s__qDUBZc15LGV_E65zccWPCMAAv6vHW";
 	private static final String CUSTOMER_KEY = "";
 	private static final String WEB_KEY = "AAAAGiFgaEY:APA91bFMLBoCm4dH8EMKu5dZ8mogU87S0Nh_fXWIn0w1xt03rCS-Q7KDHvzLKvoUDAiBZq-nb9DLufdeFc0qpBizALDfxPwh8UbuVQLf7D3euIdAbtD3AGjPynnIiPcUBrYV5RciCZ5k";
 
