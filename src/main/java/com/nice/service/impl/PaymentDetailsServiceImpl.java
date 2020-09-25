@@ -48,6 +48,10 @@ import com.nice.util.ExportCSV;
 @Service("paymentDetailsService")
 public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 
+	private static final String PAYMENT_ALREADY_DONE_ORDER = "payment.already.done.order";
+
+	private static final String EXPORT_FILE_CREATE_ERROR = "export.file.create.error";
+
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
@@ -95,7 +99,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			Double sum = 0d;
 			for (Task task : taskList) {
 				if (task.getDeliveryBoyPaymentDetails() != null) {
-					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getDeliveryCharge();
 			}
@@ -114,7 +118,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			Double sum = 0d;
 			for (Task task : taskList) {
 				if (task.getVendorPaymentDetails() != null) {
-					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getVendorPayableAmt();
 			}
@@ -253,7 +257,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			}
 			for (Task task : taskList) {
 				if (task.getDeliveryBoyPaymentDetails() != null) {
-					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getDeliveryCharge();
 			}
@@ -264,7 +268,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			}
 			for (Task task : taskList) {
 				if (task.getVendorPaymentDetails() != null) {
-					throw new ValidationException(messageByLocaleService.getMessage("payment.already.done.order", new Object[] { task.getOrder().getId() }));
+					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getVendorPayableAmt();
 			}
@@ -331,7 +335,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		try {
 			exportCSV.writeCSVFile(paymentDetailsResponseDTOs, paymentDetailsDataField, paymentDetailsHeaderField, httpServletResponse);
 		} catch (IOException e) {
-			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+			throw new FileOperationException(messageByLocaleService.getMessage(EXPORT_FILE_CREATE_ERROR, null));
 		}
 	}
 
@@ -346,7 +350,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		try {
 			exportCSV.writeCSVFile(vendorPayoutDTOs, vendorPayoutDataField, vendorPayoutHeaderField, httpServletResponse);
 		} catch (IOException e) {
-			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+			throw new FileOperationException(messageByLocaleService.getMessage(EXPORT_FILE_CREATE_ERROR, null));
 		}
 	}
 
@@ -361,7 +365,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		try {
 			exportCSV.writeCSVFile(deliveryBoyPayoutDTOs, deliveryBoyPayoutDataField, deliveryBoyPayoutHeaderField, httpServletResponse);
 		} catch (IOException e) {
-			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+			throw new FileOperationException(messageByLocaleService.getMessage(EXPORT_FILE_CREATE_ERROR, null));
 		}
 	}
 }

@@ -73,6 +73,14 @@ import com.nice.util.ExportCSV;
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
 public class TaskServiceImpl implements TaskService {
+	private static final String ORDER_DATE2 = "orderDate";
+
+	private static final String ORDER_ID2 = "orderId";
+
+	private static final String ORDER_DATE = "Order Date";
+
+	private static final String ORDER_ID = "Order Id";
+
 	private static final String INVALID_TASK_STATUS = "invalid.task.status";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -133,24 +141,20 @@ public class TaskServiceImpl implements TaskService {
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should
-		 * be assigned to it
+		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.delivery.boy.for.order", null));
 		}
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor
-		 * for the task, this code is only for
-		 * regular order, not for replacement or return, for replacement and return the
-		 * calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
+		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
 		/**
-		 * Here order total amount would be the combination of wallet contribution and
-		 * amount paid by the customer
+		 * Here order total amount would be the combination of wallet contribution and amount paid by the customer
 		 */
 		Double orderTotal = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 		Double deliveryCharge = orders.getDeliveryCharge();
@@ -161,12 +165,9 @@ public class TaskServiceImpl implements TaskService {
 			vendorPayableAmt = orderTotal - deliveryCharge - adminCommissionAmt;
 		}
 		/**
-		 * For return and replacement orders, set the values accordingly, here it is
-		 * assumed that the orderTotal will be a +ve
-		 * value for return order as well in orders table , keeping that in mind the
-		 * below lines have been coded For replacement
-		 * orders, there would only be delivery charge and that would be handled in
-		 * change status method below, the vendor
+		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
+		 * value for return order as well in orders table , keeping that in mind the below lines have been coded For replacement
+		 * orders, there would only be delivery charge and that would be handled in change status method below, the vendor
 		 * payable amount and admin commission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
@@ -176,15 +177,13 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same
-		 * order for delivery donot end up have
+		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
 		 * the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
 			/**
-			 * This is because, the task can be created without delivery boy for pickup
-			 * orders
+			 * This is because, the task can be created without delivery boy for pickup orders
 			 */
 			if (taskDto.getDeliveryBoyId() != null) {
 				/**
@@ -219,8 +218,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set at the time of completion of task (see:
-			 * change task status method)
+			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
 			 */
 			task.setDeliveryCharge(0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
@@ -269,10 +267,8 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is
-			 * replacement, the order is being replaced and
-			 * hence the order should be moved to replaced status, else its first time
-			 * delivery and order will be moved to delivered
+			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
+			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
 			 * status, this would be applicable only if there is replacement in place.
 			 */
 			String nextOrderStatus;
@@ -329,8 +325,7 @@ public class TaskServiceImpl implements TaskService {
 		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
-			 * if count of today's total delivered or cancelled task for this delivery boy
-			 * is greater than minimum order delivered
+			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered
 			 * for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
@@ -535,8 +530,7 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not
-		 * accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -563,10 +557,8 @@ public class TaskServiceImpl implements TaskService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
 		}
 		/**
-		 * If Order's delivery type is Delivery then order's status should be return
-		 * order pickup
-		 * If Order's delivery type is pick-up then order's status should be return
-		 * processed
+		 * If Order's delivery type is Delivery then order's status should be return order pickup If Order's delivery type is
+		 * pick-up then order's status should be return processed
 		 */
 		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
 				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
@@ -577,8 +569,7 @@ public class TaskServiceImpl implements TaskService {
 		}
 		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 		/**
-		 * set isBusy to false if delivery boy has no any other assigned orders, no
-		 * changes are to be made to delivery boy in
+		 * set isBusy to false if delivery boy has no any other assigned orders, no changes are to be made to delivery boy in
 		 * case of pickup orders
 		 */
 		if (task.getDeliveryBoy() != null) {
@@ -667,9 +658,9 @@ public class TaskServiceImpl implements TaskService {
 	public void exportDeliveryLogList(final DeliveryLogFilterDTO deliveryLogFilterDTO, final HttpServletResponse httpServletResponse)
 			throws FileNotFoundException, ValidationException {
 		List<DeliveryLogDTO> deliveryLogDTOs = getTaskListForDeliveryLog(deliveryLogFilterDTO, null, null);
-		final Object[] deliveryLogHeaderField = new Object[] { "Order Id", "Order Date", "Customer Name", "Customer Email", "Delivery Boy Name",
+		final Object[] deliveryLogHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Customer Name", "Customer Email", "Delivery Boy Name",
 				"Delivery Boy Email", "Assigned On", "Vendor Name", "Status", "Order type" };
-		final Object[] deliveryLogDataField = new Object[] { "orderId", "orderDate", "customerName", "customerEmail", "deliveryBoyName", "deliveryBoyEmail",
+		final Object[] deliveryLogDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "customerName", "customerEmail", "deliveryBoyName", "deliveryBoyEmail",
 				"assignedDate", "vendorStoreName", "taskStatus", "taskType" };
 		try {
 			exportCSV.writeCSVFile(deliveryLogDTOs, deliveryLogDataField, deliveryLogHeaderField, httpServletResponse);
@@ -695,6 +686,7 @@ public class TaskServiceImpl implements TaskService {
 				if (taskPayoutDTO.getDeliveryBoyPaymentDetailsId() != null) {
 					taskPayoutDTO.setPaidOn(taskPayoutDTO.getDeliveryBoyPaidOn());
 					taskPayoutDTO.setTransactionId(taskPayoutDTO.getDeliveryBoyTransactionId());
+					taskPayoutDTO.setPaymentStatus("Paid");
 				} else {
 					taskPayoutDTO.setPaymentStatus("Pending");
 				}
@@ -702,20 +694,21 @@ public class TaskServiceImpl implements TaskService {
 				if (taskPayoutDTO.getVendorPaymentDetailsId() != null) {
 					taskPayoutDTO.setPaidOn(taskPayoutDTO.getVendorPaidOn());
 					taskPayoutDTO.setTransactionId(taskPayoutDTO.getVendorTransactionId());
+					taskPayoutDTO.setPaymentStatus("Paid");
 				} else {
 					taskPayoutDTO.setPaymentStatus("Pending");
 				}
 			}
 		}
 		if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
-			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
+			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
 					"Order Amount", "Payment Status", "Paid On", "Transaction Id" };
-			taskPayoutDataField = new Object[] { "orderId", "orderDate", "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
+			taskPayoutDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
 					"paymentStatus", "paidOn", "transactionId" };
 		} else {
-			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
+			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
 					"Payable Amount", "Payment Status", "Paid On", "Transaction Id" };
-			taskPayoutDataField = new Object[] { "orderId", "orderDate", "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
+			taskPayoutDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
 					"vendorPayableAmt", "paymentStatus", "paidOn", "transactionId" };
 		}
 		try {
