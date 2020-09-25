@@ -564,7 +564,7 @@ public class OrdersServiceImpl implements OrdersService {
 	 * @return
 	 */
 	private Long ongoingOrderCount(final Long customerId) {
-		return ordersRepository.getCountofOngoingOrdersForCustomer(customerId, Constant.getCompletedOrderStatusList());
+		return ordersRepository.getCountofOngoingOrdersForCustomer(customerId, Constant.getOngoingOrderStatusList());
 	}
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
@@ -1865,7 +1865,7 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException {
 		Long customerId = getCustomerIdForLoginUser();
-		Long orderId = ordersRepository.getOrderIdOfOngoingOrdersForCustomer(customerId, Constant.getCompletedOrderStatusList());
+		Long orderId = ordersRepository.getOrderIdOfOngoingOrdersForCustomer(customerId, Constant.getOngoingOrderStatusList());
 		return getOrderDetails(orderId);
 	}
 

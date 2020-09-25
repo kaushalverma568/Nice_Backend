@@ -167,18 +167,17 @@ public final class Constant {
 	 */
 
 	/**
-	 * This are order status for which the order would be considered as delivered
+	 * This are order status for which the order would be considered as ongoing
 	 */
-	private static List<String> completedOrderStatusList = Arrays.asList(OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(),
-			OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue(),
-			OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
-			OrderStatusEnum.RETURN_PROCESSED.getStatusValue(), OrderStatusEnum.RETURN_REQUESTED.getStatusValue());
+	private static List<String> ongoingOrderStatusList = Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.CONFIRMED.getStatusValue(),
+			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(), OrderStatusEnum.STOCK_ALLOCATED.getStatusValue(),
+			OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 
 	/**
-	 * @return the completedOrderStatusList
+	 * @return
 	 */
-	public static List<String> getCompletedOrderStatusList() {
-		return completedOrderStatusList;
+	public static List<String> getOngoingOrderStatusList() {
+		return ongoingOrderStatusList;
 	}
 
 }
