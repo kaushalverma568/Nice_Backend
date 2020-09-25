@@ -18,24 +18,22 @@ public interface PaymentDetailsCustomRepository {
 	/**
 	 * Get delivery boy pay out based on params
 	 *
-	 * @param  searchId
 	 * @param  deliveryBoyId
 	 * @param  registeredOn
 	 * @param  startIndex
 	 * @param  pageSize
 	 * @return
 	 */
-	List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(Long searchId, Long deliveryBoyId, Date registeredOn, Integer startIndex, Integer pageSize);
+	List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(Long deliveryBoyId, Date registeredOn, Integer startIndex, Integer pageSize);
 
 	/**
 	 * Get delivery boy pay out count based on params
 	 *
-	 * @param  searchId
 	 * @param  deliveryBoyId
 	 * @param  registeredOn
 	 * @return
 	 */
-	Long getDeliveryBoyPayoutCountBasedOnParam(Long searchId, Long deliveryBoyId, Date registeredOn);
+	Long getDeliveryBoyPayoutCountBasedOnParam(Long deliveryBoyId, Date registeredOn);
 
 	/**
 	 * Get vendor pay out count based on params

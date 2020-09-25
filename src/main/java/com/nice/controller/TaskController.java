@@ -3,6 +3,7 @@
  */
 package com.nice.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -219,6 +220,10 @@ public class TaskController {
 			@PathVariable final Integer pageSize, @RequestBody final TaskFilterDTO taskFilterDTO) throws ValidationException {
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
+		/**
+		 * Get Only those tasks which is completed..not in process
+		 */
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		final List<Task> resulttasks = taskService.getTaskListBasedOnParams(taskFilterDTO, paginationUtilDto.getStartIndex(), pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
 				.setData(taskMapper.toPayoutResponseDtos(resulttasks)).setHasNextPage(paginationUtilDto.getHasNextPage())
@@ -241,8 +246,11 @@ public class TaskController {
 	@Produces("text/csv")
 	@PostMapping("/export/payout")
 	public ResponseEntity<Object> exportTaskListForPayout(@RequestHeader("Authorization") final String accessToken,
-			final HttpServletResponse httpServletResponse, @RequestBody final TaskFilterDTO taskFilterDTO)
-			throws FileOperationException, ValidationException, NotFoundException {
+			final HttpServletResponse httpServletResponse, @RequestBody final TaskFilterDTO taskFilterDTO) throws FileOperationException {
+		/**
+		 * Get Only those tasks which is completed..not in process
+		 */
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskService.exportTaskListForPayout(httpServletResponse, taskFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
 				.create();

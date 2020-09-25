@@ -37,9 +37,10 @@ import com.nice.util.CommonUtility;
 @Repository
 public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
+	private static final String CREATED_AT = "createdAt";
+	private static final String VENDOR = "vendor";
 	private static final String ORDER = "order";
 	private static final String DELIVERY_BOY = "deliveryBoy";
-	private static final String VENDOR = "vendor";
 	private static final String CUSTOMER = "customer";
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -82,6 +83,9 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 			predicates.add(task.get("status").in(parameterObject.getStatusList()));
 		}
 
+		if (parameterObject.getOrderId() != null) {
+			predicates.add(criteriaBuilder.equal(orders.get("id"), parameterObject.getOrderId()));
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(parameterObject.getStatusListNotIn())) {
 			predicates.add(criteriaBuilder.not(task.get("status").in(parameterObject.getStatusListNotIn())));
 		}
@@ -92,20 +96,20 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 			predicates.add(criteriaBuilder.equal(task.get("updatedAt").as(Date.class), parameterObject.getUpdatedAt()));
 		}
 		if (parameterObject.getCreatedAt() != null) {
-			predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), parameterObject.getCreatedAt()));
+			predicates.add(criteriaBuilder.equal(task.get(CREATED_AT).as(Date.class), parameterObject.getCreatedAt()));
 		}
 		if (parameterObject.getDeliveredDate() != null) {
 			predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), parameterObject.getDeliveredDate()));
 		}
 		if (parameterObject.getOrderDate() != null) {
-			predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), parameterObject.getOrderDate()));
+			predicates.add(criteriaBuilder.equal(orders.get(CREATED_AT).as(Date.class), parameterObject.getOrderDate()));
 		}
 		if (parameterObject.getDeliveryBoyId() != null) {
 			Join<Task, DeliveryBoy> deliveryBoy = task.join(DELIVERY_BOY, JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(deliveryBoy.get("id"), parameterObject.getDeliveryBoyId()));
 		}
 		if (parameterObject.getVendorId() != null) {
-			Join<Task, Vendor> vendor = task.join(DELIVERY_BOY, JoinType.INNER);
+			Join<Task, Vendor> vendor = task.join(VENDOR, JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(vendor.get("id"), parameterObject.getVendorId()));
 		}
 		if (parameterObject.getDeliveryBoyPaymentPending() != null) {
@@ -125,13 +129,13 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		if (parameterObject.getOrderDateFrom() != null) {
 			if (parameterObject.getOrderDateTo() != null) {
 				predicates.add(
-						criteriaBuilder.between(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateFrom(), parameterObject.getOrderDateTo()));
+						criteriaBuilder.between(orders.get(CREATED_AT).as(Date.class), parameterObject.getOrderDateFrom(), parameterObject.getOrderDateTo()));
 			} else {
-				predicates.add(criteriaBuilder.greaterThanOrEqualTo(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateFrom()));
+				predicates.add(criteriaBuilder.greaterThanOrEqualTo(orders.get(CREATED_AT).as(Date.class), parameterObject.getOrderDateFrom()));
 			}
 		} else {
 			if (parameterObject.getOrderDateTo() != null) {
-				predicates.add(criteriaBuilder.lessThanOrEqualTo(orders.get("createdAt").as(Date.class), parameterObject.getOrderDateTo()));
+				predicates.add(criteriaBuilder.lessThanOrEqualTo(orders.get(CREATED_AT).as(Date.class), parameterObject.getOrderDateTo()));
 			}
 		}
 
@@ -280,13 +284,13 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		if (deliveryLogFilterDTO.getFromDate() != null) {
 			if (deliveryLogFilterDTO.getToDate() != null) {
 				predicates.add(
-						criteriaBuilder.between(task.get("createdAt").as(Date.class), deliveryLogFilterDTO.getFromDate(), deliveryLogFilterDTO.getToDate()));
+						criteriaBuilder.between(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate(), deliveryLogFilterDTO.getToDate()));
 			} else {
-				predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), deliveryLogFilterDTO.getFromDate()));
+				predicates.add(criteriaBuilder.equal(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate()));
 			}
 		} else {
 			deliveryLogFilterDTO.setFromDate(new java.util.Date());
-			predicates.add(criteriaBuilder.equal(task.get("createdAt").as(Date.class), deliveryLogFilterDTO.getFromDate()));
+			predicates.add(criteriaBuilder.equal(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate()));
 		}
 	}
 

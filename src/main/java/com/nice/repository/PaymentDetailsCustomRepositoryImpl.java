@@ -37,7 +37,7 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 	 * @param  paramMap
 	 * @return
 	 */
-	private StringBuilder addDeliveryBoyPayoutConditions(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final StringBuilder sqlQuery,
+	private StringBuilder addDeliveryBoyPayoutConditions(final Long deliveryBoyId, final Date registeredOn, final StringBuilder sqlQuery,
 			final Map<String, Object> paramMap) {
 		if (deliveryBoyId != null) {
 			sqlQuery.append(" and d.id = :deliveryBoyId ");
@@ -47,17 +47,12 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 			sqlQuery.append(" and CAST (d.created_at AS DATE) = :registeredOn ");
 			paramMap.put("registeredOn", registeredOn);
 		}
-
-		if (searchId != null) {
-//			sqlQuery.append(" and (tsk.order_id like CONCAT('%', :searchId, '%') OR ((d.id) like CONCAT('%', :searchId, '%')))");
-//			paramMap.put("searchId", searchId);
-		}
 		return sqlQuery;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final Integer startIndex,
+	public List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(final Long deliveryBoyId, final Date registeredOn, final Integer startIndex,
 			final Integer pageSize) {
 		Locale locale = LocaleContextHolder.getLocale();
 		Map<String, Object> paramMap = new HashMap<>();
@@ -68,17 +63,18 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		} else {
 			sqlQuery.append("concat(d.first_name_arabic,' ',d.last_name_arabic)");
 		}
+
 		sqlQuery.append(
 				" as delivery_boy_name,d.phone_number as delivery_boy_phone_number,d.created_at as registered_on ,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(pd.paid_on) as last_payment_on,sum(pd.payment_amount) as total_paid from delivery_boy d left join (\r\n"
 						+ "select dboy.id as delivery_boy_id, count(t.id)as cart_orders, 0 as replace_orders, 0 as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Delivery' group by (dboy.id) union\r\n"
+						+ "where t.task_type='Delivery' and t.status in('Delivered','Cancelled') group by (dboy.id) union\r\n"
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, count(t.id) as replace_orders, 0 as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Replacement' group by (dboy.id) union\r\n"
+						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (dboy.id) union\r\n"
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, 0 as replace_orders,  count(t.id) as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Return' group by (dboy.id) )as que\r\n"
+						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (dboy.id) )as que\r\n"
 						+ "on d.id=que.delivery_boy_id left join payment_details pd on d.id=pd.delivery_boy_id where 1=1 ");
 
-		addDeliveryBoyPayoutConditions(searchId, deliveryBoyId, registeredOn, sqlQuery, paramMap);
+		addDeliveryBoyPayoutConditions(deliveryBoyId, registeredOn, sqlQuery, paramMap);
 
 		sqlQuery.append("group by(d.id)");
 
@@ -97,7 +93,7 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 	}
 
 	@Override
-	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long searchId, final Long deliveryBoyId, final Date registeredOn) {
+	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long deliveryBoyId, final Date registeredOn) {
 		Map<String, Object> paramMap = new HashMap<>();
 
 		StringBuilder sqlQuery = new StringBuilder("select count(delivery_boy_id)as count1 from (select d.id as delivery_boy_id,");
@@ -111,14 +107,14 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				" as delivery_boy_name,d.phone_number as delivery_boy_phone_number,d.created_at as registered_on ,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(pd.paid_on) as last_payment_on,sum(pd.payment_amount) as total_paid from delivery_boy d left join (\r\n"
 						+ "select dboy.id as delivery_boy_id, count(t.id)as cart_orders, 0 as replace_orders, 0 as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Delivery' group by (dboy.id) union\r\n"
+						+ "where t.task_type='Delivery' and t.status in('Delivered','Cancelled') group by (dboy.id) union\r\n"
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, count(t.id) as replace_orders, 0 as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Replacement' group by (dboy.id) union\r\n"
+						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (dboy.id) union\r\n"
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, 0 as replace_orders,  count(t.id) as return_orders  from delivery_boy dboy  join task t on dboy.id=t.delivery_boy_id \r\n"
-						+ "where t.task_type='Return' group by (dboy.id) )as que\r\n"
+						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (dboy.id) )as que\r\n"
 						+ "on d.id=que.delivery_boy_id  left join payment_details pd on d.id=pd.delivery_boy_id where 1=1 ");
 
-		addDeliveryBoyPayoutConditions(searchId, deliveryBoyId, registeredOn, sqlQuery, paramMap);
+		addDeliveryBoyPayoutConditions(deliveryBoyId, registeredOn, sqlQuery, paramMap);
 		sqlQuery.append(" group by(d.id)) as abc");
 
 		Query q = entityManager.createNativeQuery(sqlQuery.toString());
@@ -142,11 +138,11 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				"v.phone_number as vendor_phone_number,v.store_phone_number as store_phone_number,v.created_at as registered_on ,bc.id as business_category_id,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(pd.paid_on) as last_payment_on,sum(pd.payment_amount) as total_paid from vendor v left join (\r\n"
 						+ "select v.id as vendor_id, count(t.id)as cart_orders, 0 as replace_orders, 0 as return_orders from vendor v join task t on v.id=t.vendor_id \r\n"
-						+ "where t.task_type='Delivery' group by (v.id) union\r\n"
+						+ "where t.task_type='Delivery' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, count(t.id) as replace_orders, 0 as return_orders from vendor v join task t on v.id=t.vendor_id \r\n"
-						+ "where t.task_type='Replacement' group by (v.id) union\r\n"
+						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, 0 as replace_orders, count(t.id) as return_orders from vendor v join task t on v.id=t.vendor_id\r\n"
-						+ "where t.task_type='Return' group by (v.id) )as que\r\n"
+						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (v.id) )as que\r\n"
 						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
@@ -186,11 +182,11 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				"v.phone_number as vendor_phone_number,v.store_phone_number as store_phone_number,v.created_at as registered_on ,bc.id as business_category_id,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(pd.paid_on) as last_payment_on,sum(pd.payment_amount) as total_paid from vendor v left join (\r\n"
 						+ "select v.id as vendor_id, count(t.id)as cart_orders, 0 as replace_orders, 0 as return_orders from vendor v join task t on v.id=t.vendor_id \r\n"
-						+ "where t.task_type='Delivery' group by (v.id) union\r\n"
+						+ "where t.task_type='Delivery' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, count(t.id) as replace_orders, 0 as return_orders from vendor v join task t on v.id=t.vendor_id \r\n"
-						+ "where t.task_type='Replacement' group by (v.id) union\r\n"
+						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, 0 as replace_orders, count(t.id) as return_orders from vendor v join task t on v.id=t.vendor_id\r\n"
-						+ "where t.task_type='Return' group by (v.id) )as que\r\n"
+						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (v.id) )as que\r\n"
 						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
