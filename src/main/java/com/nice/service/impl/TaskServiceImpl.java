@@ -73,6 +73,14 @@ import com.nice.util.ExportCSV;
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
 public class TaskServiceImpl implements TaskService {
+	private static final String ORDER_DATE2 = "orderDate";
+
+	private static final String ORDER_ID2 = "orderId";
+
+	private static final String ORDER_DATE = "Order Date";
+
+	private static final String ORDER_ID = "Order Id";
+
 	private static final String INVALID_TASK_STATUS = "invalid.task.status";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -166,6 +174,8 @@ public class TaskServiceImpl implements TaskService {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
 			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * -1;
 			adminCommissionAmt = adminCommissionAmt * -1;
+		} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskDto.getTaskType())) {
+			vendorPayableAmt = vendorPayableAmt - deliveryCharge;
 		}
 
 		/**
@@ -251,7 +261,8 @@ public class TaskServiceImpl implements TaskService {
 		 */
 		TaskStatusEnum existingTaskStatus = TaskStatusEnum.getByValue(task.getStatus());
 		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.contains(taskStatus)
-				|| TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.returnContains(taskStatus)) {
+				|| TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.returnContains(taskStatus)
+				|| TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.replaceContains(taskStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { taskStatus, task.getStatus() }));
 		}
 
@@ -286,10 +297,6 @@ public class TaskServiceImpl implements TaskService {
 			String nextOrderStatus;
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
 				nextOrderStatus = Constant.ORDER_PICKED_UP;
-			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
-				nextOrderStatus = Constant.RETURN_ORDER_PICKUP;
-			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
-				nextOrderStatus = Constant.REPLACED;
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
 			}
@@ -304,8 +311,20 @@ public class TaskServiceImpl implements TaskService {
 			 * Change order status here to Order PickUp.
 			 */
 			orderService.changeStatus(Constant.RETURN_ORDER_PICKUP, task.getOrder());
+		} else if (taskStatus.equals(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue())) {
+			if (OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(task.getOrder().getOrderStatus())) {
+				task.setStatus(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
+				/**
+				 * Change order status here to Order PickUp.
+				 */
+				orderService.changeStatus(Constant.REPLACE_ORDER_PICKUP, task.getOrder());
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("waiting.order.prepare", null));
+			}
+
 		} else if (taskStatus.equals(TaskStatusEnum.REACHED_VENDOR.getStatusValue()) || taskStatus.equals(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue())
-				|| taskStatus.equals(TaskStatusEnum.REACHED_CUSTOMER.getStatusValue())) {
+				|| taskStatus.equals(TaskStatusEnum.REACHED_CUSTOMER.getStatusValue())
+				|| taskStatus.equals(TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue())) {
 			task.setStatus(taskStatus);
 		} else if (taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			task.setStatus(taskStatus);
@@ -350,7 +369,9 @@ public class TaskServiceImpl implements TaskService {
 				Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
 				task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 			}
-			task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+			if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+				task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+			}
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
@@ -652,9 +673,9 @@ public class TaskServiceImpl implements TaskService {
 	public void exportDeliveryLogList(final DeliveryLogFilterDTO deliveryLogFilterDTO, final HttpServletResponse httpServletResponse)
 			throws FileNotFoundException, ValidationException {
 		List<DeliveryLogDTO> deliveryLogDTOs = getTaskListForDeliveryLog(deliveryLogFilterDTO, null, null);
-		final Object[] deliveryLogHeaderField = new Object[] { "Order Id", "Order Date", "Customer Name", "Customer Email", "Delivery Boy Name",
+		final Object[] deliveryLogHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Customer Name", "Customer Email", "Delivery Boy Name",
 				"Delivery Boy Email", "Assigned On", "Vendor Name", "Status", "Order type" };
-		final Object[] deliveryLogDataField = new Object[] { "orderId", "orderDate", "customerName", "customerEmail", "deliveryBoyName", "deliveryBoyEmail",
+		final Object[] deliveryLogDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "customerName", "customerEmail", "deliveryBoyName", "deliveryBoyEmail",
 				"assignedDate", "vendorStoreName", "taskStatus", "taskType" };
 		try {
 			exportCSV.writeCSVFile(deliveryLogDTOs, deliveryLogDataField, deliveryLogHeaderField, httpServletResponse);
@@ -680,6 +701,7 @@ public class TaskServiceImpl implements TaskService {
 				if (taskPayoutDTO.getDeliveryBoyPaymentDetailsId() != null) {
 					taskPayoutDTO.setPaidOn(taskPayoutDTO.getDeliveryBoyPaidOn());
 					taskPayoutDTO.setTransactionId(taskPayoutDTO.getDeliveryBoyTransactionId());
+					taskPayoutDTO.setPaymentStatus("Paid");
 				} else {
 					taskPayoutDTO.setPaymentStatus("Pending");
 				}
@@ -687,20 +709,21 @@ public class TaskServiceImpl implements TaskService {
 				if (taskPayoutDTO.getVendorPaymentDetailsId() != null) {
 					taskPayoutDTO.setPaidOn(taskPayoutDTO.getVendorPaidOn());
 					taskPayoutDTO.setTransactionId(taskPayoutDTO.getVendorTransactionId());
+					taskPayoutDTO.setPaymentStatus("Paid");
 				} else {
 					taskPayoutDTO.setPaymentStatus("Pending");
 				}
 			}
 		}
 		if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
-			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
+			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
 					"Order Amount", "Payment Status", "Paid On", "Transaction Id" };
-			taskPayoutDataField = new Object[] { "orderId", "orderDate", "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
+			taskPayoutDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
 					"paymentStatus", "paidOn", "transactionId" };
 		} else {
-			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
+			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
 					"Payable Amount", "Payment Status", "Paid On", "Transaction Id" };
-			taskPayoutDataField = new Object[] { "orderId", "orderDate", "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
+			taskPayoutDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
 					"vendorPayableAmt", "paymentStatus", "paidOn", "transactionId" };
 		}
 		try {
