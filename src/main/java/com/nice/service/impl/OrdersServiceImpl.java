@@ -1659,13 +1659,19 @@ public class OrdersServiceImpl implements OrdersService {
 
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(orders.getOrderStatus());
-		if (!existingOrderStatus.contains(Constant.REJECTED)) {
+		if ((!existingOrderStatus.contains(Constant.REJECTED) && !existingOrderStatus.contains(Constant.RETURN_REJECTED) && !existingOrderStatus.contains(Constant.REPLACE_REJECTED))) {
 			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
 			String existingOrderStatusForMessage = messageByLocaleService.getMessage(orders.getOrderStatus(), null);
 			throw new ValidationException(
 					messageByLocaleService.getMessage("status.not.allowed", new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
 		}
-		orders.setOrderStatus(Constant.REJECTED);
+		if (OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(orders.getOrderStatus())) {
+			orders.setOrderStatus(Constant.RETURN_REJECTED);
+		} else if (OrderStatusEnum.REPLACE_REQUESTED.getStatusValue().equals(orders.getOrderStatus())) {
+			orders.setOrderStatus(Constant.REPLACE_REJECTED);
+		} else {
+			orders.setOrderStatus(Constant.REJECTED);
+		}
 		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
 		orders.setReturnReplaceReason(ticketReason);
 		orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
@@ -1676,7 +1682,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Update the wallet for the customer, incase of online payment
 		 */
-		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+		if (OrderStatusEnum.PENDING.getStatusValue().equals(orders.getOrderStatus()) && !PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
 			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
 

@@ -107,7 +107,7 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED };
 			break;
 		case RETURN_PROCESSED:
-			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PICKUP };
+			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PICKUP, RETURNED };
 			break;
 		case RETURN_ORDER_PICKUP:
 			nextStatus = new OrderStatusEnum[] { RETURNED };
