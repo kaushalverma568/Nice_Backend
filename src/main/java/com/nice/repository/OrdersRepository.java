@@ -16,26 +16,24 @@ import com.nice.model.Orders;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @Repository
 public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCustomRepository {
 
 	/**
-	 * @param  razorpayOrderId
+	 * @param razorpayOrderId
 	 * @return
 	 */
 	Optional<Orders> findByOnlineOrderId(String razorpayOrderId);
 
 	/**
-	 * get order list based on status param (This method is only used at the time of
-	 * deActive store to check is order with
-	 * pending status or delivered with date greater then three days from current
-	 * date is present or not )
+	 * get order list based on status param (This method is only used at the time of deActive store to check is order with
+	 * pending status or delivered with date greater then three days from current date is present or not )
 	 *
-	 * @param  statusValue
-	 * @param  tomorrowDate
-	 * @param  secondStatus
+	 * @param statusValue
+	 * @param tomorrowDate
+	 * @param secondStatus
 	 * @return
 	 */
 	// @Query("Select ord from Orders ord where (ord.orderStatus=:statusValue and
@@ -48,13 +46,12 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 	// vendor, Date date, String secondStatus);
 
 	/**
-	 * find all delivery orders for sending notification(Here only that delivery
-	 * order is acceptable whose assignment try
+	 * find all delivery orders for sending notification(Here only that delivery order is acceptable whose assignment try
 	 * count less than 3 and timer less than current time )
 	 *
-	 * @param  status
-	 * @param  assignmentTryCount
-	 * @param  notificationTimer
+	 * @param status
+	 * @param assignmentTryCount
+	 * @param notificationTimer
 	 * @return
 	 */
 	List<Orders> findAllByOrderStatusAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(String status, String deliveryType,
@@ -64,8 +61,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 			List<String> statusList1, DeliveryBoy replacementDeliveryBoy);
 
 	/**
-	 * @param  customerId
-	 * @param  completedOrderStatusList
+	 * @param customerId
+	 * @param completedOrderStatusList
 	 * @return
 	 */
 	@Query(value = "Select count(*) from Orders ord where ord.customer.id = :customerId and ord.orderStatus in (:completedOrderStatusList)")
@@ -74,10 +71,10 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 	/**
 	 * return the orderId of customers with ongoing orders.
 	 *
-	 * @param  customerId
-	 * @param  completedOrderStatusList
+	 * @param customerId
+	 * @param completedOrderStatusList
 	 * @return
 	 */
-	@Query(value = "Select ord.id from Orders ord where ord.customer.id = :customerId and ord.orderStatus not in (:completedOrderStatusList)")
+	@Query(value = "Select ord.id from Orders ord where ord.customer.id = :customerId and ord.orderStatus in (:completedOrderStatusList)")
 	Long getOrderIdOfOngoingOrdersForCustomer(Long customerId, List<String> completedOrderStatusList);
 }
