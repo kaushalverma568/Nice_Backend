@@ -323,6 +323,9 @@ public class OrdersServiceImpl implements OrdersService {
 		CustomerAddress customerAddress = customerAddressService.getAddressDetails(orderRequestDto.getShippingAddressId());
 		City city = customerAddress.getCity();
 		Customer customer = customerService.getCustomerDetails(customerId);
+		if (!customer.getPhoneVerified().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("phone.verify.before.place.order", null));
+		}
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(orderRequestDto.getCustomerId());
 		if (cartItemList.isEmpty()) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.unavailable", null));
@@ -862,7 +865,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Make an entry in wallet txn table
 		 */
 		if (orderRequestDto.getWalletContribution() != 0) {
-			addWalletTxn(orderRequestDto.getWalletContribution() * (-1), orderRequestDto.getCustomerId(), order.getId(), null,
+			addWalletTxn(orderRequestDto.getWalletContribution() * -1, orderRequestDto.getCustomerId(), order.getId(), null,
 					WalletTransactionTypeEnum.PAYMENT.name());
 			/**
 			 * Set updated wallet balance
@@ -1063,13 +1066,17 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCity(orders.getCity().getNameEnglish());
 			orderResponseDto.setVendorName(vendor.getStoreNameEnglish());
 			orderResponseDto.setAddress(orders.getAddressEnglish());
-			orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+			// if(orders.getDeliveryDate() != null && orders.getDeliveryDate()) {
+			//
+			// }
+			// orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+			// orderResponseDto.setReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 		} else {
 			Vendor vendor = orders.getVendor();
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
 			orderResponseDto.setVendorName(vendor.getStoreNameArabic());
 			orderResponseDto.setAddress(orders.getAddressArabic());
-			orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+			// orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 		}
 		/**
 		 * Set reason for the order if any
@@ -1130,6 +1137,8 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCustomerId(customer.getId());
 			orderResponseDto.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			orderResponseDto.setPhoneNumber(customer.getPhoneNumber());
+			orderResponseDto.setCustomerShippingPhoneNumber(orders.getPhoneNumber());
+			orderResponseDto.setCustomerShippingName(orders.getFirstName().concat(" ").concat(orders.getLastName()));
 		}
 		orderResponseDto.setVendorId(orders.getVendor().getId());
 		orderResponseDto.setEmail(orders.getCustomer().getEmail());
@@ -1280,7 +1289,21 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED
+		 * and task status is REACHED_CUSTOMER
+		 */
+		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", null));
+			}
+		}
+
+		/**
+		 * check for manage inventory flag, if that is true then stock needs to be
+		 * allocated for the order, else move the order
 		 * from Order_Prepared Status to Stock_Allocated status
 		 */
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
@@ -1714,6 +1737,16 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue());
+				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue());
+			}
+
+			if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+				Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+				if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+					LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+				} else {
+					statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue());
+				}
 			}
 
 			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
@@ -1844,6 +1877,9 @@ public class OrdersServiceImpl implements OrdersService {
 	public OrdersResponseDTO getOngoingOrderForCustomer() throws ValidationException, NotFoundException {
 		Long customerId = getCustomerIdForLoginUser();
 		Long orderId = ordersRepository.getOrderIdOfOngoingOrdersForCustomer(customerId, Constant.getOngoingOrderStatusList());
+		if (orderId == null) {
+			throw new NotFoundException(messageByLocaleService.getMessage("ongoing.order.not.found", null));
+		}
 		return getOrderDetails(orderId);
 	}
 

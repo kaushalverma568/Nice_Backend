@@ -189,6 +189,40 @@ public class TaskController {
 	}
 
 	/**
+	 * update task status to Replace Customer Pickup On The Way
+	 *
+	 * @param  token
+	 * @param  taskId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/replace/customer/pickup/{taskId}")
+	public ResponseEntity<Object> updateStatusToReplaceCustomerPickup(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update task status to repalce customer pickup method for task Id: {}", taskId);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+	}
+
+	/**
+	 * update task status to Replace Customer Pickup On The Way
+	 *
+	 * @param  token
+	 * @param  taskId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/replace/delivery/ontheway/{taskId}")
+	public ResponseEntity<Object> updateStatusToReplaceDeliveryOnTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update task status to repalce delivery on the way method for task Id: {}", taskId);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+	}
+
+	/**
 	 * @param  token
 	 * @param paymentDetailsId
 	 * @return

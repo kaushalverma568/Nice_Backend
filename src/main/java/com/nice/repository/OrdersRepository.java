@@ -75,6 +75,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 	 * @param  completedOrderStatusList
 	 * @return
 	 */
-	@Query(value = "Select ord.id from Orders ord where ord.customer.id = :customerId and ord.orderStatus not in (:completedOrderStatusList)")
+	@Query(value = "Select ord.id from Orders ord where ord.customer.id = :customerId and ord.orderStatus in (:completedOrderStatusList)")
 	Long getOrderIdOfOngoingOrdersForCustomer(Long customerId, List<String> completedOrderStatusList);
 }

@@ -110,10 +110,14 @@ public class OrdersResponseDTO implements Serializable {
 	 * true if the vendor is configure for replace order, if false that means the vendor has configuration related to
 	 * return.
 	 */
-	private Boolean replace;
+	private Boolean canReplace;
+	private Boolean canReturn;
 
 	private Boolean refunded;
 
 	private Double walletContribution;
 
+	private String customerShippingName;
+
+	private String customerShippingPhoneNumber;
 }

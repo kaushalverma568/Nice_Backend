@@ -83,7 +83,7 @@ public final class Constant {
 	public static final String REPLACE_PROCESSED = "Replace Processed";
 	public static final String REPLACE_ORDER_PREPARED = "Replace Order Prepared";
 	public static final String REPLACE_ORDER_PICKUP = "Replace Order Picked Up";
-	public static final String REPLACE_STOCK_ALLOCATED = "Replace Order Stock allocated";
+	public static final String REPLACE_WAITING_FOR_PICKUP = "Replace Waiting for Picked Up";
 	public static final String REPLACED = "Replaced";
 	public static final String CANCELLED = "Cancelled";
 	public static final String RETURNED = "Returned";
