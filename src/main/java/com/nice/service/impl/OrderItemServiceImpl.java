@@ -102,14 +102,14 @@ public class OrderItemServiceImpl implements OrderItemService {
 		return toOrderItemResponseDto(orderItemRepository.findAllByOrderId(orderId));
 	}
 
-	@Override
-	public List<OrdersItem> getOrderItemForReplacementOrderId(final Long orderId) throws NotFoundException {
-		List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
-		if (orderItemList.isEmpty()) {
-			throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
-		}
-		return orderItemList;
-	}
+	// @Override
+	// public List<OrdersItem> getOrderItemForReplacementOrderId(final Long orderId) throws NotFoundException {
+	// List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
+	// if (orderItemList.isEmpty()) {
+	// throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
+	// }
+	// return orderItemList;
+	// }
 
 	@Override
 	public List<OrderItemResponseDTO> toOrderItemResponseDto(final List<OrdersItem> orderItemList) throws NotFoundException, ValidationException {
