@@ -212,14 +212,14 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final Integer startIndex,
+	public List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(final Long deliveryBoyId, final Date registeredOn, final Integer startIndex,
 			final Integer pageSize) {
-		return paymentDetailsRepository.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, startIndex, pageSize);
+		return paymentDetailsRepository.getDeliveryBoyPayout(deliveryBoyId, registeredOn, startIndex, pageSize);
 	}
 
 	@Override
-	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long searchId, final Long deliveryBoyId, final Date registeredOn) {
-		return paymentDetailsRepository.getDeliveryBoyPayoutCountBasedOnParam(searchId, deliveryBoyId, registeredOn);
+	public Long getDeliveryBoyPayoutCountBasedOnParam(final Long deliveryBoyId, final Date registeredOn) {
+		return paymentDetailsRepository.getDeliveryBoyPayoutCountBasedOnParam(deliveryBoyId, registeredOn);
 	}
 
 	@Override
@@ -351,9 +351,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public void exportDeliveryBoyPayout(final Long searchId, final Long deliveryBoyId, final Date registeredOn, final HttpServletResponse httpServletResponse)
+	public void exportDeliveryBoyPayout(final Long deliveryBoyId, final Date registeredOn, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
-		List<DeliveryBoyPayoutDTO> deliveryBoyPayoutDTOs = paymentDetailsRepository.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, null, null);
+		List<DeliveryBoyPayoutDTO> deliveryBoyPayoutDTOs = paymentDetailsRepository.getDeliveryBoyPayout(deliveryBoyId, registeredOn, null, null);
 		final Object[] deliveryBoyPayoutHeaderField = new Object[] { "Delivery Boy Name", "Delivery Boy Contact Number", "Delivery Boy Id", "Registered On",
 				"Cart Orders", "Replacement Orders", "Return Orders", "Total Orders", "Total Paid", "Last Paid On" };
 		final Object[] deliveryBoyPayoutDataField = new Object[] { "name", "phoneNumber", "id", "registeredOn", "cartOrders", "replacementOrders",

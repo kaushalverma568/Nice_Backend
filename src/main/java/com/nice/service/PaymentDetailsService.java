@@ -90,17 +90,16 @@ public interface PaymentDetailsService {
 	 * @param  startIndex
 	 * @return
 	 */
-	List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(Long searchId, Long deliveryBoyId, Date registeredOn, Integer startIndex, Integer pageSize);
+	List<DeliveryBoyPayoutDTO> getDeliveryBoyPayout(Long deliveryBoyId, Date registeredOn, Integer startIndex, Integer pageSize);
 
 	/**
 	 * Get delivery boy's payout count based on param
 	 *
-	 * @param  searchId
 	 * @param  deliveryBoyId
 	 * @param  registeredOn
 	 * @return
 	 */
-	Long getDeliveryBoyPayoutCountBasedOnParam(Long searchId, Long deliveryBoyId, Date registeredOn);
+	Long getDeliveryBoyPayoutCountBasedOnParam(Long deliveryBoyId, Date registeredOn);
 
 	/**
 	 * Get vendor's payout count based on param
@@ -160,11 +159,10 @@ public interface PaymentDetailsService {
 	/**
 	 * Export delivery boy payout
 	 *
-	 * @param  searchId
 	 * @param  deliveryBoyId
 	 * @param  registeredOn
 	 * @param  httpServletResponse
 	 * @throws FileOperationException
 	 */
-	void exportDeliveryBoyPayout(Long searchId, Long deliveryBoyId, Date registeredOn, HttpServletResponse httpServletResponse) throws FileOperationException;
+	void exportDeliveryBoyPayout(Long deliveryBoyId, Date registeredOn, HttpServletResponse httpServletResponse) throws FileOperationException;
 }
