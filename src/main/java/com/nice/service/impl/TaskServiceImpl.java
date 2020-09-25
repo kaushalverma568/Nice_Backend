@@ -173,6 +173,8 @@ public class TaskServiceImpl implements TaskService {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
 			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * -1;
 			adminCommissionAmt = adminCommissionAmt * -1;
+		} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskDto.getTaskType())) {
+			vendorPayableAmt = vendorPayableAmt - deliveryCharge;
 		}
 
 		/**
@@ -261,7 +263,8 @@ public class TaskServiceImpl implements TaskService {
 		 */
 		TaskStatusEnum existingTaskStatus = TaskStatusEnum.getByValue(task.getStatus());
 		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.contains(taskStatus)
-				|| TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.returnContains(taskStatus)) {
+				|| TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.returnContains(taskStatus)
+				|| TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.replaceContains(taskStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { taskStatus, task.getStatus() }));
 		}
 
@@ -298,10 +301,6 @@ public class TaskServiceImpl implements TaskService {
 			String nextOrderStatus;
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
 				nextOrderStatus = Constant.ORDER_PICKED_UP;
-			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
-				nextOrderStatus = Constant.RETURN_ORDER_PICKUP;
-			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
-				nextOrderStatus = Constant.REPLACED;
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
 			}
@@ -316,8 +315,20 @@ public class TaskServiceImpl implements TaskService {
 			 * Change order status here to Order PickUp.
 			 */
 			orderService.changeStatus(Constant.RETURN_ORDER_PICKUP, task.getOrder());
+		} else if (taskStatus.equals(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue())) {
+			if (OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(task.getOrder().getOrderStatus())) {
+				task.setStatus(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
+				/**
+				 * Change order status here to Order PickUp.
+				 */
+				orderService.changeStatus(Constant.REPLACE_ORDER_PICKUP, task.getOrder());
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("waiting.order.prepare", null));
+			}
+
 		} else if (taskStatus.equals(TaskStatusEnum.REACHED_VENDOR.getStatusValue()) || taskStatus.equals(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue())
-				|| taskStatus.equals(TaskStatusEnum.REACHED_CUSTOMER.getStatusValue())) {
+				|| taskStatus.equals(TaskStatusEnum.REACHED_CUSTOMER.getStatusValue())
+				|| taskStatus.equals(TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue())) {
 			task.setStatus(taskStatus);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
@@ -361,7 +372,9 @@ public class TaskServiceImpl implements TaskService {
 				Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
 				task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 			}
-			task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+			if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+				task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+			}
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);

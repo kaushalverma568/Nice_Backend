@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 09-Jul-2020
+ * @date   : 09-Jul-2020
  */
 public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	PENDING(Constant.PENDING, Constant.AVAILABLE), REJECTED(Constant.REJECTED, Constant.AVAILABLE), CONFIRMED(Constant.CONFIRMED, Constant.AVAILABLE),
@@ -19,7 +19,7 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	REPLACE_REQUESTED(Constant.REPLACE_REQUESTED, Constant.AVAILABLE), REPLACE_CONFIRMED(Constant.REPLACE_CONFIRMED, Constant.AVAILABLE),
 	REPLACE_REJECTED(Constant.REPLACE_REJECTED, Constant.AVAILABLE), REPLACE_PROCESSED(Constant.REPLACE_PROCESSED, Constant.RESERVED),
 	REPLACE_ORDER_PREPARED(Constant.REPLACE_ORDER_PREPARED, Constant.RESERVED), REPLACE_ORDER_PICKUP(Constant.REPLACE_ORDER_PICKUP, Constant.AVAILABLE),
-	REPLACE_STOCK_ALLOCATED(Constant.REPLACE_STOCK_ALLOCATED, Constant.RESERVED), REPLACED(Constant.REPLACED, Constant.DELIVERED),
+	REPLACE_WAITING_FOR_PICKUP(Constant.REPLACE_WAITING_FOR_PICKUP, Constant.RESERVED), REPLACED(Constant.REPLACED, Constant.DELIVERED),
 	CANCELLED(Constant.CANCELLED, Constant.AVAILABLE),
 
 	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.AVAILABLE), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.AVAILABLE),
@@ -95,9 +95,9 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PICKUP };
 			break;
 		case REPLACE_ORDER_PICKUP:
-			nextStatus = new OrderStatusEnum[] { REPLACE_STOCK_ALLOCATED };
+			nextStatus = new OrderStatusEnum[] { REPLACE_WAITING_FOR_PICKUP };
 			break;
-		case REPLACE_STOCK_ALLOCATED:
+		case REPLACE_WAITING_FOR_PICKUP:
 			nextStatus = new OrderStatusEnum[] { REPLACED };
 			break;
 		case RETURN_REQUESTED:

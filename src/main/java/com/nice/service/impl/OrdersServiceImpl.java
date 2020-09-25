@@ -862,7 +862,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Make an entry in wallet txn table
 		 */
 		if (orderRequestDto.getWalletContribution() != 0) {
-			addWalletTxn(orderRequestDto.getWalletContribution() * (-1), orderRequestDto.getCustomerId(), order.getId(), null,
+			addWalletTxn(orderRequestDto.getWalletContribution() * -1, orderRequestDto.getCustomerId(), order.getId(), null,
 					WalletTransactionTypeEnum.PAYMENT.name());
 			/**
 			 * Set updated wallet balance
@@ -905,8 +905,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param description
-	 * @param transactionType
+	 * @param  description
+	 * @param  transactionType
 	 * @param  orderRequestDto
 	 * @param  order
 	 * @throws NotFoundException
@@ -1283,6 +1283,19 @@ public class OrdersServiceImpl implements OrdersService {
 				taskDto.setOrderId(order.getId());
 				taskDto.setTaskType(taskType);
 				taskService.createTask(taskDto);
+			}
+		}
+
+		/**
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED
+		 * and task status is REACHED_CUSTOMER
+		 */
+		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", null));
 			}
 		}
 
@@ -1664,7 +1677,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(orders.getOrderStatus());
-		if ((!existingOrderStatus.contains(Constant.REJECTED) && !existingOrderStatus.contains(Constant.RETURN_REJECTED) && !existingOrderStatus.contains(Constant.REPLACE_REJECTED))) {
+		if (!existingOrderStatus.contains(Constant.REJECTED) && !existingOrderStatus.contains(Constant.RETURN_REJECTED)
+				&& !existingOrderStatus.contains(Constant.REPLACE_REJECTED)) {
 			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
 			String existingOrderStatusForMessage = messageByLocaleService.getMessage(orders.getOrderStatus(), null);
 			throw new ValidationException(
@@ -1731,6 +1745,16 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue());
+				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue());
+			}
+
+			if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+				Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+				if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+					LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+				} else {
+					statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue());
+				}
 			}
 
 			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
@@ -1873,5 +1897,5 @@ public class OrdersServiceImpl implements OrdersService {
 	public WalletTrxDTO getRefundDetailsForOrder(final Long orderId) throws NotFoundException, ValidationException {
 
 		return walletTrxService.getWalletTxnByOrderIdAndTxnType(orderId, WalletTransactionTypeEnum.REFUND.name());
-}
+	}
 }
