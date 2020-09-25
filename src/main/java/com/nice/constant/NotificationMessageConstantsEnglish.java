@@ -10,12 +10,61 @@ public final class NotificationMessageConstantsEnglish {
 		super();
 	}
 
-	public static final String NEW_PROFILE_VALIDATE = "You have receive new profile to validate ";
-	public static final String NEW_ORDER_DELIVERY = "New Order for Delivery";
-	public static final String NEW_TICKET_VALIDATE = "You receive the new ticket to validate for the ";
-	public static final String NEW_ORDER_VENDOR = "You have received one new cart order with order id ";
-	public static final String ORDER_DELIVERY_VENDOR = " has delivered an order id ";
+	/**
+	 *
+	 * @param name
+	 * @return
+	 */
+	public static String getNewProfileMessage(final String name) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You have receive new profile to validate ").append(name);
+		return message.toString();
+	}
 
+	/**
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	public static String getNewOrderMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("New Order for Delivery ").append(orderId.toString());
+		return message.toString();
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static String getNewTicketMessage(final String name) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You receive the new ticket to validate for the ").append(name);
+		return message.toString();
+	}
+
+	/**
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	public static String getNewOrderToVendorMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You have received one new cart order with order id ").append(orderId.toString());
+		return message.toString();
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @param orderId
+	 * @return
+	 */
+	public static String getDeliveryOrderToVendorMessage(final String name, final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append(name).append(" has delivered an order id ").append(orderId.toString());
+		return message.toString();
+	}
 
 	/**
 	 * @param orderId
@@ -26,7 +75,7 @@ public final class NotificationMessageConstantsEnglish {
 		StringBuilder message = new StringBuilder();
 		message.append("Congratulations! Your order ").append(orderId).append(" worth ").append(orderAmount).append(" has been placed successfully.");
 		return message.toString();
-}
+	}
 
 	/**
 	 *

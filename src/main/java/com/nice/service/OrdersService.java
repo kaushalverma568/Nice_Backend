@@ -261,6 +261,14 @@ public interface OrdersService {
 	 */
 	void sendPushNotificationForOrder(String orderPushNotificationCustomer, Long orderId) throws NotFoundException;
 
+	/**
+	 * send push notification to vendor for new order
+	 *
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationForNewOrderToVendor(Long orderId) throws NotFoundException;
+
 	// /**
 	// * get all information for app payment
 	// *

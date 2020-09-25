@@ -97,6 +97,7 @@ public class OrdersController {
 		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
 
 			orderService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
+			orderService.sendPushNotificationForNewOrderToVendor(Long.valueOf(orderId));
 			// TODO send email code here
 
 		} /**
@@ -288,7 +289,8 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for
+	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
 	 * @param accessToken
 	 * @param userId
@@ -357,9 +359,11 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
-	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
-	 * refund would be made automatically if the payment mode is not COD
+	 * This method is used to refund amount for the orders that are cancelled by
+	 * admin, as for orders cancelled by admin no refund would be made
+	 * automatically, for other type of cancelled order (Cancelled By
+	 * Customer/Rejected by Vendor) refund would be made automatically if the
+	 * payment mode is not COD
 	 *
 	 * @param accessToken
 	 * @param orderId
@@ -387,8 +391,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
-	 * by delivery boy.
+	 * This method will only be used to deliver pickup type order by vendor, for all
+	 * other orders the delivery would be done by delivery boy.
 	 *
 	 * @param token
 	 * @param orderId

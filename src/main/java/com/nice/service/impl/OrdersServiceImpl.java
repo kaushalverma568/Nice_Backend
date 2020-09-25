@@ -1832,4 +1832,12 @@ public class OrdersServiceImpl implements OrdersService {
 		pushNotificationDTO.setType(orderPushNotificationCustomer);
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
+
+	@Override
+	public void sendPushNotificationForNewOrderToVendor(final Long orderId) throws NotFoundException {
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setOrderId(orderId);
+		pushNotificationDTO.setType(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION);
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
+	}
 }

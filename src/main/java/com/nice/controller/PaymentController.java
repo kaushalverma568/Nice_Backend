@@ -27,6 +27,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.HesabePaymentService;
+import com.nice.service.OrdersService;
 import com.nice.service.PaymentService;
 
 /**
@@ -41,6 +42,9 @@ public class PaymentController {
 
 	@Autowired
 	private PaymentService paymentService;
+
+	@Autowired
+	private OrdersService ordersService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentController.class);
 
@@ -70,6 +74,11 @@ public class PaymentController {
 		try {
 			orderId = paymentService.checkPaymentTransaction(decryptPaymentDTO.getResponse());
 			msg = messageByLocaleService.getMessage("payment.success", null);
+			/**
+			 * send push notification
+			 */
+			ordersService.sendPushNotificationForNewOrderToVendor(orderId);
+			ordersService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 			// TODO send email
 		} catch (NotFoundException | ValidationException e) {
 			orderId = 0l;
