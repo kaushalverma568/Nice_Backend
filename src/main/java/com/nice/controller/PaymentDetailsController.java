@@ -140,14 +140,13 @@ public class PaymentDetailsController {
 	@GetMapping("/deliveryboy/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_VIEW')")
 	public ResponseEntity<Object> getDeliveryBoyPayout(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "searchId", required = false) final Long searchId,
 			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
 			@RequestParam(name = "registeredOn", required = false) final Date registeredOn, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize) throws ValidationException {
-		LOGGER.info("Inside  Get delivery boy payout for searchId:{} ,deliveryBoyId:{},registeredOn:{} ", searchId, deliveryBoyId, registeredOn);
-		Long totalCount = paymentDetailsService.getDeliveryBoyPayoutCountBasedOnParam(searchId, deliveryBoyId, registeredOn);
+		LOGGER.info("Inside  Get delivery boy payout for deliveryBoyId:{},registeredOn:{} ", deliveryBoyId, registeredOn);
+		Long totalCount = paymentDetailsService.getDeliveryBoyPayoutCountBasedOnParam(deliveryBoyId, registeredOn);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
-		final List<DeliveryBoyPayoutDTO> resultPaymentDetailsDTO = paymentDetailsService.getDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn,
+		final List<DeliveryBoyPayoutDTO> resultPaymentDetailsDTO = paymentDetailsService.getDeliveryBoyPayout(deliveryBoyId, registeredOn,
 				paginationUtilDto.getStartIndex(), pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("deliveryboy.payout.detail.message", null)).setData(resultPaymentDetailsDTO)
@@ -169,12 +168,11 @@ public class PaymentDetailsController {
 	@GetMapping("/deliveryboy/export")
 	@PreAuthorize("hasPermission('Delivery Boy Payout','CAN_VIEW')")
 	public ResponseEntity<Object> exportDeliveryBoyPayout(@RequestHeader("Authorization") final String accessToken,
-			@RequestParam(name = "searchId", required = false) final Long searchId,
 			@RequestParam(name = "deliveryBoyId", required = false) final Long deliveryBoyId,
 			@RequestParam(name = "registeredOn", required = false) final Date registeredOn, final HttpServletResponse httpServletResponse)
 			throws FileOperationException {
-		LOGGER.info("Inside  export delivery boy payout for searchId:{} ,deliveryBoyId:{},registeredOn:{} ", searchId, deliveryBoyId, registeredOn);
-		paymentDetailsService.exportDeliveryBoyPayout(searchId, deliveryBoyId, registeredOn, httpServletResponse);
+		LOGGER.info("Inside  export delivery boy payout for deliveryBoyId:{},registeredOn:{} ", deliveryBoyId, registeredOn);
+		paymentDetailsService.exportDeliveryBoyPayout(deliveryBoyId, registeredOn, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("deliveryboy.payout.detail.message", null)).create();
 	}
