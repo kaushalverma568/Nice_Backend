@@ -28,10 +28,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 	Optional<Orders> findByOnlineOrderId(String razorpayOrderId);
 
 	/**
-	 * get order list based on status param (This method is only used at the time of
-	 * deActive store to check is order with
-	 * pending status or delivered with date greater then three days from current
-	 * date is present or not )
+	 * get order list based on status param (This method is only used at the time of deActive store to check is order with
+	 * pending status or delivered with date greater then three days from current date is present or not )
 	 *
 	 * @param  statusValue
 	 * @param  tomorrowDate
@@ -48,16 +46,15 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 	// vendor, Date date, String secondStatus);
 
 	/**
-	 * find all delivery orders for sending notification(Here only that delivery
-	 * order is acceptable whose assignment try
-	 * count less than 3 and timer less than current time )
+	 * find all orders for sending notification(Here only that delivery order is acceptable whose assignment try count less
+	 * than 3 and timer less than current time )
 	 *
 	 * @param  status
 	 * @param  assignmentTryCount
 	 * @param  notificationTimer
 	 * @return
 	 */
-	List<Orders> findAllByOrderStatusAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(String status, String deliveryType,
+	List<Orders> findAllByOrderStatusInAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(List<String> statusList, String deliveryType,
 			Integer assignmentTryCount, Date notificationTimer);
 
 	List<Orders> findAllByOrderStatusInAndDeliveryBoyOrOrderStatusInAndReplacementDeliveryBoy(List<String> statusList, DeliveryBoy deliveryBoy,

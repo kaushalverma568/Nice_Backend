@@ -157,8 +157,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
-		 * Check if delivery boy already exists, if so then lets only send him email
-		 * again.
+		 * Check if delivery boy already exists, if so then lets only send him email again.
 		 */
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getEmailVerified().booleanValue()) {
@@ -171,8 +170,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 		}
 		/**
-		 * Set delivery boy preferred language to default language when delivery boy
-		 * registers.
+		 * Set delivery boy preferred language to default language when delivery boy registers.
 		 */
 		deliveryBoy.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 
@@ -199,8 +197,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		deliveryBoyCurrentStatus.setIsBusy(false);
 		/**
-		 * it will be true when he is able to deliver order(getting notifications for
-		 * delivery)
+		 * it will be true when he is able to deliver order(getting notifications for delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
@@ -402,8 +399,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isDeliveryBoyExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is deliveryBoy with same email exist or not except it's
-			 * own id
+			 * At the time of update is deliveryBoy with same email exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail().toLowerCase(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -413,8 +409,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be
-				 * sending the verification link for him
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
 				 * again, if the email is verified then we will be returning true.
 				 */
 
@@ -474,8 +469,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.location.required.active", null));
 			}
 			/**
-			 * if delivery boy's device detail is not present then can not be available for
-			 * accept order
+			 * if delivery boy's device detail is not present then can not be available for accept order
 			 */
 			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
 			if (deviceDetailList.isEmpty()) {
@@ -548,15 +542,13 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
-		 * get all delivery boys who is logged in, not busy with any orders and has not
-		 * sended notification before
+		 * get all delivery boys who is logged in, not busy with any orders and has not sended notification before
 		 */
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who
-		 * is going for delivery of orders(not for
-		 * replacement or return) and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -568,7 +560,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		for (DeliveryBoy deliveryBoy : busyDeliveryBoys) {
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			taskFilterDTO.setDeliveryBoyId(deliveryBoy.getId());
-			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 			if (count > 1) {
 				removeDeliveryBoys.add(deliveryBoy);
@@ -597,8 +589,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Long thirdMinDeliveryBoyId = null;
 		for (Entry<Long, Double> deliveryBoyWithDistanceEntrySet : deliveryBoyWithDistanceMap.entrySet()) {
 			/**
-			 * Check if delivery boy's distance is less than first min distance, then update
-			 * first, second and third
+			 * Check if delivery boy's distance is less than first min distance, then update first, second and third
 			 */
 			if (deliveryBoyWithDistanceEntrySet.getValue() < firstMin) {
 				thirdMin = secMin;
@@ -610,8 +601,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than sec min distance then update
-			 * second and third
+			 * Check if delivery boy's distance is less than sec min distance then update second and third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < secMin) {
 				thirdMin = secMin;
@@ -621,8 +611,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than third min distance then update
-			 * third
+			 * Check if delivery boy's distance is less than third min distance then update third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < thirdMin) {
 				thirdMin = deliveryBoyWithDistanceEntrySet.getValue();
@@ -646,8 +635,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public synchronized void acceptOrder(final Long orderId, final String taskType) throws NotFoundException, ValidationException {
 		Long deliveryBoyId = getDeliveryBoyIdFromToken();
 		/**
-		 * check is order already accepted then throw exception else set delivery boy in
-		 * order
+		 * check is order already accepted then throw exception else set delivery boy in order
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
@@ -729,8 +717,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is delivery boy with same phone number exist or not
-			 * except it's own id
+			 * At the time of update is delivery boy with same phone number exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {

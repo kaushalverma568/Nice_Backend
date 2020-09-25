@@ -48,11 +48,12 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
 
+	private static final String PUSH_NOTIFICATION_RESULT = "push notification result {}";
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendPushNotificationComponent.class);
 	private static final String TITLE = "title";
 	private static final String MESSAGE = "message";
@@ -178,7 +179,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -228,7 +229,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -293,7 +294,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -346,7 +347,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -418,9 +419,9 @@ public class SendPushNotificationComponent {
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
-				// TODO : set the task type here
-				notificationPayloadDto.setTaskType("");
-				LOGGER.info("Delivery boy accept order notification for delivery boy: {} and order: {}", deliveryBoyId, pushNotificationDTO.getOrderId());
+				notificationPayloadDto.setTaskType(pushNotificationDTO.getTaskType());
+				LOGGER.info("Delivery boy accept order notification for delivery boy: {}, order: {} and taskType:{}", deliveryBoyId,
+						pushNotificationDTO.getOrderId(), pushNotificationDTO.getTaskType());
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList) {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
@@ -437,7 +438,7 @@ public class SendPushNotificationComponent {
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, DELIVERY_BOY_KEY);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
-		LOGGER.info("push notification result {}", resultObject);
+		LOGGER.info(PUSH_NOTIFICATION_RESULT, resultObject);
 	}
 
 	public void sendPushNotificationToAdminOrVendor(final JsonObject notificationObject, final Object dataObject, final String deviceId) {
@@ -445,7 +446,7 @@ public class SendPushNotificationComponent {
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, WEB_KEY);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
-		LOGGER.info("push notification result {}", resultObject);
+		LOGGER.info(PUSH_NOTIFICATION_RESULT, resultObject);
 	}
 
 	public void sendPushNotificationToCustomer(final JsonObject notificationObject, final Object dataObject, final String deviceId) {
@@ -453,7 +454,7 @@ public class SendPushNotificationComponent {
 		notificationObject.addProperty(TITLE, applicationName);
 		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, CUSTOMER_KEY);
 		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
-		LOGGER.info("push notification result {}", resultObject);
+		LOGGER.info(PUSH_NOTIFICATION_RESULT, resultObject);
 	}
 
 	private PushNotification setPushNotification(final Long entityId, final String entityType, final String messageEnglish, final String messageArabic,
