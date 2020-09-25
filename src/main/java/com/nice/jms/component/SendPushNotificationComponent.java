@@ -12,11 +12,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.nice.constant.Constant;
 import com.nice.constant.NotificationMessageConstantsArabic;
 import com.nice.constant.NotificationMessageConstantsEnglish;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.UserType;
 import com.nice.dto.CompanyResponseDTO;
+import com.nice.dto.NotificationPayloadDto;
 import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -94,6 +96,9 @@ public class SendPushNotificationComponent {
 	@Autowired
 	private CompanyService companyService;
 
+	@Autowired
+	private ObjectMapper mapper;
+
 	@Value("${application.name}")
 	private String applicationName;
 
@@ -136,7 +141,8 @@ public class SendPushNotificationComponent {
 					deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()), task.getOrder().getId());
 			String messageArabic = NotificationMessageConstantsArabic.getDeliveryOrderToVendorMessage(
 					deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()), task.getOrder().getId());
-			PushNotification pushNotification = setPushNotification(task.getVendor().getId(), UserType.VENDOR.name(), messageEnglish, messageArabic);
+			PushNotification pushNotification = setPushNotification(task.getVendor().getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
+					Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be entity who has created ticket and receiver will be admin
@@ -184,7 +190,8 @@ public class SendPushNotificationComponent {
 			Orders orders = ordersService.getOrderById(pushNotificationDTO.getOrderId());
 			String messageEnglish = NotificationMessageConstantsEnglish.getNewOrderMessage(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.getNewOrderMessage(pushNotificationDTO.getOrderId());
-			PushNotification pushNotification = setPushNotification(orders.getVendor().getId(), UserType.VENDOR.name(), messageEnglish, messageArabic);
+			PushNotification pushNotification = setPushNotification(orders.getVendor().getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
+					Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be entity who has created ticket and receiver will be admin
@@ -247,7 +254,8 @@ public class SendPushNotificationComponent {
 			}
 			String messageEnglish = NotificationMessageConstantsEnglish.getNewTicketMessage(entityNameEnglish);
 			String messageArabic = NotificationMessageConstantsArabic.getNewTicketMessage(entityNameArabic);
-			PushNotification pushNotification = setPushNotification(ticket.getEntityId(), ticket.getUserType(), messageEnglish, messageArabic);
+			PushNotification pushNotification = setPushNotification(ticket.getEntityId(), ticket.getUserType(), messageEnglish, messageArabic,
+					Constant.TICKET_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be entity who has created ticket and receiver will be admin
@@ -297,7 +305,8 @@ public class SendPushNotificationComponent {
 					.concat(deliveryBoy.getLastNameEnglish());
 			String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(deliveryBoy.getFirstNameArabic()).concat(" ")
 					.concat(deliveryBoy.getLastNameArabic());
-			PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic);
+			PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
+					Constant.PROFILE_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be delivery boy and receiver will be admin
@@ -346,7 +355,8 @@ public class SendPushNotificationComponent {
 			Vendor vendor = vendorService.getVendorDetail(pushNotificationDTO.getVendorId());
 			String messageEnglish = NotificationMessageConstantsEnglish.getNewProfileMessage(vendor.getStoreNameEnglish());
 			String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(vendor.getStoreNameArabic());
-			PushNotification pushNotification = setPushNotification(vendor.getId(), UserType.VENDOR.name(), messageEnglish, messageArabic);
+			PushNotification pushNotification = setPushNotification(vendor.getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
+					Constant.VENDOR_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
 			 * here sender will be vendor and receiver will be admin
@@ -394,7 +404,8 @@ public class SendPushNotificationComponent {
 				List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
 				String messageEnglish = NotificationMessageConstantsEnglish.getNewOrderMessage(pushNotificationDTO.getOrderId());
 				String messageArabic = NotificationMessageConstantsArabic.getNewOrderMessage(pushNotificationDTO.getOrderId());
-				PushNotification pushNotification = setPushNotification(deliveryBoyId, UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic);
+				PushNotification pushNotification = setPushNotification(deliveryBoyId, UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
+						Constant.ORDER_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 				if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 					message = message.append(pushNotification.getMessageEnglish());
@@ -431,7 +442,16 @@ public class SendPushNotificationComponent {
 		LOGGER.info("push notification result {}", resultObject);
 	}
 
-	private PushNotification setPushNotification(final Long entityId, final String entityType, final String messageEnglish, final String messageArabic) {
+	public void sendPushNotificationToCustomer(final JsonObject notificationObject, final JsonObject dataObject, final String deviceId) {
+		FCMRestHelper fcm = FCMRestHelper.getInstance(CUSTOMER_KEY);
+		notificationObject.addProperty(TITLE, applicationName);
+		String result = fcm.sendNotifictaionAndData(FCMRestHelper.TYPE_TO, deviceId, notificationObject, dataObject, CUSTOMER_KEY);
+		JsonObject resultObject = new Gson().fromJson(result, JsonObject.class);
+		LOGGER.info("push notification result {}", resultObject);
+	}
+
+	private PushNotification setPushNotification(final Long entityId, final String entityType, final String messageEnglish, final String messageArabic,
+			final String module) {
 		PushNotification pushNotification = new PushNotification();
 		pushNotification.setEntityId(entityId);
 		pushNotification.setEntityType(entityType);
@@ -439,6 +459,7 @@ public class SendPushNotificationComponent {
 		pushNotification.setSuccessAll(false);
 		pushNotification.setMessageEnglish(messageEnglish);
 		pushNotification.setMessageArabic(messageArabic);
+		pushNotification.setModule(module);
 		return pushNotification;
 	}
 
@@ -471,7 +492,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.getCreateOrderMessage(pushNotificationDTO.getOrderId(), order.getTotalOrderAmount());
 			String messageArabic = NotificationMessageConstantsArabic.getCreateOrderMessage(pushNotificationDTO.getOrderId(), order.getTotalOrderAmount());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -480,15 +501,17 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+			dataObject.add("data", new Gson().toJsonTree(notificationPayloadDto, NotificationPayloadDto.class));
 			LOGGER.info("Customer place order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -507,7 +530,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.getCancelOrderMessage(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.getCancelOrderMessage(pushNotificationDTO.getOrderId());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -516,15 +539,17 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			notificationObject.addProperty(MESSAGE, message.toString());
-			dataObject.addProperty(ORDER_ID, pushNotificationDTO.getOrderId());
-			dataObject.addProperty(MODULE, pushNotificationDTO.getModule());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+			dataObject.addProperty("", pushNotificationDTO.getModule());
 			LOGGER.info("Customer cancel order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
 			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 			for (DeviceDetail deviceDetail : deviceDetailList) {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -543,7 +568,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -560,7 +585,7 @@ public class SendPushNotificationComponent {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -579,7 +604,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.orderDeliverySuccessful(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.orderDeliverySuccessful(pushNotificationDTO.getOrderId());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -596,7 +621,7 @@ public class SendPushNotificationComponent {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -615,7 +640,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.orderItemReplaceSuccessful(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.orderItemReplaceSuccessful(pushNotificationDTO.getOrderId());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -632,7 +657,7 @@ public class SendPushNotificationComponent {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}
@@ -651,7 +676,7 @@ public class SendPushNotificationComponent {
 			String messageEnglish = NotificationMessageConstantsEnglish.orderItemReturnSuccessful(pushNotificationDTO.getOrderId());
 			String messageArabic = NotificationMessageConstantsArabic.orderItemReturnSuccessful(pushNotificationDTO.getOrderId());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
-					messageArabic);
+					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
 			if (customer.getPreferredLanguage().equals("en")) {
@@ -668,7 +693,7 @@ public class SendPushNotificationComponent {
 				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 						userLoginSender.getId(), userLoginReceiver.getId());
 				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-				sendPushNotificationToDeliveryBoy(notificationObject, dataObject, deviceDetail.getDeviceId());
+				sendPushNotificationToCustomer(notificationObject, dataObject, deviceDetail.getDeviceId());
 			}
 		}
 	}

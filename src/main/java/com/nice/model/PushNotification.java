@@ -41,6 +41,9 @@ public class PushNotification extends CommonModel {
 
 	@Column(name = "message_arabic")
 	private String messageArabic;
+
+	@Column(name = "module")
+	private String module;
 	/**
 	 * future purpose only we have not implemented yet
 	 */
