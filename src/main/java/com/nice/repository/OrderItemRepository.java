@@ -29,7 +29,7 @@ public interface OrderItemRepository extends JpaRepository<OrdersItem, Long> {
 	 * @param b
 	 * @return
 	 */
-	// List<OrderItem> findAllByOrderIdAndReplaced(Long orderId, boolean b);
+	List<OrdersItem> findAllByOrderIdAndReplaced(Long orderId, boolean b);
 
 	/**
 	 * @param id

@@ -8,12 +8,12 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 09-Jul-2020
+ * @date : 09-Jul-2020
  */
 public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	PENDING(Constant.PENDING, Constant.AVAILABLE), REJECTED(Constant.REJECTED, Constant.AVAILABLE), CONFIRMED(Constant.CONFIRMED, Constant.AVAILABLE),
 	IN_PROCESS(Constant.IN_PROCESS, Constant.AVAILABLE), ORDER_IS_PREPARED(Constant.ORDER_IS_PREPARED, Constant.AVAILABLE),
-	STOCK_ALLOCATED(Constant.STOCK_ALLOCATED, Constant.RESERVED), ORDER_PICKED_UP(Constant.ORDER_PICKED_UP, Constant.RESERVED),
+	WAITING_FOR_PICKUP(Constant.WAITING_FOR_PICKUP, Constant.RESERVED), ORDER_PICKED_UP(Constant.ORDER_PICKED_UP, Constant.RESERVED),
 	DELIVERED(Constant.DELIVERED, Constant.DELIVERED),
 
 	REPLACE_REQUESTED(Constant.REPLACE_REQUESTED, Constant.AVAILABLE), REPLACE_CONFIRMED(Constant.REPLACE_CONFIRMED, Constant.AVAILABLE),
@@ -71,9 +71,9 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { ORDER_IS_PREPARED };
 			break;
 		case ORDER_IS_PREPARED:
-			nextStatus = new OrderStatusEnum[] { STOCK_ALLOCATED };
+			nextStatus = new OrderStatusEnum[] { WAITING_FOR_PICKUP };
 			break;
-		case STOCK_ALLOCATED:
+		case WAITING_FOR_PICKUP:
 			nextStatus = new OrderStatusEnum[] { ORDER_PICKED_UP };
 			break;
 		case ORDER_PICKED_UP:

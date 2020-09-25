@@ -98,7 +98,6 @@ public final class Constant {
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
-	public static final String STOCK_ALLOCATED = "Stock Allocated";
 	/**
 	 * The below order status will be used only for display purpose, of the stock is
 	 * allocated then the order status would
