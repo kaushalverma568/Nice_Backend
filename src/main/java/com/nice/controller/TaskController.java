@@ -83,8 +83,8 @@ public class TaskController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping("/deliver/{taskId}")
-	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId,
-			@PathVariable("taskType") final String taskType) throws ValidationException, NotFoundException {
+	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside complete task method for task Id: {}", taskId);
 		taskService.completeTask(taskId);
 		/**
@@ -102,7 +102,7 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/pickup/{taskId}/type/{taskType}")
+	@PutMapping("/pickup/{taskId}")
 	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
@@ -115,12 +115,11 @@ public class TaskController {
 	 *
 	 * @param  token
 	 * @param  taskId
-	 * @param  taskType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/reach/restaurant/{taskId}/type/{taskType}")
+	@PutMapping("/reach/restaurant/{taskId}")
 	public ResponseEntity<Object> updateStatusToReachAtRestaurant(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at restaurant method for task Id: {}", taskId);
@@ -138,7 +137,7 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/reach/customer/{taskId}/type/{taskType}")
+	@PutMapping("/reach/customer/{taskId}")
 	public ResponseEntity<Object> updateStatusToReachToCustomer(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at customer method for task Id: {}", taskId);
@@ -155,11 +154,28 @@ public class TaskController {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	@PutMapping("/ontheway/{taskId}/type/{taskType}")
+	@PutMapping("/ontheway/{taskId}")
 	public ResponseEntity<Object> updateStatusToOneTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to one the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+	}
+
+	/**
+	 * update task status to return on the way
+	 *
+	 * @param  token
+	 * @param  taskId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	@PutMapping("/return/ontheway/{taskId}")
+	public ResponseEntity<Object> updateStatusToReturnOnTheWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside update task status to return on the way method for task Id: {}", taskId);
+		taskService.changeTaskStatus(taskId, TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 

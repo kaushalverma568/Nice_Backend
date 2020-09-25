@@ -650,8 +650,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
-				|| !OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
-				|| !OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+				&& !OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
+				&& !OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
 		}
 		/**

@@ -290,7 +290,7 @@ public class TaskServiceImpl implements TaskService {
 			/**
 			 * If its a COD task then check cash collected or not
 			 */
-			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) && PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())
 					&& !cashCollectionService.getCashCollectionDetailForTask(task.getId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("cash.collection.not.found.order", new Object[] { task.getOrder().getId() }));
 			}
@@ -361,7 +361,7 @@ public class TaskServiceImpl implements TaskService {
 				Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
 				task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 			}
-
+			task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
@@ -558,36 +558,48 @@ public class TaskServiceImpl implements TaskService {
 
 		Task task = getTaskDetail(taskId);
 
-		if (TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(task.getTaskType())) {
-			if (!OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
-				throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
-			}
-			changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equalsIgnoreCase(task.getTaskType())
+				&& !OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
+		}
+		/**
+		 * If Order's delivery type is Delivery then order's status should be return
+		 * order pickup
+		 * If Order's delivery type is pick-up then order's status should be return
+		 * processed
+		 */
+		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
+				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
+						&& !OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())
+						|| DeliveryType.PICKUP.getStatusValue().equals(task.getOrder().getDeliveryType())
+								&& !OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
+		}
+		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
+		/**
+		 * set isBusy to false if delivery boy has no any other assigned orders, no
+		 * changes are to be made to delivery boy in
+		 * case of pickup orders
+		 */
+		if (task.getDeliveryBoy() != null) {
+			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+			Long count = getTaskCountBasedOnParams(taskFilterDTO);
 			/**
-			 * set isBusy to false if delivery boy has no any other assigned orders, no
-			 * changes are to be made to delivery boy in
-			 * case of pickup orders
+			 * if count > 0 means delivery boy has any orders which is not delivered yet
 			 */
-			if (task.getDeliveryBoy() != null) {
-				TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
-				taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
-				taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
-				Long count = getTaskCountBasedOnParams(taskFilterDTO);
+			if (count == 0) {
+				DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
+				deliveryBoyCurrentStatus.setIsBusy(false);
+				deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 				/**
-				 * if count > 0 means delivery boy has any orders which is not delivered yet
+				 * remove delivery boy's old location history accepts his latest location
 				 */
-				if (count == 0) {
-					DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
-					deliveryBoyCurrentStatus.setIsBusy(false);
-					deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
-					/**
-					 * remove delivery boy's old location history accepts his latest location
-					 */
-					List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
-					if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
-						LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
-						deliveryBoyLocationRepository.deleteAll(oldLocations);
-					}
+				List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
+					LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
+					deliveryBoyLocationRepository.deleteAll(oldLocations);
 				}
 			}
 		}

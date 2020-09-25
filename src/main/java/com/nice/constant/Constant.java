@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -81,9 +81,8 @@ public final class Constant {
 	public static final String REPLACE_CONFIRMED = "Replace Confirmed";
 	public static final String REPLACE_REJECTED = "Replace Rejected";
 	public static final String REPLACE_PROCESSED = "Replace Processed";
-	public static final String REPLACE_CUSTOMER_PICKUP = "Replace Customer Pickup";
-	public static final String REPLACE_PREPARED = "Replace Order Prepared";
-	public static final String REPLACE_PICKUP = "Replace Order Picked Up";
+	public static final String REPLACE_ORDER_PREPARED = "Replace Order Prepared";
+	public static final String REPLACE_ORDER_PICKUP = "Replace Order Picked Up";
 	public static final String REPLACE_STOCK_ALLOCATED = "Replace Order Stock allocated";
 	public static final String REPLACED = "Replaced";
 	public static final String CANCELLED = "Cancelled";
@@ -93,7 +92,6 @@ public final class Constant {
 	public static final String RETURN_CONFIRMED = "Return Confirmed";
 	public static final String RETURN_REJECTED = "Return Rejected";
 	public static final String RETURN_PROCESSED = "Return Processed";
-	public static final String RETURN_ORDER_PREPARED = "Return Order Prepared";
 	public static final String RETURN_ORDER_PICKUP = "Return Order Picked Up";
 
 	public static final String ORDER_IS_PREPARED = "Order Is Prepared";
@@ -102,8 +100,10 @@ public final class Constant {
 	public static final String REJECTED = "Rejected";
 	public static final String STOCK_ALLOCATED = "Stock Allocated";
 	/**
-	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
-	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
+	 * The below order status will be used only for display purpose, of the stock is
+	 * allocated then the order status would
+	 * be Waiting for pickup for display purpose, it has no role in the order flow
+	 * of system
 	 */
 	public static final String WAITING_FOR_PICKUP = "Waiting for pickup";
 
@@ -132,8 +132,10 @@ public final class Constant {
 
 	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
-	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it
+	 * is the admin that takes the comission
+	 * and not the vendor, once changed in the settings table , replace the same
+	 * name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "VENDOR_COMISSION";
 	/**

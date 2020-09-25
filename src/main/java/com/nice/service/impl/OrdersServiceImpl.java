@@ -1311,8 +1311,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 		if (newStatus.equalsIgnoreCase(Constant.RETURN_REQUESTED) || newStatus.equalsIgnoreCase(Constant.RETURN_CONFIRMED)
 				|| newStatus.equalsIgnoreCase(Constant.RETURN_REJECTED) || newStatus.equalsIgnoreCase(Constant.RETURN_PROCESSED)
-				|| newStatus.equalsIgnoreCase(Constant.RETURN_ORDER_PREPARED) || newStatus.equalsIgnoreCase(Constant.RETURN_ORDER_PICKUP)
-				|| newStatus.equalsIgnoreCase(Constant.RETURNED)) {
+				|| newStatus.equalsIgnoreCase(Constant.RETURN_ORDER_PICKUP) || newStatus.equalsIgnoreCase(Constant.RETURNED)) {
 			allocatedFor = TaskTypeEnum.RETURN.name();
 		}
 
@@ -1640,7 +1639,7 @@ public class OrdersServiceImpl implements OrdersService {
 			if (CommonUtility.convertDateToLocalDateTime(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDateTime.now())) {
 				throw new ValidationException(
-						messageByLocaleService.getMessage("order.outside.replacement.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
+						messageByLocaleService.getMessage("order.outside.return.period", new Object[] { orders.getVendor().getMaxDaysForAccept() }));
 			}
 			TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
 			orders.setReturnReplaceReason(ticketReason);
@@ -1705,17 +1704,22 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * Vendor cannot move the order in In-Process, Delivered, Cancelled,
 			 */
-			List<String> statusListInWhichVendorCannotMoveOrder = Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
-					OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.RETURN_PROCESSED.getStatusValue(),
-					OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue());
+			List<String> statusListInWhichVendorCannotMoveOrder = new ArrayList<>();
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.IN_PROCESS.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.DELIVERED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_PROCESSED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURNED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_PROCESSED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACED.getStatusValue());
+
 			/**
 			 * If the order delivery type is not pick-up then the order cannot be moved into
 			 * order_pickup status by vendor, that
 			 * will be done by delivery boy when he picks up the order from the restaurant.
 			 */
 			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
-				statusListInWhichVendorCannotMoveOrder
-						.addAll(Arrays.asList(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(), OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue()));
+				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
+				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue());
 			}
 
 			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
