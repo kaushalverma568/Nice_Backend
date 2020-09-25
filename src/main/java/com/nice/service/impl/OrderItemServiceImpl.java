@@ -103,14 +103,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	// @Override
-	// public List<OrderItem> getOrderItemForReplacementOrderId(final Long orderId)
-	// throws NotFoundException {
-	// List<OrderItem> orderItemList =
-	// orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
+	// public List<OrdersItem> getOrderItemForReplacementOrderId(final Long orderId) throws NotFoundException {
+	// List<OrdersItem> orderItemList = orderItemRepository.findAllByOrderIdAndReplaced(orderId, true);
 	// if (orderItemList.isEmpty()) {
-	// throw new
-	// NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new
-	// Object[] { orderId }));
+	// throw new NotFoundException(messageByLocaleService.getMessage(ORDER_NOT_FOUND, new Object[] { orderId }));
 	// }
 	// return orderItemList;
 	// }

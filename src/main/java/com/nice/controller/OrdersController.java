@@ -38,6 +38,7 @@ import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
+import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -48,7 +49,6 @@ import com.nice.service.OrdersService;
 import com.nice.util.PaginationUtil;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
  * @date : 08-Jul-2020
  */
@@ -73,7 +73,6 @@ public class OrdersController {
 	private MessageByLocaleService messageByLocaleService;
 
 	/**
-	 *
 	 * @param token
 	 * @param orderRequestDto
 	 * @param bindingResult
@@ -108,7 +107,6 @@ public class OrdersController {
 	}
 
 	/**
-	 *
 	 * @param token
 	 * @param pageNumber
 	 * @param pageSize
@@ -145,7 +143,6 @@ public class OrdersController {
 	}
 
 	/**
-	 *
 	 * @param accessToken
 	 * @param orderListFilterDto
 	 * @param httpServletResponse
@@ -164,7 +161,6 @@ public class OrdersController {
 	}
 
 	/**
-	 *
 	 * @param token
 	 * @param orderId
 	 * @return
@@ -182,7 +178,6 @@ public class OrdersController {
 	}
 
 	/**
-	 *
 	 * @param token
 	 * @param replaceCancelOrderDto
 	 * @param bindingResult
@@ -212,7 +207,6 @@ public class OrdersController {
 	}
 
 	/**
-	 *
 	 * @param token
 	 * @param replaceCancelOrderDto
 	 * @param bindingResult
@@ -283,7 +277,7 @@ public class OrdersController {
 		}
 		LOGGER.info("Inside the return order method");
 		orderService.returnOrder(replaceCancelOrderDto);
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("replace.request.placed", null)).setStatus(HttpStatus.OK)
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("return.request.placed", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
 
@@ -425,4 +419,13 @@ public class OrdersController {
 				.setMessage(messageByLocaleService.getMessage("ongoing.order.display", null)).create();
 
 	}
+
+	@GetMapping("/{orderId}/refund/detail")
+	public ResponseEntity<Object> checkForOngoingOrder(@RequestHeader("Authorization") final String token, @PathVariable final Long orderId)
+			throws ValidationException, NotFoundException {
+		WalletTrxDTO walletTxnDto = orderService.getRefundDetailsForOrder(orderId);
+		return new GenericResponseHandlers.Builder().setData(walletTxnDto).setStatus(HttpStatus.OK)
+				.setMessage(messageByLocaleService.getMessage("refund.details.display", null)).create();
+
+}
 }

@@ -15,7 +15,7 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	 * For Regular Delivery
 	 */
 	ORDER_ACCEPTED("Order Accepted"), PICK_UP_ON_WAY("Pick Up On Way"), REACHED_VENDOR("Reached At Vendor"), ON_THE_WAY("Order On The Way"),
-	DELIVERED("Delivered"), CANCELLED("Cancelled");
+	DELIVERED("Delivered"), CANCELLED("Cancelled"), REACHED_CUSTOMER("Reached At Customer"), RETURN_ON_THE_WAY("Return On The Way");
 
 	private String statusValue;
 
@@ -61,7 +61,29 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 		case DELIVERED:
 			nextStatus = new TaskStatusEnum[] {};
 			break;
-		case CANCELLED:
+		default:
+			nextStatus = new TaskStatusEnum[] {};
+		}
+
+		return nextStatus;
+	}
+
+	public BasicStatus<TaskStatusEnum>[] nextReturnOrderTaskStatus() {
+		TaskStatusEnum[] nextStatus = null;
+		switch (this) {
+		case ORDER_ACCEPTED:
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, DELIVERED };
+			break;
+		case PICK_UP_ON_WAY:
+			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER };
+			break;
+		case REACHED_CUSTOMER:
+			nextStatus = new TaskStatusEnum[] { RETURN_ON_THE_WAY };
+			break;
+		case RETURN_ON_THE_WAY:
+			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			break;
+		default:
 			nextStatus = new TaskStatusEnum[] {};
 		}
 
@@ -69,11 +91,18 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	}
 
 	public boolean contains(final String newStatus) {
-		if (nextStatus() != null) {
-			for (final BasicStatus<TaskStatusEnum> status : nextStatus()) {
-				if (newStatus.equals(status.getStatusValue())) {
-					return true;
-				}
+		for (final BasicStatus<TaskStatusEnum> status : nextStatus()) {
+			if (newStatus.equals(status.getStatusValue())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean returnContains(final String newStatus) {
+		for (final BasicStatus<TaskStatusEnum> status : nextReturnOrderTaskStatus()) {
+			if (newStatus.equals(status.getStatusValue())) {
+				return true;
 			}
 		}
 		return false;

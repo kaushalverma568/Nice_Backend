@@ -47,4 +47,7 @@ public class WalletTrx extends CommonModel {
 
 	@Column(name = "description", nullable = true)
 	private String description;
+
+	@Column(name = "transaction_type", nullable = false)
+	private String transactionType;
 }

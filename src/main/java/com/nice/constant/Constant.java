@@ -78,18 +78,26 @@ public final class Constant {
 	public static final String RESERVED = "Reserved";
 	public static final String DELIVERED = "Delivered";
 	public static final String REPLACE_REQUESTED = "Replace Requested";
+	public static final String REPLACE_CONFIRMED = "Replace Confirmed";
+	public static final String REPLACE_REJECTED = "Replace Rejected";
 	public static final String REPLACE_PROCESSED = "Replace Processed";
+	public static final String REPLACE_ORDER_PREPARED = "Replace Order Prepared";
+	public static final String REPLACE_ORDER_PICKUP = "Replace Order Picked Up";
+	public static final String REPLACE_STOCK_ALLOCATED = "Replace Order Stock allocated";
 	public static final String REPLACED = "Replaced";
 	public static final String CANCELLED = "Cancelled";
 	public static final String RETURNED = "Returned";
 	public static final String CONFIRMED = "Confirmed";
 	public static final String RETURN_REQUESTED = "Return Requested";
+	public static final String RETURN_CONFIRMED = "Return Confirmed";
+	public static final String RETURN_REJECTED = "Return Rejected";
 	public static final String RETURN_PROCESSED = "Return Processed";
+	public static final String RETURN_ORDER_PICKUP = "Return Order Picked Up";
+
 	public static final String ORDER_IS_PREPARED = "Order Is Prepared";
 	public static final String ORDER_PICKED_UP = "Order Picked Up";
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
-	public static final String STOCK_ALLOCATED = "Stock Allocated";
 	/**
 	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
 	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
@@ -114,8 +122,10 @@ public final class Constant {
 	public static final String ORDER_DELIVERY_CHARGE = "ORDER_DELIVERY_CHARGE";
 	public static final String ORDER_AMOUNT_FOR_FREE_DELIVERY = "ORDER_AMOUNT_FOR_FREE_DELIVERY";
 	public static final String DAY_MIN_ORDER_DELIVERED = "DAY_MIN_ORDER_DELIVERED";
-	public static final String DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS";
-	public static final String DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS = "DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS";
+	public static final String COMMISION_PER_ORDER = "COMMISION_PER_ORDER";
+	public static final String COMMISION_PER_REPLACE_ORDER = "COMMISION_PER_REPLACE_ORDER";
+	public static final String COMMISION_PER_RETURN_ORDER = "COMMISION_PER_RETURN_ORDER";
+	public static final String INCENTIVE_AMOUNT_FOR_DAY = "INCENTIVE_AMOUNT_FOR_DAY";
 
 	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
@@ -162,18 +172,17 @@ public final class Constant {
 	 */
 
 	/**
-	 * This are order status for which the order would be considered as delivered
+	 * This are order status for which the order would be considered as ongoing
 	 */
-	private static List<String> completedOrderStatusList = Arrays.asList(OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(),
-			OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue(),
-			OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
-			OrderStatusEnum.RETURN_PROCESSED.getStatusValue(), OrderStatusEnum.RETURN_REQUESTED.getStatusValue());
+	private static List<String> ongoingOrderStatusList = Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.CONFIRMED.getStatusValue(),
+			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(),
+			OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 
 	/**
-	 * @return the completedOrderStatusList
+	 * @return
 	 */
-	public static List<String> getCompletedOrderStatusList() {
-		return completedOrderStatusList;
+	public static List<String> getOngoingOrderStatusList() {
+		return ongoingOrderStatusList;
 	}
 
 }

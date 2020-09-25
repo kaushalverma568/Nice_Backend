@@ -112,4 +112,8 @@ public class OrdersResponseDTO implements Serializable {
 	 */
 	private Boolean replace;
 
+	private Boolean refunded;
+
+	private Double walletContribution;
+
 }

@@ -69,6 +69,9 @@ public class AcceptingOrderNotificationScheduler {
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+				/**
+				 * We will send notification to vendor / admin
+				 */
 			} else {
 				PushNotificationDTO pushNotification = new PushNotificationDTO();
 				pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);

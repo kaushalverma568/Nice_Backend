@@ -1,11 +1,14 @@
 package com.nice.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.nice.model.Customer;
+import com.nice.model.Orders;
 import com.nice.model.WalletTrx;
 
 /**
@@ -17,5 +20,11 @@ import com.nice.model.WalletTrx;
 public interface WalletTrxRepository extends JpaRepository<WalletTrx, Long> {
 
 	Page<WalletTrx> findAllByCustomer(Customer customer, Pageable pageable);
+
+	/**
+	 * @param order
+	 * @param transactionType
+	 */
+	Optional<WalletTrx> findByOrderAndTransactionType(Orders order, String transactionType);
 
 }

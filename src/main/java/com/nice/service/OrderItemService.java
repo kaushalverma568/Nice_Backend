@@ -45,7 +45,7 @@ public interface OrderItemService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	// List<OrderItem> getOrderItemForReplacementOrderId(Long orderId) throws NotFoundException;
+	// List<OrdersItem> getOrderItemForReplacementOrderId(Long orderId) throws NotFoundException;
 
 	/**
 	 * @param orderId

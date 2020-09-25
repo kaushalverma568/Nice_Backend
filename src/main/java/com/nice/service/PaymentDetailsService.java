@@ -3,11 +3,17 @@ package com.nice.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
+import com.nice.dto.VendorPayoutDTO;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.PaymentDetails;
@@ -95,4 +101,70 @@ public interface PaymentDetailsService {
 	 * @return
 	 */
 	Long getDeliveryBoyPayoutCountBasedOnParam(Long searchId, Long deliveryBoyId, Date registeredOn);
+
+	/**
+	 * Get vendor's payout count based on param
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @return
+	 */
+	Long getVendorPayoutCountBasedOnParam(Long vendorId, Long businessCategoryId);
+
+	/**
+	 * Get all vendor's payout details
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @return
+	 */
+	List<VendorPayoutDTO> getVendorPayout(Long vendorId, Long businessCategoryId, Integer startIndex, Integer pageSize);
+
+	/**
+	 * get payable amount for task list
+	 *
+	 * @param  payableAmountDTO
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	Double getPayableAmountForTaskList(@Valid PayableAmountDTO payableAmountDTO) throws NotFoundException, ValidationException;
+
+	/**
+	 * Export payment history
+	 *
+	 * @param  httpServletResponse
+	 * @param  deliveryBoyId
+	 * @param  vendorId
+	 * @param  fromDate
+	 * @param  toDate
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws FileOperationException
+	 */
+	void exportPaymentHistory(HttpServletResponse httpServletResponse, Long deliveryBoyId, Long vendorId, Date fromDate, Date toDate)
+			throws NotFoundException, ValidationException, FileOperationException;
+
+	/**
+	 * Export vendor payout
+	 *
+	 * @param  vendorId
+	 * @param  businessCategoryId
+	 * @param  httpServletResponse
+	 * @throws FileOperationException
+	 */
+	void exportVendorPayout(Long vendorId, Long businessCategoryId, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * Export delivery boy payout
+	 *
+	 * @param  searchId
+	 * @param  deliveryBoyId
+	 * @param  registeredOn
+	 * @param  httpServletResponse
+	 * @throws FileOperationException
+	 */
+	void exportDeliveryBoyPayout(Long searchId, Long deliveryBoyId, Date registeredOn, HttpServletResponse httpServletResponse) throws FileOperationException;
 }

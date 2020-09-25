@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.nice.constant.Constant;
 import com.nice.exception.NotFoundException;
+import com.nice.service.SchedulerDetailsService;
 import com.nice.service.VendorService;
 
 /**
@@ -25,15 +27,20 @@ public class VendorSubscriptionScheduler {
 	@Autowired
 	private VendorService vendorService;
 
+	@Autowired
+	private SchedulerDetailsService schedulerDetailsService;
+
 	@Scheduled(cron = "0 30 0 * * ?")
 	public void run() {
 		LOGGER.info("vendor subscription expired -- Start: The time is now {}", new Date(System.currentTimeMillis()));
 		expiredSubscription(new Date());
+		updateRunDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE);
 		subscriptionExpireReminder(new Date());
+		updateRunDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER);
 	}
 
 	public void expiredSubscription(final Date runDate) {
-		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(new Date());
+		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(runDate);
 		for (Long vendorId : vendorIds) {
 			try {
 				vendorService.sendEmailForChangeVendorStatus(vendorId);
@@ -47,4 +54,12 @@ public class VendorSubscriptionScheduler {
 		vendorService.runVendorSubscriptionExpireReminderScheduler(runDate);
 	}
 
+	private void updateRunDate(final String schedulerName) {
+		try {
+			schedulerDetailsService.updateSchedulerDate(schedulerName);
+		} catch (NotFoundException e) {
+			LOGGER.error("Error while updating date of scheduler {} ", e.getMessage());
+}
+		LOGGER.info("{} -- End: The time is now {}", schedulerName, new Date(System.currentTimeMillis()));
+	}
 }

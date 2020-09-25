@@ -190,7 +190,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 			orderService.changeStatus(OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), orders);
 			return orders.getId();
 		} else if (TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
-			orderService.changeStatus(OrderStatusEnum.STOCK_ALLOCATED.getStatusValue(), orders);
+			orderService.changeStatus(OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), orders);
 			return orders.getId();
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("allocated.for.value", new Object[] { stockAllocationDto.getAllocatedFor() }));

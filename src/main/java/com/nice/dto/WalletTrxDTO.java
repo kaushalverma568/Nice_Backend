@@ -34,6 +34,8 @@ public class WalletTrxDTO implements Serializable {
 	private Double amount;
 
 	private String description;
+
+	private String transactionType;
 	/**
 	 * for response only
 	 */

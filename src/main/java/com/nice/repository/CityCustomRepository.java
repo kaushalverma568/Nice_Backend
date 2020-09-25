@@ -22,9 +22,11 @@ public interface CityCustomRepository {
 	 * @param  activeRecords
 	 * @param  stateId
 	 * @param  searchKeyword
+	 * @param  isDefault
 	 * @return
 	 */
-	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn);
+	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn,
+			Boolean isDefault);
 
 	/**
 	 * Get count of city based on filter parameters
@@ -33,8 +35,9 @@ public interface CityCustomRepository {
 	 * @param  stateId
 	 * @param  searchKeyword
 	 * @param  idsIn
+	 * @param  isDefault
 	 * @return
 	 */
-	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn);
+	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword, Set<Long> idsIn, Boolean isDefault);
 
 }

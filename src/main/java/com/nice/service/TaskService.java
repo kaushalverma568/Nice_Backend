@@ -15,6 +15,7 @@ import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.TaskResponseDto;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoy;
@@ -47,8 +48,8 @@ public interface TaskService {
 	 * get orders count according to status and taskType for delivery boy
 	 *
 	 * @param deliveryBoy
+	 * @param  taskType
 	 * @param status
-	 * @param taskType
 	 * @return
 	 */
 	Integer getOrdersCountAccordingToStatusAndTaskTypeForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType);
@@ -212,6 +213,14 @@ public interface TaskService {
 	void exportDeliveryLogList(DeliveryLogFilterDTO deliveryLogFilterDTO, HttpServletResponse httpServletResponse)
 			throws FileNotFoundException, ValidationException;
 
+	/**
+	 * Get task list for payout
+	 *
+	 * @param  taskFilterDTO
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @return
+	 */
 	List<Task> getTaskListForPayout(TaskFilterDTO taskFilterDTO, Integer startIndex, Integer pageSize);
 
 	/**
@@ -221,4 +230,13 @@ public interface TaskService {
 	 * @throws NotFoundException
 	 */
 	void sendOrderDeliveryPushNotification(Long taskId) throws NotFoundException;
+
+	/**
+	 * Export task list for payout
+	 *
+	 * @param  httpServletResponse
+	 * @param  taskFilterDTO
+	 * @throws FileOperationException
+	 */
+	void exportTaskListForPayout(HttpServletResponse httpServletResponse, TaskFilterDTO taskFilterDTO) throws FileOperationException;
 }

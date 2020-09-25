@@ -36,9 +36,11 @@ import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
+import com.nice.dto.TaskPayoutDTO;
 import com.nice.dto.TaskResponseDto;
 import com.nice.dto.VendorResponseDTO;
 import com.nice.exception.FileNotFoundException;
+import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
@@ -75,6 +77,8 @@ import com.nice.util.ExportCSV;
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
 public class TaskServiceImpl implements TaskService {
+	private static final String INVALID_TASK_STATUS = "invalid.task.status";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
 
 	/**
@@ -162,10 +166,9 @@ public class TaskServiceImpl implements TaskService {
 		Double adminCommissionAmt = 0.0d;
 		Double vendorPayableAmt = 0.0d;
 		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(taskDto.getTaskType())) {
-			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
+			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
 			vendorPayableAmt = orderTotal - deliveryCharge - adminCommissionAmt;
 		}
-		// TODO
 		/**
 		 * For return and replacement orders, set the values accordingly, here it is
 		 * assumed that the orderTotal will be a +ve value for return order as well in
@@ -175,9 +178,9 @@ public class TaskServiceImpl implements TaskService {
 		 * comission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
-			adminCommissionAmt = ((orderTotal - deliveryCharge) * adminCommisionRate) / 100;
-			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * (-1);
-			adminCommissionAmt = adminCommissionAmt * (-1);
+			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
+			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * -1;
+			adminCommissionAmt = adminCommissionAmt * -1;
 		}
 
 		/**
@@ -264,7 +267,8 @@ public class TaskServiceImpl implements TaskService {
 		 * Check if the next task status is allowed
 		 */
 		TaskStatusEnum existingTaskStatus = TaskStatusEnum.getByValue(task.getStatus());
-		if (!existingTaskStatus.contains(taskStatus)) {
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.contains(taskStatus)
+				|| TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()) && !existingTaskStatus.returnContains(taskStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { taskStatus, task.getStatus() }));
 		}
 
@@ -278,27 +282,52 @@ public class TaskServiceImpl implements TaskService {
 			 * delivered status, this would be applicable only if there is replacement in
 			 * place.
 			 */
-			orderService.changeStatus(OrderStatusEnum.DELIVERED.getStatusValue(), task.getOrder());
+			String nextOrderStatus;
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.DELIVERED;
+			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.RETURNED;
+			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.REPLACED;
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
+			}
+			orderService.changeStatus(nextOrderStatus, task.getOrder());
 
 			/**
 			 * If its a COD task then check cash collected or not
 			 */
-			if (PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) && PaymentMode.COD.name().equals(task.getOrder().getPaymentMode())
 					&& !cashCollectionService.getCashCollectionDetailForTask(task.getId()).isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("cash.collection.not.found.order", new Object[] { task.getOrder().getId() }));
 			}
 		} else if (taskStatus.equals(TaskStatusEnum.ON_THE_WAY.getStatusValue())) {
+			String nextOrderStatus;
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.ORDER_PICKED_UP;
+			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.RETURN_ORDER_PICKUP;
+			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
+				nextOrderStatus = Constant.REPLACED;
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
+			}
 			task.setStatus(TaskStatusEnum.ON_THE_WAY.getStatusValue());
 			/**
 			 * Change order status here to Order PickUp.
 			 */
-			orderService.changeStatus(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(), task.getOrder());
-		} else if (taskStatus.equals(TaskStatusEnum.REACHED_VENDOR.getStatusValue())) {
-			task.setStatus(TaskStatusEnum.REACHED_VENDOR.getStatusValue());
-		} else if (taskStatus.equals(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue())) {
-			task.setStatus(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
+			orderService.changeStatus(nextOrderStatus, task.getOrder());
+		} else if (taskStatus.equals(TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue())) {
+			task.setStatus(TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue());
+			/**
+			 * Change order status here to Order PickUp.
+			 */
+			orderService.changeStatus(Constant.RETURN_ORDER_PICKUP, task.getOrder());
+		} else if (taskStatus.equals(TaskStatusEnum.REACHED_VENDOR.getStatusValue()) || taskStatus.equals(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue())
+				|| taskStatus.equals(TaskStatusEnum.REACHED_CUSTOMER.getStatusValue())) {
+			task.setStatus(taskStatus);
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid.task.status", null));
+			throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
 		}
 
 		/**
@@ -320,19 +349,25 @@ public class TaskServiceImpl implements TaskService {
 
 			List<Task> taskList = getTaskListBasedOnParams(taskFilterDTO, null, null);
 
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(taskList) && taskList.size() >= Integer.valueOf(minOrderDelivered)) {
 				/**
-				 * set delivery charge for delivery boy above minimum orders
+			 * Delivery charge for delivery boy
 				 */
-				task.setDeliveryCharge(
-						Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS).getFieldValue()));
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(taskList)) {
+
+				if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
+					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_ORDER).getFieldValue()));
+				} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
+					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_REPLACE_ORDER).getFieldValue()));
 			} else {
-				/**
-				 * set delivery charge for delivery boy below minimum orders
-				 */
-				task.setDeliveryCharge(
-						Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS).getFieldValue()));
+					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_RETURN_ORDER).getFieldValue()));
 			}
+		}
+
+			if (taskList.size() >= Integer.valueOf(minOrderDelivered)) {
+				Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
+				task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
+			}
+			task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
@@ -512,13 +547,16 @@ public class TaskServiceImpl implements TaskService {
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue(), TaskStatusEnum.REACHED_VENDOR.getStatusValue(),
-				TaskStatusEnum.ON_THE_WAY.getStatusValue()));
+				TaskStatusEnum.ON_THE_WAY.getStatusValue(), TaskStatusEnum.REACHED_CUSTOMER.getStatusValue(),
+				TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue()));
 		Long count = getTaskCountBasedOnParams(taskFilterDTO);
 		if (count > 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
 		}
 
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
 		changeTaskStatus(taskId, TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
+	}
 	}
 
 	@Override
@@ -526,10 +564,23 @@ public class TaskServiceImpl implements TaskService {
 
 		Task task = getTaskDetail(taskId);
 
-		if (TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(task.getTaskType())) {
-			if (!OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equalsIgnoreCase(task.getTaskType())
+				&& !OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
 			}
+		/**
+		 * If Order's delivery type is Delivery then order's status should be return
+		 * order pickup
+		 * If Order's delivery type is pick-up then order's status should be return
+		 * processed
+		 */
+		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
+				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
+						&& !OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())
+						|| DeliveryType.PICKUP.getStatusValue().equals(task.getOrder().getDeliveryType())
+								&& !OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
+		}
 			changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 			/**
 			 * set isBusy to false if delivery boy has no any other assigned orders, no
@@ -562,7 +613,6 @@ public class TaskServiceImpl implements TaskService {
 				}
 			}
 		}
-	}
 
 	@Override
 	public DeliveryBoyOrderCountDto getTaskTypeWiseCountForPaymentDetailsId(final Long deliveryBoyId) {
@@ -636,6 +686,54 @@ public class TaskServiceImpl implements TaskService {
 			throw new FileNotFoundException(messageByLocaleService.getMessage("export.file.create.error", null));
 		}
 	}
+
+	@Override
+	public void exportTaskListForPayout(final HttpServletResponse httpServletResponse, final TaskFilterDTO taskFilterDTO) throws FileOperationException {
+		final Object[] taskPayoutHeaderField;
+		final Object[] taskPayoutDataField;
+		List<TaskPayoutDTO> taskPayoutDTOs = taskMapper.toPayoutResponseDtos(getTaskListBasedOnParams(taskFilterDTO, null, null));
+		for (TaskPayoutDTO taskPayoutDTO : taskPayoutDTOs) {
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(taskPayoutDTO.getTaskType())) {
+				taskPayoutDTO.setOrderType("Cart Order");
+			} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskPayoutDTO.getTaskType())) {
+				taskPayoutDTO.setOrderType("Replacement Order");
+			} else {
+				taskPayoutDTO.setOrderType("Return Order");
+			}
+			if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
+				if (taskPayoutDTO.getDeliveryBoyPaymentDetailsId() != null) {
+					taskPayoutDTO.setPaidOn(taskPayoutDTO.getDeliveryBoyPaidOn());
+					taskPayoutDTO.setTransactionId(taskPayoutDTO.getDeliveryBoyTransactionId());
+				} else {
+					taskPayoutDTO.setPaymentStatus("Pending");
+				}
+			} else {
+				if (taskPayoutDTO.getVendorPaymentDetailsId() != null) {
+					taskPayoutDTO.setPaidOn(taskPayoutDTO.getVendorPaidOn());
+					taskPayoutDTO.setTransactionId(taskPayoutDTO.getVendorTransactionId());
+				} else {
+					taskPayoutDTO.setPaymentStatus("Pending");
+				}
+			}
+		}
+		if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
+			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
+					"Order Amount", "Payment Status", "Paid On", "Transaction Id" };
+			taskPayoutDataField = new Object[] { "orderId", "orderDate", "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
+					"paymentStatus", "paidOn", "transactionId" };
+		} else {
+			taskPayoutHeaderField = new Object[] { "Order Id", "Order Date", "Order Type", "Total Order Amount", "Delivery Charge", "Admin Commission",
+					"Payable Amount", "Payment Status", "Paid On", "Transaction Id" };
+			taskPayoutDataField = new Object[] { "orderId", "orderDate", "orderType", "totalOrderAmount", "deliveryCharge", "adminCommission",
+					"vendorPayableAmt", "paymentStatus", "paidOn", "transactionId" };
+		}
+		try {
+			exportCSV.writeCSVFile(taskPayoutDTOs, taskPayoutDataField, taskPayoutHeaderField, httpServletResponse);
+		} catch (IOException e) {
+			throw new FileOperationException(messageByLocaleService.getMessage("export.file.create.error", null));
+		}
+	}
+}
 
 	@Override
 	public void sendOrderDeliveryPushNotification(final Long taskId) throws NotFoundException {
