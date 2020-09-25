@@ -143,11 +143,16 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
 public class OrdersServiceImpl implements OrdersService {
+
+	/**
+	 *
+	 */
+	private static final String STATUS_NOT_ALLOWED = "status.not.allowed";
 
 	/**
 	 *
@@ -565,7 +570,7 @@ public class OrdersServiceImpl implements OrdersService {
 	/**
 	 * This method is used to check if the customer has any ongoing orders
 	 *
-	 * @param  customerId
+	 * @param customerId
 	 * @return
 	 */
 	private Long ongoingOrderCount(final Long customerId) {
@@ -594,9 +599,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -909,10 +914,10 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  description
-	 * @param  transactionType
-	 * @param  orderRequestDto
-	 * @param  order
+	 * @param description
+	 * @param transactionType
+	 * @param orderRequestDto
+	 * @param order
 	 * @throws NotFoundException
 	 */
 	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description, final String transactionType)
@@ -993,8 +998,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  applyDeliveryCharge
-	 * @param  orderAmt
+	 * @param applyDeliveryCharge
+	 * @param orderAmt
 	 * @return
 	 */
 	@Override
@@ -1051,12 +1056,6 @@ public class OrdersServiceImpl implements OrdersService {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
-		/**
-		 * If status is stock allocted then for display purpose we will display as waiting for pickup
-		 */
-		if (OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(orders.getOrderStatus())) {
-			orderResponseDto.setOrderStatus(Constant.WAITING_FOR_PICKUP);
-		}
 
 		/**
 		 * set city field for email
@@ -1174,8 +1173,6 @@ public class OrdersServiceImpl implements OrdersService {
 		if (replacementOrderItems) {
 			Long totalCountForOrder = /* setReplacementOrderItemInResponse(orders, orderResponseDto) */0l;
 			orderResponseDto.setCount(totalCountForOrder);
-			List<OrderStatusHistory> orderStatusList = orderStatusRepository.findAllByOrderId(orders.getId());
-			orderStatusMapper.toDtos(orderStatusList);
 		} else if (fullDetails) {
 			Long totalCountForOrder = setOrderItemInResponse(orders, orderResponseDto);
 			orderResponseDto.setCount(totalCountForOrder);
@@ -1183,8 +1180,13 @@ public class OrdersServiceImpl implements OrdersService {
 			Long totalOrderQty = ordersItemRepository.getTotalItemCountForOrder(orders.getId());
 			orderResponseDto.setCount(totalOrderQty);
 		}
+		List<OrderStatusHistory> orderStatusList = orderStatusRepository.findAllByOrderId(orders.getId());
+		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusList);
+		orderResponseDto.setOrderStatusDtoList(orderStatusDtoList);
 		VendorResponseDTO vendorDto = vendorService.getVendor(orders.getVendor().getId());
 		orderResponseDto.setVendorImageUrl(vendorDto.getStoreImageUrl());
+		orderResponseDto.setVendorLatitude(vendorDto.getLatitude());
+		orderResponseDto.setVendorLongitude(vendorDto.getLongitude());
 		BusinessCategoryDTO businessCategory = businessCategoryService.getBusinessCategory(vendorDto.getBusinessCategoryId());
 		orderResponseDto.setManageInventory(businessCategory.getManageInventory());
 		orderResponseDto.setVendorPhoneNumber(vendorDto.getStorePhoneNumber());
@@ -1192,8 +1194,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -1223,6 +1225,10 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		UserLogin userLogin = checkForUserLogin();
 
+		/*
+		 * Validation Section for change order status
+		 */
+
 		/**
 		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
 		 * placing a validation allowing only delivery boy to do the same
@@ -1236,11 +1242,11 @@ public class OrdersServiceImpl implements OrdersService {
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
 		final String existingStockStatus = existingOrderStatus.getStockValue();
 		if (!existingOrderStatus.contains(newStatus)) {
-			throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", new Object[] { newStatus, order.getOrderStatus() }));
+			throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
 		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
-		 * Ready" status it is not directly moved to Order Pickup before allocating stock
+		 * Prepared" status it is not directly moved to Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1248,6 +1254,9 @@ public class OrdersServiceImpl implements OrdersService {
 				&& !OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
 		}
+		/*
+		 * Validation Section for validating change order ends
+		 */
 
 		/**
 		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
@@ -1289,21 +1298,19 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED
-		 * and task status is REACHED_CUSTOMER
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
 		 */
 		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
 			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
 			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
 				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
 			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("status.not.allowed", null));
+				throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, null));
 			}
 		}
 
 		/**
-		 * check for manage inventory flag, if that is true then stock needs to be
-		 * allocated for the order, else move the order
+		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
 		 * from Order_Prepared Status to Stock_Allocated status
 		 */
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
@@ -1675,7 +1682,7 @@ public class OrdersServiceImpl implements OrdersService {
 			String newOrderStatusForMessage = messageByLocaleService.getMessage(Constant.REJECTED, null);
 			String existingOrderStatusForMessage = messageByLocaleService.getMessage(orders.getOrderStatus(), null);
 			throw new ValidationException(
-					messageByLocaleService.getMessage("status.not.allowed", new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
+					messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newOrderStatusForMessage, existingOrderStatusForMessage }));
 		}
 		if (OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(orders.getOrderStatus())) {
 			orders.setOrderStatus(Constant.RETURN_REJECTED);

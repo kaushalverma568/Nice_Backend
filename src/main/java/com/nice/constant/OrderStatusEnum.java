@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 09-Jul-2020
+ * @date : 09-Jul-2020
  */
 public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	PENDING(Constant.PENDING, Constant.AVAILABLE), REJECTED(Constant.REJECTED, Constant.AVAILABLE), CONFIRMED(Constant.CONFIRMED, Constant.AVAILABLE),
@@ -22,9 +22,9 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	REPLACE_WAITING_FOR_PICKUP(Constant.REPLACE_WAITING_FOR_PICKUP, Constant.RESERVED), REPLACED(Constant.REPLACED, Constant.DELIVERED),
 	CANCELLED(Constant.CANCELLED, Constant.AVAILABLE),
 
-	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.AVAILABLE), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.AVAILABLE),
-	RETURN_REJECTED(Constant.RETURN_REJECTED, Constant.AVAILABLE), RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.AVAILABLE),
-	RETURN_ORDER_PICKUP(Constant.RETURN_ORDER_PICKUP, Constant.AVAILABLE), RETURNED(Constant.RETURNED, Constant.RETURNED);
+	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.DELIVERED), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.DELIVERED),
+	RETURN_REJECTED(Constant.RETURN_REJECTED, Constant.DELIVERED), RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.DELIVERED),
+	RETURN_ORDER_PICKUP(Constant.RETURN_ORDER_PICKUP, Constant.DELIVERED), RETURNED(Constant.RETURNED, Constant.RETURNED);
 
 	String statusValue;
 	String stockStatus;

@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -120,4 +121,15 @@ public class OrdersResponseDTO implements Serializable {
 	private String customerShippingName;
 
 	private String customerShippingPhoneNumber;
+
+	/**
+	 * latitude of vendor and customer
+	 */
+	private BigDecimal vendorLatitude;
+
+	private BigDecimal vendorLongitude;
+
+	private BigDecimal latitude;
+
+	private BigDecimal longitude;
 }
