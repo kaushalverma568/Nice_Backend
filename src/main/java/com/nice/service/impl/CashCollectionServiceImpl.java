@@ -48,8 +48,11 @@ public class CashCollectionServiceImpl implements CashcollectionService {
 	@Override
 	public CashCollectionDTO addCashCollection(final CashCollectionDTO cashCollectionDTO) throws NotFoundException, ValidationException {
 		CashCollection cashCollection = cashCollectionMapper.toEntity(cashCollectionDTO);
-		cashCollection.setDeliveryBoy(deliveryBoyService.getDeliveryBoyDetail(cashCollectionDTO.getDeliveryboyId()));
 		Task task = taskService.getTaskDetail(cashCollectionDTO.getTaskId());
+		if (task.getDeliveryBoy() == null || !task.getDeliveryBoy().getId().equals(cashCollectionDTO.getDeliveryboyId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("can.not.collect.cash.order", null));
+		}
+		cashCollection.setDeliveryBoy(task.getDeliveryBoy());
 		Orders order = task.getOrder();
 		if (PaymentMode.ONLINE.name().equals(order.getPaymentMode())) {
 			throw new ValidationException(messageByLocaleService.getMessage("cash.collect.online.order", null));
