@@ -761,14 +761,21 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		taskFilterDTO.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
 		Long regularOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		assignedOrdersCountMap.put("Regular Orders", regularOrders.intValue());
+		/**
+		 * set return order count
+		 */
+		taskFilterDTO.setTaskType(TaskTypeEnum.RETURN.getTaskValue());
+		Long returnOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		assignedOrdersCountMap.put("Return Orders", returnOrders.intValue());
+		/**
+		 * set replace order count
+		 */
+		taskFilterDTO.setTaskType(TaskTypeEnum.REPLACEMENT.getTaskValue());
+		Long replaceOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		assignedOrdersCountMap.put("Replace Orders", replaceOrders.intValue());
+
 		ordersCountDTO.setDeliveryBoyId(deliveryBoyId);
 		ordersCountDTO.setOrdersCountMap(assignedOrdersCountMap);
-		/**
-		 * set return/replace order count here
-		 */
-		assignedOrdersCountMap.put("Return Orders", regularOrders.intValue());
-		assignedOrdersCountMap.put("Replace Orders", regularOrders.intValue());
-
 		return ordersCountDTO;
 	}
 
@@ -789,7 +796,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
-		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		dashBoardDetailDTO.setAssignedOrdersCount(count.intValue());
 		/**

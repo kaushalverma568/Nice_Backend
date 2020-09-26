@@ -53,7 +53,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartItemService")
@@ -235,8 +235,8 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	/**
-	 * @param cartItemEntity
-	 * @param cartItemDTO
+	 * @param  cartItemEntity
+	 * @param  cartItemDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -265,13 +265,10 @@ public class CartItemServiceImpl implements CartItemService {
 		}
 
 		/**
-		 * Here distinct productAttributeIds associated with a product are taken.
-		 *
-		 * This is done so as to check if the productAttributeValues associated with product are given values or not, if the
-		 * values corresponding to all of them is not defined then we need to throw an exception.
-		 *
-		 * E.g. : If for Pizza there are two different attributes defined i.e. Base & Bread, then one value each for both Base &
-		 * Bread should be defined
+		 * Here distinct productAttributeIds associated with a product are taken. This is done so as to check if the
+		 * productAttributeValues associated with product are given values or not, if the values corresponding to all of them is
+		 * not defined then we need to throw an exception. E.g. : If for Pizza there are two different attributes defined i.e.
+		 * Base & Bread, then one value each for both Base & Bread should be defined
 		 */
 		List<Long> addedProductAttributes = new ArrayList<>();
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(cartItemDTO.getProductVariantId(), true);
@@ -368,7 +365,6 @@ public class CartItemServiceImpl implements CartItemService {
 
 		/**
 		 * Convert Map to List
-		 *
 		 **/
 		List<ProductAttributeResponseDTO> productAttributeResponseDtoList = new ArrayList<>();
 		for (Map.Entry<String, List<ProductAttributeValueDTO>> productAttributeValueDto : productAttributeValueDtoMap.entrySet()) {
@@ -562,5 +558,17 @@ public class CartItemServiceImpl implements CartItemService {
 			deleteCartItem(cartItem.getId());
 		}
 		LOGGER.info("After deleteCartItemForOnlineOrderId for onlineOrderId :{} ", onlineOrderId);
+	}
+
+	@Override
+	public VendorResponseDTO getVendorFromCartItems() throws ValidationException, NotFoundException {
+		VendorResponseDTO vendor = new VendorResponseDTO();
+		Long customerId = getCustomerIdForLoginUser();
+		List<CartItem> cartItemList = getCartListBasedOnCustomer(customerId);
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemList)) {
+			CartItem cartItem = cartItemList.get(0);
+			vendor = vendorService.getVendor(cartItem.getProductVariant().getVendorId());
+		}
+		return vendor;
 	}
 }
