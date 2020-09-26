@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ import com.nice.model.Discount;
 import com.nice.model.DiscountAppliedProductHistory;
 import com.nice.model.Product;
 import com.nice.model.ProductVariant;
+import com.nice.model.Vendor;
 import com.nice.repository.DiscountAppliedProductHistoryRepository;
 import com.nice.repository.DiscountRepository;
 import com.nice.repository.ProductRepository;
@@ -47,6 +49,7 @@ import com.nice.service.DiscountService;
 import com.nice.service.ProductService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.SchedulerDetailsService;
+import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
@@ -95,6 +98,9 @@ public class DiscountServiceImpl implements DiscountService {
 
 	@Autowired
 	private AssetService assetService;
+
+	@Autowired
+	private VendorService vendorService;
 
 	@Override
 	public void addDiscount(final DiscountDTO discountDTO) throws ValidationException, NotFoundException {
@@ -175,8 +181,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * in discount updation if we are removing some product for this discount then remove them from product history (all the other things are same as we
-		 * written for category specific discount)
+		 * in discount updation if we are removing some product for this discount then remove them from product history (all the
+		 * other things are same as we written for category specific discount)
 		 */
 		if (!isCreation.booleanValue()) {
 			/**
@@ -192,8 +198,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start date & end date or end date is
-		 * between new start date & end date)
+		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start
+		 * date & end date or end date is between new start date & end date)
 		 */
 		for (Long productId : discountDTO.getProductIds()) {
 			Optional<DiscountAppliedProductHistory> existingHistory = discountAppliedProductHistoryRepository.isDiscountExist(productId, discount.getId(),
@@ -287,12 +293,17 @@ public class DiscountServiceImpl implements DiscountService {
 	 * @throws ValidationException
 	 */
 	private DiscountResponseDTO convertEntityToResponseDto(final Discount discount) throws NotFoundException {
-		final ProductParamRequestDTO paramRequestDTO = new ProductParamRequestDTO();
-		paramRequestDTO.setDiscountId(discount.getId());
+		final Locale locale = LocaleContextHolder.getLocale();
 		final DiscountResponseDTO discountResponseDTO = new DiscountResponseDTO();
+		Vendor vendor = vendorService.getVendorDetail(discount.getVendorId());
 		BeanUtils.copyProperties(discount, discountResponseDTO);
 		discountResponseDTO.setCategoryName(categoryService.getCategory(discount.getCategoryId()).getName());
 		discountResponseDTO.setDiscountDate(discount.getCreatedAt());
+		if (locale.getLanguage().equals("en")) {
+			discountResponseDTO.setStoreName(vendor.getStoreNameEnglish());
+		} else {
+			discountResponseDTO.setStoreName(vendor.getStoreNameArabic());
+		}
 		return discountResponseDTO;
 	}
 
@@ -422,7 +433,8 @@ public class DiscountServiceImpl implements DiscountService {
 				}
 			}
 			/**
-			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will not run for some day )
+			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will
+			 * not run for some day )
 			 */
 			if (runDate.isAfter(endDate) && discount.getStatus().equals(DiscountStatusEnum.UPCOMING.getStatusValue())) {
 				try {

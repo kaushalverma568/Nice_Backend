@@ -37,4 +37,7 @@ public class DiscountResponseDTO implements Serializable {
 
 	private Date createdAt;
 
+	private String storeName;
+
+	private Long vendorId;
 }
