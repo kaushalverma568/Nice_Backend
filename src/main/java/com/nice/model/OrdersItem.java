@@ -70,4 +70,13 @@ public class OrdersItem extends CommonModel {
 
 	@Transient
 	private List<OrdersProductAttributeValue> orderProductAttributeValuesList;
+
+	@Column(name = "replace_requested", nullable = false)
+	private Boolean replaceRequested;
+
+	@Column(name = "return_requested", nullable = false)
+	private Boolean returnRequested;
+
+	@Column(name = "return_replace_quantity", nullable = true)
+	private Long returnReplaceQuantity;
 }

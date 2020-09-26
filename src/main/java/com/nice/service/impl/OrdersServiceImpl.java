@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -882,6 +884,8 @@ public class OrdersServiceImpl implements OrdersService {
 		for (OrdersItem orderItem : orderItemList) {
 			orderItem.setOrder(order);
 			orderItem.setActive(true);
+			orderItem.setReplaceRequested(false);
+			orderItem.setReturnRequested(false);
 			ordersItemRepository.save(orderItem);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItem.getOrderAddonsList())) {
 				for (OrdersAddons orderAddons : orderItem.getOrderAddonsList()) {
@@ -1056,7 +1060,8 @@ public class OrdersServiceImpl implements OrdersService {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
-
+		orderResponseDto.setCanReturn(false);
+		orderResponseDto.setCanReplace(false);
 		/**
 		 * set city field for email
 		 */
@@ -1065,17 +1070,24 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCity(orders.getCity().getNameEnglish());
 			orderResponseDto.setVendorName(vendor.getStoreNameEnglish());
 			orderResponseDto.setAddress(orders.getAddressEnglish());
-			// if(orders.getDeliveryDate() != null && orders.getDeliveryDate()) {
-			//
-			// }
-			// orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
-			// orderResponseDto.setReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+			DateTime dateTime = new DateTime(DateTimeZone.UTC);
+			if (orders.getDeliveryDate() != null && vendor.getMaxDaysForAccept() != null
+					&& ((dateTime.getMillis() - orders.getDeliveryDate().getTime()) / 60000) > vendor.getMaxDaysForAccept() * 24 * 60) {
+				orderResponseDto.setCanReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+				orderResponseDto.setCanReplace(Constant.REPLACE.equalsIgnoreCase(vendor.getAccepts()));
+			}
+
 		} else {
 			Vendor vendor = orders.getVendor();
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
 			orderResponseDto.setVendorName(vendor.getStoreNameArabic());
 			orderResponseDto.setAddress(orders.getAddressArabic());
-			// orderResponseDto.setReplace(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+			DateTime dateTime = new DateTime(DateTimeZone.UTC);
+			if (orders.getDeliveryDate() != null && vendor.getMaxDaysForAccept() != null
+					&& ((dateTime.getMillis() - orders.getDeliveryDate().getTime()) / 60000) > vendor.getMaxDaysForAccept() * 24 * 60) {
+				orderResponseDto.setCanReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
+				orderResponseDto.setCanReplace(Constant.REPLACE.equalsIgnoreCase(vendor.getAccepts()));
+			}
 		}
 		/**
 		 * Set reason for the order if any
@@ -1238,9 +1250,9 @@ public class OrdersServiceImpl implements OrdersService {
 				|| DeliveryType.DELIVERY.getStatusValue().equals(order.getDeliveryType()) && !UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType()))) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
-		String allocatedFor = TaskTypeEnum.DELIVERY.name();
+
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
-		final String existingStockStatus = existingOrderStatus.getStockValue();
+
 		if (!existingOrderStatus.contains(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
 		}
@@ -1254,6 +1266,18 @@ public class OrdersServiceImpl implements OrdersService {
 				&& !OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(newStatus)) {
 			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
 		}
+
+		/**
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
+		 */
+		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, null));
+			}
+		}
 		/*
 		 * Validation Section for validating change order ends
 		 */
@@ -1266,21 +1290,15 @@ public class OrdersServiceImpl implements OrdersService {
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 			String taskType = null;
 			if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(newStatus)) {
-				order.setOrderStatus(newStatus);
-				ordersRepository.save(order);
-				saveOrderStatusHistory(order);
+				updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 				taskType = TaskTypeEnum.DELIVERY.getTaskValue();
 				newStatus = OrderStatusEnum.IN_PROCESS.getStatusValue();
 			} else if (OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(newStatus)) {
-				order.setOrderStatus(newStatus);
-				ordersRepository.save(order);
-				saveOrderStatusHistory(order);
+				updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 				taskType = TaskTypeEnum.RETURN.getTaskValue();
 				newStatus = OrderStatusEnum.RETURN_PROCESSED.getStatusValue();
 			} else if (OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(newStatus)) {
-				order.setOrderStatus(newStatus);
-				ordersRepository.save(order);
-				saveOrderStatusHistory(order);
+				updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 				taskType = TaskTypeEnum.REPLACEMENT.getTaskValue();
 				newStatus = OrderStatusEnum.REPLACE_PROCESSED.getStatusValue();
 			} else {
@@ -1298,36 +1316,31 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
-		 */
-		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
-			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
-			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
-				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, null));
-			}
-		}
-
-		/**
 		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
 		 * from Order_Prepared Status to Stock_Allocated status
 		 */
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
-			/**
-			 * If order is ready move it to the stock allocation status directly for orders not requiring any stock allocation for
-			 * order.
-			 */
-			order.setOrderStatus(newStatus);
-			ordersRepository.save(order);
-			saveOrderStatusHistory(order);
-
+			updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 			/**
 			 * Set new status to stock allocation
 			 */
 			newStatus = OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue();
 		}
+		updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
+	}
 
+	/**
+	 * This method is used only to change the status of the order and respective status of the inventory if managed
+	 *
+	 * @param newStatus
+	 * @param order
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	private void updateOrderStatus(final String newStatus, final Orders order, final boolean isInventoryManaged) throws NotFoundException, ValidationException {
+		String allocatedFor = TaskTypeEnum.DELIVERY.name();
+		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
+		final String existingStockStatus = existingOrderStatus.getStockValue();
 		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(newStatus)) {
 			order.setDeliveryDate(new Date());
 			if (PaymentMode.COD.name().equals(order.getPaymentMode())) {
@@ -1347,70 +1360,74 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
-		 * If the order status is related to replacement then set allocatedFor as Replacement
-		 */
-		if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
-				|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
-			allocatedFor = TaskTypeEnum.REPLACEMENT.name();
-		}
-
-		/**
 		 * Change inventory based on status
 		 */
 		/**
 		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way
+		 * case of replacement of orders that will be handled in a different way </br>
+		 *
+		 * If inventory needs to be managed then only make changes in inventory status else no need to make stock changes
 		 */
-		if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
-				&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+		if (isInventoryManaged) {
 			/**
-			 * Fetch list of all allocated stock based on lot and move one by one for the order.
+			 * If the order status is related to replacement then set allocatedFor as Replacement
 			 */
-			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
-			for (StockAllocation stockAllocation : stockAllocationList) {
-				StockTransferDto stockTransferDto = new StockTransferDto();
-				stockTransferDto.setTransferedFrom(existingStockStatus);
-				stockTransferDto.setTransferedTo(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue());
-				stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
-				stockTransferDto.setQuantity(stockAllocation.getQuantity());
-				stockTransferDto.setOrderId(order.getId());
-				stockTransferDto.setVendorId(stockAllocation.getVendorId());
-				ProductVariantResponseDTO productVariant = productVariantService
-						.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
-				stockTransferDto.setProductId(productVariant.getProductId());
-				stockTransferDto.setUomId(productVariant.getUomId());
-				stockTransferDto.setLotNo(stockAllocation.getStockDetails().getLotNo());
-				stockTransferService.transferStock(stockTransferDto);
+			if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
+					|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+				allocatedFor = TaskTypeEnum.REPLACEMENT.name();
 			}
-		}
-		/**
-		 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-		 * replaced status
-		 */
-		if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
-			List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
-			Set<Long> orderItemIdSet = new HashSet<>();
-			for (StockAllocation stockAllocation : stockAllocationList) {
-				orderItemIdSet.add(stockAllocation.getOrderItem().getId());
-			}
-			for (Long orderItem : orderItemIdSet) {
-				List<StockAllocation> replacementStockAllocationList = stockAllocationService.getAllocatedStockForOrderItem(orderItem,
-						TaskTypeEnum.DELIVERY.name());
-				for (StockAllocation stockAllocation : replacementStockAllocationList) {
+
+			if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
+					&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
+				/**
+				 * Fetch list of all allocated stock based on lot and move one by one for the order.
+				 */
+				List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
+				for (StockAllocation stockAllocation : stockAllocationList) {
 					StockTransferDto stockTransferDto = new StockTransferDto();
-					stockTransferDto.setTransferedFrom(Constant.DELIVERED);
-					stockTransferDto.setTransferedTo(Constant.REPLACED);
+					stockTransferDto.setTransferedFrom(existingStockStatus);
+					stockTransferDto.setTransferedTo(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue());
 					stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
 					stockTransferDto.setQuantity(stockAllocation.getQuantity());
 					stockTransferDto.setOrderId(order.getId());
 					stockTransferDto.setVendorId(stockAllocation.getVendorId());
-
 					ProductVariantResponseDTO productVariant = productVariantService
 							.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
 					stockTransferDto.setProductId(productVariant.getProductId());
 					stockTransferDto.setUomId(productVariant.getUomId());
 					stockTransferDto.setLotNo(stockAllocation.getStockDetails().getLotNo());
 					stockTransferService.transferStock(stockTransferDto);
+				}
+			}
+			/**
+			 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
+			 * replaced status
+			 */
+			if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+				List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
+				Set<Long> orderItemIdSet = new HashSet<>();
+				for (StockAllocation stockAllocation : stockAllocationList) {
+					orderItemIdSet.add(stockAllocation.getOrderItem().getId());
+				}
+				for (Long orderItem : orderItemIdSet) {
+					List<StockAllocation> replacementStockAllocationList = stockAllocationService.getAllocatedStockForOrderItem(orderItem,
+							TaskTypeEnum.DELIVERY.name());
+					for (StockAllocation stockAllocation : replacementStockAllocationList) {
+						StockTransferDto stockTransferDto = new StockTransferDto();
+						stockTransferDto.setTransferedFrom(Constant.DELIVERED);
+						stockTransferDto.setTransferedTo(Constant.REPLACED);
+						stockTransferDto.setStockDetailsId(stockAllocation.getStockDetails().getId());
+						stockTransferDto.setQuantity(stockAllocation.getQuantity());
+						stockTransferDto.setOrderId(order.getId());
+						stockTransferDto.setVendorId(stockAllocation.getVendorId());
+
+						ProductVariantResponseDTO productVariant = productVariantService
+								.getProductVariant(stockAllocation.getStockDetails().getProductVariant().getId());
+						stockTransferDto.setProductId(productVariant.getProductId());
+						stockTransferDto.setUomId(productVariant.getUomId());
+						stockTransferDto.setLotNo(stockAllocation.getStockDetails().getLotNo());
+						stockTransferService.transferStock(stockTransferDto);
+					}
 				}
 			}
 		}
@@ -1626,6 +1643,17 @@ public class OrdersServiceImpl implements OrdersService {
 			orders.setReturnReplaceReason(ticketReason);
 			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.REPLACE_REQUESTED, orders);
+
+			/**
+			 * Set the replace_requested flag to true and set the replacement quantity same as that of the order for all order
+			 * items, as currently there is functionality only to replace the entire order
+			 */
+			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
+			for (OrdersItem ordersItem : ordersItemList) {
+				ordersItem.setReplaceRequested(true);
+				ordersItem.setReturnReplaceQuantity(ordersItem.getQuantity());
+				ordersItemRepository.save(ordersItem);
+			}
 		}
 	}
 
@@ -1663,6 +1691,17 @@ public class OrdersServiceImpl implements OrdersService {
 			orders.setReturnReplaceReason(ticketReason);
 			orders.setCancelReturnReplaceDescription(replaceCancelOrderDto.getDescription());
 			changeStatus(Constant.RETURN_REQUESTED, orders);
+
+			/**
+			 * Set the return_requested flag to true and set the return quantity same as that of the order for all order items, as
+			 * currently there is functionality only to return the entire order
+			 */
+			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
+			for (OrdersItem ordersItem : ordersItemList) {
+				ordersItem.setReturnRequested(true);
+				ordersItem.setReturnReplaceQuantity(ordersItem.getQuantity());
+				ordersItemRepository.save(ordersItem);
+			}
 		}
 	}
 
@@ -1736,6 +1775,7 @@ public class OrdersServiceImpl implements OrdersService {
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURNED.getStatusValue());
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_PROCESSED.getStatusValue());
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.CANCELLED.getStatusValue());
 
 			/**
 			 * If the order delivery type is not pick-up then the order cannot be moved into order_pickup status by vendor, that

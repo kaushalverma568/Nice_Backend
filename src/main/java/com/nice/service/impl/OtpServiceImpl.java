@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +92,8 @@ public class OtpServiceImpl implements OtpService {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userOtpDto.getUserId() }));
 		}
 		/**
-		 * Check if otp already generated in past for the user with this OTP Type, if
-		 * yes update the existing row, if not make a new object and persist it
+		 * Check if otp already generated in past for the user with this OTP Type, if yes update the existing row, if not make a
+		 * new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -162,14 +164,13 @@ public class OtpServiceImpl implements OtpService {
 				if (optionalUserOtp.get().getActive().booleanValue()) {
 					Date updatedAt = optionalUserOtp.get().getUpdatedAt();
 					/**
-					 * Check if the otp is generated only before a specified interval, if not return
-					 * false
+					 * Check if the otp is generated only before a specified interval, if not return false
 					 */
-					if ((System.currentTimeMillis() - updatedAt.getTime()) / 60000 < Constant.OTP_VALIDITY_TIME_IN_MIN) {
+					DateTime dateTime = new DateTime(DateTimeZone.UTC);
+					if ((dateTime.getMillis() - updatedAt.getTime()) / 60000 < Constant.OTP_VALIDITY_TIME_IN_MIN) {
 						UserOtp userOtp = optionalUserOtp.get();
 						/**
-						 * active needs to be FALSE every time except you want same otp to be used for
-						 * verification more then one time
+						 * active needs to be FALSE every time except you want same otp to be used for verification more then one time
 						 */
 						userOtp.setActive(active);
 						userOtpRepository.save(userOtp);

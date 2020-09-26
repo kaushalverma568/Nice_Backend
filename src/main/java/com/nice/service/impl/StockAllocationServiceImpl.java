@@ -121,7 +121,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		 * If this is a replacement order then check only for the replaced items
 		 */
 		if (TaskTypeEnum.REPLACEMENT.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
-			// orderItemList = orderItemService.getOrderItemForReplacementOrderId(stockAllocationDto.getOrderId());
+			orderItemList = orderItemService.getOrderItemForReplacementOrderId(stockAllocationDto.getOrderId());
 		} else {
 			orderItemList = orderItemService.getOrderItemForOrderId(stockAllocationDto.getOrderId());
 		}
@@ -129,7 +129,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		/**
 		 * Validate if the quantity that is being allocated is available or not
 		 */
-		Map<String, Long> totalToBeAllocatedQtyPerProductVariantAndLotNoCombination = validateBarcodeAndAvailableQtyForProductVariant(
+		Map<String, Long> totalToBeAllocatedQtyPerProductVariantAndLotNoCombination = validateSkuLotNoAndAvailableQtyForProductVariant(
 				stockAllocationDto.getStockDetailsWiseQtyList());
 
 		/**
@@ -305,7 +305,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private Map<String, Long> validateBarcodeAndAvailableQtyForProductVariant(final List<StockDetailsWiseQuantityDTO> stockDetailsWiseQtyList)
+	private Map<String, Long> validateSkuLotNoAndAvailableQtyForProductVariant(final List<StockDetailsWiseQuantityDTO> stockDetailsWiseQtyList)
 			throws NotFoundException, ValidationException {
 
 		/**

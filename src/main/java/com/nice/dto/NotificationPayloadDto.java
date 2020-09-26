@@ -21,4 +21,5 @@ public class NotificationPayloadDto implements Serializable {
 	private String module;
 	private Long id;
 	private String taskType = "";
+	private String click_action = "FLUTTER_NOTIFICATION_CLICK";
 }

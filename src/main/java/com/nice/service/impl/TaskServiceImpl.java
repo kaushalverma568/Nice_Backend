@@ -72,7 +72,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -184,8 +184,6 @@ public class TaskServiceImpl implements TaskService {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
 			vendorPayableAmt = (orderTotal - deliveryCharge - adminCommissionAmt) * -1;
 			adminCommissionAmt = adminCommissionAmt * -1;
-		} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(taskDto.getTaskType())) {
-			vendorPayableAmt = vendorPayableAmt - deliveryCharge;
 		}
 
 		/**
@@ -380,8 +378,8 @@ public class TaskServiceImpl implements TaskService {
 				task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 			}
 			if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
-			task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
-		}
+				task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+			}
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
@@ -472,7 +470,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -730,8 +728,8 @@ public class TaskServiceImpl implements TaskService {
 			}
 		}
 		if (taskFilterDTO.getDeliveryBoyPaymentPending() != null) {
-			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Attended On", "Order Type", "Current Order Status", "Delivery Charge",
-					"Order Amount", "Payment Status", "Paid On", "Transaction Id" };
+			taskPayoutHeaderField = new Object[] { ORDER_ID, ORDER_DATE, "Attended On", "Order Type", "Current Order Status", "Delivery Charge", "Order Amount",
+					"Payment Status", "Paid On", "Transaction Id" };
 			taskPayoutDataField = new Object[] { ORDER_ID2, ORDER_DATE2, "deliveredDate", "orderType", "orderStatus", "deliveryCharge", "totalOrderAmount",
 					"paymentStatus", "paidOn", "transactionId" };
 		} else {

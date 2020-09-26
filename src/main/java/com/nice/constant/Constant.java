@@ -157,6 +157,7 @@ public final class Constant {
 	public static final int SLIDER_IMAGE_WIDTH = 335;
 	public static final int SLIDER_IMAGE_HEIGHT = 170;
 	public static final String RETURN = "Return";
+	public static final String REPLACE = "Replace";
 
 	/**
 	 * Push notification Module name

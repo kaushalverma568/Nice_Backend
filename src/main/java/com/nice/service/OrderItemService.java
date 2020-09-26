@@ -44,15 +44,15 @@ public interface OrderItemService {
 	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
-	// List<OrdersItem> getOrderItemForReplacementOrderId(Long orderId) throws NotFoundException;
+	List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
-	 * @throws ValidationException
 	 */
-	List<OrderItemResponseDTO> getOrderItemResponseDTOForOrderId(Long orderId) throws NotFoundException, ValidationException;
+	List<OrdersItem> getOrderItemForReplacementOrderId(Long orderId) throws NotFoundException;
 
 }
