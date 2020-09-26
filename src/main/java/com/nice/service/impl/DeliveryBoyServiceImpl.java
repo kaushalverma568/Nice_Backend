@@ -812,8 +812,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		/**
 		 * for on going order
 		 */
-		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue(), TaskStatusEnum.REACHED_VENDOR.getStatusValue(),
-				TaskStatusEnum.ON_THE_WAY.getStatusValue()));
+		taskFilterDTO.setStatusList(null);
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue(), TaskStatusEnum.DELIVERED.getStatusValue(),
+				TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveredDate(null);
 		List<Task> taskList = taskService.getTaskListBasedOnParams(taskFilterDTO, null, null);
 		if (taskList.size() > 1) {
