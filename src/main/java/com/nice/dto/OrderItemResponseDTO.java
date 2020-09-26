@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 07-Jul-2020
+ * @date   : 07-Jul-2020
  */
 @Data
 public class OrderItemResponseDTO implements Serializable {
@@ -35,7 +35,8 @@ public class OrderItemResponseDTO implements Serializable {
 	private String productLabel;
 
 	/**
-	 * The below field is just for display on front end, it contains the amount(all added) of order item, extras, addons,
+	 * The below field is just for display on front end, it contains the amount(all
+	 * added) of order item, extras, addons,
 	 * toppings and productAttributeValues
 	 */
 	private Double totalOrderItemAmount;
@@ -44,4 +45,5 @@ public class OrderItemResponseDTO implements Serializable {
 	private List<OrderToppingsDto> orderToppingsDtoList;
 	private List<OrderProductAttributeValueDTO> orderProductAttributeValueDtoList;
 	private List<OrderExtrasDto> orderExtraDtoList;
+	private Boolean isExtrasAvailalbe;
 }
