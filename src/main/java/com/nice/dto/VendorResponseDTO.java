@@ -130,4 +130,6 @@ public class VendorResponseDTO implements Serializable {
 	private String area;
 
 	private Boolean manageInventory;
+
+	private Integer maxDaysForAccept;
 }
