@@ -1382,7 +1382,7 @@ public class OrdersServiceImpl implements OrdersService {
 			 * If the order status is related to replacement then set allocatedFor as Replacement
 			 */
 			if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
-					|| newStatus.equalsIgnoreCase(Constant.REPLACED)) {
+					|| newStatus.equalsIgnoreCase(Constant.REPLACED) || newStatus.equalsIgnoreCase(Constant.REPLACE_WAITING_FOR_PICKUP)) {
 				allocatedFor = TaskTypeEnum.REPLACEMENT.name();
 			}
 

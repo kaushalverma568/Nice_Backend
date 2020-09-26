@@ -320,7 +320,7 @@ public class TaskServiceImpl implements TaskService {
 			 */
 			orderService.changeStatus(Constant.RETURN_ORDER_PICKUP, task.getOrder());
 		} else if (taskStatus.equals(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue())) {
-			if (OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(task.getOrder().getOrderStatus())) {
+			if (OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue().equals(task.getOrder().getOrderStatus())) {
 				task.setStatus(TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
 				/**
 				 * Change order status here to Order PickUp.
