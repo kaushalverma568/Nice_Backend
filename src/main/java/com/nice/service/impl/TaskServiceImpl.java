@@ -72,7 +72,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -335,6 +335,7 @@ public class TaskServiceImpl implements TaskService {
 				|| taskStatus.equals(TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue())) {
 			task.setStatus(taskStatus);
 		} else if (taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
+			removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 			task.setStatus(taskStatus);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
@@ -383,6 +384,36 @@ public class TaskServiceImpl implements TaskService {
 		}
 		taskRepository.save(task);
 		// saveTaskHistory(task);
+	}
+
+	private void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException, ValidationException {
+		/**
+		 * set isBusy to false if delivery boy has no any other assigned orders
+		 */
+		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+		Long count = getTaskCountBasedOnParams(taskFilterDTO);
+		/**
+		 * if count > 0 means delivery boy has any orders which is not delivered yet
+		 */
+		if (count == 0) {
+			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
+			deliveryBoyCurrentStatus.setIsBusy(false);
+			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+			/**
+			 * remove delivery boy's old location history accepts his latest location
+			 */
+			List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
+			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
+				LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
+				deliveryBoyLocationRepository.deleteAll(oldLocations);
+			}
+			/**
+			 * delete old location of order which is stored using socket
+			 */
+			orderLocationService.deleteLocationsByOrder(task.getOrder().getId());
+		}
 	}
 
 	@Override
@@ -470,7 +501,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -596,30 +627,7 @@ public class TaskServiceImpl implements TaskService {
 		 * case of pickup orders
 		 */
 		if (task.getDeliveryBoy() != null) {
-			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
-			taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
-			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
-			Long count = getTaskCountBasedOnParams(taskFilterDTO);
-			/**
-			 * if count > 0 means delivery boy has any orders which is not delivered yet
-			 */
-			if (count == 0) {
-				DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
-				deliveryBoyCurrentStatus.setIsBusy(false);
-				deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
-				/**
-				 * remove delivery boy's old location history accepts his latest location
-				 */
-				List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
-				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
-					LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
-					deliveryBoyLocationRepository.deleteAll(oldLocations);
-				}
-				/**
-				 * delete old location of order which is stored using socket
-				 */
-				orderLocationService.deleteLocationsByOrder(task.getOrder().getId());
-			}
+			removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 		}
 	}
 

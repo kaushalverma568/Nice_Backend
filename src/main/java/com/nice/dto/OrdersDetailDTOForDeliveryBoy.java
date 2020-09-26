@@ -86,4 +86,6 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	private Boolean cashCollected;
 
+	private String nextStatus;
+
 }

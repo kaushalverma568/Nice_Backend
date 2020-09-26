@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	/**
@@ -144,6 +144,78 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 			}
 		}
 		return false;
+	}
+
+	public TaskStatusEnum[] nextStatusForMobile() {
+		TaskStatusEnum[] nextStatus = null;
+		switch (this) {
+		case ORDER_ACCEPTED:
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY };
+			break;
+		case PICK_UP_ON_WAY:
+			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR };
+			break;
+		case REACHED_VENDOR:
+			nextStatus = new TaskStatusEnum[] { ON_THE_WAY };
+			break;
+		case ON_THE_WAY:
+			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			break;
+		case DELIVERED:
+			nextStatus = new TaskStatusEnum[] {};
+			break;
+		default:
+			nextStatus = new TaskStatusEnum[] {};
+		}
+		return nextStatus;
+	}
+
+	public TaskStatusEnum[] nextReturnOrderTaskStatusForMobile() {
+		TaskStatusEnum[] nextStatus = null;
+		switch (this) {
+		case ORDER_ACCEPTED:
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY };
+			break;
+		case PICK_UP_ON_WAY:
+			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER };
+			break;
+		case REACHED_CUSTOMER:
+			nextStatus = new TaskStatusEnum[] { RETURN_ON_THE_WAY };
+			break;
+		case RETURN_ON_THE_WAY:
+			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			break;
+		default:
+			nextStatus = new TaskStatusEnum[] {};
+		}
+		return nextStatus;
+	}
+
+	public TaskStatusEnum[] nextReplaceOrderTaskStatusForMobile() {
+		TaskStatusEnum[] nextStatus = null;
+		switch (this) {
+		case ORDER_ACCEPTED:
+			nextStatus = new TaskStatusEnum[] { REPLACE_CUSTOMER_PICKUP_ON_THE_WAY };
+			break;
+		case REPLACE_CUSTOMER_PICKUP_ON_THE_WAY:
+			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER };
+			break;
+		case REACHED_CUSTOMER:
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY };
+			break;
+		case PICK_UP_ON_WAY:
+			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR };
+			break;
+		case REACHED_VENDOR:
+			nextStatus = new TaskStatusEnum[] { REPLACE_DELIVERY_ON_THE_WAY };
+			break;
+		case REPLACE_DELIVERY_ON_THE_WAY:
+			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			break;
+		default:
+			nextStatus = new TaskStatusEnum[] {};
+		}
+		return nextStatus;
 	}
 
 }

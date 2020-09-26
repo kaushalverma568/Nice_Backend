@@ -524,7 +524,7 @@ public class DeliveryBoyController {
 		LOGGER.info("Inside get delivered orders list for delivery boy id:{}", deliveryBoyId);
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveredDate(new Date());
-		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 		taskFilterDTO.setTaskType(taskType);
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);

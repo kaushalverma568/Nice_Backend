@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -361,7 +362,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				/**
 				 * if delivery boy has assigned orders and not delivered yet then can't deactive
 				 */
-				if (deliveryBoyCurrentStatus.getIsBusy()) {
+				if (deliveryBoyCurrentStatus.getIsBusy().booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("deactive.assigned.order.exist", null));
 				}
 				deliveryBoy.setStatus(DeliveryBoyStatus.DE_ACTIVE.getStatusValue());
@@ -804,7 +805,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		taskFilterDTO.setStatusListNotIn(null);
 		taskFilterDTO.setTaskType(null);
-		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue()));
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveredDate(new Date(System.currentTimeMillis()));
 		count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
 		dashBoardDetailDTO.setDeliveredOrdersCount(count.intValue());
@@ -880,6 +881,29 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			 */
 			if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 				ordersDetailDTOForDeliveryBoy.setCashCollected(cashCollectionService.getCashCollectionDetailForTask(taskId).isPresent());
+			}
+			/**
+			 * Next status
+			 */
+			final TaskStatusEnum taskOldStatus = TaskStatusEnum.valueOf(TaskStatusEnum.getByValue(task.getStatus()).name());
+			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
+				if (taskOldStatus.nextStatusForMobile() != null) {
+					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextStatusForMobile());
+					ordersDetailDTOForDeliveryBoy
+							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));
+				}
+			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+				if (taskOldStatus.nextReturnOrderTaskStatusForMobile() != null) {
+					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextReturnOrderTaskStatusForMobile());
+					ordersDetailDTOForDeliveryBoy
+							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));
+				}
+			} else {
+				if (taskOldStatus.nextReplaceOrderTaskStatusForMobile() != null) {
+					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextReplaceOrderTaskStatusForMobile());
+					ordersDetailDTOForDeliveryBoy
+							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));
+				}
 			}
 		} else {
 			orders = ordersService.getOrderById(orderId);
