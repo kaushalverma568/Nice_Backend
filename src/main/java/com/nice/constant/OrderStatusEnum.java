@@ -92,12 +92,12 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PREPARED };
 			break;
 		case REPLACE_ORDER_PREPARED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PICKUP };
-			break;
-		case REPLACE_ORDER_PICKUP:
 			nextStatus = new OrderStatusEnum[] { REPLACE_WAITING_FOR_PICKUP };
 			break;
 		case REPLACE_WAITING_FOR_PICKUP:
+			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PICKUP };
+			break;
+		case REPLACE_ORDER_PICKUP:
 			nextStatus = new OrderStatusEnum[] { REPLACED };
 			break;
 		case RETURN_REQUESTED:

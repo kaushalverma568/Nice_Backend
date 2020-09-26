@@ -187,7 +187,7 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 		 * Change status of order to In Process once the stock allocation is done.
 		 */
 		if (TaskTypeEnum.REPLACEMENT.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
-			orderService.changeStatus(OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), orders);
+			orderService.changeStatus(OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(), orders);
 			return orders.getId();
 		} else if (TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
 			orderService.changeStatus(OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), orders);

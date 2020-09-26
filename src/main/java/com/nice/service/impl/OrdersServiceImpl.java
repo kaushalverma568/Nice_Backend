@@ -1262,15 +1262,18 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
-				&& OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(existingOrderStatus.getStatusValue())
-				&& !OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(newStatus)) {
+				&& ((OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(existingOrderStatus.getStatusValue())
+						&& !OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(newStatus))
+						|| (OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(existingOrderStatus.getStatusValue())
+								&& !OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue().equals(newStatus)))) {
 			throw new ValidationException(messageByLocaleService.getMessage("allocate.stock.first", null));
 		}
 
 		/**
 		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
 		 */
-		if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+		if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
+				&& OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
 			Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
 			if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
 				LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
@@ -1322,9 +1325,15 @@ public class OrdersServiceImpl implements OrdersService {
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
 			updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 			/**
-			 * Set new status to stock allocation
+			 * Set new status to Waiting for pickup
 			 */
 			newStatus = OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue();
+		} else if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(newStatus)) {
+			updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
+			/**
+			 * Set new status to Waiting for pickup
+			 */
+			newStatus = OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue();
 		}
 		updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
 	}
@@ -1776,6 +1785,8 @@ public class OrdersServiceImpl implements OrdersService {
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_PROCESSED.getStatusValue());
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACED.getStatusValue());
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.CANCELLED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_REQUESTED.getStatusValue());
+			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_REQUESTED.getStatusValue());
 
 			/**
 			 * If the order delivery type is not pick-up then the order cannot be moved into order_pickup status by vendor, that
@@ -1785,14 +1796,13 @@ public class OrdersServiceImpl implements OrdersService {
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue());
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue());
-			}
-
-			if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
-				Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
-				if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
-					LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
-				} else {
-					statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue());
+				if (OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+					Task task = taskService.getTaskForOrderIdAndAllocatedFor(order, TaskTypeEnum.REPLACEMENT.getTaskValue());
+					if (task != null && TaskStatusEnum.REACHED_CUSTOMER.getStatusValue().equals(task.getStatus())) {
+						LOGGER.info("REPLACE_ORDER_PREPARED is displaying");
+					} else {
+						statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue());
+					}
 				}
 			}
 
@@ -1909,6 +1919,20 @@ public class OrdersServiceImpl implements OrdersService {
 					 */
 					taskService.changeTaskStatus(task.getId(), TaskStatusEnum.ON_THE_WAY.getStatusValue());
 
+				} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
+					/**
+					 * Change the task status to on the way so the order status would be pickedUp
+					 */
+					taskService.changeTaskStatus(task.getId(), TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
+
+				} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+					/**
+					 * Change the task status to on the way so the order status would be pickedUp
+					 */
+					taskService.changeTaskStatus(task.getId(), TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue());
+
+				} else {
+					throw new ValidationException(messageByLocaleService.getMessage("order.status.invalid", null));
 				}
 				/**
 				 * Then complete the task, so the order will be delivered
