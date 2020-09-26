@@ -107,7 +107,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.amount", new Object[] { sum }));
 			}
 			paymentDetails.setDeliveryBoy(deliveryBoys.get(0));
-		} else {
+		} else if (UserType.VENDOR.name().equals(paymentDetailsDTO.getEntityType())) {
 			List<Vendor> vendors = taskList.stream().map(Task::getVendor).distinct().collect(Collectors.toList());
 			if (!vendors.isEmpty() && vendors.size() > 1) {
 				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.vendor", null));
@@ -126,6 +126,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.amount", new Object[] { sum }));
 			}
 			paymentDetails.setVendor(vendors.get(0));
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
 		}
 		/**
 		 * Setting total no of orders based on task list here
@@ -261,7 +263,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				}
 				sum += task.getDeliveryCharge();
 			}
-		} else {
+		} else if (UserType.VENDOR.name().equals(payableAmountDTO.getEntityType())) {
 			List<Vendor> vendors = taskList.stream().map(Task::getVendor).distinct().collect(Collectors.toList());
 			if (!vendors.isEmpty() && vendors.size() > 1) {
 				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.vendor", null));
@@ -272,6 +274,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 				}
 				sum += task.getVendorPayableAmt();
 			}
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.user.type", null));
 		}
 		return sum;
 	}
