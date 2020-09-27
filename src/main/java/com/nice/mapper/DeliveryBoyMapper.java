@@ -21,7 +21,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @Component
 public class DeliveryBoyMapper {
@@ -63,6 +63,12 @@ public class DeliveryBoyMapper {
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getProfilePictureName())) {
 			deliveryBoyResponseDTO.setProfilePictureUrl(assetService.getGeneratedUrl(deliveryBoy.getProfilePictureName(), AssetConstant.DELIVERY_BOY));
+		}
+		if (deliveryBoy.getRating() == null) {
+			deliveryBoyResponseDTO.setRating(0D);
+		}
+		if (deliveryBoy.getNoOfRating() == null) {
+			deliveryBoyResponseDTO.setNoOfRating(0L);
 		}
 		return deliveryBoyResponseDTO;
 	}

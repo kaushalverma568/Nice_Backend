@@ -80,6 +80,12 @@ public class VendorMapper {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getFeaturedImageName())) {
 			vendorResponseDTO.setFeaturedImageUrl(assetService.getGeneratedUrl(vendor.getFeaturedImageName(), AssetConstant.VENDOR));
 		}
+		if (vendor.getRating() == null) {
+			vendorResponseDTO.setRating(0D);
+		}
+		if (vendor.getNoOfRating() == null) {
+			vendorResponseDTO.setNoOfRating(0L);
+		}
 		if (isDetailResponse) {
 			vendorResponseDTO.setCityId(vendor.getCity().getId());
 			vendorResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
@@ -155,6 +161,12 @@ public class VendorMapper {
 			vendorAppResponseDTO.setStoreName(vendor.getStoreNameEnglish());
 		} else {
 			vendorAppResponseDTO.setStoreName(vendor.getStoreNameArabic());
+		}
+		if (vendor.getRating() == null) {
+			vendorAppResponseDTO.setRating(0D);
+		}
+		if (vendor.getNoOfRating() == null) {
+			vendorAppResponseDTO.setNoOfRating(0L);
 		}
 		if (isDetailResponse) {
 			vendorAppResponseDTO.setVendorCuisines(vendorCuisineService.getVendorCuisineDetailListByVendor(vendor.getId(), true));
