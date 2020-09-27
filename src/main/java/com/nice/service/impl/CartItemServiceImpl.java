@@ -385,6 +385,7 @@ public class CartItemServiceImpl implements CartItemService {
 		 */
 		VendorResponseDTO vendorResponseDto = vendorService.getVendor(cartItem.getProductVariant().getVendorId());
 		cartItemResponseDTO.setVendorName(vendorResponseDto.getStoreName());
+		cartItemResponseDTO.setVendorId(vendorResponseDto.getId());
 		return cartItemResponseDTO;
 	}
 
