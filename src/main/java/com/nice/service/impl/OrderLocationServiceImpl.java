@@ -15,7 +15,6 @@ import com.nice.model.DeliveryBoy;
 import com.nice.model.OrderLocation;
 import com.nice.model.Orders;
 import com.nice.repository.OrderLocationRepository;
-import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrderLocationService;
 import com.nice.service.OrdersService;
@@ -35,9 +34,6 @@ public class OrderLocationServiceImpl implements OrderLocationService {
 	private OrdersService orderService;
 
 	@Autowired
-	private CustomerService customerService;
-
-	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
 	@Autowired
@@ -47,26 +43,22 @@ public class OrderLocationServiceImpl implements OrderLocationService {
 	private OrderLocationRepository orderLocationRepository;
 
 	@Override
-	public void addOrderLocation(final OrderLocationDTO orderLocationDTO) throws NotFoundException, ValidationException {
+	public OrderLocation addOrderLocation(final OrderLocationDTO orderLocationDTO) throws NotFoundException, ValidationException {
 		DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(orderLocationDTO.getDeliveryBoyId());
 		Orders orders = orderService.getOrderById(orderLocationDTO.getOrderId());
-		Customer customer = customerService.getCustomerDetails(orderLocationDTO.getCustomerId());
+		Customer customer = orders.getCustomer();
+		orderLocationDTO.setCustomerId(customer.getId());
 		/**
 		 * check if all value matches with each other
 		 */
-		if (orders.getDeliveryBoy() != null && orders.getDeliveryBoy().getId().equals(deliveryBoy.getId())
-				&& orders.getCustomer().getId().equals(customer.getId())) {
+		if (orders.getDeliveryBoy() != null && orders.getDeliveryBoy().getId().equals(deliveryBoy.getId())) {
 			OrderLocation orderLocation = orderLocationMapper.toEntity(orderLocationDTO);
 			orderLocation.setActive(true);
 			orderLocationRepository.save(orderLocation);
+			return orderLocation;
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage(
-					orders.getDeliveryBoy() != null && !orders.getDeliveryBoy().getId().equals(deliveryBoy.getId()) ? "order.delivery.boy.mismatch"
-							: "order.customer.mistmatch",
-					new Object[] { orderLocationDTO.getOrderId(),
-							orders.getDeliveryBoy() != null && !orders.getDeliveryBoy().getId().equals(deliveryBoy.getId())
-									? orderLocationDTO.getDeliveryBoyId()
-									: orderLocationDTO.getCustomerId() }));
+			throw new ValidationException(messageByLocaleService.getMessage("order.delivery.boy.mismatch",
+					new Object[] { orderLocationDTO.getOrderId(), orderLocationDTO.getDeliveryBoyId() }));
 		}
 	}
 

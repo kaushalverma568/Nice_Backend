@@ -72,7 +72,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -160,9 +160,8 @@ public class TaskServiceImpl implements TaskService {
 
 		/**
 		 * Calculate the admin comission here and also the net amount payable to vendor
-		 * for the task, this code is only for
-		 * regular order, not for replacement or return, for replacement and return the
-		 * calculation for the same will be
+		 * for the task, this code is only for regular order, not for replacement or
+		 * return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
@@ -180,12 +179,11 @@ public class TaskServiceImpl implements TaskService {
 		}
 		/**
 		 * For return and replacement orders, set the values accordingly, here it is
-		 * assumed that the orderTotal will be a +ve
-		 * value for return order as well in orders table , keeping that in mind the
-		 * below lines have been coded For replacement
-		 * orders, there would only be delivery charge and that would be handled in
-		 * change status method below, the vendor
-		 * payable amount and admin commission would be zero
+		 * assumed that the orderTotal will be a +ve value for return order as well in
+		 * orders table , keeping that in mind the below lines have been coded For
+		 * replacement orders, there would only be delivery charge and that would be
+		 * handled in change status method below, the vendor payable amount and admin
+		 * commission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
@@ -195,8 +193,7 @@ public class TaskServiceImpl implements TaskService {
 
 		/**
 		 * This code is synchronized as multiple delivery boys trying to accept the same
-		 * order for delivery donot end up have
-		 * the same order.
+		 * order for delivery donot end up have the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
@@ -289,10 +286,10 @@ public class TaskServiceImpl implements TaskService {
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
 			 * Change the status of order based on the task type, if the task type is
-			 * replacement, the order is being replaced and
-			 * hence the order should be moved to replaced status, else its first time
-			 * delivery and order will be moved to delivered
-			 * status, this would be applicable only if there is replacement in place.
+			 * replacement, the order is being replaced and hence the order should be moved
+			 * to replaced status, else its first time delivery and order will be moved to
+			 * delivered status, this would be applicable only if there is replacement in
+			 * place.
 			 */
 			String nextOrderStatus;
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
@@ -360,8 +357,7 @@ public class TaskServiceImpl implements TaskService {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
 			 * if count of today's total delivered or cancelled task for this delivery boy
-			 * is greater than minimum order delivered
-			 * for a day then consider that tasks
+			 * is greater than minimum order delivered for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			if (task.getDeliveryBoy() != null) {
@@ -514,7 +510,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -602,17 +598,17 @@ public class TaskServiceImpl implements TaskService {
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
-		if (TaskTypeEnum.DELIVERY.getTaskValue().equalsIgnoreCase(task.getTaskType())) {
-			taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue(), TaskStatusEnum.REACHED_VENDOR.getStatusValue(),
-					TaskStatusEnum.ON_THE_WAY.getStatusValue(), TaskStatusEnum.REACHED_CUSTOMER.getStatusValue(),
-					TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue()));
-			Long count = getTaskCountBasedOnParams(taskFilterDTO);
-			if (count > 0) {
-				throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
-			}
+		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue(), TaskStatusEnum.REACHED_VENDOR.getStatusValue(),
+				TaskStatusEnum.ON_THE_WAY.getStatusValue(), TaskStatusEnum.REACHED_CUSTOMER.getStatusValue(),
+				TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue()));
+		Long count = getTaskCountBasedOnParams(taskFilterDTO);
+		if (count > 0) {
+			throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
 		}
 
-		changeTaskStatus(taskId, TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
+		if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
+			changeTaskStatus(taskId, TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
+		}
 	}
 
 	@Override
@@ -626,8 +622,8 @@ public class TaskServiceImpl implements TaskService {
 		}
 		/**
 		 * If Order's delivery type is Delivery then order's status should be return
-		 * order pickup If Order's delivery type is
-		 * pick-up then order's status should be return processed
+		 * order pickup If Order's delivery type is pick-up then order's status should
+		 * be return processed
 		 */
 		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
 				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
@@ -639,8 +635,7 @@ public class TaskServiceImpl implements TaskService {
 		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 		/**
 		 * set isBusy to false if delivery boy has no any other assigned orders, no
-		 * changes are to be made to delivery boy in
-		 * case of pickup orders
+		 * changes are to be made to delivery boy in case of pickup orders
 		 */
 		if (task.getDeliveryBoy() != null) {
 			removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);

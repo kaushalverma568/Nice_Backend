@@ -20,8 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nice.dto.OrderLocationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.OrderLocation;
 import com.nice.service.OrderLocationService;
 import com.nice.service.SocketIOService;
+import com.nice.util.JsonObjectMapper;
 
 @Service(value = "socketIOService")
 public class SocketIOServiceImpl implements SocketIOService {
@@ -92,7 +94,7 @@ public class SocketIOServiceImpl implements SocketIOService {
 
 		// Custom Event`client_info_event` ->Listen for client messages
 		socketIOServer.addEventListener(PUSH_DATA_EVENT, String.class, (client, data, ackSender) -> {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = JsonObjectMapper.getInstance().getObjectMapper();
 			Map<String, String> messageConverted = null;
 			try {
 				messageConverted = mapper.readValue(data, Map.class);
@@ -103,15 +105,15 @@ public class SocketIOServiceImpl implements SocketIOService {
 				try {
 					OrderLocationDTO locationDTO = new OrderLocationDTO();
 					locationDTO.setDeliveryBoyId(Long.parseLong(messageConverted.get(DELIVERY_BOY_ID)));
-					locationDTO.setCustomerId(Long.parseLong(messageConverted.get(CUSTOMER_ID)));
 					locationDTO.setOrderId(Long.parseLong(messageConverted.get(ORDER_ID)));
 					locationDTO.setLatitude(new BigDecimal(messageConverted.get(LATITUDE)));
 					locationDTO.setLongitude(new BigDecimal(messageConverted.get(LONGITUDE)));
-					orderLocationService.addOrderLocation(locationDTO);
+					OrderLocation orderLocation = orderLocationService.addOrderLocation(locationDTO);
 					/**
 					 * here for customer orderId will be orderId_customerId_receiver and for
 					 * delivery Boy orderId will be orderId_deliveryBoyId_sender
 					 */
+					messageConverted.put(CUSTOMER_ID, orderLocation.getCustomerId().toString());
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getCustomerId().toString()).concat("_receiver"),
 							messageConverted);
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getDeliveryBoyId().toString()).concat("_sender"),
@@ -175,7 +177,6 @@ public class SocketIOServiceImpl implements SocketIOService {
 	private boolean validateSocketMessage(final Map<String, String> messageConverted) {
 		return messageConverted != null && messageConverted.containsKey(LATITUDE) && messageConverted.get(LATITUDE) != null
 				&& messageConverted.containsKey(LONGITUDE) && messageConverted.get(LONGITUDE) != null && messageConverted.containsKey(DELIVERY_BOY_ID)
-				&& messageConverted.get(DELIVERY_BOY_ID) != null && messageConverted.containsKey(CUSTOMER_ID) && messageConverted.get(CUSTOMER_ID) != null
-				&& messageConverted.containsKey(ORDER_ID) && messageConverted.get(ORDER_ID) != null;
+				&& messageConverted.get(DELIVERY_BOY_ID) != null && messageConverted.containsKey(ORDER_ID) && messageConverted.get(ORDER_ID) != null;
 	}
 }
