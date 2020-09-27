@@ -1087,9 +1087,8 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setCity(orders.getCity().getNameArabic());
 			orderResponseDto.setVendorName(vendor.getStoreNameArabic());
 			orderResponseDto.setAddress(orders.getAddressArabic());
-			DateTime dateTime = new DateTime(DateTimeZone.UTC);
-			if (orders.getDeliveryDate() != null && vendor.getMaxDaysForAccept() != null
-					&& ((dateTime.getMillis() - orders.getDeliveryDate().getTime()) / 60000) < vendor.getMaxDaysForAccept() * 24 * 60) {
+			if (orders.getDeliveryDate() != null && vendor.getMaxDaysForAccept() != null && CommonUtility.convertDateToLocalDateTime(orders.getDeliveryDate())
+					.plusDays(orders.getVendor().getMaxDaysForAccept()).isBefore(LocalDateTime.now())) {
 				orderResponseDto.setCanReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 				orderResponseDto.setCanReplace(Constant.REPLACE.equalsIgnoreCase(vendor.getAccepts()));
 			}
