@@ -1089,7 +1089,7 @@ public class OrdersServiceImpl implements OrdersService {
 			orderResponseDto.setAddress(orders.getAddressArabic());
 			DateTime dateTime = new DateTime(DateTimeZone.UTC);
 			if (orders.getDeliveryDate() != null && vendor.getMaxDaysForAccept() != null
-					&& ((dateTime.getMillis() - orders.getDeliveryDate().getTime()) / 60000) > vendor.getMaxDaysForAccept() * 24 * 60) {
+					&& ((dateTime.getMillis() - orders.getDeliveryDate().getTime()) / 60000) < vendor.getMaxDaysForAccept() * 24 * 60) {
 				orderResponseDto.setCanReturn(Constant.RETURN.equalsIgnoreCase(vendor.getAccepts()));
 				orderResponseDto.setCanReplace(Constant.REPLACE.equalsIgnoreCase(vendor.getAccepts()));
 			}
@@ -1496,7 +1496,7 @@ public class OrdersServiceImpl implements OrdersService {
 						CustomerResponseDTO customerResponseDto = customerService.getCustomer(userLoginTemp.getEntityId());
 						ordersResponseDTO.setCancelledBy(customerResponseDto.getName());
 					} else {
-						ordersResponseDTO.setCancelledBy(messageByLocaleService.getMessage("nice", null));
+						ordersResponseDTO.setCancelledBy(messageByLocaleService.getMessage("Nice Admin", null));
 					}
 				}
 			}
