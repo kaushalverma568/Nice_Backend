@@ -55,6 +55,7 @@ import com.nice.dto.OrderStatusDto;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.PushNotificationDTO;
+import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.StockTransferDto;
 import com.nice.dto.TaskDto;
@@ -116,6 +117,7 @@ import com.nice.repository.OrderRatingRepository;
 import com.nice.repository.OrderStatusHistoryRepository;
 import com.nice.repository.OrderToppingsRepository;
 import com.nice.repository.OrdersRepository;
+import com.nice.repository.TaskRepository;
 import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartAddonsService;
 import com.nice.service.CartExtrasService;
@@ -296,6 +298,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
+
+	@Autowired
+	private TaskRepository taskRepository;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -1858,10 +1863,18 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void refundAmount(final Long orderId, final Double amount, final String description) throws NotFoundException, ValidationException {
+	public void refundAmount(final RefundAmountDto refundAmountDto) throws NotFoundException, ValidationException {
 
-		Orders orders = getOrderById(orderId);
+		Orders orders = getOrderById(refundAmountDto.getOrderId());
 
+		/**
+		 * Currently copying the amount into amount borne by admin field and then proceeding further as currently all the amount
+		 * would be borne by admin</br>
+		 * If in future there is any differentiation between contirbution of admin , vendor and delivery boy for cancel order,
+		 * then ignore the amount field and use their respective fields
+		 */
+		Double amount = Double.sum(Double.sum(refundAmountDto.getAdminContribution(), refundAmountDto.getVendorContribution()),
+				refundAmountDto.getDeliveryBoyContribution());
 		if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 			throw new ValidationException(messageByLocaleService.getMessage("COD.orders.not.refunded", null));
 		}
@@ -1874,7 +1887,7 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("max.refund.amount", new Object[] { totalOrderAmount }));
 		}
 
-		if (orders.getRefunded()) {
+		if (orders.getRefunded().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.already.refunded", null));
 		} else if (!orders.getOrderStatus().equals(OrderStatusEnum.CANCELLED.getStatusValue())) {
 			throw new ValidationException(messageByLocaleService.getMessage("cancelled.orders.refunded", null));
@@ -1886,10 +1899,22 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * make an entry in wallet txn
 		 */
-		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId(), description, WalletTransactionTypeEnum.REFUND.name());
+		addWalletTxn(amount, orders.getCustomer().getId(), orders.getId(), refundAmountDto.getDescription(), WalletTransactionTypeEnum.REFUND.name());
 
 		orders.setRefunded(true);
 		ordersRepository.save(orders);
+		/**
+		 * Get the created task for the order and make entry related to who will be bearing the refunded amount.
+		 */
+		List<Task> taskList = taskService.getTaskListForOrderId(refundAmountDto.getOrderId());
+		for (Task task : taskList) {
+			if (TaskStatusEnum.CANCELLED.getStatusValue().equals(task.getStatus())) {
+				task.setAmountBorneByAdmin(refundAmountDto.getAdminContribution());
+				task.setAmountBorneByDeliveryBoy(refundAmountDto.getDeliveryBoyContribution());
+				task.setAmountBorneByVendor(refundAmountDto.getVendorContribution());
+				taskRepository.save(task);
+			}
+		}
 	}
 
 	/**

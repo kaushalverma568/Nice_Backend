@@ -366,7 +366,7 @@ public class OrdersController {
 	@PostMapping("/refund/amount")
 	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken,
 			@Valid @RequestBody final RefundAmountDto refundAmountDto, final BindingResult bindingResult) throws NotFoundException, ValidationException {
-		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", refundAmountDto.getOrderId(), refundAmountDto.getAmount());
+		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", refundAmountDto.getOrderId(), refundAmountDto.getAdminContribution());
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
@@ -376,7 +376,7 @@ public class OrdersController {
 			throw new ValidationException(messageByLocaleService.getMessage("description.max.length", null));
 
 		}
-		orderService.refundAmount(refundAmountDto.getOrderId(), refundAmountDto.getAmount(), refundAmountDto.getDescription());
+		orderService.refundAmount(refundAmountDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
 				.create();
 	}

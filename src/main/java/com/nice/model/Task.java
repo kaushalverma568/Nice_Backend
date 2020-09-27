@@ -97,4 +97,13 @@ public class Task extends CommonModel {
 
 	@Column(name = "order_delivery_type", nullable = false)
 	private String orderDeliveryType;
+
+	@Column(name = "amount_borne_by_admin", nullable = true)
+	private Double amountBorneByAdmin;
+
+	@Column(name = "amount_borne_by_delivery_boy", nullable = true)
+	private Double amountBorneByDeliveryBoy;
+
+	@Column(name = "amount_borne_by_vendor", nullable = true)
+	private Double amountBorneByVendor;
 }

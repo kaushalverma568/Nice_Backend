@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
+import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.AuthorizationException;
@@ -218,13 +219,11 @@ public interface OrdersService {
 	void retryForSearchingDeliveryBoys(Long orderId) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  orderId
-	 * @param  amount
-	 * @param  description         TODO
+	 * @param refundAmountDto TODO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void refundAmount(Long orderId, Double amount, String description) throws NotFoundException, ValidationException;
+	void refundAmount(RefundAmountDto refundAmountDto) throws NotFoundException, ValidationException;
 
 	/**
 	 * @param  orderId
