@@ -53,10 +53,13 @@ import com.nice.util.FCMRestHelper;
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
 
+	/**
+	 * 
+	 */
+	private static final String BODY = "body";
 	private static final String PUSH_NOTIFICATION_RESULT = "push notification result {}";
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendPushNotificationComponent.class);
 	private static final String TITLE = "title";
-	private static final String MESSAGE = "message";
 	private static final String ORDER_ID = "orderId";
 	private static final String IMAGE = "image";
 	private static final String DELIVERY_BOY_KEY = "AAAA3whS1Sc:APA91bHgG8IwQ1Vxvt4K-bot5pgT0NH68cXIpIbt8NtTBmCNFo4V2iO0kImfw-Q0OWuUNm0dmQhBOZcDNj0QQ-BY3qgB9B2q1oCFMt4sIgB4s__qDUBZc15LGV_E65zccWPCMAAv6vHW";
@@ -163,7 +166,7 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			CompanyResponseDTO company = companyService.getCompany(true);
-			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			dataObject.addProperty(ORDER_ID, task.getOrder().getId());
@@ -214,7 +217,7 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			CompanyResponseDTO company = companyService.getCompany(true);
-			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
@@ -279,7 +282,7 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			CompanyResponseDTO company = companyService.getCompany(true);
-			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
@@ -331,7 +334,7 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			CompanyResponseDTO company = companyService.getCompany(true);
-			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
@@ -382,7 +385,7 @@ public class SendPushNotificationComponent {
 				message = message.append(pushNotification.getMessageArabic());
 			}
 			CompanyResponseDTO company = companyService.getCompany(true);
-			notificationObject.addProperty("body", message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			notificationObject.addProperty("icon", company.getCompanyImage());
 			notificationObject.addProperty(IMAGE, company.getCompanyImage());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
@@ -415,7 +418,7 @@ public class SendPushNotificationComponent {
 				} else {
 					message = message.append(pushNotification.getMessageArabic());
 				}
-				notificationObject.addProperty(MESSAGE, message.toString());
+				notificationObject.addProperty(BODY, message.toString());
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
@@ -506,7 +509,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
@@ -542,7 +545,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
@@ -578,7 +581,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
@@ -614,7 +617,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
@@ -650,7 +653,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
@@ -686,7 +689,7 @@ public class SendPushNotificationComponent {
 			} else {
 				message = message.append(pushNotification.getMessageArabic());
 			}
-			notificationObject.addProperty(MESSAGE, message.toString());
+			notificationObject.addProperty(BODY, message.toString());
 			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
