@@ -77,8 +77,15 @@ public class PaymentController {
 			/**
 			 * send push notification
 			 */
-			ordersService.sendPushNotificationForNewOrderToVendor(orderId);
-			ordersService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
+			if (orderId != 0) {
+				ordersService.sendPushNotificationForNewOrderToVendor(orderId);
+				ordersService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
+			} else {
+				/**
+				 * If the payment failure push notificaiton is to be sent in future
+				 */
+				msg = messageByLocaleService.getMessage("payment.error", null);
+			}
 			// TODO send email
 		} catch (NotFoundException | ValidationException e) {
 			orderId = 0l;

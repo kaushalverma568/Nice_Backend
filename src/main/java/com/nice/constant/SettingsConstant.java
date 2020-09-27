@@ -20,8 +20,6 @@ public final class SettingsConstant {
 	private static String sendEmail = "false";
 	private static String smsApiKey = "default";
 	private static Double orderDeliveryCharge = 0.0d;
-	private static Double deliveryChargeDeliveryBoyBelowMinOrders = 0.0d;
-	private static Double deliveryChargeDeliveryBoyAboveMinOrders = 0.0d;
 	/**
 	 * This contains the minimum orders to be delivered per day to be eligible for increased delivery charge
 	 */
@@ -42,15 +40,11 @@ public final class SettingsConstant {
 			sendEmail = value;
 		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
 			smsApiKey = value;
-		} else if ("ORDER_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
+		} else if (Constant.ORDER_DELIVERY_CHARGE.equalsIgnoreCase(key)) {
 			orderDeliveryCharge = Double.valueOf(String.valueOf(value));
-		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS".equalsIgnoreCase(key)) {
-			deliveryChargeDeliveryBoyBelowMinOrders = Double.valueOf(String.valueOf(value));
-		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
-			deliveryChargeDeliveryBoyAboveMinOrders = Double.valueOf(String.valueOf(value));
 		} else if (Constant.DAY_MIN_ORDER_DELIVERED.equalsIgnoreCase(key)) {
 			dayMinOrderDelivered = Double.valueOf(String.valueOf(value));
-		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
+		} else if (Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY.equalsIgnoreCase(key)) {
 			orderAmountForFreeDelivery = Double.valueOf(String.valueOf(value));
 		} else if (Constant.ADMIN_COMISSION.equalsIgnoreCase(key)) {
 			adminComission = Double.valueOf(String.valueOf(value));
@@ -68,15 +62,11 @@ public final class SettingsConstant {
 			return sendEmail;
 		} else if ("SMS_API_KEY".equalsIgnoreCase(key)) {
 			return smsApiKey;
-		} else if ("ORDER_DELIVERY_CHARGE".equalsIgnoreCase(key)) {
+		} else if (Constant.ORDER_DELIVERY_CHARGE.equalsIgnoreCase(key)) {
 			return orderDeliveryCharge;
-		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_BELOW_MIN_ORDERS".equalsIgnoreCase(key)) {
-			return deliveryChargeDeliveryBoyBelowMinOrders;
-		} else if ("DELIVERY_CHARGE_DELIVERY_BOY_ABOVE_MIN_ORDERS".equalsIgnoreCase(key)) {
-			return deliveryChargeDeliveryBoyAboveMinOrders;
 		} else if (Constant.DAY_MIN_ORDER_DELIVERED.equalsIgnoreCase(key)) {
 			return dayMinOrderDelivered;
-		} else if ("ORDER_AMOUNT_FOR_FREE_DELIVERY".equalsIgnoreCase(key)) {
+		} else if (Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY.equalsIgnoreCase(key)) {
 			return orderAmountForFreeDelivery;
 		} else if (Constant.ADMIN_COMISSION.equalsIgnoreCase(key)) {
 			return adminComission;
