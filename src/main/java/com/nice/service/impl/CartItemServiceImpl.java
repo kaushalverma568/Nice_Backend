@@ -53,7 +53,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("cartItemService")
@@ -141,9 +141,10 @@ public class CartItemServiceImpl implements CartItemService {
 				List<Long> existingProductAddonsList = cartAddonsList.isEmpty() ? null
 						: cartAddonsList.stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
 				boolean allAddonsSame = false;
-				if ((existingProductAddonsList == null && cartItemDTO.getProductAddonsId() == null) || (cartItemDTO.getProductAddonsId() != null
-						&& existingProductAddonsList != null && existingProductAddonsList.size() == cartItemDTO.getProductAddonsId().size()
-						&& existingProductAddonsList.containsAll(cartItemDTO.getProductAddonsId()))) {
+				if ((existingProductAddonsList == null && (cartItemDTO.getProductAddonsId() == null || cartItemDTO.getProductAddonsId().isEmpty()))
+						|| (cartItemDTO.getProductAddonsId() != null && existingProductAddonsList != null
+								&& existingProductAddonsList.size() == cartItemDTO.getProductAddonsId().size()
+								&& existingProductAddonsList.containsAll(cartItemDTO.getProductAddonsId()))) {
 					LOGGER.info("All addons for cartItem :{} same", cartItem.getId());
 					allAddonsSame = true;
 				}
@@ -156,9 +157,10 @@ public class CartItemServiceImpl implements CartItemService {
 				List<Long> existingProductToppingsList = cartToppingsList.isEmpty() ? null
 						: cartToppingsList.stream().map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
-				if ((existingProductToppingsList == null && cartItemDTO.getProductToppingsIds() == null) || (cartItemDTO.getProductToppingsIds() != null
-						&& existingProductToppingsList != null && existingProductToppingsList.size() == cartItemDTO.getProductToppingsIds().size()
-						&& existingProductToppingsList.containsAll(cartItemDTO.getProductToppingsIds()))) {
+				if ((existingProductToppingsList == null && (cartItemDTO.getProductToppingsIds() == null || cartItemDTO.getProductToppingsIds().isEmpty()))
+						|| (cartItemDTO.getProductToppingsIds() != null && existingProductToppingsList != null
+								&& existingProductToppingsList.size() == cartItemDTO.getProductToppingsIds().size()
+								&& existingProductToppingsList.containsAll(cartItemDTO.getProductToppingsIds()))) {
 					LOGGER.info("All toppings for cartItem :{} same", cartItem.getId());
 					allToppingsSame = true;
 				}
@@ -172,7 +174,8 @@ public class CartItemServiceImpl implements CartItemService {
 				List<Long> existingProductAttributeValueDtoList = productAttributeValueDtoList.isEmpty() ? null
 						: productAttributeValueDtoList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
 				boolean allProductAttributeValuesSame = false;
-				if ((existingProductAttributeValueDtoList == null && cartItemDTO.getAttributeValueIds() == null)
+				if ((existingProductAttributeValueDtoList == null
+						&& (cartItemDTO.getAttributeValueIds() == null || cartItemDTO.getAttributeValueIds().isEmpty()))
 						|| (cartItemDTO.getAttributeValueIds() != null && existingProductAttributeValueDtoList != null
 								&& existingProductAttributeValueDtoList.size() == cartItemDTO.getAttributeValueIds().size()
 								&& existingProductAttributeValueDtoList.containsAll(cartItemDTO.getAttributeValueIds()))) {
@@ -188,9 +191,10 @@ public class CartItemServiceImpl implements CartItemService {
 				List<Long> existingProductExtrasList = cartExtrasList.isEmpty() ? null
 						: cartExtrasList.stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
 				boolean allExtrasSame = false;
-				if ((existingProductExtrasList == null && cartItemDTO.getProductExtrasId() == null) || (cartItemDTO.getProductExtrasId() != null
-						&& existingProductExtrasList != null && existingProductExtrasList.size() == cartItemDTO.getProductExtrasId().size()
-						&& existingProductExtrasList.containsAll(cartItemDTO.getProductExtrasId()))) {
+				if ((existingProductExtrasList == null && (cartItemDTO.getProductExtrasId() == null || cartItemDTO.getProductExtrasId().isEmpty()))
+						|| (cartItemDTO.getProductExtrasId() != null && existingProductExtrasList != null
+								&& existingProductExtrasList.size() == cartItemDTO.getProductExtrasId().size()
+								&& existingProductExtrasList.containsAll(cartItemDTO.getProductExtrasId()))) {
 					LOGGER.info("All Extras for cartItem :{} same", cartItem.getId());
 					allExtrasSame = true;
 				}
@@ -235,8 +239,8 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	/**
-	 * @param  cartItemEntity
-	 * @param  cartItemDTO
+	 * @param cartItemEntity
+	 * @param cartItemDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
