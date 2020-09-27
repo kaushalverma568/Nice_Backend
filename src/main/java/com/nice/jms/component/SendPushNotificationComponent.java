@@ -48,7 +48,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Apr-2020
+ * @date : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -60,7 +60,7 @@ public class SendPushNotificationComponent {
 	private static final String ORDER_ID = "orderId";
 	private static final String IMAGE = "image";
 	private static final String DELIVERY_BOY_KEY = "AAAA3whS1Sc:APA91bHgG8IwQ1Vxvt4K-bot5pgT0NH68cXIpIbt8NtTBmCNFo4V2iO0kImfw-Q0OWuUNm0dmQhBOZcDNj0QQ-BY3qgB9B2q1oCFMt4sIgB4s__qDUBZc15LGV_E65zccWPCMAAv6vHW";
-	private static final String CUSTOMER_KEY = "";
+	private static final String CUSTOMER_KEY = "AAAAnEI3SCU:APA91bEDEXwP1bi1hwf6JN2jnMhloGQ06gU5fnsMsbTYsJUKueY8IR9wlEdq-DX9f3KJr5-yyoHLCSTwkinhJm3z1PTFzrfQiyrDdS-qw-CsVIx9I9pg-3NvLZfsxs0u8dlj5r6nTX5k";
 	private static final String WEB_KEY = "AAAAGiFgaEY:APA91bFMLBoCm4dH8EMKu5dZ8mogU87S0Nh_fXWIn0w1xt03rCS-Q7KDHvzLKvoUDAiBZq-nb9DLufdeFc0qpBizALDfxPwh8UbuVQLf7D3euIdAbtD3AGjPynnIiPcUBrYV5RciCZ5k";
 
 	@Autowired
@@ -179,7 +179,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -229,7 +229,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -294,7 +294,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -347,7 +347,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
