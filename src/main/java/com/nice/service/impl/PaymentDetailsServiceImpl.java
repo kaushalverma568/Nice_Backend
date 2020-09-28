@@ -17,8 +17,10 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.UserType;
 import com.nice.dto.DeliveryBoyPayoutDTO;
+import com.nice.dto.Notification;
 import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
@@ -26,6 +28,7 @@ import com.nice.dto.VendorPayoutDTO;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.PaymentDetailsMapper;
 import com.nice.model.DeliveryBoy;
@@ -76,8 +79,11 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	@Autowired
 	private ExportCSV exportCSV;
 
+	@Autowired
+	private JMSQueuerService jmsQueuerService;
+
 	@Override
-	public void addPaymentDetails(final PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException {
+	public Long addPaymentDetails(final PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException {
 		List<Task> taskList = new ArrayList<>();
 
 		for (Long taskId : paymentDetailsDTO.getTaskIds()) {
@@ -148,6 +154,7 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			}
 		}
 		taskRepository.saveAll(taskList);
+		return paymentDetails.getId();
 	}
 
 	@Override
@@ -371,5 +378,19 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		} catch (IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage(EXPORT_FILE_CREATE_ERROR, null));
 		}
+	}
+
+	@Override
+	public void sendEmailAfterPayout(final String entityType, final Long paymentDetailsId) throws NotFoundException {
+		PaymentDetails paymentDetails = getPaymentDetailsDetail(paymentDetailsId);
+		Notification notification = new Notification();
+		if (UserType.DELIVERY_BOY.name().equals(entityType)) {
+			notification.setDeliveryBoyId(paymentDetails.getDeliveryBoy().getId());
+		} else {
+			notification.setVendorId(paymentDetails.getVendor().getId());
+		}
+		notification.setPaymentDetailsId(paymentDetails.getId());
+		notification.setType(NotificationQueueConstants.PAYOUT);
+		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 	}
 }

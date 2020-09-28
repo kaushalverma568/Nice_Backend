@@ -34,7 +34,7 @@ public interface PaymentDetailsService {
 	 * @throws NotFoundException
 	 */
 
-	void addPaymentDetails(PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException;
+	Long addPaymentDetails(PaymentDetailsDTO paymentDetailsDTO) throws NotFoundException, ValidationException;
 
 	/**
 	 * get DTO object of paymentDetails
@@ -165,4 +165,13 @@ public interface PaymentDetailsService {
 	 * @throws FileOperationException
 	 */
 	void exportDeliveryBoyPayout(Long deliveryBoyId, Date registeredOn, HttpServletResponse httpServletResponse) throws FileOperationException;
+
+	/**
+	 * Send Email to delivery boy/vendor after payout
+	 *
+	 * @param  entityType
+	 * @param  paymentDetailsId
+	 * @throws NotFoundException
+	 */
+	void sendEmailAfterPayout(String entityType, Long paymentDetailsId) throws NotFoundException;
 }

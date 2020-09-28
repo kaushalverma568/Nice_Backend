@@ -105,8 +105,12 @@ public class PaymentDetailsController {
 			LOGGER.error("PaymentDetails validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		paymentDetailsService.addPaymentDetails(paymentDetailsDTO);
+		Long paymentDetailsId = paymentDetailsService.addPaymentDetails(paymentDetailsDTO);
 		LOGGER.info("Outside add PaymentDetails ");
+		/**
+		 * send email to delivery boy or vendor after payout
+		 */
+		paymentDetailsService.sendEmailAfterPayout(paymentDetailsDTO.getEntityType(), paymentDetailsId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("payment.details.create.message", null)).create();
 	}

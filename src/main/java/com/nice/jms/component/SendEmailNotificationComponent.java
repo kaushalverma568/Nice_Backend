@@ -5,6 +5,7 @@ package com.nice.jms.component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,11 +32,15 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Customer;
+import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
+import com.nice.model.PaymentDetails;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
+import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
+import com.nice.service.PaymentDetailsService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.EmailTemplatesEnum;
@@ -45,7 +50,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -98,13 +103,19 @@ public class SendEmailNotificationComponent {
 	private VendorService vendorService;
 
 	@Autowired
+	private DeliveryBoyService deliveryBoyService;
+
+	@Autowired
+	private PaymentDetailsService paymentDetailsService;
+
+	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
 	@Autowired
 	private OrdersService ordersService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -134,6 +145,40 @@ public class SendEmailNotificationComponent {
 			sendEmailForReplaceOrderToCustomer(emailNotification);
 		} else if (NotificationQueueConstants.PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
 			sendEmailForPlaceOrderToCustomer(emailNotification);
+		} else if (NotificationQueueConstants.PAYOUT.equals(emailNotification.getType())) {
+			sendEmailAfterPayout(emailNotification);
+		}
+	}
+
+	private void sendEmailAfterPayout(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		LOGGER.info("send payout email");
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		if (emailNotification.getVendorId() != null || emailNotification.getDeliveryBoyId() != null) {
+			CompanyResponseDTO company = companyService.getCompany(true);
+			emailParameterMap.put(LOGO, company.getCompanyImage());
+			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+			String emailAddress = null;
+			PaymentDetails paymentDetails = paymentDetailsService.getPaymentDetailsDetail(emailNotification.getPaymentDetailsId());
+			emailParameterMap.put("amount", paymentDetails.getPaymentAmount().toString());
+			emailParameterMap.put("transactionNo", paymentDetails.getTransactionNo());
+			emailParameterMap.put("paidOn", paymentDetails.getPaidOn().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString());
+			if (emailNotification.getVendorId() != null) {
+				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
+				emailParameterMap.put("vendorName",
+						vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
+								: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
+				emailAddress = vendor.getEmail();
+			} else {
+				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
+				emailAddress = deliveryBoy.getEmail();
+			}
+			String payoutSubject = "Payout Summary";
+			emailUtil.sendEmail(payoutSubject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
 		}
 	}
 
@@ -141,7 +186,7 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		if (emailNotification.getCustomerId() != null) {
-			LOGGER.info("send email");
+			LOGGER.info("send customer registration email");
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));

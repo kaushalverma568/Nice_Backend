@@ -37,6 +37,7 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.TaskMapper;
 import com.nice.model.Task;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.DeliveryBoyService;
 import com.nice.service.TaskService;
 import com.nice.util.PaginationUtil;
 import com.nice.validator.TaskValidator;
@@ -59,6 +60,9 @@ public class TaskController {
 
 	@Autowired
 	private TaskService taskService;
+
+	@Autowired
+	private DeliveryBoyService deliveryBoyService;
 
 	@Autowired
 	private TaskValidator taskValidator;
@@ -99,7 +103,9 @@ public class TaskController {
 		 * send push notification to vendor about order delivery
 		 */
 		taskService.sendOrderDeliveryPushNotification(taskId);
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -116,7 +122,8 @@ public class TaskController {
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
 		taskService.updateStatusToPickOnWay(taskId, TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -133,7 +140,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at restaurant method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_VENDOR.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -151,7 +159,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to reach at customer method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.REACHED_CUSTOMER.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -168,7 +177,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to one the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.ON_THE_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -185,7 +195,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to return on the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.RETURN_ON_THE_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -202,7 +213,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to repalce customer pickup method for task Id: {}", taskId);
 		taskService.updateStatusToPickOnWay(taskId, TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
@@ -219,7 +231,8 @@ public class TaskController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to repalce delivery on the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
+				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
 
 	/**

@@ -23,7 +23,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component
 public class JMSDequeuer {
@@ -50,7 +50,7 @@ public class JMSDequeuer {
 	}
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws IOException
 	 * @throws GeneralSecurityException
 	 * @throws MessagingException
@@ -68,7 +68,7 @@ public class JMSDequeuer {
 	/**
 	 * receive all push notifications
 	 *
-	 * @param pushNotification
+	 * @param  pushNotification
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws IOException
@@ -76,6 +76,20 @@ public class JMSDequeuer {
 	@JmsListener(destination = NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE)
 	@JsonDeserialize(as = PushNotificationDTO.class)
 	public void receiveAllPushNotifications(@Payload final PushNotificationDTO pushNotification) throws NotFoundException, ValidationException, IOException {
+		sendPushNotifictionComponent.addPushNotification(pushNotification);
+	}
+
+	/**
+	 * receive accept order notifications
+	 *
+	 * @param  pushNotification
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws IOException
+	 */
+	@JmsListener(destination = NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE)
+	@JsonDeserialize(as = PushNotificationDTO.class)
+	public void acceptOrderNotifications(@Payload final PushNotificationDTO pushNotification) throws NotFoundException, ValidationException, IOException {
 		sendPushNotifictionComponent.addPushNotification(pushNotification);
 	}
 }

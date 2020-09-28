@@ -297,8 +297,8 @@ public class DeliveryBoyController {
 			@PathVariable("taskType") final String taskType) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order where order id {} and task type {}", orderId, taskType);
 		deliveryBoyService.acceptOrder(orderId, taskType);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("accept.order.success", null))
-				.create();
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(deliveryBoyService.getDashBoard())
+				.setMessage(messageByLocaleService.getMessage("accept.order.success", null)).create();
 	}
 
 	/**

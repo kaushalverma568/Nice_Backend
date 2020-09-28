@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Data
 public class Notification implements Serializable {
@@ -32,6 +32,10 @@ public class Notification implements Serializable {
 	private String email;
 
 	private Long vendorId;
+
+	private Long deliveryBoyId;
+
+	private Long paymentDetailsId;
 
 	private String sendingType;
 
