@@ -45,6 +45,12 @@ public interface DeliveryBoyLocationRepository extends JpaRepository<DeliveryBoy
 	 * @param  deliveryBoy
 	 * @return
 	 */
+	Optional<DeliveryBoyLocation> findByDeliveryBoy(DeliveryBoy deliveryBoy);
+
+	/**
+	 * @param  deliveryBoy
+	 * @return
+	 */
 	List<DeliveryBoyLocation> findAllByDeliveryBoyOrderByUpdatedAtDesc(DeliveryBoy deliveryBoy);
 
 }

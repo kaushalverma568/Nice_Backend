@@ -28,7 +28,7 @@ public interface DeliveryBoyLocationService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void addDeliveryBoyLocation(DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException;
+	void addUpdateDeliveryBoyLocation(DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * update delivery boy location

@@ -75,7 +75,7 @@ public class DeliveryBoyLocationController {
 			LOGGER.error("delivery boy location validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		deliveryBoyLocationService.addDeliveryBoyLocation(deliveryBoyLocationDTO);
+		deliveryBoyLocationService.addUpdateDeliveryBoyLocation(deliveryBoyLocationDTO);
 		LOGGER.info("Outside add deliveryBoyLocation");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("deliveryboy.location.create.message", null)).create();

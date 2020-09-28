@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,9 +24,8 @@ import com.nice.service.DeliveryBoyService;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 19, 2020
+ * @date   : Jun 19, 2020
  */
 @Service("deliveryBoyLocationService")
 @Transactional(rollbackFor = Throwable.class)
@@ -44,9 +44,14 @@ public class DeliveryBoyLocationServiceImpl implements DeliveryBoyLocationServic
 	private DeliveryBoyService deliveryBoyService;
 
 	@Override
-	public void addDeliveryBoyLocation(final DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException {
+	public void addUpdateDeliveryBoyLocation(final DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException {
+		DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyLocationDTO.getDeliveryBoyId());
 		DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationMapper.toEntity(deliveryBoyLocationDTO);
-		deliveryBoyLocation.setDeliveryBoy(deliveryBoyService.getDeliveryBoyDetail(deliveryBoyLocationDTO.getDeliveryBoyId()));
+		Optional<DeliveryBoyLocation> optDeliveryBoyLocation = deliveryBoyLocationRepository.findByDeliveryBoy(deliveryBoy);
+		if (optDeliveryBoyLocation.isPresent()) {
+			deliveryBoyLocation.setId(optDeliveryBoyLocation.get().getId());
+		}
+		deliveryBoyLocation.setDeliveryBoy(deliveryBoy);
 		deliveryBoyLocation.setActive(true);
 		deliveryBoyLocationRepository.save(deliveryBoyLocation);
 	}
