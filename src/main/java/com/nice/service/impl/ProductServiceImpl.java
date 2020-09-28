@@ -690,9 +690,7 @@ public class ProductServiceImpl implements ProductService {
 		if (Boolean.FALSE.equals(subCategoryService.getSubCategoryDetail(existingProduct.getSubcategoryId()).getActive())) {
 			throw new ValidationException(messageByLocaleService.getMessage("subcategory.activate.first", null));
 		}
-		if (Boolean.FALSE.equals(brandService.getBrandDetail(existingProduct.getBrandId()).getActive())) {
-			throw new ValidationException(messageByLocaleService.getMessage("brand.activate.first", null));
-		}
+
 		LOGGER.info("After validationForActivateProduct for Product :{}", existingProduct.getId());
 	}
 
@@ -817,8 +815,8 @@ public class ProductServiceImpl implements ProductService {
 			ProductResponseDTO responseDTO = convertEntityToResponseDto(product, false, null);
 			responseDTOs.add(responseDTO);
 		}
-		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Brand", "Image" };
-		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "brandName", "image" };
+		final Object[] productHeaderField = new Object[] { "Name", "Category", "Sub Category", "Image" };
+		final Object[] productDataField = new Object[] { "name", "categoryName", "subcategoryName", "image" };
 		try {
 			exportCSV.writeCSVFile(responseDTOs, productDataField, productHeaderField, httpServletResponse);
 		} catch (IOException e) {
@@ -836,9 +834,9 @@ public class ProductServiceImpl implements ProductService {
 			final List<ProductImportDTO> productImportDTOs = csvProcessor.convertCSVFileToListOfBean(file, ProductImportDTO.class);
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(productImportDTOs)) {
 				final List<ProductImportDTO> insertListOfBean = insertListOfProducts(productImportDTOs);
-				Object[] brandDetailsHeadersField = new Object[] { "Product Name English", "Product Name Arabic", "Result" };
-				Object[] brandDetailsField = new Object[] { "nameEnglish", "nameArabic", "uploadMessage" };
-				exportCSV.writeCSVFile(insertListOfBean, brandDetailsField, brandDetailsHeadersField, httpServletResponse);
+				Object[] productDetailsHeadersField = new Object[] { "Product Name English", "Product Name Arabic", "Result" };
+				Object[] productDetailsField = new Object[] { "nameEnglish", "nameArabic", "uploadMessage" };
+				exportCSV.writeCSVFile(insertListOfBean, productDetailsField, productDetailsHeadersField, httpServletResponse);
 			}
 		} catch (SecurityException | IOException e) {
 			throw new FileOperationException(messageByLocaleService.getMessage("import.file.error", null));
