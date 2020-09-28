@@ -43,7 +43,7 @@ import com.nice.validator.TaskValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -76,9 +76,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param token
-	 * @param userId
-	 * @param taskId
+	 * @param  token
+	 * @param  userId
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -105,8 +105,8 @@ public class TaskController {
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -115,15 +115,15 @@ public class TaskController {
 	public ResponseEntity<Object> updateStatusToPickOnWay(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws NotFoundException, ValidationException {
 		LOGGER.info("Inside update task status to pick up on way method for task Id: {}", taskId);
-		taskService.updateStatusToPickOnWay(taskId);
+		taskService.updateStatusToPickOnWay(taskId, TaskStatusEnum.PICK_UP_ON_WAY.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -157,8 +157,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -174,7 +174,7 @@ public class TaskController {
 	/**
 	 * update task status to return on the way
 	 *
-	 * @param token
+	 * @param  token
 	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
@@ -201,7 +201,7 @@ public class TaskController {
 	public ResponseEntity<Object> updateStatusToReplaceCustomerPickup(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update task status to repalce customer pickup method for task Id: {}", taskId);
-		taskService.changeTaskStatus(taskId, TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue());
+		taskService.updateStatusToPickOnWay(taskId, TaskStatusEnum.REPLACE_CUSTOMER_PICKUP_ON_THE_WAY.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null)).setStatus(HttpStatus.OK).create();
 	}
 
@@ -224,7 +224,7 @@ public class TaskController {
 
 	/**
 	 * @param  token
-	 * @param paymentDetailsId
+	 * @param  paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -242,10 +242,10 @@ public class TaskController {
 	/**
 	 * Get task list for payout based on parameters
 	 *
-	 * @param token
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param taskFilterDTO
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  taskFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -288,5 +288,5 @@ public class TaskController {
 		taskService.exportTaskListForPayout(httpServletResponse, taskFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
 				.create();
-}
+	}
 }

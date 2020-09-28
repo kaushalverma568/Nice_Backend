@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,31 +28,30 @@ public interface RatingQuestionRepository extends JpaRepository<RatingQuestion, 
 	 * @param  id
 	 * @return
 	 */
-	Optional<Order> findByQuestionEnglishIgnoreCaseAndIdNot(String questionEnglish, Long id);
+	Optional<RatingQuestion> findByQuestionEnglishIgnoreCaseAndIdNot(String questionEnglish, Long id);
 
 	/**
 	 * @param  questionEnglish
 	 * @return
 	 */
-	Optional<Order> findByQuestionEnglishIgnoreCase(String questionEnglish);
+	Optional<RatingQuestion> findByQuestionEnglishIgnoreCase(String questionEnglish);
 
 	/**
 	 * @param  questionArabic
 	 * @param  id
 	 * @return
 	 */
-	Optional<Order> findByQuestionArabicIgnoreCaseAndIdNot(String questionArabic, Long id);
+	Optional<RatingQuestion> findByQuestionArabicIgnoreCaseAndIdNot(String questionArabic, Long id);
 
 	/**
 	 * @param  questionArabic
 	 * @return
 	 */
-	Optional<Order> findByQuestionArabicIgnoreCase(String questionArabic);
+	Optional<RatingQuestion> findByQuestionArabicIgnoreCase(String questionArabic);
 
 	/***
-	 * 
-	 * @param type
-	 * @param pageable
+	 * @param  type
+	 * @param  pageable
 	 * @return
 	 */
 	Page<RatingQuestion> findAllByType(String type, Pageable pageable);

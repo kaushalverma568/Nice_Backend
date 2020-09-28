@@ -90,7 +90,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -158,8 +158,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
 		/**
-		 * Check if delivery boy already exists, if so then lets only send him email
-		 * again.
+		 * Check if delivery boy already exists, if so then lets only send him email again.
 		 */
 		Optional<DeliveryBoy> optDeliveryBoy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 		if (optDeliveryBoy.isPresent() && !optDeliveryBoy.get().getEmailVerified().booleanValue()) {
@@ -172,8 +171,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 		}
 		/**
-		 * Set delivery boy preferred language to default language when delivery boy
-		 * registers.
+		 * Set delivery boy preferred language to default language when delivery boy registers.
 		 */
 		deliveryBoy.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 
@@ -200,8 +198,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		deliveryBoyCurrentStatus.setIsBusy(false);
 		/**
-		 * it will be true when he is able to deliver order(getting notifications for
-		 * delivery)
+		 * it will be true when he is able to deliver order(getting notifications for delivery)
 		 */
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
@@ -253,8 +250,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -278,8 +275,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -403,8 +400,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isDeliveryBoyExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is deliveryBoy with same email exist or not except it's
-			 * own id
+			 * At the time of update is deliveryBoy with same email exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByEmailAndIdNot(deliveryBoyDTO.getEmail().toLowerCase(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -414,9 +410,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<DeliveryBoy> optDeliveryboy = deliveryBoyRepository.findByEmail(deliveryBoyDTO.getEmail().toLowerCase());
 			if (optDeliveryboy.isPresent()) {
 				/**
-				 * If the delivery boy is present and his email not verified, then we will be
-				 * sending the verification link for him again, if the email is verified then we
-				 * will be returning true.
+				 * If the delivery boy is present and his email not verified, then we will be sending the verification link for him
+				 * again, if the email is verified then we will be returning true.
 				 */
 
 				return optDeliveryboy.get().getEmailVerified();
@@ -429,8 +424,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param profilePicture
-	 * @param deliveryBoy
+	 * @param  profilePicture
+	 * @param  deliveryBoy
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -466,6 +461,14 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 */
 		Long deliveryBoyId = getDeliveryBoyIdFromToken();
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(deliveryBoyId));
+		if (deliveryBoyCurrentStatus.getIsAvailable().equals(isAvailable)) {
+			if (isAvailable.booleanValue()) {
+				throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.available", null));
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.unavailable", null));
+			}
+		}
 		if (Boolean.TRUE.equals(isAvailable)) {
 			/**
 			 * can not active if delivery boy location is not present
@@ -475,22 +478,26 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.location.required.active", null));
 			}
 			/**
-			 * if delivery boy's device detail is not present then can not be available for
-			 * accept order
+			 * if delivery boy's device detail is not present then can not be available for accept order
 			 */
 			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
 			if (deviceDetailList.isEmpty()) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.device.detail.required.active", null));
 			}
-		}
-		DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = getDeliveryBoyCurrentStatusDetail(getDeliveryBoyDetail(deliveryBoyId));
-		if (deliveryBoyCurrentStatus.getIsAvailable().equals(isAvailable)) {
-			if (isAvailable.booleanValue()) {
-				throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.available", null));
-			} else {
-				throw new ValidationException(messageByLocaleService.getMessage("delivery.boy.already.unavailable", null));
+		} else {
+			/**
+			 * if delivery boy has on going order which is not delivered yet then can not set is available to false
+			 */
+			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
+			taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
+			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue(), TaskStatusEnum.DELIVERED.getStatusValue(),
+					TaskStatusEnum.CANCELLED.getStatusValue()));
+			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+			if (count > 0) {
+				throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
 			}
 		}
+
 		deliveryBoyCurrentStatus.setIsAvailable(isAvailable);
 		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 		LOGGER.info("update is available for delivery boy :{} and isAvailable:{}", deliveryBoyId, isAvailable);
@@ -507,8 +514,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -549,14 +556,13 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public List<Long> getNextThreeNearestDeliveryBoysFromVendor(final Long orderId, final Long vendorId) throws NotFoundException {
 		Vendor vendor = vendorService.getVendorDetail(vendorId);
 		/**
-		 * get all delivery boys who is logged in, not busy with any orders and has not
-		 * sended notification before
+		 * get all delivery boys who is logged in, not busy with any orders and has not sended notification before
 		 */
 		List<DeliveryBoy> availableDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoys(orderId);
 		List<DeliveryBoy> busyDeliveryBoys = new ArrayList<>();
 		/**
-		 * if idle delivery boys is not available then go for a busy delivery boys who
-		 * is going for delivery of orders and at a time assigned order count is 1
+		 * if idle delivery boys is not available then go for a busy delivery boys who is going for delivery of orders and at a
+		 * time assigned order count is 1
 		 */
 		if (availableDeliveryBoys.isEmpty()) {
 			busyDeliveryBoys = deliveryBoyRepository.getAllNextAvailableDeliveryBoysOnBusyTime(orderId);
@@ -597,8 +603,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Long thirdMinDeliveryBoyId = null;
 		for (Entry<Long, Double> deliveryBoyWithDistanceEntrySet : deliveryBoyWithDistanceMap.entrySet()) {
 			/**
-			 * Check if delivery boy's distance is less than first min distance, then update
-			 * first, second and third
+			 * Check if delivery boy's distance is less than first min distance, then update first, second and third
 			 */
 			if (deliveryBoyWithDistanceEntrySet.getValue() < firstMin) {
 				thirdMin = secMin;
@@ -610,8 +615,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than sec min distance then update
-			 * second and third
+			 * Check if delivery boy's distance is less than sec min distance then update second and third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < secMin) {
 				thirdMin = secMin;
@@ -621,8 +625,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 
 			/**
-			 * Check if delivery boy's distance is less than third min distance then update
-			 * third
+			 * Check if delivery boy's distance is less than third min distance then update third
 			 */
 			else if (deliveryBoyWithDistanceEntrySet.getValue() < thirdMin) {
 				thirdMin = deliveryBoyWithDistanceEntrySet.getValue();
@@ -646,8 +649,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public synchronized void acceptOrder(final Long orderId, final String taskType) throws NotFoundException, ValidationException {
 		Long deliveryBoyId = getDeliveryBoyIdFromToken();
 		/**
-		 * check is order already accepted then throw exception else set delivery boy in
-		 * order
+		 * check is order already accepted then throw exception else set delivery boy in order
 		 */
 		Orders orders = ordersService.getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
@@ -729,8 +731,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Boolean isPhoneNumberExists(final DeliveryBoyDTO deliveryBoyDTO) {
 		if (deliveryBoyDTO.getId() != null) {
 			/**
-			 * At the time of update is delivery boy with same phone number exist or not
-			 * except it's own id
+			 * At the time of update is delivery boy with same phone number exist or not except it's own id
 			 */
 			return deliveryBoyRepository.findByPhoneNumberIgnoreCaseAndIdNot(deliveryBoyDTO.getPhoneNumber(), deliveryBoyDTO.getId()).isPresent();
 		} else {
@@ -825,7 +826,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 * for on going order
 		 */
 		taskFilterDTO.setStatusList(null);
-		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue(), TaskStatusEnum.DELIVERED.getStatusValue(),
+				TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveredDate(null);
 		List<Task> taskList = taskService.getTaskListBasedOnParams(taskFilterDTO, null, null);
 		if (taskList.size() > 1) {
@@ -899,19 +901,19 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			 */
 			final TaskStatusEnum taskOldStatus = TaskStatusEnum.valueOf(TaskStatusEnum.getByValue(task.getStatus()).name());
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
-				if (taskOldStatus.nextStatusForMobile() != null) {
+				if (taskOldStatus.nextStatusForMobile() != null && taskOldStatus.nextStatusForMobile().length > 0) {
 					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextStatusForMobile());
 					ordersDetailDTOForDeliveryBoy
 							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));
 				}
 			} else if (TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
-				if (taskOldStatus.nextReturnOrderTaskStatusForMobile() != null) {
+				if (taskOldStatus.nextReturnOrderTaskStatusForMobile() != null && taskOldStatus.nextReturnOrderTaskStatusForMobile().length > 0) {
 					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextReturnOrderTaskStatusForMobile());
 					ordersDetailDTOForDeliveryBoy
 							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));
 				}
 			} else {
-				if (taskOldStatus.nextReplaceOrderTaskStatusForMobile() != null) {
+				if (taskOldStatus.nextReplaceOrderTaskStatusForMobile() != null && taskOldStatus.nextReplaceOrderTaskStatusForMobile().length > 0) {
 					final List<TaskStatusEnum> taskStatusList = Arrays.asList(taskOldStatus.nextReplaceOrderTaskStatusForMobile());
 					ordersDetailDTOForDeliveryBoy
 							.setNextStatus(taskStatusList.stream().map(TaskStatusEnum::getStatusValue).collect(Collectors.toList()).get(0));

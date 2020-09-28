@@ -45,7 +45,7 @@ public class CashCollection extends CommonModel {
 	private Orders order;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "task_id", nullable = false)
+	@JoinColumn(name = "task_id", nullable = false, unique = true)
 	private Task task;
 
 	@Column(name = "amount", nullable = false)

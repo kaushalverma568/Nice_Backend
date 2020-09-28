@@ -24,12 +24,12 @@ import com.nice.model.Task;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 12-Apr-2020
+ * @date   : 12-Apr-2020
  */
 public interface TaskService {
 
 	/**
-	 * @param taskDto
+	 * @param  taskDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -37,8 +37,8 @@ public interface TaskService {
 	Task createTask(TaskDto taskDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param taskId
-	 * @param taskStatus
+	 * @param  taskId
+	 * @param  taskStatus
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -47,30 +47,29 @@ public interface TaskService {
 	/**
 	 * get orders count according to status and taskType for delivery boy
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @param  taskType
-	 * @param status
+	 * @param  status
 	 * @return
 	 */
 	Integer getOrdersCountAccordingToStatusAndTaskTypeForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType);
 
 	/**
-	 * get orders count according to status ,taskType and date for delivery boy(get
-	 * today's delivered /replaced count)
+	 * get orders count according to status ,taskType and date for delivery boy(get today's delivered /replaced count)
 	 *
-	 * @param deliveryBoy
-	 * @param status
-	 * @param taskType
-	 * @param date
+	 * @param  deliveryBoy
+	 * @param  status
+	 * @param  taskType
+	 * @param  date
 	 * @return
 	 */
 	Integer getOrdersCountAccordingToStatusAndTaskTypeAndDateForDeliveryBoy(DeliveryBoy deliveryBoy, String status, String taskType, Date date);
 
 	/**
-	 * get task list count based on parameters (for today's delivered/replaced order
-	 * list for delivery boy created at will be current date)
+	 * get task list count based on parameters (for today's delivered/replaced order list for delivery boy created at will
+	 * be current date)
 	 *
-	 * @param taskFilterDTO
+	 * @param  taskFilterDTO
 	 * @return
 	 */
 	Long getTaskCountBasedOnParams(TaskFilterDTO taskFilterDTO);
@@ -78,9 +77,9 @@ public interface TaskService {
 	/**
 	 * get task list based on parameters
 	 *
-	 * @param taskFilterDTO
-	 * @param startIndex
-	 * @param pageSize
+	 * @param  taskFilterDTO
+	 * @param  startIndex
+	 * @param  pageSize
 	 * @return
 	 */
 	List<Task> getTaskListBasedOnParams(TaskFilterDTO taskFilterDTO, Integer startIndex, Integer pageSize);
@@ -91,8 +90,8 @@ public interface TaskService {
 	List<Task> getTaskListForOrderId(Long orderId);
 
 	/**
-	 * @param orderId
-	 * @param name
+	 * @param  orderId
+	 * @param  name
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -101,7 +100,7 @@ public interface TaskService {
 	/**
 	 * send email for order delivery confirmation
 	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @throws NotFoundException
 	 */
 	void sendEmailForOrderDeliveryConfirmation(Long orderId) throws NotFoundException;
@@ -109,8 +108,8 @@ public interface TaskService {
 	/**
 	 * send sms to customer when delivery attempted by delivery boy
 	 *
-	 * @param id
-	 * @param taskId
+	 * @param  id
+	 * @param  taskId
 	 * @throws NotFoundException
 	 */
 	void sendSmsWhenDeliveryBoyAttemptDelivery(Long orderId, Long taskId) throws NotFoundException;
@@ -118,25 +117,25 @@ public interface TaskService {
 	/**
 	 * get delivery/replacement order list for delivery boy for date
 	 *
-	 * @param deliveryBoy
-	 * @param taskType
-	 * @param date
-	 * @param status
-	 * @param status1
+	 * @param  deliveryBoy
+	 * @param  taskType
+	 * @param  date
+	 * @param  status
+	 * @param  status1
 	 * @return
 	 */
 	List<Task> getOrderListForDeliveryBoyBasedOnTaskTypeAndDate(DeliveryBoy deliveryBoy, String taskType, Date date, List<String> status);
 
 	/**
-	 * @param taskId
+	 * @param  taskId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	TaskResponseDto getTaskDetails(Long taskId) throws NotFoundException;
 
 	/**
-	 * @param taskIds
-	 * @param paymentId
+	 * @param  taskIds
+	 * @param  paymentId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -145,8 +144,8 @@ public interface TaskService {
 	/**
 	 * Get the orders linked to payout Id based on user type
 	 *
-	 * @param paymentId
-	 * @param userType
+	 * @param  paymentId
+	 * @param  userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -154,32 +153,34 @@ public interface TaskService {
 	List<TaskResponseDto> getTaskListFromPayment(Long paymentId, String userType) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param taskId
+	 * @param  taskId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Task getTaskDetail(Long taskId) throws NotFoundException;
 
 	/**
-	 * update task status to pick up on way
+	 * update task status to pick up on way(for delivery and return order status will be pick up on way and for replacement,
+	 * status will be replace customer pick up on way)
 	 *
-	 * @param taskId
+	 * @param  taskId
+	 * @param  status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void updateStatusToPickOnWay(Long taskId) throws NotFoundException, ValidationException;
+	void updateStatusToPickOnWay(Long taskId, String status) throws NotFoundException, ValidationException;
 
 	/**
 	 * update task status to delivered
 	 *
-	 * @param taskId
+	 * @param  taskId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void completeTask(Long taskId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param deliveryBoyId
+	 * @param  deliveryBoyId
 	 * @return
 	 */
 	DeliveryBoyOrderCountDto getTaskTypeWiseCountForPaymentDetailsId(Long deliveryBoyId);
@@ -187,9 +188,9 @@ public interface TaskService {
 	/**
 	 * get task list for delivery log
 	 *
-	 * @param deliveryLogFilterDTO
-	 * @param startIndex
-	 * @param pageSize
+	 * @param  deliveryLogFilterDTO
+	 * @param  startIndex
+	 * @param  pageSize
 	 * @return
 	 */
 	List<DeliveryLogDTO> getTaskListForDeliveryLog(DeliveryLogFilterDTO deliveryLogFilterDTO, Integer startIndex, Integer pageSize);
@@ -197,7 +198,7 @@ public interface TaskService {
 	/**
 	 * get task count for delivery log
 	 *
-	 * @param deliveryLogFilterDTO
+	 * @param  deliveryLogFilterDTO
 	 * @return
 	 */
 	Long getTaskCountForDeliveryLog(DeliveryLogFilterDTO deliveryLogFilterDTO);
@@ -205,8 +206,8 @@ public interface TaskService {
 	/**
 	 * export delivery log based on params
 	 *
-	 * @param deliveryLogFilterDTO
-	 * @param httpServletResponse
+	 * @param  deliveryLogFilterDTO
+	 * @param  httpServletResponse
 	 * @throws FileNotFoundException
 	 * @throws ValidationException
 	 */
@@ -226,7 +227,7 @@ public interface TaskService {
 	/**
 	 * send push notification to vendor for order delivery
 	 *
-	 * @param taskId
+	 * @param  taskId
 	 * @throws NotFoundException
 	 */
 	void sendOrderDeliveryPushNotification(Long taskId) throws NotFoundException;

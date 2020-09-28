@@ -19,7 +19,6 @@ import com.nice.model.Orders;
 import com.nice.model.Task;
 import com.nice.repository.CashCollectionRepository;
 import com.nice.service.CashcollectionService;
-import com.nice.service.DeliveryBoyService;
 import com.nice.service.TaskService;
 
 /**
@@ -37,9 +36,6 @@ public class CashCollectionServiceImpl implements CashcollectionService {
 	private CashCollectionMapper cashCollectionMapper;
 
 	@Autowired
-	private DeliveryBoyService deliveryBoyService;
-
-	@Autowired
 	private TaskService taskService;
 
 	@Autowired
@@ -51,6 +47,9 @@ public class CashCollectionServiceImpl implements CashcollectionService {
 		Task task = taskService.getTaskDetail(cashCollectionDTO.getTaskId());
 		if (task.getDeliveryBoy() == null || !task.getDeliveryBoy().getId().equals(cashCollectionDTO.getDeliveryboyId())) {
 			throw new ValidationException(messageByLocaleService.getMessage("can.not.collect.cash.order", null));
+		}
+		if (cashCollectionRepository.findByTask(task).isPresent()) {
+			throw new ValidationException(messageByLocaleService.getMessage("cash.already.collect", null));
 		}
 		cashCollection.setDeliveryBoy(task.getDeliveryBoy());
 		Orders order = task.getOrder();

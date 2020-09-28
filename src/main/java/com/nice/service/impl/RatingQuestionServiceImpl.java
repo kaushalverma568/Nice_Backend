@@ -76,13 +76,13 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String type) throws ValidationException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (type != null) {
-            if ( DeliveryType.PICKUP.getStatusValue().equals(type) ) {
-				return ratingQuestionRepository.findAllByType("Vendor", pageable);	
-            } else if (DeliveryType.DELIVERY.getStatusValue().equals(type) || DeliveryType.BOTH.getStatusValue().equals(type)) {
-            	return ratingQuestionRepository.findAll(pageable);
-            } else {
-            	throw new ValidationException(messageByLocaleService.getMessage("delivery.type.not.valid", null));
-            }
+			if (DeliveryType.PICKUP.getStatusValue().equals(type)) {
+				return ratingQuestionRepository.findAllByType("Vendor", pageable);
+			} else if (DeliveryType.DELIVERY.getStatusValue().equals(type) || DeliveryType.BOTH.getStatusValue().equals(type)) {
+				return ratingQuestionRepository.findAll(pageable);
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage("delivery.type.not.valid", null));
+			}
 		} else {
 			return ratingQuestionRepository.findAll(pageable);
 		}
@@ -91,22 +91,21 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 	@Override
 	public boolean isExistsEnglish(final RatingQuestionDTO ratingQuestionDTO) {
 		if (ratingQuestionDTO.getId() != null) {
-			return !(ratingQuestionRepository.findByQuestionEnglishIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionEnglish(), ratingQuestionDTO.getId())
-					.isPresent());
+			return ratingQuestionRepository.findByQuestionEnglishIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionEnglish(), ratingQuestionDTO.getId())
+					.isPresent();
 
 		} else {
-			return !(ratingQuestionRepository.findByQuestionEnglishIgnoreCase(ratingQuestionDTO.getQuestionEnglish()).isPresent());
+			return ratingQuestionRepository.findByQuestionEnglishIgnoreCase(ratingQuestionDTO.getQuestionEnglish()).isPresent();
 		}
 	}
 
 	@Override
 	public boolean isExistsArabic(final RatingQuestionDTO ratingQuestionDTO) {
 		if (ratingQuestionDTO.getId() != null) {
-			return !(ratingQuestionRepository.findByQuestionArabicIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionArabic(), ratingQuestionDTO.getId())
-					.isPresent());
-
+			return ratingQuestionRepository.findByQuestionArabicIgnoreCaseAndIdNot(ratingQuestionDTO.getQuestionArabic(), ratingQuestionDTO.getId())
+					.isPresent();
 		} else {
-			return !(ratingQuestionRepository.findByQuestionArabicIgnoreCase(ratingQuestionDTO.getQuestionArabic()).isPresent());
+			return ratingQuestionRepository.findByQuestionArabicIgnoreCase(ratingQuestionDTO.getQuestionArabic()).isPresent();
 		}
 	}
 
