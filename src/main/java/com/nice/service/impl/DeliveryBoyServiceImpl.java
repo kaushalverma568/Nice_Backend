@@ -591,8 +591,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLatestLocation(deliveryBoy.getId());
 			Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
 					deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue());
-
-			deliveryBoyWithDistanceMap.put(deliveryBoy.getId(), distance);
+			/**
+			 * if delivery boy's distance is less then max distance from vendor then only consider him
+			 */
+			if (distance <= Constant.MAX_DISTANCE_FROM_VENDOR) {
+				deliveryBoyWithDistanceMap.put(deliveryBoy.getId(), distance);
+			}
 		}
 
 		Double firstMin = Double.MAX_VALUE;

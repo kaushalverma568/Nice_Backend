@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -49,6 +49,12 @@ public final class Constant {
 	 * maximum distance of vendor from customer to fetch in customer app (in km)
 	 */
 	public static final Double MAX_DISTANCE_FROM_CUSTOMER = 20d;
+
+	/**
+	 * maximum distance of delivery boy from vendor for considering in sending order accept notification (in km)
+	 */
+	public static final Double MAX_DISTANCE_FROM_VENDOR = 20d;
+
 	/**
 	 * maximum assignment try count for sending notification to delivery boy
 	 */
