@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -37,8 +35,6 @@ import com.nice.util.CommonUtility;
 @Component
 public class AcceptingOrderNotificationScheduler {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AcceptingOrderNotificationScheduler.class);
-
 	@Autowired
 	private DeliveryBoyService deliveryBoyService;
 
@@ -59,7 +55,6 @@ public class AcceptingOrderNotificationScheduler {
 
 	@Scheduled(fixedRate = 10000)
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
-		LOGGER.info("Inside Accept Order Notification Scheduler");
 		/**
 		 * get order list which is appproved, notification not sended more then three times and next time we have to send is
 		 * less then current time
