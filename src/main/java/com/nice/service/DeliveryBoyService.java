@@ -282,5 +282,17 @@ public interface DeliveryBoyService {
 	 * @throws ValidationException
 	 */
 	Long getDeliveryBoyIdFromToken() throws ValidationException;
+	
+	/**
+	 * get on field Delivery boys
+	 * 
+	 */
+	Long getCountOfOnFieldDeliveryBoy();
+	
+	/**
+	 *  get new registered delivery boy count
+	 * @return
+	 */
+    Long getCountOfNewDeliveryBoys();
 
 }

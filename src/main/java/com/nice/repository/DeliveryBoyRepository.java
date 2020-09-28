@@ -141,4 +141,22 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	List<DeliveryBoy> findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
 			String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4);
 
+	/**
+	 * 
+	 * @param isAvailable
+	 * @param Active
+	 * @return
+	 */
+	@Query("select count(*) from DeliveryBoy d inner join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where  dbcs.isAvailable=:isAvailable and d.active =:active ")
+	Long countByIsAvailableAndActive(boolean isAvailable, boolean active);
+
+	/**
+	 * 
+	 * @param status
+	 * @param status2
+	 * @return
+	 */
+	@Query("select count(*) from DeliveryBoy d where d.status =:status OR  d.status =:status2 ")
+	Long getCountOfNewDeliveryBoys(String status, String status2);
+
 }

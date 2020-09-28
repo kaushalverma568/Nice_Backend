@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import com.nice.dto.AddStockDto;
 import com.nice.dto.AddStockRequestDTO;
 import com.nice.dto.LotwiseStockRequestDTO;
+import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.StockDetailFilterDTO;
 import com.nice.dto.StockDetailsDTO;
 import com.nice.dto.StockTransferDto;
@@ -238,5 +239,14 @@ public interface StockDetailsService {
 	 * @throws ValidationException
 	 */
 	StockDetails getStockDetailsByProductVariantAndLotNo(Long productVariantId, Long lotNo) throws NotFoundException, ValidationException;
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 */
+	Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize);
 
 }

@@ -2030,4 +2030,11 @@ public class OrdersServiceImpl implements OrdersService {
 		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 	}
 
+	@Override
+	public Long countByStatusAndCreatedAt(String status, Date createdAt) {
+		return orderStatusRepository.countByStatusAndCreatedAt(status, createdAt);
+	}
+
+	
+	
 }

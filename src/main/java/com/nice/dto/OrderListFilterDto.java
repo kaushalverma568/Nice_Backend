@@ -24,6 +24,7 @@ public class OrderListFilterDto implements Serializable {
 	private Long vendorId;
 	private Long deliveryBoyId;
 	private List<String> orderStatus;
+	private List<String> orderStatusNotIn;
 	private Date orderDate;
 	private String searchKeyword;
 	private Long customerId;

@@ -84,5 +84,12 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, VendorCus
 	 * @return
 	 */
 	List<Vendor> findAllByActive(Boolean activeRecords);
+	
+	/**
+	 * @param active
+	 * @return
+	 */
+	long countByActive(boolean active);
+
 
 }

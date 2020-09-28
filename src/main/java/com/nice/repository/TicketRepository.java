@@ -45,4 +45,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketCus
 	 * @return
 	 */
 	Page<Ticket> findAllByEntityId(Long entityId, Pageable pageable);
+
+	/**
+	 * 
+	 * @param userType
+	 * @return
+	 */
+	Long countByUserType(String userType);
 }

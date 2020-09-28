@@ -981,5 +981,16 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 		return ordersListDTOsForDeliveryBoy;
 	}
+	
+	@Override
+	public Long getCountOfOnFieldDeliveryBoy() {
+		return deliveryBoyRepository.countByIsAvailableAndActive(true, true);
+	}
+
+	@Override
+	public Long getCountOfNewDeliveryBoys() {
+		return deliveryBoyRepository.getCountOfNewDeliveryBoys(DeliveryBoyStatus.PENDING.name(), DeliveryBoyStatus.VERIFIED.name());
+	}
+
 
 }

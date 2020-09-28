@@ -6,6 +6,8 @@ package com.nice.repository;
 import java.util.List;
 
 import com.nice.dto.OrderListFilterDto;
+import com.nice.dto.SalesReportDto;
+import com.nice.exception.ValidationException;
 import com.nice.model.Orders;
 
 /**
@@ -38,9 +40,9 @@ public interface OrderCustomRepository {
 	 * get sales report
 	 *
 	 * @param year
-	 * @param storeId
+	 * @param vendorId
 	 * @return
 	 * @throws ValidationException
 	 */
-	// SalesReportDto getSalesReport(Integer year, Long storeId, String orderType) throws ValidationException;
+	 SalesReportDto getSalesReport(Integer year, Long vendorId, String orderType) throws ValidationException;
 }

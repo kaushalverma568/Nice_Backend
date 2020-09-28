@@ -284,6 +284,14 @@ public interface OrdersService {
 	 * @param id
 	 */
 	void sendEmailNotificationForOrder(String emailNotificationType, Long id);
+	
+	/**
+	 * 
+	 * @param status
+	 * @param createdAt
+	 * @return
+	 */
+	Long countByStatusAndCreatedAt(String status, Date createdAt);
 
 	// /**
 	// * get all information for app payment

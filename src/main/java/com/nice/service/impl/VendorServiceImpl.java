@@ -1059,4 +1059,9 @@ public class VendorServiceImpl implements VendorService {
 				vendorRepository.getVendorDistanceForCustomerBasedOnParams(vendorId, vendorListFilterDTO.getLatitude(), vendorListFilterDTO.getLongitude()));
 		return vendorMapper.toDto(vendor, true);
 	}
+	
+	@Override
+	public Long getActiveVendor(final boolean active) {
+		return vendorRepository.countByActive(active);
+	}
 }

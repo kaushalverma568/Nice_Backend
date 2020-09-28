@@ -324,4 +324,11 @@ public interface VendorService {
 	 * @throws NotFoundException
 	 */
 	VendorResponseDTO getVendorDetailForApp(Long vendorId, VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
+
+	/**
+	 * 
+	 * @param active
+	 * @return
+	 */
+	Long getActiveVendor(boolean active);
 }

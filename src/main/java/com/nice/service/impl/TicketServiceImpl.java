@@ -235,4 +235,9 @@ public class TicketServiceImpl implements TicketService {
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
+	@Override
+	public Long ticketCountBasedOnType(String userType) {
+		return ticketRepository.countByUserType(userType);
+	}
+
 }

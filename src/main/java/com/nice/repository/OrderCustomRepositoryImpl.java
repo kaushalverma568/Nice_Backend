@@ -5,6 +5,7 @@ package com.nice.repository;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityGraph;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Repository;
 
 import com.nice.constant.PaymentMode;
 import com.nice.dto.OrderListFilterDto;
+import com.nice.dto.SalesReportDto;
+import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
@@ -160,6 +163,9 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderListFilterDto.getOrderStatus())) {
 			predicates.add(orders.get(ORDER_STATUS).in(orderListFilterDto.getOrderStatus()));
 		}
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderListFilterDto.getOrderStatusNotIn())) {
+			predicates.add(criteriaBuilder.not(orders.get("status").in(orderListFilterDto.getOrderStatusNotIn())));
+		}
 		if (orderListFilterDto.getOrderDate() != null) {
 			predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), orderListFilterDto.getOrderDate()));
 		}
@@ -199,4 +205,61 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public SalesReportDto getSalesReport(final Integer year, final Long vendorId, final String orderType) throws ValidationException {
+		List<Object> objectList = entityManager
+				.createNativeQuery("SELECT sum(total_order_amt),EXTRACT(MONTH FROM created_at) as months FROM orders \r\n"
+						+ "where vendor_id=? and EXTRACT(YEAR FROM created_at)=? group by months;")
+				.setParameter(1, vendorId).setParameter(2, year).getResultList();
+		List<String> months = new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"));
+		SalesReportDto salesReportDto = new SalesReportDto();
+		for (Object object : objectList) {
+			Object[] responseObj = (Object[]) object;
+			String month = responseObj[1].toString();
+			Double sales = Double.valueOf(responseObj[0].toString());
+			setSalesValue(month, sales, salesReportDto);
+			months.remove(month);
+		}
+
+		for (String month : months) {
+			setSalesValue(month, 0d, salesReportDto);
+		}
+		return salesReportDto;
+	}
+
+	/**
+	 * @param  month
+	 * @param  sales
+	 * @param  salesReportDto2
+	 * @param  salesReportDto
+	 * @return
+	 */
+	private void setSalesValue(final String month, final Double sales, final SalesReportDto salesReportDto) {
+
+		if (month.equals("1.0")) {
+			salesReportDto.setJan(sales);
+		} else if (month.equals("2.0")) {
+			salesReportDto.setFeb(sales);
+		} else if (month.equals("3.0")) {
+			salesReportDto.setMar(sales);
+		} else if (month.equals("4.0")) {
+			salesReportDto.setApr(sales);
+		} else if (month.equals("5.0")) {
+			salesReportDto.setMay(sales);
+		} else if (month.equals("6.0")) {
+			salesReportDto.setJun(sales);
+		} else if (month.equals("7.0")) {
+			salesReportDto.setJul(sales);
+		} else if (month.equals("8.0")) {
+			salesReportDto.setAug(sales);
+		} else if (month.equals("9.0")) {
+			salesReportDto.setSep(sales);
+		} else if (month.equals("10.0")) {
+			salesReportDto.setOct(sales);
+		} else if (month.equals("11.0")) {
+			salesReportDto.setNov(sales);
+		} else if (month.equals("12.0")) {
+			salesReportDto.setDec(sales);
+		}
+	}
 }
