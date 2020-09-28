@@ -73,12 +73,12 @@ public class RatingQuestionServiceImpl implements RatingQuestionService {
 	}
 
 	@Override
-	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String type) throws ValidationException {
+	public Page<RatingQuestion> getList(final Integer pageNumber, final Integer pageSize, final String deliveryType) throws ValidationException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
-		if (type != null) {
-			if (DeliveryType.PICKUP.getStatusValue().equals(type)) {
+		if (deliveryType != null) {
+			if (DeliveryType.PICKUP.getStatusValue().equals(deliveryType)) {
 				return ratingQuestionRepository.findAllByType("Vendor", pageable);
-			} else if (DeliveryType.DELIVERY.getStatusValue().equals(type) || DeliveryType.BOTH.getStatusValue().equals(type)) {
+			} else if (DeliveryType.DELIVERY.getStatusValue().equals(deliveryType) || DeliveryType.BOTH.getStatusValue().equals(deliveryType)) {
 				return ratingQuestionRepository.findAll(pageable);
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage("delivery.type.not.valid", null));
