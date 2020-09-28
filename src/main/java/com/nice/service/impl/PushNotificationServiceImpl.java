@@ -12,9 +12,8 @@ import com.nice.repository.PushNotificationRepository;
 import com.nice.service.PushNotificationService;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 24-Sep-2020
+ * @date   : 24-Sep-2020
  */
 @Service(value = "pushNotificationService")
 @Transactional(rollbackOn = Throwable.class)
@@ -32,7 +31,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 	}
 
 	@Override
-	public PushNotification getPushNotificationById(final Long id) throws NotFoundException {
+	public PushNotification getPushNotificationDetail(final Long id) throws NotFoundException {
 		return pushNotificationRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("notification.not.found", new Object[] { id })));
 	}
