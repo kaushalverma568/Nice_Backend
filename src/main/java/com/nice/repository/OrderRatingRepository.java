@@ -85,4 +85,22 @@ public interface OrderRatingRepository extends JpaRepository<OrderRating, Long> 
 	 */
 	Page<OrderRating> findAllByReviewContainingIgnoreCase(String searchKeyWord, Pageable pageable);
 
+	/**
+	 * 
+	 * @param deliveryBoyId
+	 * @param b
+	 * @param pageable
+	 * @return
+	 */
+	Page<OrderRating> findByDeliveryBoyIdAndIsRatingCalculated(Long deliveryBoyId, boolean isRatingCalculated, Pageable pageable);
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @param b
+	 * @param pageable
+	 * @return
+	 */
+	Page<OrderRating> findByVendorIdAndIsRatingCalculated(Long vendorId, boolean isRatingCalculated, Pageable pageable);
+
 }

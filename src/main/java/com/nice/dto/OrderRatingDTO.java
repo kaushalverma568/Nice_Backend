@@ -39,6 +39,8 @@ public class OrderRatingDTO implements Serializable {
 
 	private String review;
 
+	private Boolean isRatingCalculated;
+
 	@NotNull(message = "{active.not.null}")
 	private Boolean active;
 

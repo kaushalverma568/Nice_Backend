@@ -186,13 +186,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	@Override
 	public Page<OrderRating> getOrderRatingByDeliveryBoyId(final Integer pageNumber, final Integer pageSize, final Long deliveryBoyId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
-		return orderRatingRepository.findByDeliveryBoyId(deliveryBoyId, pageable);
+		return orderRatingRepository.findByDeliveryBoyIdAndIsRatingCalculated(deliveryBoyId, true, pageable);
 	}
 
 	@Override
 	public Page<OrderRating> getOrderRatingByVendorId(final Integer pageNumber, final Integer pageSize, final Long vendorId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
-		return orderRatingRepository.findByVendorId(vendorId, pageable);
+		return orderRatingRepository.findByVendorIdAndIsRatingCalculated(vendorId, true, pageable);
 	}
 
 	public List<OrderRating> getOrderRatingByCreatedAt(final Date startDate, final Date endDate) {
@@ -222,6 +222,8 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			/**
 			 * TO do enable flag to complete the calculation
 			 */
+			orderRating.setIsRatingCalculated(true);
+			orderRatingRepository.save(orderRating);
 		}
 	}
 

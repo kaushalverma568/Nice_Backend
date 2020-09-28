@@ -65,5 +65,8 @@ public class OrderRating extends CommonModel {
 
 	@Column(name = "review", nullable = false)
 	private String review;
+	
+	@Column(name = "is_rating_calculated")
+	private Boolean isRatingCalculated;
 
 }
