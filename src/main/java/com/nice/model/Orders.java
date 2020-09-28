@@ -65,15 +65,15 @@ public class Orders extends CommonModel {
 	@Column(name = "longitude", nullable = true)
 	private BigDecimal longitude;
 
-	@JoinColumn(name = "state_id", nullable = false)
+	@JoinColumn(name = "state_id", nullable = true)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	private State state;
 
-	@JoinColumn(name = "city_id", nullable = false)
+	@JoinColumn(name = "city_id", nullable = true)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	private City city;
 
-	@JoinColumn(name = "pincode_id", nullable = false)
+	@JoinColumn(name = "pincode_id", nullable = true)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	private Pincode pincode;
 
@@ -84,8 +84,7 @@ public class Orders extends CommonModel {
 	private Double totalOrderAmount;
 
 	/**
-	 * This field contains the amount of order after discount, not including
-	 * delivery charge
+	 * This field contains the amount of order after discount, not including delivery charge
 	 */
 	@Column(name = "gross_order_amount", nullable = false)
 	private Double grossOrderAmount;
@@ -99,7 +98,7 @@ public class Orders extends CommonModel {
 	@Column(name = "online_payment_token", nullable = true)
 	private String onlinePaymentToken;
 
-	@Column(name = "administrative_charge")
+	@Column(name = "administrative_charge", nullable = true)
 	private Double administrativeCharge;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
@@ -124,7 +123,7 @@ public class Orders extends CommonModel {
 	@JoinColumn(name = "return_replace_delivery_boy_id", nullable = true)
 	private DeliveryBoy replacementDeliveryBoy;
 
-	@Column(name = "phone_number", nullable = false)
+	@Column(name = "phone_number", nullable = true)
 	private String phoneNumber;
 
 	@Column(name = "discount_amount", nullable = true)

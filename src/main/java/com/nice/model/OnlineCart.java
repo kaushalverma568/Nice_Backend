@@ -48,25 +48,25 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "quantity", nullable = false)
 	private Long quantity;
 
-	@Column(name = "first_name", nullable = false)
+	@Column(name = "first_name", nullable = true)
 	private String firstName;
 
-	@Column(name = "last_name", nullable = false)
+	@Column(name = "last_name", nullable = true)
 	private String lastName;
 
-	@Column(name = "address_english", nullable = false)
+	@Column(name = "address_english", nullable = true)
 	private String addressEnglish;
 
-	@Column(name = "address_arabic", nullable = false)
+	@Column(name = "address_arabic", nullable = true)
 	private String addressArabic;
 
-	@Column(name = "state_id", nullable = false)
+	@Column(name = "state_id", nullable = true)
 	private Long stateId;
 
-	@Column(name = "city_id", nullable = false)
+	@Column(name = "city_id", nullable = true)
 	private Long cityId;
 
-	@Column(name = "pincode_id", nullable = false)
+	@Column(name = "pincode_id", nullable = true)
 	private Long pincodeId;
 
 	@Column(name = "latitude", nullable = true)

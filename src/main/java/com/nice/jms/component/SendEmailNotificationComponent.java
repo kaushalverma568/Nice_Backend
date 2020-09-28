@@ -31,9 +31,11 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Customer;
+import com.nice.model.Orders;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
+import com.nice.service.OrdersService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.EmailTemplatesEnum;
@@ -98,6 +100,9 @@ public class SendEmailNotificationComponent {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
+	@Autowired
+	private OrdersService ordersService;
+
 	/**
 	 * @param notification
 	 * @throws NotFoundException
@@ -121,6 +126,14 @@ public class SendEmailNotificationComponent {
 			subscriptionExpireReminder(emailNotification);
 		} else if (NotificationQueueConstants.VENDOR_STATUS_CHANGE.equals(emailNotification.getType())) {
 			sendEmailForChangeVendorStatus(emailNotification);
+		} else if (NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
+			sendEmailForCancelOrderToCustomer(emailNotification);
+		} else if (NotificationQueueConstants.RETURN_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
+			sendEmailForReturnOrderToCustomer(emailNotification);
+		} else if (NotificationQueueConstants.REPLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
+			sendEmailForReplaceOrderToCustomer(emailNotification);
+		} else if (NotificationQueueConstants.PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
+			sendEmailForPlaceOrderToCustomer(emailNotification);
 		}
 	}
 
@@ -171,8 +184,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -215,8 +227,7 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -272,6 +283,51 @@ public class SendEmailNotificationComponent {
 		emailParameterMap.put("message", message);
 		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name(),
 				emailNotification.getLanguage());
+	}
+
+	private void sendEmailForReturnOrderToCustomer(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
+		Customer customer = orders.getCustomer();
+		String emailLanguage = customer.getPreferredLanguage();
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = applicationName + " Return Order";
+		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.RETURN_ORDER_CUSTOMER.name(), emailLanguage);
+	}
+
+	private void sendEmailForCancelOrderToCustomer(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
+		Customer customer = orders.getCustomer();
+		String emailLanguage = customer.getPreferredLanguage();
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = applicationName + " Cancel Order";
+		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.CANCEL_ORDER_CUSTOMER.name(), emailLanguage);
+	}
+
+	private void sendEmailForReplaceOrderToCustomer(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
+		Customer customer = orders.getCustomer();
+		String emailLanguage = customer.getPreferredLanguage();
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = applicationName + " Replace Order";
+		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.REPLACE_ORDER_CUSTOMER.name(), emailLanguage);
+	}
+
+	private void sendEmailForPlaceOrderToCustomer(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
+		Customer customer = orders.getCustomer();
+		String emailLanguage = customer.getPreferredLanguage();
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = applicationName + " Place Order";
+		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailParameterMap.put("orderAmount", orders.getTotalOrderAmount().toString());
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.PLACE_ORDER_CUSTOMER.name(), emailLanguage);
 	}
 
 }

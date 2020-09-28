@@ -24,7 +24,7 @@ public class OrderRequestDTO implements Serializable {
 
 	private Long customerId;
 
-	@NotNull(message = "{shipping.id.required}")
+	// @NotNull(message = "{shipping.id.required}")
 	private Long shippingAddressId;
 
 	@NotNull(message = "{total.amount.required}")

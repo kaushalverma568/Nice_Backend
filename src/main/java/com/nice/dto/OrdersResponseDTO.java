@@ -67,6 +67,8 @@ public class OrdersResponseDTO implements Serializable {
 
 	private String deliveryBoyPhoneNumber;
 
+	private String replacementDeliveryBoyPhoneNumber;
+
 	private String cancelReturnReplaceDescription;
 	/**
 	 * city field is added for set city in email templates

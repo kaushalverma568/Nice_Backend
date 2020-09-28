@@ -131,4 +131,15 @@ public final class NotificationMessageConstantsArabic {
 		message.append("عناصر الطلب الخاص بك لرقم الطلب ").append(orderId).append(" تم إرجاعه بنجاح.");
 		return message.toString();
 	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	public static String getRejectedOrderMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("آسف! طلبك ").append(orderId).append("  من قبل البائع. إذا كنت قد دفعت مقابل الطلب عبر الإنترنت ، فسيتم رد المبلغ إلى محفظتك الرائعة");
+		return message.toString();
+	}
 }

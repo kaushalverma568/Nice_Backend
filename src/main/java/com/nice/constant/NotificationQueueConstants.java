@@ -30,11 +30,22 @@ public final class NotificationQueueConstants {
 	public static final String ORDER_DELIVERY_PUSH_NOTIFICATION = "Order Delivery Push Notification";
 	public static final String GENERAL_PUSH_NOTIFICATION_QUEUE = "Nice General Push Notification Queue";
 
+	/**
+	 * Push notifications for orders to customer
+	 */
 	public static final String PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Place Order Push Notification Customer";
 	public static final String DELIVER_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Deliver Order Push Notification Customer";
 	public static final String ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER = "Order Status Change Push Notification Customer";
 	public static final String REPLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Replace Order Push Notification Customer";
 	public static final String RETURN_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Return Order Push Notification Customer";
 	public static final String CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Cancel Order Push Notification Customer";
+	public static final String REJECT_ORDER_PUSH_NOTIFICATION_CUSTOMER = "REJECT_ORDER_PUSH_NOTIFICATION_CUSTOMER";
 
+	/**
+	 * Email notifications for orders to customer
+	 */
+	public static final String PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Place Order Email Notification Customer";
+	public static final String REPLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Replace Order Email Notification Customer";
+	public static final String RETURN_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Return Order Email Notification Customer";
+	public static final String CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Cancel Order Email Notification Customer";
 }

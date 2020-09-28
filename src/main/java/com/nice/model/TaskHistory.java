@@ -42,7 +42,7 @@ public class TaskHistory extends CommonModel {
 	@JoinColumn(name = "task_id", nullable = false)
 	private Task task;
 
-	@Column(name = "delivery_boy_id", nullable = false)
+	@Column(name = "delivery_boy_id", nullable = true)
 	private Long deliveryBoyId;
 
 	@Column(name = "order_id", nullable = false)
@@ -51,6 +51,8 @@ public class TaskHistory extends CommonModel {
 	@Column(name = "status", nullable = false)
 	private String status;
 
+	@Column(name = "order_delivery_type", nullable = false)
+	private String orderDeliveryType;
 	/**
 	 * This contains if the order is replacement or delivery or return
 	 */

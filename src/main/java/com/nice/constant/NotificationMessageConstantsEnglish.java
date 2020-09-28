@@ -22,7 +22,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param orderId
 	 * @return
 	 */
@@ -33,7 +33,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -44,7 +44,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param orderId
 	 * @return
 	 */
@@ -55,7 +55,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @param orderId
 	 * @return
@@ -129,6 +129,19 @@ public final class NotificationMessageConstantsEnglish {
 	public static String orderItemReturnSuccessful(final Long orderId) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your order item/s for order no. ").append(orderId).append(" has been returned successfully.");
+		return message.toString();
+	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param orderAmount
+	 * @return
+	 */
+	public static String getRejectedOrderMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Sorry! Your order ").append(orderId)
+				.append(" has been rejected by vendor. If you have paid for the order online the amount would be refunded your nice wallet");
 		return message.toString();
 	}
 }

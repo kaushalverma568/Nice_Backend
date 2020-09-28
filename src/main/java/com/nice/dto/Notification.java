@@ -35,6 +35,7 @@ public class Notification implements Serializable {
 
 	private String sendingType;
 
+	private Long orderId;
 	/**
 	 * Specify the locale string for notification language
 	 */

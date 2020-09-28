@@ -263,4 +263,18 @@
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
 	</changeSet>
+	<changeSet id="39" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/task_history_drop not_null.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
+	<changeSet id="40" author="het.shah"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/shipping_address_changes.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
+	</changeSet>
 </databaseChangeLog>

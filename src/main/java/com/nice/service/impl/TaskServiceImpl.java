@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,10 +54,12 @@ import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.Orders;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
+import com.nice.model.TaskHistory;
 import com.nice.model.UserLogin;
 import com.nice.repository.DeliveryBoyCurrentStatusRepository;
 import com.nice.repository.DeliveryBoyLocationRepository;
 import com.nice.repository.OrdersRepository;
+import com.nice.repository.TaskHistoryRepository;
 import com.nice.repository.TaskRepository;
 import com.nice.service.CashcollectionService;
 import com.nice.service.DeliveryBoyLocationService;
@@ -72,7 +75,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -140,6 +143,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
+
+	@Autowired
+	private TaskHistoryRepository taskHistoryRepository;
 
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
@@ -237,7 +243,7 @@ public class TaskServiceImpl implements TaskService {
 			/**
 			 * Save values in task History
 			 */
-			// saveTaskHistory(task);
+			saveTaskHistory(task);
 
 			return task;
 		}
@@ -246,15 +252,16 @@ public class TaskServiceImpl implements TaskService {
 	/**
 	 * @param task
 	 */
-	// private void saveTaskHistory(final Task task) {
-	// TaskHistory taskHistory = new TaskHistory();
-	// BeanUtils.copyProperties(task, taskHistory);
-	// taskHistory.setOrderId(task.getOrder().getId());
-	// taskHistory.setDeliveryBoyId(task.getDeliveryBoy().getId());
-	// taskHistory.setId(null);
-	// taskHistory.setTask(task);
-	// taskHistoryRepostory.save(taskHistory);
-	// }
+	private void saveTaskHistory(final Task task) {
+		TaskHistory taskHistory = new TaskHistory();
+		BeanUtils.copyProperties(task, taskHistory);
+		taskHistory.setOrderId(task.getOrder().getId());
+		if (task.getDeliveryBoy() != null) {
+			taskHistory.setDeliveryBoyId(task.getDeliveryBoy().getId());
+		}
+		taskHistory.setTask(task);
+		taskHistoryRepository.save(taskHistory);
+	}
 
 	@Override
 	public void changeTaskStatus(final Long taskId, final String taskStatus) throws ValidationException, NotFoundException {
@@ -383,7 +390,7 @@ public class TaskServiceImpl implements TaskService {
 			}
 		}
 		taskRepository.save(task);
-		// saveTaskHistory(task);
+		saveTaskHistory(task);
 	}
 
 	private void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException, ValidationException {
@@ -501,7 +508,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
