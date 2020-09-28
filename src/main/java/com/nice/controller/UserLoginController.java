@@ -58,7 +58,6 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.UserLogin;
 import com.nice.response.GenericResponseHandlers;
-import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
@@ -99,9 +98,6 @@ public class UserLoginController {
 
 	@Autowired
 	private ConsumerTokenServices consumerTokenServices;
-
-	@Autowired
-	private CustomerService customerService;
 
 	@Autowired
 	private VendorService vendorService;
@@ -213,10 +209,11 @@ public class UserLoginController {
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
+	 * @throws UnAuthorizationException
 	 */
 	@PostMapping("/verify/email/otp")
 	public ResponseEntity<Object> verifyEmailByUserNameAndUserType(@RequestBody @Valid final ResetPasswordParameterDTO resetPasswordParameterDTO,
-			final BindingResult result) throws ValidationException, NotFoundException {
+			final BindingResult result) throws ValidationException, NotFoundException, UnAuthorizationException {
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
@@ -231,8 +228,14 @@ public class UserLoginController {
 		 */
 		UserLogin userLogin = userLoginService.getUserLoginDetail(userId);
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			UserLoginDto userLoginDto = new UserLoginDto();
+			userLoginDto.setUserName(resetPasswordParameterDTO.getEmail());
+			userLoginDto.setPassword(resetPasswordParameterDTO.getPassword());
+			userLoginDto.setUserType(UserType.CUSTOMER.name());
+			userLoginDto.setRegisteredVia(RegisterVia.APP.getStatusValue());
+			LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 			return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VERIFY_USER_SUCCESS, null))
-					.setData(customerService.getCustomer(userLogin.getEntityId())).create();
+					.setData(loginResponse).create();
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			/**
 			 * send push notification
@@ -268,9 +271,10 @@ public class UserLoginController {
 			throws NotFoundException, ValidationException {
 		UserLogin userLogin = userLoginService.updatePassword(passwordDTO);
 		/**
-		 * When password is changed and the user is not super admin, revoke the user token
+		 * When password is changed and the user is not super admin, revoke the user
+		 * token
 		 */
-		if (!(Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName()))) {
+		if (!Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName())) {
 			revokeToken(userLogin.getEmail());
 		}
 
@@ -291,7 +295,8 @@ public class UserLoginController {
 	}
 
 	/**
-	 * Login using Facebook and Google. If User is not registered then we will add that user's information and if exists
+	 * Login using Facebook and Google. If User is not registered then we will add
+	 * that user's information and if exists
 	 * then will sent generated token.
 	 *
 	 * @param  socialLoginDto
@@ -400,7 +405,8 @@ public class UserLoginController {
 		LoginResponse loginResponse = userLoginService.checkUserLogin(userLoginDto);
 
 		/**
-		 * if at a time same delivery boy is login more than once then revoke all tokens other then this
+		 * if at a time same delivery boy is login more than once then revoke all tokens
+		 * other then this
 		 */
 		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(Constant.CLIENT_ID,
 				userLoginDto.getUserName().concat("!!").concat(UserType.DELIVERY_BOY.name()));
@@ -452,7 +458,8 @@ public class UserLoginController {
 
 	/**
 	 * API is useful for generate OTP for login. </br>
-	 * If customer is not exist with respect to mobile then it will create customer based on phoneNumber.
+	 * If customer is not exist with respect to mobile then it will create customer
+	 * based on phoneNumber.
 	 *
 	 * @param  phoneNumber
 	 * @return
