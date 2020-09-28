@@ -234,6 +234,7 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 		 * Add the clauses for the query.
 		 */
 		criteriaQuery.select(task).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		criteriaQuery.orderBy(criteriaBuilder.desc(task.get("id")));
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
