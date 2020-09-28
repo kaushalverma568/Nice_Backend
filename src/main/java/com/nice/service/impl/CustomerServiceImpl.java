@@ -60,7 +60,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -254,8 +254,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -283,10 +283,12 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public CustomerResponseDTO getCustomer(final Long id) throws NotFoundException {
+	public CustomerResponseDTO getCustomer(final Long id) throws NotFoundException, ValidationException {
 		Customer customer = getCustomerDetails(id);
 		CustomerResponseDTO customerResponseDTO = customerMapper.toDto(customer);
 		customerResponseDTO.setAddressList(customerAddressService.getAddressList(id));
+		UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(id, UserType.CUSTOMER.name());
+		customerResponseDTO.setUserId(userLogin.getId());
 		return customerResponseDTO;
 	}
 
@@ -313,8 +315,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -341,8 +343,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
@@ -363,8 +365,8 @@ public class CustomerServiceImpl implements CustomerService {
 				throw new ValidationException(messageByLocaleService.getMessage("sort.field.invalid", null));
 			}
 		}
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection)
-				&& !(Constant.SORT_DIRECTION_ASC.equals(sortByDirection) || Constant.SORT_DIRECTION_DESC.equals(sortByDirection))) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(sortByDirection) && !Constant.SORT_DIRECTION_ASC.equals(sortByDirection)
+				&& !Constant.SORT_DIRECTION_DESC.equals(sortByDirection)) {
 			throw new ValidationException(messageByLocaleService.getMessage("sort.direction.invalid", null));
 		}
 	}

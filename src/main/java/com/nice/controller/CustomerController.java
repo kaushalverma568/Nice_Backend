@@ -50,7 +50,7 @@ import com.nice.validator.CustomerValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @RequestMapping(path = "/customer")
 @RestController
@@ -102,12 +102,13 @@ public class CustomerController {
 	public CustomerMapper customerMapper;
 
 	/**
-	 * Add customer Whenever Login with OTP functionality exist then phone Number should be mandatory in customer sign-up
+	 * Add customer Whenever Login with OTP functionality exist then phone Number
+	 * should be mandatory in customer sign-up
 	 * Other wise validation will not work.
 	 *
-	 * @param userId
-	 * @param customerDTO
-	 * @param result
+	 * @param  userId
+	 * @param  customerDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -133,9 +134,9 @@ public class CustomerController {
 	/**
 	 * Update profile details of customer
 	 *
-	 * @param accessToken
-	 * @param customerPersonalDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  customerPersonalDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -160,14 +161,15 @@ public class CustomerController {
 	/**
 	 * Get customer details based on id
 	 *
-	 * @param customerId
+	 * @param  customerId
 	 * @return
 	 * @throws NotFoundException
+	 * @throws ValidationException
 	 */
 	@GetMapping("/{customerId}")
 	@PreAuthorize("hasPermission('Customer','CAN_VIEW')")
 	public ResponseEntity<Object> getCustomer(@RequestHeader("Authorization") final String accessToken, @PathVariable("customerId") final Long customerId)
-			throws NotFoundException {
+			throws NotFoundException, ValidationException {
 		final CustomerResponseDTO customerResponseDTO = customerService.getCustomer(customerId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("customer.detail.message", null))
 				.setData(customerResponseDTO).create();
@@ -176,9 +178,9 @@ public class CustomerController {
 	/**
 	 * Get list of customer based on parameter
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -201,9 +203,9 @@ public class CustomerController {
 	/**
 	 * Change status of customer(active/deActive)
 	 *
-	 * @param userId
-	 * @param customerId
-	 * @param active
+	 * @param  userId
+	 * @param  customerId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -224,10 +226,10 @@ public class CustomerController {
 	/**
 	 * export customer list
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws IOException
 	 */

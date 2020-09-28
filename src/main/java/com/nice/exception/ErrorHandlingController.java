@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,7 +51,7 @@ public class ErrorHandlingController {
 			status = ((BaseException) exception).getStatus();
 			message = exception.getMessage();
 		} else if (exception instanceof BaseRuntimeException) {
-			status = (((BaseRuntimeException) exception).getStatus());
+			status = ((BaseRuntimeException) exception).getStatus();
 			message = exception.getMessage();
 		} else if (exception instanceof WebApplicationException) {
 			status = HttpStatus.valueOf(((WebApplicationException) exception).getResponse().getStatus());
@@ -64,13 +65,15 @@ public class ErrorHandlingController {
 			message = exception.getMessage();
 		} else if (exception instanceof MethodArgumentTypeMismatchException) {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
-			message = "Argument mis matched";
+			message = messageByLocaleService.getMessage("argument.not.match", null);
+		} else if (exception instanceof HttpMediaTypeNotSupportedException) {
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			message = messageByLocaleService.getMessage("wrong.content.type", null);
 		} else {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			message = messageByLocaleService.getMessage("common.error", null);
 			StringBuffer requestedURL = request.getRequestURL();
-			logger.info("Requested URL:{}", requestedURL);
-			logger.error("exception : {}", exception);
+			logger.error("exception in reuested URL {} and exception {}", requestedURL, exception);
 		}
 
 		return new GenericResponseHandlers.Builder().setStatus(status).setMessage(message).create();
