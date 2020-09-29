@@ -29,6 +29,7 @@ import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.SalesReportDto;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
+import com.nice.model.OrderStatusHistory;
 import com.nice.model.Orders;
 import com.nice.model.Vendor;
 import com.nice.util.CommonUtility;
@@ -271,5 +272,33 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		} else if (month.equals("12.0")) {
 			salesReportDto.setDec(sales);
 		}
+	}
+
+	@Override
+	public Long countByStatusAndCreatedAt(String status, java.util.Date createdAt) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+		Root<OrderStatusHistory> orderHistory = criteriaQuery.from(OrderStatusHistory.class);
+		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(criteriaBuilder.equal(orderHistory.get("createdAt").as(Date.class), createdAt));
+		predicates.add(criteriaBuilder.equal(orderHistory.get("status"), status));
+		criteriaQuery.select(criteriaBuilder.count(orderHistory)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
+		return query.getSingleResult();
+		
+	}
+
+	@Override
+	public Long countByStatusAndCreatedAtAndVendorId(String status, java.util.Date createdAt, Long vendorId) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+		Root<OrderStatusHistory> orderHistory = criteriaQuery.from(OrderStatusHistory.class);
+		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(criteriaBuilder.equal(orderHistory.get("createdAt").as(Date.class), createdAt));
+		predicates.add(criteriaBuilder.equal(orderHistory.get("status"), status));
+		predicates.add(criteriaBuilder.equal(orderHistory.get("vendorId"), vendorId));
+		criteriaQuery.select(criteriaBuilder.count(orderHistory)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
+		return query.getSingleResult();
 	}
 }

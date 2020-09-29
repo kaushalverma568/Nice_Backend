@@ -3,6 +3,7 @@
  */
 package com.nice.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import com.nice.dto.OrderListFilterDto;
@@ -45,4 +46,23 @@ public interface OrderCustomRepository {
 	 * @throws ValidationException
 	 */
 	 SalesReportDto getSalesReport(Integer year, Long vendorId) ;
+
+	 /**
+	  * 
+	  * @param status
+	  * @param createdAt
+	  * @return
+	  */
+	Long countByStatusAndCreatedAt(String status, Date createdAt);
+
+	/**
+	 * 
+	 * @param status
+	 * @param createdAt
+	 * @param vendorId
+	 * @return
+	 */
+	Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId);
+	
+	
 }

@@ -987,7 +987,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public Long getCountOfNewDeliveryBoys() {
-		return deliveryBoyRepository.getCountOfNewDeliveryBoys(DeliveryBoyStatus.PENDING.name(), DeliveryBoyStatus.VERIFIED.name());
+		return deliveryBoyRepository.getCountOfNewDeliveryBoys(DeliveryBoyStatus.PENDING.getStatusValue(), DeliveryBoyStatus.VERIFIED.getStatusValue());
 	}
 
 	@Override

@@ -122,9 +122,9 @@ public class DashboardServiceImpl implements DashboardService {
 		 * Get count of vendors whose status is pending or verified
 		 */
 		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
-		vendorFilterDTO.setStatus(VendorStatus.VERIFICATION_PENDING.name());
+		vendorFilterDTO.setStatus(VendorStatus.VERIFICATION_PENDING.getStatusValue());
 		Long verificationPending = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
-		vendorFilterDTO.setStatus(VendorStatus.NEW.name());
+		vendorFilterDTO.setStatus(VendorStatus.NEW.getStatusValue());
 		Long newStatus = vendorService.getVendorCountBasedOnParams(vendorFilterDTO);
 		dashboardCountDTO.setNewVendors(verificationPending + newStatus);
 
@@ -218,6 +218,7 @@ public class DashboardServiceImpl implements DashboardService {
 		 * Get count of active delivery boys
 		 */
 		DeliveryBoyFilterDTO filterDto = new DeliveryBoyFilterDTO();
+		filterDto.setActiveRecords(true);
 		dashboardCountDTO.setDeliveryBoys(deliveryBoyService.getDeliveryBoyCountBasedOnParams(filterDto));
 
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {

@@ -175,7 +175,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private OrdersRepository ordersRepository;
-
+	
 	@Autowired
 	private OrderItemRepository ordersItemRepository;
 
@@ -2062,12 +2062,12 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Override
 	public Long countByStatusAndCreatedAt(final String status, final Date createdAt) {
-		return orderStatusRepository.countByStatusAndCreatedAt(status, createdAt);
+		return ordersRepository.countByStatusAndCreatedAt(status, createdAt);
 	}
 
 	@Override
 	public Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId) {
-		return orderStatusRepository.countByStatusAndCreatedAtAndVendorId(status, createdAt, vendorId);
+		return ordersRepository.countByStatusAndCreatedAtAndVendorId(status, createdAt, vendorId);
 	}
 	
 }
