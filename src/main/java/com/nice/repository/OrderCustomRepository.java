@@ -44,5 +44,5 @@ public interface OrderCustomRepository {
 	 * @return
 	 * @throws ValidationException
 	 */
-	 SalesReportDto getSalesReport(Integer year, Long vendorId, String orderType) throws ValidationException;
+	 SalesReportDto getSalesReport(Integer year, Long vendorId) ;
 }

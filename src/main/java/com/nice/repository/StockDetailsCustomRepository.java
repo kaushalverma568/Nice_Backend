@@ -1,6 +1,7 @@
 
 package com.nice.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import com.nice.dto.StockDetailFilterDTO;
@@ -29,5 +30,39 @@ public interface StockDetailsCustomRepository {
 	 * @return
 	 */
 	Long getStockDetailsListForSerachStringCount(StockDetailFilterDTO stockDetailFilterDTO);
+
+	/**
+	 * low stock count
+	 * 
+	 * @param vendorId
+	 * @return
+	 */
+	Long getLowStockProductDetailsCount(Long vendorId);
+
+	/**
+	 * low stock list
+	 * 
+	 * @param vendorId
+	 * @param startIndex
+	 * @param pageSize
+	 * @return
+	 */
+	List<BigInteger> getLowStockProductDetails(Long vendorId, Integer startIndex, Integer pageSize);
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @param offset
+	 * @param pageSize
+	 * @return
+	 */
+	List<StockDetails> getExpiredStockDetails(Long vendorId, Integer startIndex, Integer pageSize);
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @return
+	 */
+	Long getExpiredStockDetailsCount(Long vendorId);
 
 }

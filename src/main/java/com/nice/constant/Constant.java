@@ -175,6 +175,9 @@ public final class Constant {
 	public static final String DELIVERY_BOY_PROFILE = "Delivery Boy Profile";
 	public static final String VENDOR_MODULE = "Vendor";
 	public static final String PAYOUT_MODULE = "Payout";
+	
+	public static final Long LOW_STOCK_LIMIT = 10L;
+	
 	/**
 	 * Status for vendor return/replace
 	 */

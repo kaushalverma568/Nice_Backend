@@ -6,11 +6,14 @@ package com.nice.repository;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -24,7 +27,6 @@ import org.springframework.stereotype.Repository;
 import com.nice.constant.PaymentMode;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.SalesReportDto;
-import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
@@ -164,7 +166,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 			predicates.add(orders.get(ORDER_STATUS).in(orderListFilterDto.getOrderStatus()));
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderListFilterDto.getOrderStatusNotIn())) {
-			predicates.add(criteriaBuilder.not(orders.get("status").in(orderListFilterDto.getOrderStatusNotIn())));
+			predicates.add(criteriaBuilder.not(orders.get(ORDER_STATUS).in(orderListFilterDto.getOrderStatusNotIn())));
 		}
 		if (orderListFilterDto.getOrderDate() != null) {
 			predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), orderListFilterDto.getOrderDate()));
@@ -206,11 +208,19 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	}
 
 	@SuppressWarnings("unchecked")
-	public SalesReportDto getSalesReport(final Integer year, final Long vendorId, final String orderType) throws ValidationException {
-		List<Object> objectList = entityManager
-				.createNativeQuery("SELECT sum(total_order_amt),EXTRACT(MONTH FROM created_at) as months FROM orders \r\n"
-						+ "where vendor_id=? and EXTRACT(YEAR FROM created_at)=? group by months;")
-				.setParameter(1, vendorId).setParameter(2, year).getResultList();
+	public SalesReportDto getSalesReport(final Integer year, final Long vendorId) {
+		StringBuilder query = new StringBuilder();
+		Map<String, Object> paramMap = new HashMap<>();
+		query.append("SELECT sum(total_order_amt),EXTRACT(MONTH FROM created_at) as months FROM orders where 1=1 and EXTRACT(YEAR FROM created_at)=:year ");
+		paramMap.put("year", year);
+		if (vendorId != null) {
+			query.append("and vendor_id=:vendorId ");
+			paramMap.put("vendorId", vendorId);
+		}
+		query.append("group by months;");		
+		Query q = entityManager.createNativeQuery(query.toString());
+		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
+		List<Object> objectList = q.getResultList();
 		List<String> months = new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"));
 		SalesReportDto salesReportDto = new SalesReportDto();
 		for (Object object : objectList) {

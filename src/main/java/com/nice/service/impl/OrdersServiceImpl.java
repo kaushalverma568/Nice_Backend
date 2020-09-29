@@ -2065,4 +2065,9 @@ public class OrdersServiceImpl implements OrdersService {
 		return orderStatusRepository.countByStatusAndCreatedAt(status, createdAt);
 	}
 
+	@Override
+	public Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId) {
+		return orderStatusRepository.countByStatusAndCreatedAtAndVendorId(status, createdAt, vendorId);
+	}
+	
 }

@@ -39,4 +39,12 @@ public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusH
 	@Query("select count(*) from OrderStatusHistory osh where osh.status =:status and osh.createdAt = :createdAt" )
 	Long countByStatusAndCreatedAt(String status, Date createdAt);
 	
+	/**
+	 * 
+	 * @param status
+	 * @return
+	 */
+	@Query("select count(*) from OrderStatusHistory osh inner join Orders o on osh.orderId=o.id where osh.status =:status and osh.createdAt = :createdAt and o.vendor.id = :vendorId ")
+	Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId);
+	
 }

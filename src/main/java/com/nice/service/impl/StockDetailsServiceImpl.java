@@ -1,6 +1,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -23,10 +24,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
+import com.nice.constant.UserType;
 import com.nice.dto.AddStockDto;
 import com.nice.dto.AddStockRequestDTO;
 import com.nice.dto.LotwiseStockRequestDTO;
@@ -43,6 +47,7 @@ import com.nice.model.ProductVariant;
 import com.nice.model.StockDetails;
 import com.nice.model.StockTransfer;
 import com.nice.model.UOM;
+import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.StockDetailsCustomRepository;
 import com.nice.repository.StockDetailsRepository;
@@ -574,9 +579,42 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize) {
-		// TODO Auto-generated method stub
-		return null;
+	public Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize)
+			throws ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal()).getUser();
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType()) && vendorId.equals(userLogin.getEntityId())) {
+			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+			List<BigInteger> productVariantIdList = stockDetailsCustomRepository.getLowStockProductDetails(vendorId,
+					(int) pageable.getOffset(), pageSize);
+			List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
+			for (BigInteger productVariantId : productVariantIdList) {
+				productVariantResponseDTOs.add(productVariantService.getProductVariant(productVariantId.longValue()));
+			}
+			Long totalCount = stockDetailsCustomRepository.getLowStockProductDetailsCount(vendorId);
+			return new PageImpl<>(productVariantResponseDTOs, pageable, totalCount);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
+	}
+
+	@Override
+	public Page<StockDetailsDTO> getExpireStockDetails(Long vendorId, Integer pageNumber, Integer pageSize)
+			throws ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal()).getUser();
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType()) && vendorId.equals(userLogin.getEntityId())) {
+			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+			List<StockDetailsDTO> stockDetailsDTOs = new ArrayList<>();
+			List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getExpiredStockDetails(vendorId, (int) pageable.getOffset(), pageSize);
+			Long totalCount = stockDetailsCustomRepository.getExpiredStockDetailsCount(vendorId);
+			for (StockDetails stockDetails : stockDetailsList) {
+				stockDetailsDTOs.add(fetchStockInfo(stockDetails));
+			}
+			return new PageImpl<>(stockDetailsDTOs, pageable, totalCount);
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+		}
 	}
 
 }

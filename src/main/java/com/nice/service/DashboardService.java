@@ -30,7 +30,7 @@ public interface DashboardService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	SalesReportDto getSalesReport(Long vendorId, Integer year, String orderType) throws NotFoundException, ValidationException;
+	SalesReportDto getSalesReport(Long vendorId, Integer year) throws NotFoundException, ValidationException;
 
 
 }

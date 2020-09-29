@@ -288,6 +288,15 @@ public interface OrdersService {
 	Long countByStatusAndCreatedAt(String status, Date createdAt);
 
 	/**
+	 * 
+	 * @param status
+	 * @param createdAt
+	 * @param vendorId
+	 * @return
+	 */
+	Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId);
+	
+	/**
 	 * send push notification to vendor
 	 *
 	 * @param orderPushNotificationCustomer

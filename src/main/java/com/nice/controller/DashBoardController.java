@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nice.dto.DashboardCountDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.SalesReportDto;
+import com.nice.dto.StockDetailsDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -53,8 +54,19 @@ public class DashBoardController {
 	 */
 	@GetMapping("/lowStock/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getStockDetails(@RequestHeader("Authorization") final String accessToken, @RequestParam("vendorId") final Long vendorId,
-			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) {
+			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws ValidationException, NotFoundException {
 		Page<ProductVariantResponseDTO> productVariantList = stockDetailsService.getLowStockProduct(vendorId, pageNumber, pageSize);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("lowstock.list.message", null))
+				.setData(productVariantList.getContent()).setHasNextPage(productVariantList.hasNext()).setHasPreviousPage(productVariantList.hasPrevious())
+				.setTotalPages(productVariantList.getTotalPages()).setPageNumber(productVariantList.getNumber() + 1)
+				.setTotalCount(productVariantList.getTotalElements()).create();
+	}
+	
+	
+	@GetMapping("/expire/pageNumber/{pageNumber}/pageSize/{pageSize}")
+	public ResponseEntity<Object> getExpireStockDetails(@RequestHeader("Authorization") final String accessToken, @RequestParam("vendorId") final Long vendorId,
+			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws ValidationException, NotFoundException {
+		Page<StockDetailsDTO> productVariantList = stockDetailsService.getExpireStockDetails(vendorId, pageNumber, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("lowstock.list.message", null))
 				.setData(productVariantList.getContent()).setHasNextPage(productVariantList.hasNext()).setHasPreviousPage(productVariantList.hasPrevious())
 				.setTotalPages(productVariantList.getTotalPages()).setPageNumber(productVariantList.getNumber() + 1)
@@ -88,10 +100,11 @@ public class DashBoardController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/sales")
-	public ResponseEntity<Object> getSalesReport(@RequestHeader("Authorization") final String accessToken, @RequestHeader("vendorId") final Long vendorId,
-			@RequestParam(value = "year") final Integer year, @RequestParam(value = "orderType") final String orderType)
+	public ResponseEntity<Object> getSalesReport(@RequestHeader("Authorization") final String accessToken,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId,
+			@RequestParam(value = "year") final Integer year)
 			throws NotFoundException, ValidationException {
-		SalesReportDto salesReportDto = dashboardService.getSalesReport(vendorId, year, orderType);
+		SalesReportDto salesReportDto = dashboardService.getSalesReport(vendorId, year);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("dashboard.list.message", null))
 				.setData(salesReportDto).create();
 	}

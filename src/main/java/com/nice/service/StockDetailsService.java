@@ -246,7 +246,19 @@ public interface StockDetailsService {
 	 * @param pageNumber
 	 * @param pageSize
 	 * @return
+	 * @throws ValidationException 
+	 * @throws NotFoundException 
 	 */
-	Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize);
+	Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 * @throws NotFoundException 
+	 */
+	Page<StockDetailsDTO> getExpireStockDetails(Long vendorId, Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
 
 }
