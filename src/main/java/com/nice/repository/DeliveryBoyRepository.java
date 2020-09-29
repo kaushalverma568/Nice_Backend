@@ -53,7 +53,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	// @Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join
 	// DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and
 	// dbcs.isBusy='false' and (dn.orderId IS NULL or dn.orderId != :orderId)")
-	@Query("select d from DeliveryBoy d join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and d.id not in (select COALESCE(dbsh.deliveryBoy.id,0) from DeliveryBoySendNotificationHistory dbsh where dbsh.orderId=:orderId)")
+	@Query("select d from DeliveryBoy d join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id join UserLogin ul on d.id=ul.entityId join DeviceDetail dd on ul.id=dd.userLogin.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and d.id not in (select COALESCE(dbsh.deliveryBoy.id,0) from DeliveryBoySendNotificationHistory dbsh where dbsh.orderId=:orderId) and ul.entityType='DELIVERY_BOY'")
 	List<DeliveryBoy> getAllNextAvailableDeliveryBoys(Long orderId);
 
 	/**
@@ -62,7 +62,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	 * @param orderId
 	 * @return
 	 */
-	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and (dn.orderId IS NULL or dn.orderId != :orderId)")
+	@Query("select d from DeliveryBoy d join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id join UserLogin ul on d.id=ul.entityId join DeviceDetail dd on ul.id=dd.userLogin.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and d.id not in (select COALESCE(dbsh.deliveryBoy.id,0) from DeliveryBoySendNotificationHistory dbsh where dbsh.orderId=:orderId) and ul.entityType='DELIVERY_BOY'")
 	List<DeliveryBoy> getAllNextAvailableDeliveryBoysOnBusyTime(Long orderId);
 
 	/**

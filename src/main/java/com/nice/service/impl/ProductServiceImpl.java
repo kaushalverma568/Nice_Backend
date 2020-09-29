@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -408,6 +409,10 @@ public class ProductServiceImpl implements ProductService {
 		Vendor vendor = vendorService.getVendorDetail(productRequestDTO.getVendorId());
 		if (!vendor.getProfileCompleted().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.profile.incomplete", null));
+		}
+
+		if (!Arrays.asList(0, 1, 2).contains(productRequestDTO.getProductFoodType())) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.product.food.type", null));
 		}
 
 		/**
