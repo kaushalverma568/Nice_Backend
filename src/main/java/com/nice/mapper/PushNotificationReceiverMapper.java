@@ -26,7 +26,7 @@ public class PushNotificationReceiverMapper {
 	public PushNotificationResponseDTO toDto(final PushNotificationReceiver pushNotificationReceiver) throws NotFoundException {
 		PushNotificationResponseDTO pushNotificationResponseDTO = new PushNotificationResponseDTO();
 		BeanUtils.copyProperties(pushNotificationReceiver, pushNotificationResponseDTO);
-		pushNotificationResponseDTO.setModule(pushNotificationService.getPushNotificationDetail(pushNotificationReceiver.getId()).getModule());
+		pushNotificationResponseDTO.setModule(pushNotificationService.getPushNotificationDetail(pushNotificationReceiver.getPushNotificationId()).getModule());
 		if ("en".equals(LocaleContextHolder.getLocale().getLanguage())) {
 			pushNotificationResponseDTO.setMessage(pushNotificationReceiver.getMessageEnglish());
 		} else {
