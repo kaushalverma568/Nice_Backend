@@ -26,10 +26,17 @@ public final class NotificationQueueConstants {
 	public static final String NEW_VENDOR_PUSH_NOTIFICATION = "New Vendor Push Notification";
 	public static final String NEW_DB_PUSH_NOTIFICATION = "New Delivery Boy Push Notification";
 	public static final String NEW_TICKET_PUSH_NOTIFICATION = "New Ticket Push Notification";
+	public static final String RESOLVE_TICKET_PUSH_NOTIFICATION = "Resolve Ticket Push Notification";
 	public static final String NEW_ORDER_PUSH_NOTIFICATION = "New Order Push Notification";
 	public static final String ORDER_DELIVERY_PUSH_NOTIFICATION = "Order Delivery Push Notification";
 	public static final String GENERAL_PUSH_NOTIFICATION_QUEUE = "Nice General Push Notification Queue";
 
+	/**
+	 * push Notification to vendor
+	 */
+	public static final String REPLACE_ORDER_PUSH_NOTIFICATION_VENDOR = "Replace Order Push Notification Vendor";
+	public static final String RETURN_ORDER_PUSH_NOTIFICATION_VENDOR = "Return Order Push Notification Vendor";
+	public static final String CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR = "Cancel Order Push Notification Vendor";
 	/**
 	 * Push notifications for orders to customer
 	 */
@@ -52,6 +59,7 @@ public final class NotificationQueueConstants {
 	public static final String REPLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Replace Order Email Notification Customer";
 	public static final String RETURN_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Return Order Email Notification Customer";
 	public static final String CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Cancel Order Email Notification Customer";
+
 
 	/**
 	 * Deactive notification to customer for deactivation.

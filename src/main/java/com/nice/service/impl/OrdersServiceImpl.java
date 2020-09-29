@@ -380,7 +380,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check if the products in cart are active or not active then throw error also check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also
+		 * check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -395,8 +396,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 			} else {
 				/**
-				 * Stock related check for product while placing order by customer for Grocery business category in which the inventory
-				 * is managed
+				 * Stock related check for product while placing order by customer for Grocery
+				 * business category in which the inventory is managed
 				 */
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
 				if (businessCategory.getManageInventory()) {
@@ -417,13 +418,14 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * This amount includes amount with delivery charge, the wallet contribution would be calculated after that and
-		 * subtracted from the actual order amount.
+		 * This amount includes amount with delivery charge, the wallet contribution
+		 * would be calculated after that and subtracted from the actual order amount.
 		 */
 		Double calculatedOrderAmtWithOutDelCharge = calculateTotalOrderAmt(cartItemList);
 
 		/**
-		 * Check if the order amount is greater than the minimum order amount of vendor, else throw an exception
+		 * Check if the order amount is greater than the minimum order amount of vendor,
+		 * else throw an exception
 		 */
 		if (calculatedOrderAmtWithOutDelCharge.compareTo(vendor.getMinimumOrderAmt()) < 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.minimum.order.amount", new Object[] { vendor.getMinimumOrderAmt() }));
@@ -676,7 +678,8 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in
+		 * orderRequestDto
 		 */
 		else {
 			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
@@ -869,8 +872,9 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
-		 * charge is to be taken for all order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the
+		 * configuration for the same. If delivery charge is to be taken for all order
+		 * set the value to any negative value
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
 				&& (orderAmountForFreeDelivery < 0 || orderItemTotal < orderAmountForFreeDelivery)) {
@@ -974,7 +978,8 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for calculation
+			 * Add the addons , extras, product attribute values, toppings amount for
+			 * calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -1031,8 +1036,9 @@ public class OrdersServiceImpl implements OrdersService {
 		Double deliveryCharge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If delivery
-		 * charge is to be taken for all order set the value to any negative value
+		 * If there is any configuration related to minimum order amount, this is the
+		 * configuration for the same. If delivery charge is to be taken for all order
+		 * set the value to any negative value
 		 */
 		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
 			orderAmt = Double.sum(orderAmt, deliveryCharge);
@@ -1268,8 +1274,9 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 
 		/**
-		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
-		 * placing a validation allowing only delivery boy to do the same
+		 * Validation for allowing vendor only to mark status as "Order Pick Up" and
+		 * that too only for PickUp Order, else placing a validation allowing only
+		 * delivery boy to do the same
 		 */
 		if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue()) && (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
 				&& !UserType.VENDOR.name().equals(userLogin.getEntityType())
@@ -1283,8 +1290,9 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
-		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
-		 * Prepared" status it is not directly moved to Order Pickup before allocating stock
+		 * Check manage inventory flag for order, if its true then need to place a check
+		 * that once the order is in "Order Is Prepared" status it is not directly moved
+		 * to Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1296,7 +1304,8 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED
+		 * and task status is REACHED_CUSTOMER
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
 				&& OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
@@ -1312,9 +1321,10 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 
 		/**
-		 * Check if the vendor confirms the order and its delivery type is Pick Up, then make the status as in Process for the
-		 * order. </br>
-		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
+		 * Check if the vendor confirms the order and its delivery type is Pick Up, then
+		 * make the status as in Process for the order. </br>
+		 * if the order is pickuped in case of Pickup orders, it will be marked as
+		 * delivered
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 			String taskType = null;
@@ -1345,8 +1355,9 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
-		 * from Order_Prepared Status to Stock_Allocated status
+		 * check for manage inventory flag, if that is true then stock needs to be
+		 * allocated for the order, else move the order from Order_Prepared Status to
+		 * Stock_Allocated status
 		 */
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
 			updateOrderStatus(newStatus, order, ordersResponseDto.getManageInventory().booleanValue());
@@ -1365,7 +1376,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * This method is used only to change the status of the order and respective status of the inventory if managed
+	 * This method is used only to change the status of the order and respective
+	 * status of the inventory if managed
 	 *
 	 * @param newStatus
 	 * @param order
@@ -1398,14 +1410,17 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
-		 * case of replacement of orders that will be handled in a different way </br>
+		 * Here if the existing stock status is delivered then we dont need to transfer
+		 * the inventory, that will be a typical case of replacement of orders that will
+		 * be handled in a different way </br>
 		 *
-		 * If inventory needs to be managed then only make changes in inventory status else no need to make stock changes
+		 * If inventory needs to be managed then only make changes in inventory status
+		 * else no need to make stock changes
 		 */
 		if (isInventoryManaged) {
 			/**
-			 * If the order status is related to replacement then set allocatedFor as Replacement
+			 * If the order status is related to replacement then set allocatedFor as
+			 * Replacement
 			 */
 			if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
 					|| newStatus.equalsIgnoreCase(Constant.REPLACED) || newStatus.equalsIgnoreCase(Constant.REPLACE_WAITING_FOR_PICKUP)) {
@@ -1415,7 +1430,8 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 					&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
 				/**
-				 * Fetch list of all allocated stock based on lot and move one by one for the order.
+				 * Fetch list of all allocated stock based on lot and move one by one for the
+				 * order.
 				 */
 				List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
 				for (StockAllocation stockAllocation : stockAllocationList) {
@@ -1435,8 +1451,8 @@ public class OrdersServiceImpl implements OrdersService {
 				}
 			}
 			/**
-			 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
-			 * replaced status
+			 * This handles the Replacement of stock, the stock already delivered for a
+			 * order will be moved from delivered to replaced status
 			 */
 			if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
 				List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), TaskTypeEnum.REPLACEMENT.name());
@@ -1494,7 +1510,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 		Orders order = getOrder(orderId);
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to him.
+		 * If the user is Vendor or customer, check if the order actually belongs to
+		 * him.
 		 */
 		if (!isFromAdmin && !order.getCustomer().getId().equals(customerId) || isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -1635,7 +1652,8 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (!PaymentMode.COD.name().equals(orders.getPaymentMode()) && autoRefund) {
 			/**
-			 * this means the refund is to be made to customer wallet after deducting the delivery charges from the order
+			 * this means the refund is to be made to customer wallet after deducting the
+			 * delivery charges from the order
 			 */
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution() - orders.getDeliveryCharge();
 			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
@@ -1664,7 +1682,8 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the replacement request has come after a maximum days for which vendor can accepts then throw error.
+			 * If the replacement request has come after a maximum days for which vendor can
+			 * accepts then throw error.
 			 */
 			if (CommonUtility.convertDateToLocalDateTime(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDateTime.now())) {
@@ -1677,8 +1696,9 @@ public class OrdersServiceImpl implements OrdersService {
 			changeStatus(Constant.REPLACE_REQUESTED, orders);
 
 			/**
-			 * Set the replace_requested flag to true and set the replacement quantity same as that of the order for all order
-			 * items, as currently there is functionality only to replace the entire order
+			 * Set the replace_requested flag to true and set the replacement quantity same
+			 * as that of the order for all order items, as currently there is functionality
+			 * only to replace the entire order
 			 */
 			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
 			for (OrdersItem ordersItem : ordersItemList) {
@@ -1712,7 +1732,8 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the return request has come after a maximum days for which vendor can accepts then throw error.
+			 * If the return request has come after a maximum days for which vendor can
+			 * accepts then throw error.
 			 */
 			if (CommonUtility.convertDateToLocalDateTime(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDateTime.now())) {
@@ -1725,8 +1746,9 @@ public class OrdersServiceImpl implements OrdersService {
 			changeStatus(Constant.RETURN_REQUESTED, orders);
 
 			/**
-			 * Set the return_requested flag to true and set the return quantity same as that of the order for all order items, as
-			 * currently there is functionality only to return the entire order
+			 * Set the return_requested flag to true and set the return quantity same as
+			 * that of the order for all order items, as currently there is functionality
+			 * only to return the entire order
 			 */
 			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
 			for (OrdersItem ordersItem : ordersItemList) {
@@ -1812,8 +1834,9 @@ public class OrdersServiceImpl implements OrdersService {
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.RETURN_REQUESTED.getStatusValue());
 
 			/**
-			 * If the order delivery type is not pick-up then the order cannot be moved into order_pickup status by vendor, that
-			 * will be done by delivery boy when he picks up the order from the restaurant.
+			 * If the order delivery type is not pick-up then the order cannot be moved into
+			 * order_pickup status by vendor, that will be done by delivery boy when he
+			 * picks up the order from the restaurant.
 			 */
 			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 				statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
@@ -1840,13 +1863,15 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			/**
-			 * If required then add code here for customer. Currently its not required as it should be handled from front end.
+			 * If required then add code here for customer. Currently its not required as it
+			 * should be handled from front end.
 			 */
 			return nextStatus;
 		}
 		/**
-		 * if user is Admin, then he can only cancel order, if the order is not in the below mentioned status. If the order is
-		 * in below mentioned status he cannot do the cancellation as well.
+		 * if user is Admin, then he can only cancel order, if the order is not in the
+		 * below mentioned status. If the order is in below mentioned status he cannot
+		 * do the cancellation as well.
 		 */
 		else {
 
@@ -1886,10 +1911,11 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders orders = getOrderById(refundAmountDto.getOrderId());
 
 		/**
-		 * Currently copying the amount into amount borne by admin field and then proceeding further as currently all the amount
-		 * would be borne by admin</br>
-		 * If in future there is any differentiation between contirbution of admin , vendor and delivery boy for cancel order,
-		 * then ignore the amount field and use their respective fields
+		 * Currently copying the amount into amount borne by admin field and then
+		 * proceeding further as currently all the amount would be borne by admin</br>
+		 * If in future there is any differentiation between contirbution of admin ,
+		 * vendor and delivery boy for cancel order, then ignore the amount field and
+		 * use their respective fields
 		 */
 		Double amount = Double.sum(Double.sum(refundAmountDto.getAdminContribution(), refundAmountDto.getVendorContribution()),
 				refundAmountDto.getDeliveryBoyContribution());
@@ -1911,7 +1937,8 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("cancelled.orders.refunded", null));
 		}
 		/**
-		 * this means the refund is to be made to customer wallet after deducting the delivery charges from the order
+		 * this means the refund is to be made to customer wallet after deducting the
+		 * delivery charges from the order
 		 */
 		customerService.updateWalletBalance(amount, orders.getCustomer().getId());
 		/**
@@ -1922,7 +1949,8 @@ public class OrdersServiceImpl implements OrdersService {
 		orders.setRefunded(true);
 		ordersRepository.save(orders);
 		/**
-		 * Get the created task for the order and make entry related to who will be bearing the refunded amount.
+		 * Get the created task for the order and make entry related to who will be
+		 * bearing the refunded amount.
 		 */
 		List<Task> taskList = taskService.getTaskListForOrderId(refundAmountDto.getOrderId());
 		for (Task task : taskList) {
@@ -1951,8 +1979,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 		List<Task> taskList = taskService.getTaskListForOrderId(orderId);
 		/**
-		 * Here the first non delivered task will be marked as delivered, this is because, there will be 2 tasks for an order
-		 * only in case of Return/REplace request received, at that time the delivery task would already be delivered
+		 * Here the first non delivered task will be marked as delivered, this is
+		 * because, there will be 2 tasks for an order only in case of Return/REplace
+		 * request received, at that time the delivery task would already be delivered
 		 */
 		for (Task task : taskList) {
 			if (!TaskStatusEnum.DELIVERED.getStatusValue().equals(task.getStatus())) {
@@ -2015,10 +2044,11 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void sendPushNotificationForNewOrderToVendor(final Long orderId) throws NotFoundException {
+	public void sendPushNotificationToVendor(final String orderPushNotificationType, final Long orderId) throws NotFoundException {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setModule(Constant.ORDER_MODULE);
 		pushNotificationDTO.setOrderId(orderId);
-		pushNotificationDTO.setType(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION);
+		pushNotificationDTO.setType(orderPushNotificationType);
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
@@ -2031,10 +2061,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public Long countByStatusAndCreatedAt(String status, Date createdAt) {
+	public Long countByStatusAndCreatedAt(final String status, final Date createdAt) {
 		return orderStatusRepository.countByStatusAndCreatedAt(status, createdAt);
 	}
 
-	
-	
 }

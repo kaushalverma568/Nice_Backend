@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.TicketStatusEnum;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TicketDTO;
 import com.nice.dto.TicketResponseDTO;
@@ -100,6 +101,9 @@ public class TicketController {
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update Ticket status ticketId:{} and ticketStatus:{} and comment:{}", ticketId, ticketStatus, comment);
 		ticketService.updateTicketStatus(ticketId, ticketStatus, comment);
+		if (ticketStatus.equals(TicketStatusEnum.RESOLVED.getStatusValue())) {
+			ticketService.sendPushNotificationForResolveTicket(ticketId);
+		}
 		LOGGER.info("Outside update Ticket");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("ticket.update.message", null))
 				.create();

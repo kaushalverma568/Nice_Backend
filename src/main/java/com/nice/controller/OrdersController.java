@@ -96,7 +96,7 @@ public class OrdersController {
 		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
 
 			orderService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
-			orderService.sendPushNotificationForNewOrderToVendor(Long.valueOf(orderId));
+			orderService.sendPushNotificationToVendor(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION, Long.valueOf(orderId));
 			orderService.sendEmailNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 
 		} /**
@@ -225,6 +225,9 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		orderService.cancelOrder(replaceCancelOrderDto, false);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationToVendor(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR, replaceCancelOrderDto.getOrderId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,
 				replaceCancelOrderDto.getOrderId());
 		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
@@ -254,6 +257,7 @@ public class OrdersController {
 		}
 		LOGGER.info("Inside the replace order method");
 		orderService.replaceOrder(replaceCancelOrderDto);
+		orderService.sendPushNotificationToVendor(NotificationQueueConstants.REPLACE_ORDER_PUSH_NOTIFICATION_VENDOR, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.REPLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.REPLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("replace.request.placed", null)).setStatus(HttpStatus.OK)
@@ -282,6 +286,7 @@ public class OrdersController {
 		}
 		LOGGER.info("Inside the return order method");
 		orderService.returnOrder(replaceCancelOrderDto);
+		orderService.sendPushNotificationToVendor(NotificationQueueConstants.RETURN_ORDER_PUSH_NOTIFICATION_VENDOR, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.RETURN_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.RETURN_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("return.request.placed", null)).setStatus(HttpStatus.OK)
@@ -290,7 +295,8 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for
+	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
 	 * @param accessToken
 	 * @param userId
@@ -360,9 +366,11 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
-	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
-	 * refund would be made automatically if the payment mode is not COD
+	 * This method is used to refund amount for the orders that are cancelled by
+	 * admin, as for orders cancelled by admin no refund would be made
+	 * automatically, for other type of cancelled order (Cancelled By
+	 * Customer/Rejected by Vendor) refund would be made automatically if the
+	 * payment mode is not COD
 	 *
 	 * @param accessToken
 	 * @param orderId
@@ -391,8 +399,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
-	 * by delivery boy.
+	 * This method will only be used to deliver pickup type order by vendor, for all
+	 * other orders the delivery would be done by delivery boy.
 	 *
 	 * @param token
 	 * @param orderId

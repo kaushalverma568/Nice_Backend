@@ -236,8 +236,24 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
-	public Long ticketCountBasedOnType(String userType) {
+	public Long ticketCountBasedOnType(final String userType) {
 		return ticketRepository.countByUserType(userType);
+	}
+
+	@Override
+	public void sendPushNotificationForResolveTicket(final Long ticketId) throws NotFoundException {
+		Ticket ticket = getTicketDetail(ticketId);
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setTicketId(ticketId);
+		if (ticket.getUserType().equals(UserType.VENDOR.name())) {
+			pushNotificationDTO.setVendorId(ticket.getEntityId());
+		} else if (ticket.getUserType().equals(UserType.CUSTOMER.name())) {
+			pushNotificationDTO.setCustomerId(ticket.getEntityId());
+		} else if (ticket.getUserType().equals(UserType.DELIVERY_BOY.name())) {
+			pushNotificationDTO.setDeliveryBoyId(ticket.getEntityId());
+		}
+		pushNotificationDTO.setType(NotificationQueueConstants.RESOLVE_TICKET_PUSH_NOTIFICATION);
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
 }

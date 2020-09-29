@@ -120,9 +120,17 @@ public interface TicketService {
 	void sendPushNotificationForNewTicket(Long ticketId) throws NotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param userType
 	 * @return
 	 */
 	Long ticketCountBasedOnType(String userType);
+
+	/**
+	 * send push notification on resolve ticket
+	 *
+	 * @param ticketId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationForResolveTicket(Long ticketId) throws NotFoundException;
 }

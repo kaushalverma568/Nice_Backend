@@ -272,32 +272,27 @@ public interface OrdersService {
 	WalletTrxDTO getRefundDetailsForOrder(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
-	 * get all information for app payment
+	 * send email notification for order
 	 *
-	 * @param orderId
-	 * @throws NotFoundException
-	 */
-	void sendPushNotificationForNewOrderToVendor(Long orderId) throws NotFoundException;
-
-	/**
-	 * @param cancelOrderPushNotificationCustomer
+	 * @param emailNotificationType
 	 * @param id
 	 */
 	void sendEmailNotificationForOrder(String emailNotificationType, Long id);
-	
+
 	/**
-	 * 
+	 *
 	 * @param status
 	 * @param createdAt
 	 * @return
 	 */
 	Long countByStatusAndCreatedAt(String status, Date createdAt);
 
-	// /**
-	// * get all information for app payment
-	// *
-	// * @param orderId
-	// * @throws NotFoundException
-	// */
-	// void sendPushNotification(Long orderId) throws NotFoundException;
+	/**
+	 * send push notification to vendor
+	 *
+	 * @param orderPushNotificationCustomer
+	 * @param orderId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationToVendor(String orderPushNotificationCustomer, Long orderId) throws NotFoundException;
 }
