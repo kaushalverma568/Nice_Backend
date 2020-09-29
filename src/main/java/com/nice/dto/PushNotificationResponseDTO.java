@@ -1,6 +1,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -22,4 +23,8 @@ public class PushNotificationResponseDTO implements Serializable {
 	private String messageEnglish;
 
 	private String messageArabic;
+
+	private Date createdAt;
+
+	private String module;
 }

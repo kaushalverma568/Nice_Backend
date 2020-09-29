@@ -3,27 +3,22 @@
  */
 package com.nice.service;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-
 import com.nice.dto.DeliveryBoyLocationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.DeliveryBoyLocation;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 19, 2020
+ * @date   : Jun 19, 2020
  */
 public interface DeliveryBoyLocationService {
 
 	/**
 	 * add delivery boy location
 	 *
-	 * @param deliveryBoyLocationDTO
-	 * @param userId
+	 * @param  deliveryBoyLocationDTO
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -31,20 +26,9 @@ public interface DeliveryBoyLocationService {
 	void addUpdateDeliveryBoyLocation(DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException;
 
 	/**
-	 * update delivery boy location
-	 *
-	 * @param deliveryBoyLocationDTO
-	 * @param userId
-	 * @return
-	 * @throws ValidationException
-	 * @throws NotFoundException
-	 */
-	void updateDeliveryBoyLocation(DeliveryBoyLocationDTO deliveryBoyLocationDTO) throws ValidationException, NotFoundException;
-
-	/**
 	 * get delivery boy location by delivery boy location id
 	 *
-	 * @param deliveryBoyLocationId
+	 * @param  deliveryBoyLocationId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -53,41 +37,18 @@ public interface DeliveryBoyLocationService {
 	/**
 	 * get delivery boy location detail by delivery boy location id
 	 *
-	 * @param deliveryBoyLocationId
+	 * @param  deliveryBoyLocationId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	DeliveryBoyLocation getDeliveryBoyLocationDetails(Long deliveryBoyLocationId) throws NotFoundException;
 
 	/**
-	 * get delivery boy's latest location detail by delivery boy
+	 * get delivery boy's location detail by delivery boy
 	 *
-	 * @param deliveryBoy
+	 * @param  deliveryBoy
 	 * @return
 	 * @throws NotFoundException
 	 */
-	DeliveryBoyLocation getDeliveryBoyLatestLocation(Long deliveryBoyId) throws NotFoundException;
-
-	/**
-	 * get delivery boy location page
-	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param deliveryBoyId
-	 * @return
-	 * @throws NotFoundException
-	 */
-	Page<DeliveryBoyLocation> getDeliveryBoyLocationList(Integer pageNumber, Integer pageSize, Long deliveryBoyId) throws NotFoundException;
-
-	/**
-	 * get delivery boy location list
-	 *
-	 * @param deliveryBoyId
-	 * @param isLatestLocationRequired
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	List<DeliveryBoyLocation> getDeliveryBoyLocationList(Long deliveryBoyId, Boolean isLatestLocationRequired) throws NotFoundException, ValidationException;
-
+	DeliveryBoyLocation getDeliveryBoyLocationByDeliveryBoyId(Long deliveryBoyId) throws NotFoundException;
 }

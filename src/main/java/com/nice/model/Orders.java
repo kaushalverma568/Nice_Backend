@@ -146,7 +146,7 @@ public class Orders extends CommonModel {
 	/**
 	 * this property is used for sending notification after 45 sec
 	 */
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "notification_timer", columnDefinition = "TIME WITH TIME ZONE default CURRENT_TIME")
 	private Date notificationTimer;
 

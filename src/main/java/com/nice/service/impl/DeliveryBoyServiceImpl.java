@@ -473,10 +473,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			/**
 			 * can not active if delivery boy location is not present
 			 */
-			List<DeliveryBoyLocation> deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationList(deliveryBoyId, true);
-			if (deliveryBoyLocation.isEmpty()) {
-				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.location.required.active", null));
-			}
+			deliveryBoyLocationService.getDeliveryBoyLocationByDeliveryBoyId(deliveryBoyId);
 			/**
 			 * if delivery boy's device detail is not present then can not be available for accept order
 			 */
@@ -588,7 +585,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		 * calculate distance of all delivery boys
 		 */
 		for (DeliveryBoy deliveryBoy : availableDeliveryBoys) {
-			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLatestLocation(deliveryBoy.getId());
+			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationByDeliveryBoyId(deliveryBoy.getId());
 			Double distance = CommonUtility.distance(vendor.getLatitude().doubleValue(), vendor.getLongitude().doubleValue(),
 					deliveryBoyLocation.getLatitude().doubleValue(), deliveryBoyLocation.getLongitude().doubleValue());
 			/**
@@ -981,7 +978,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		}
 		return ordersListDTOsForDeliveryBoy;
 	}
-	
+
 	@Override
 	public Long getCountOfOnFieldDeliveryBoy() {
 		return deliveryBoyRepository.countByIsAvailableAndActive(true, true);
@@ -991,6 +988,5 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	public Long getCountOfNewDeliveryBoys() {
 		return deliveryBoyRepository.getCountOfNewDeliveryBoys(DeliveryBoyStatus.PENDING.name(), DeliveryBoyStatus.VERIFIED.name());
 	}
-
 
 }

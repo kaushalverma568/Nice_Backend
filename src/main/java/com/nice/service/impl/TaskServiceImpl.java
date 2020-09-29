@@ -50,7 +50,6 @@ import com.nice.mapper.TaskMapper;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
-import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.Orders;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
@@ -75,7 +74,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -393,7 +392,7 @@ public class TaskServiceImpl implements TaskService {
 		saveTaskHistory(task);
 	}
 
-	private void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException, ValidationException {
+	private void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException {
 		/**
 		 * set isBusy to false if delivery boy has no any other assigned orders
 		 */
@@ -408,14 +407,6 @@ public class TaskServiceImpl implements TaskService {
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
 			deliveryBoyCurrentStatus.setIsBusy(false);
 			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
-			/**
-			 * remove delivery boy's old location history accepts his latest location
-			 */
-			List<DeliveryBoyLocation> oldLocations = deliveryBoyLocationService.getDeliveryBoyLocationList(task.getDeliveryBoy().getId(), false);
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(oldLocations)) {
-				LOGGER.info("Deleting old Delivery boy's locations for delivery boy:{}", task.getDeliveryBoy().getId());
-				deliveryBoyLocationRepository.deleteAll(oldLocations);
-			}
 			/**
 			 * delete old location of order which is stored using socket
 			 */
@@ -508,7 +499,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */

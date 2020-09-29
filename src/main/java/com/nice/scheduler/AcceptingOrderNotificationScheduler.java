@@ -62,7 +62,7 @@ public class AcceptingOrderNotificationScheduler {
 		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(
 				Arrays.asList(OrderStatusEnum.CONFIRMED.getStatusValue(), OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(),
 						OrderStatusEnum.RETURN_CONFIRMED.getStatusValue()),
-				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date(System.currentTimeMillis()));
+				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date());
 		for (Orders orders : ordersList) {
 
 			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
