@@ -78,7 +78,7 @@ public class PaymentController {
 			 * send push notification
 			 */
 			if (orderId != 0) {
-				ordersService.sendPushNotificationForNewOrderToVendor(orderId);
+				ordersService.sendPushNotificationToVendor(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION, orderId);
 				ordersService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 			} else {
 				/**

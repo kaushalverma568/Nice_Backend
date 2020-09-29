@@ -79,7 +79,7 @@ public final class NotificationMessageConstantsArabic {
 	public static String getCancelOrderMessage(final Long orderId, final boolean cancelledByCustomer) {
 		StringBuilder message = new StringBuilder();
 		if (cancelledByCustomer) {
-		message.append("لقد ألغيت الطلب ").append(orderId).append(". إذا تم إلغاؤه عن طريق الخطأ ، يرجى تقديم الطلب مرة أخرى.");
+			message.append("لقد ألغيت الطلب ").append(orderId).append(". إذا تم إلغاؤه عن طريق الخطأ ، يرجى تقديم الطلب مرة أخرى.");
 		} else {
 			message.append("طلبك").append(orderId).append("تم إلغاؤه من قبل المشرف ، آسف لخيبة الأمل.");
 		}
@@ -174,6 +174,7 @@ public final class NotificationMessageConstantsArabic {
 		StringBuilder message = new StringBuilder();
 		message = message.append("Your weekly/monthy Payment is Release by admin, Please check you added Bank Account for more update");
 		return message.toString();
+	}
 
 	/**
 	 *
