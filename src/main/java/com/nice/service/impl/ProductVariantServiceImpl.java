@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
+import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
 import com.nice.dto.ProductAttributeResponseDTO;
@@ -32,6 +33,7 @@ import com.nice.model.ProductVariant;
 import com.nice.model.UOM;
 import com.nice.model.UserLogin;
 import com.nice.repository.ProductVariantRepository;
+import com.nice.service.AssetService;
 import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartItemService;
 import com.nice.service.DiscountService;
@@ -96,6 +98,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
 	@Autowired
 	private BusinessCategoryService businessCategoryService;
+
+	@Autowired
+	private AssetService assetService;
 
 	@Override
 	public void addUpdateProductVariantList(final Long productId, final ProductVariantRequestDTO productVariantRequestDTO)
@@ -213,8 +218,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 		productVariantResponseDTO.setProductId(productVariant.getProduct().getId());
 		productVariantResponseDTO.setProductNameArabic(productVariant.getProduct().getNameArabic());
 		productVariantResponseDTO.setProductNameEnglish(productVariant.getProduct().getNameEnglish());
-		productVariantResponseDTO.setImage(productVariant.getProduct().getImage());
-		productVariantResponseDTO.setDetailImage(productVariant.getProduct().getDetailImage());
+		productVariantResponseDTO.setImage(assetService.getGeneratedUrl(productVariant.getProduct().getImage(), AssetConstant.PRODUCT_DIR));
+		productVariantResponseDTO.setDetailImage(assetService.getGeneratedUrl(productVariant.getProduct().getDetailImage(), AssetConstant.PRODUCT_DIR));
 		productVariantResponseDTO.setUomMeasurementEnglish(productVariant.getUom().getMeasurementEnglish());
 		productVariantResponseDTO.setUomMeasurementArabic(productVariant.getUom().getMeasurementArabic());
 		if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {

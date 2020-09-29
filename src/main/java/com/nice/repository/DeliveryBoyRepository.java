@@ -13,7 +13,7 @@ import com.nice.model.DeliveryBoy;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Jul-2020
+ * @date : 24-Jul-2020
  */
 @Repository
 public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>, DeliveryBoyCustomRepository {
@@ -21,8 +21,8 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * Get delivery boy by delivery boy email ignore case and id not equal if exist
 	 *
-	 * @param  email
-	 * @param  id
+	 * @param email
+	 * @param id
 	 * @return
 	 */
 	Optional<DeliveryBoy> findByEmailAndIdNot(String email, Long id);
@@ -30,7 +30,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * Get delivery boy by delivery boy email ignore case if exist
 	 *
-	 * @param  email
+	 * @param email
 	 * @return
 	 */
 	Optional<DeliveryBoy> findByEmail(String email);
@@ -38,8 +38,8 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * Get delivery boy page by active
 	 *
-	 * @param  activeRecords
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param pageable
 	 * @return
 	 */
 	Page<DeliveryBoy> findAllByActive(Boolean activeRecords, Pageable pageable);
@@ -47,16 +47,19 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * find all by isLogin true,isBusy false,is available and not order id is null or not
 	 *
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
-	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and (dn.orderId IS NULL or dn.orderId != :orderId)")
+	// @Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join
+	// DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and
+	// dbcs.isBusy='false' and (dn.orderId IS NULL or dn.orderId != :orderId)")
+	@Query("select d from DeliveryBoy d join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and dbcs.isBusy='false' and d.id not in (select COALESCE(dbsh.deliveryBoy.id,0) from DeliveryBoySendNotificationHistory dbsh where dbsh.orderId=:orderId)")
 	List<DeliveryBoy> getAllNextAvailableDeliveryBoys(Long orderId);
 
 	/**
 	 * find all by isLogin true,is available and not order id is null or not
 	 *
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	@Query("select d from DeliveryBoy d left join DeliveryBoySendNotificationHistory dn on d.id=dn.deliveryBoy.id join DeliveryBoyCurrentStatus dbcs on d.id=dbcs.deliveryBoy.id where dbcs.isLogin='true' and dbcs.isAvailable='true' and (dn.orderId IS NULL or dn.orderId != :orderId)")
@@ -65,8 +68,8 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * find by phone number ignore case and id not
 	 *
-	 * @param  phoneNumber
-	 * @param  id
+	 * @param phoneNumber
+	 * @param id
 	 * @return
 	 */
 	Optional<DeliveryBoy> findByPhoneNumberIgnoreCaseAndIdNot(String phoneNumber, Long id);
@@ -74,7 +77,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * find by phone number
 	 *
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 */
 	Optional<DeliveryBoy> findByPhoneNumberIgnoreCase(String phoneNumber);
@@ -82,67 +85,71 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	/**
 	 * Get delivery boy list by active
 	 *
-	 * @param  activeRecords
+	 * @param activeRecords
 	 * @return
 	 */
 	List<DeliveryBoy> findAllByActive(Boolean activeRecords);
 
 	/**
-	 * Get delivery boy page By active and first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 * Get delivery boy page By active and first name ignore case(arabic,english) or last name ignore case (arabic,english)
+	 * contains keyword
 	 *
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  searchKeyword4
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param searchKeyword4
+	 * @param pageable
 	 * @return
 	 */
 	Page<DeliveryBoy> findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
 			Boolean activeRecords, String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4, Pageable pageable);
 
 	/**
-	 * Get delivery boy page by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 * Get delivery boy page by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains
+	 * keyword
 	 *
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  searchKeyword4
-	 * @param  pageable
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param searchKeyword4
+	 * @param pageable
 	 * @return
 	 */
 	Page<DeliveryBoy> findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
 			String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4, Pageable pageable);
 
 	/**
-	 * Get delivery boy list By active and first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 * Get delivery boy list By active and first name ignore case(arabic,english) or last name ignore case (arabic,english)
+	 * contains keyword
 	 *
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  searchKeyword4
-	 * @param  pageable
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param searchKeyword4
+	 * @param pageable
 	 * @return
 	 */
 	List<DeliveryBoy> findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
 			Boolean activeRecords, String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4);
 
 	/**
-	 * Get delivery boy list by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains keyword
+	 * Get delivery boy list by first name ignore case(arabic,english) or last name ignore case (arabic,english) contains
+	 * keyword
 	 *
-	 * @param  searchKeyword
-	 * @param  searchKeyword2
-	 * @param  searchKeyword3
-	 * @param  searchKeyword4
-	 * @param  pageable
+	 * @param searchKeyword
+	 * @param searchKeyword2
+	 * @param searchKeyword3
+	 * @param searchKeyword4
+	 * @param pageable
 	 * @return
 	 */
 	List<DeliveryBoy> findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
 			String searchKeyword, String searchKeyword2, String searchKeyword3, String searchKeyword4);
 
 	/**
-	 * 
+	 *
 	 * @param isAvailable
 	 * @param Active
 	 * @return
@@ -151,7 +158,7 @@ public interface DeliveryBoyRepository extends JpaRepository<DeliveryBoy, Long>,
 	Long countByIsAvailableAndActive(boolean isAvailable, boolean active);
 
 	/**
-	 * 
+	 *
 	 * @param status
 	 * @param status2
 	 * @return
