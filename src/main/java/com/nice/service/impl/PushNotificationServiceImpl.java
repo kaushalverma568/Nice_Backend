@@ -1,9 +1,8 @@
 package com.nice.service.impl;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.exception.NotFoundException;
 import com.nice.locale.MessageByLocaleService;
@@ -16,7 +15,7 @@ import com.nice.service.PushNotificationService;
  * @date   : 24-Sep-2020
  */
 @Service(value = "pushNotificationService")
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class PushNotificationServiceImpl implements PushNotificationService {
 
 	@Autowired

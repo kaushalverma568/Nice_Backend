@@ -1,9 +1,8 @@
 package com.nice.service.impl;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.OrderLocationDTO;
 import com.nice.exception.NotFoundException;
@@ -21,10 +20,10 @@ import com.nice.service.OrdersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jul-2020
+ * @date   : 17-Jul-2020
  */
 @Service("orderLocationService")
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class OrderLocationServiceImpl implements OrderLocationService {
 
 	@Autowired

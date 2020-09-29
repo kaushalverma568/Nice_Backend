@@ -3,12 +3,11 @@ package com.nice.service.impl;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.DeviceDetailDTO;
 import com.nice.exception.NotFoundException;
@@ -25,7 +24,7 @@ import com.nice.service.UserLoginService;
  * @date   : 29-Jun-2020
  */
 @Service("deviceDetailService")
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeviceDetailServiceImpl.class);
@@ -47,7 +46,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	@Override
 	public void addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
 		/**
-		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated with multiple users.
+		 * Delete device details by deviceId first and then add new device. This is to
+		 * ensure that one device is not associated with multiple users.
 		 */
 		deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
 

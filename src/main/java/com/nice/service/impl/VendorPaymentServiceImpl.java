@@ -3,14 +3,13 @@ package com.nice.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.PaymentStatus;
 import com.nice.dto.VendorPaymentDTO;
@@ -27,11 +26,11 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 04-Sep-2020
+ * @date   : 04-Sep-2020
  */
 
 @Service("vendorPaymentService")
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class VendorPaymentServiceImpl implements VendorPaymentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorPaymentServiceImpl.class);

@@ -1,7 +1,5 @@
 package com.nice.service.impl;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.UserType;
@@ -28,7 +27,7 @@ import com.nice.util.CommonUtility;
  * @date   : 24-Sep-2020
  */
 @Service(value = "pushNotificationReceiverService")
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class PushNotificationReceiverServiceImpl implements PushNotificationReceiverService {
 
 	@Autowired
