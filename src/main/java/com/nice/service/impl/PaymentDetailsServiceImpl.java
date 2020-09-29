@@ -24,6 +24,7 @@ import com.nice.dto.Notification;
 import com.nice.dto.PayableAmountDTO;
 import com.nice.dto.PaymentDetailsDTO;
 import com.nice.dto.PaymentDetailsResponseDTO;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.VendorPayoutDTO;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
@@ -392,5 +393,21 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 		notification.setPaymentDetailsId(paymentDetails.getId());
 		notification.setType(NotificationQueueConstants.PAYOUT);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+	}
+
+	@Override
+	public void sendPushNotificationAfterPayout(final String entityType, final Long paymentDetailsId) throws NotFoundException {
+		PaymentDetails paymentDetails = getPaymentDetailsDetail(paymentDetailsId);
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		if (UserType.DELIVERY_BOY.name().equals(entityType)) {
+			pushNotificationDTO.setDeliveryBoyId(paymentDetails.getDeliveryBoy().getId());
+			pushNotificationDTO.setLanguage(paymentDetails.getDeliveryBoy().getPreferredLanguage());
+		} else {
+			pushNotificationDTO.setVendorId(paymentDetails.getVendor().getId());
+			pushNotificationDTO.setLanguage(paymentDetails.getVendor().getPreferredLanguage());
+		}
+		pushNotificationDTO.setPaymentDetailsId(paymentDetailsId);
+		pushNotificationDTO.setType(NotificationQueueConstants.PAYOUT);
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 }

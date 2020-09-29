@@ -108,9 +108,14 @@ public class PaymentDetailsController {
 		Long paymentDetailsId = paymentDetailsService.addPaymentDetails(paymentDetailsDTO);
 		LOGGER.info("Outside add PaymentDetails ");
 		/**
-		 * send email to delivery boy or vendor after payout
+		 * send email to delivery boy/vendor after payout
 		 */
 		paymentDetailsService.sendEmailAfterPayout(paymentDetailsDTO.getEntityType(), paymentDetailsId);
+		/**
+		 * send push notification to delivery boy/vendor after payout
+		 */
+		paymentDetailsService.sendPushNotificationAfterPayout(paymentDetailsDTO.getEntityType(), paymentDetailsId);
+
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
 				.setMessage(messageByLocaleService.getMessage("payment.details.create.message", null)).create();
 	}

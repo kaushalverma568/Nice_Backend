@@ -2,7 +2,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 public final class NotificationMessageConstantsEnglish {
 
@@ -11,8 +11,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param name
+	 * @param  name
 	 * @return
 	 */
 	public static String getNewProfileMessage(final String name) {
@@ -22,8 +21,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String getNewOrderMessage(final Long orderId) {
@@ -33,8 +31,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param name
+	 * @param  name
 	 * @return
 	 */
 	public static String getNewTicketMessage(final String name) {
@@ -44,8 +41,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String getNewOrderToVendorMessage(final Long orderId) {
@@ -55,9 +51,8 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param name
-	 * @param orderId
+	 * @param  name
+	 * @param  orderId
 	 * @return
 	 */
 	public static String getDeliveryOrderToVendorMessage(final String name, final Long orderId) {
@@ -67,8 +62,19 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 * @param orderId
-	 * @param orderAmount
+	 * @param  name
+	 * @param  orderId
+	 * @return
+	 */
+	public static String getPayoutMessage() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your weekly/monthy Payment is Release by admin, Please check you added Bank Account for more update");
+		return message.toString();
+	}
+
+	/**
+	 * @param  orderId
+	 * @param  orderAmount
 	 * @return
 	 */
 	public static String getCreateOrderMessage(final Long orderId, final Double orderAmount) {
@@ -78,8 +84,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String getCancelOrderMessage(final Long orderId) {
@@ -89,8 +94,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId) {
@@ -100,8 +104,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String orderDeliverySuccessful(final Long orderId) {
@@ -111,8 +114,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String orderItemReplaceSuccessful(final Long orderId) {
@@ -122,8 +124,7 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
+	 * @param  orderId
 	 * @return
 	 */
 	public static String orderItemReturnSuccessful(final Long orderId) {
@@ -133,9 +134,8 @@ public final class NotificationMessageConstantsEnglish {
 	}
 
 	/**
-	 *
-	 * @param orderId
-	 * @param orderAmount
+	 * @param  orderId
+	 * @param  orderAmount
 	 * @return
 	 */
 	public static String getRejectedOrderMessage(final Long orderId) {

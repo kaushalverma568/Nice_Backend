@@ -39,4 +39,6 @@ public class PushNotificationDTO implements Serializable {
 	private String module;
 
 	private String taskType;
+
+	private Long paymentDetailsId;
 }

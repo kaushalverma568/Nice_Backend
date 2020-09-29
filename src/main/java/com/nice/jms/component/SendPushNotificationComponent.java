@@ -37,6 +37,7 @@ import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
 import com.nice.service.OrdersService;
+import com.nice.service.PaymentDetailsService;
 import com.nice.service.PushNotificationReceiverService;
 import com.nice.service.PushNotificationService;
 import com.nice.service.TaskService;
@@ -48,7 +49,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -91,6 +92,9 @@ public class SendPushNotificationComponent {
 	private PushNotificationService pushNotificationService;
 
 	@Autowired
+	private PaymentDetailsService paymentDetailsService;
+
+	@Autowired
 	private OrdersService ordersService;
 
 	@Autowired
@@ -127,8 +131,56 @@ public class SendPushNotificationComponent {
 			orderDeliverSuccessfully(pushNotificationDTO);
 		} else if (NotificationQueueConstants.ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER.equals(pushNotificationDTO.getType())) {
 			orderStatusUpdate(pushNotificationDTO);
+		} else if (NotificationQueueConstants.PAYOUT.equals(pushNotificationDTO.getType())) {
+			payoutNotification(pushNotificationDTO);
 		}
 
+	}
+
+	private void payoutNotification(final PushNotificationDTO pushNotificationDTO) throws NotFoundException, ValidationException {
+		if (pushNotificationDTO.getVendorId() != null || pushNotificationDTO.getDeliveryBoyId() != null) {
+			Long entityId;
+			String entityType;
+			if (pushNotificationDTO.getVendorId() != null) {
+				entityType = UserType.VENDOR.name();
+				entityId = pushNotificationDTO.getVendorId();
+			} else {
+				entityType = UserType.DELIVERY_BOY.name();
+				entityId = pushNotificationDTO.getDeliveryBoyId();
+			}
+			String messageEnglish = NotificationMessageConstantsEnglish.getPayoutMessage();
+			String messageArabic = NotificationMessageConstantsArabic.getPayoutMessage();
+			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
+			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+			/**
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 */
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
+			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+			for (DeviceDetail deviceDetail : deviceDetailList) {
+				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
+						userLoginSender.getId(), userLoginReceiver.getId());
+				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
+			}
+			StringBuilder message = new StringBuilder();
+			JsonObject notificationObject = new JsonObject();
+			if (pushNotificationDTO.getLanguage().equals("en")) {
+				message = message.append(pushNotification.getMessageEnglish());
+			} else {
+				message = message.append(pushNotification.getMessageArabic());
+			}
+			CompanyResponseDTO company = companyService.getCompany(true);
+			notificationObject.addProperty(BODY, message.toString());
+			notificationObject.addProperty("icon", company.getCompanyImage());
+			notificationObject.addProperty(IMAGE, company.getCompanyImage());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setModule(Constant.PAYOUT_MODULE);
+			for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
+				sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
+			}
+		}
 	}
 
 	private void orderDeliveryNotification(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
@@ -182,7 +234,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -232,7 +284,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -297,7 +349,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -350,7 +402,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

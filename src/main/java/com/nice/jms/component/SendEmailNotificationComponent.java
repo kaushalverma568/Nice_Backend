@@ -55,6 +55,8 @@ import net.sf.jasperreports.engine.JRException;
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
 
+	private static final String ORDER_ID = "orderId";
+
 	private static final String USER_TYPE = "userType";
 
 	private static final String COMPANY_EMAIL = "companyEmail";
@@ -162,22 +164,27 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
-			String emailAddress = null;
+			String emailAddress;
+			String payoutSubject;
 			PaymentDetails paymentDetails = paymentDetailsService.getPaymentDetailsDetail(emailNotification.getPaymentDetailsId());
-			emailParameterMap.put("amount", paymentDetails.getPaymentAmount().toString());
-			emailParameterMap.put("transactionNo", paymentDetails.getTransactionNo());
 			emailParameterMap.put("paidOn", paymentDetails.getPaidOn().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString());
 			if (emailNotification.getVendorId() != null) {
 				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
-				emailParameterMap.put("vendorName",
+				emailParameterMap.put("userName",
 						vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
 								: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 				emailAddress = vendor.getEmail();
+				emailNotification.setLanguage(vendor.getPreferredLanguage());
+				payoutSubject = "Vendor Payment";
 			} else {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
+				emailParameterMap.put("userName",
+						deliveryBoy.getPreferredLanguage().equals("en") ? deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish())
+								: deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
 				emailAddress = deliveryBoy.getEmail();
+				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
+				payoutSubject = "Delivery Boy Payment";
 			}
-			String payoutSubject = "Payout Summary";
 			emailUtil.sendEmail(payoutSubject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
 		}
 	}
@@ -337,7 +344,7 @@ public class SendEmailNotificationComponent {
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		String subject = applicationName + " Return Order";
-		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.RETURN_ORDER_CUSTOMER.name(), emailLanguage);
 	}
 
@@ -348,7 +355,7 @@ public class SendEmailNotificationComponent {
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		String subject = applicationName + " Cancel Order";
-		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.CANCEL_ORDER_CUSTOMER.name(), emailLanguage);
 	}
 
@@ -359,7 +366,7 @@ public class SendEmailNotificationComponent {
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		String subject = applicationName + " Replace Order";
-		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.REPLACE_ORDER_CUSTOMER.name(), emailLanguage);
 	}
 
@@ -370,7 +377,7 @@ public class SendEmailNotificationComponent {
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		String subject = applicationName + " Place Order";
-		emailParameterMap.put("orderId", emailNotification.getOrderId().toString());
+		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
 		emailParameterMap.put("orderAmount", orders.getTotalOrderAmount().toString());
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.PLACE_ORDER_CUSTOMER.name(), emailLanguage);
 	}

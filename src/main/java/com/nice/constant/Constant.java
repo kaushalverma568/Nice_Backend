@@ -174,6 +174,7 @@ public final class Constant {
 	public static final String VENDOR_PROFILE = "Vendor Profile";
 	public static final String DELIVERY_BOY_PROFILE = "Delivery Boy Profile";
 	public static final String VENDOR_MODULE = "Vendor";
+	public static final String PAYOUT_MODULE = "Payout";
 	/**
 	 * Status for vendor return/replace
 	 */

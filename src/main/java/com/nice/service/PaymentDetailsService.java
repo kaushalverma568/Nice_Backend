@@ -174,4 +174,13 @@ public interface PaymentDetailsService {
 	 * @throws NotFoundException
 	 */
 	void sendEmailAfterPayout(String entityType, Long paymentDetailsId) throws NotFoundException;
+
+	/**
+	 * Send push notification to delivery boy/vendor after payout
+	 *
+	 * @param  entityType
+	 * @param  paymentDetailsId
+	 * @throws NotFoundException
+	 */
+	void sendPushNotificationAfterPayout(String entityType, Long paymentDetailsId) throws NotFoundException;
 }
