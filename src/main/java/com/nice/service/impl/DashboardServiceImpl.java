@@ -104,9 +104,48 @@ public class DashboardServiceImpl implements DashboardService {
 		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.REPLACED.getStatusValue()));
 		dashboardCountDTO.setTotalReplaced(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
 		/**
-		 * whose status is Delivered
+		 * whose status is cancelled
 		 */
-		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.DELIVERED.getStatusValue()));
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.CANCELLED.getStatusValue()));
+		dashboardCountDTO.setTotalCancelled(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		/**
+		 * whose status is rejected
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.REJECTED.getStatusValue()));
+		dashboardCountDTO.setTotalRejected(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		/**
+		 * whose status is Pending, Replace Requested ,Return Requested
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(),
+				OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(), OrderStatusEnum.RETURN_REQUESTED.getStatusValue()));
+		dashboardCountDTO.setTotalPlaced(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		
+		/**
+		 * whose status is Confirmed, Replace Confirmed, Return Confirmed,
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.CONFIRMED.getStatusValue(),
+				OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(), OrderStatusEnum.RETURN_CONFIRMED.getStatusValue()));
+		dashboardCountDTO.setTotalConfirmed(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		/**
+		 * whose status is In-Process, Order Is Prepared, Waiting for pickup, Replace Processed, Replace Order Prepared,
+		 *   Replace Waiting for Picked Up, Return Processed
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.IN_PROCESS.getStatusValue(),
+				OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(), OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(),
+				OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue(),
+				OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.RETURN_PROCESSED.getStatusValue()));
+		dashboardCountDTO.setTotalInProcess(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		/**
+		 * whose status is Order Picked Up ,Replace Order Picked Up,Return Order Picked Up
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(),
+				OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue(), OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue()));
+		dashboardCountDTO.setTotalPickedUp(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		/**
+		 * whose status is Delivered,  Replace Rejected, Return Rejected
+		 */
+		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.DELIVERED.getStatusValue(),
+				OrderStatusEnum.REPLACE_REJECTED.getStatusValue(), OrderStatusEnum.RETURN_REJECTED.getStatusValue()));
 		dashboardCountDTO.setTotalDelivered(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
 
 		/**
@@ -132,9 +171,7 @@ public class DashboardServiceImpl implements DashboardService {
 		 * Get count of delivery boys whose status is pending or verified
 		 */
 		dashboardCountDTO.setNewDeliveryBoys(deliveryBoyService.getCountOfNewDeliveryBoys());
-		
-		
-		
+			
 
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 		/**

@@ -49,12 +49,12 @@ public class DashboardCountDTO implements Serializable {
 	/**
 	 * for bar chart
 	 */
-	private Long totalPlaced;
-	private Long totalCancelled;
-	private Long totalConfirmed;
-	private Long totalInProcess;
+	private Long totalPlaced; //
+	private Long totalRejected; //
+	private Long totalCancelled;  // cancelled
+	private Long totalConfirmed; //
+	private Long totalInProcess; // 
 	private Long totalPickedUp;
-	private Long totalOnTheWay;
 	
 
 }
