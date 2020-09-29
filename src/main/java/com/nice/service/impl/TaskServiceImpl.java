@@ -596,7 +596,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public void completeTask(final Long taskId) throws NotFoundException, ValidationException {
+	public Task completeTask(final Long taskId) throws NotFoundException, ValidationException {
 
 		Task task = getTaskDetail(taskId);
 
@@ -623,6 +623,8 @@ public class TaskServiceImpl implements TaskService {
 		if (task.getDeliveryBoy() != null) {
 			removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 		}
+
+		return task;
 	}
 
 	@Override
@@ -748,10 +750,12 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public void sendOrderDeliveryPushNotification(final Long taskId) throws NotFoundException {
+	public void sendOrderDeliveryPushNotification(final String pushNotificationType, final Task task) throws NotFoundException {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
-		pushNotificationDTO.setTaskId(taskId);
-		pushNotificationDTO.setType(NotificationQueueConstants.ORDER_DELIVERY_PUSH_NOTIFICATION);
+
+		pushNotificationDTO.setTaskId(task.getId());
+		pushNotificationDTO.setOrderId(task.getOrder().getId());
+		pushNotificationDTO.setType(pushNotificationType);
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 }

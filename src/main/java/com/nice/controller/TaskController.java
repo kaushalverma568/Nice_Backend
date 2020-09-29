@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TaskFilterDTO;
@@ -91,7 +92,7 @@ public class TaskController {
 	public ResponseEntity<Object> completeTask(@RequestHeader("Authorization") final String token, @PathVariable final Long taskId)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside complete task method for task Id: {}", taskId);
-		taskService.completeTask(taskId);
+		Task task = taskService.completeTask(taskId);
 		/**
 		 * send email start here
 		 */
@@ -102,7 +103,11 @@ public class TaskController {
 		/**
 		 * send push notification to vendor about order delivery
 		 */
-		taskService.sendOrderDeliveryPushNotification(taskId);
+		taskService.sendOrderDeliveryPushNotification(NotificationQueueConstants.ORDER_DELIVERY_PUSH_NOTIFICATION, task);
+		/**
+		 * send push notification to customer about order delivery
+		 */
+		taskService.sendOrderDeliveryPushNotification(NotificationQueueConstants.DELIVER_ORDER_PUSH_NOTIFICATION_CUSTOMER, task);
 
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
 				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();

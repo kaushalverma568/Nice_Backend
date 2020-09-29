@@ -76,9 +76,14 @@ public final class NotificationMessageConstantsArabic {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getCancelOrderMessage(final Long orderId) {
+	public static String getCancelOrderMessage(final Long orderId, final boolean cancelledByCustomer) {
 		StringBuilder message = new StringBuilder();
+		if (cancelledByCustomer) {
 		message.append("لقد ألغيت الطلب ").append(orderId).append(". إذا تم إلغاؤه عن طريق الخطأ ، يرجى تقديم الطلب مرة أخرى.");
+		} else {
+			message.append("طلبك").append(orderId).append("تم إلغاؤه من قبل المشرف ، آسف لخيبة الأمل.");
+		}
+
 		return message.toString();
 	}
 
@@ -86,9 +91,9 @@ public final class NotificationMessageConstantsArabic {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId) {
+	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, final String currentStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("لقد قمنا بمعالجة رقم طلبك ").append(orderId).append(". سنقوم بتسليمه قريبا.");
+		message.append("طلبك لا.").append(orderId).append("يكون").append(currentStatus).append(". سنقوم بتسليمه قريبا.");
 		return message.toString();
 	}
 
@@ -135,6 +140,49 @@ public final class NotificationMessageConstantsArabic {
 	public static String getPayoutMessage() {
 		StringBuilder message = new StringBuilder();
 		message = message.append("Your weekly/monthy Payment is Release by admin, Please check you added Bank Account for more update");
+		return message.toString();
+
+	/**
+	 *
+	 * @param orderId
+	 * @param amount
+	 * @return
+	 */
+	public static String getRefundOrderMessage(final Long orderId, final Double amount) {
+		StringBuilder message = new StringBuilder();
+		message.append("استرداد الخاص بك ل ").append(amount).append(" ضد الأمر لا.").append(orderId).append(" تمت إضافته إلى محفظتك");
+		return message.toString();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public static String profileSuspendedForCustomer() {
+		StringBuilder message = new StringBuilder();
+		message.append("حساب العميل الخاص بك على ").append("لطيف").append(" تم تعليقه مؤقتًا لمخالفته شروط وأحكام ").append("لطيف");
+		return message.toString();
+	}
+
+	/**
+	 * @param orderId
+	 * @param deliveryBoyName
+	 * @return
+	 */
+	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName) {
+		StringBuilder message = new StringBuilder();
+		message.append("طلبك ").append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
+		return message.toString();
+	}
+
+	/**
+	 * @param orderId
+	 * @param orderStatus
+	 * @return
+	 */
+	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatus).append("بنجاح");
 		return message.toString();
 	}
 }

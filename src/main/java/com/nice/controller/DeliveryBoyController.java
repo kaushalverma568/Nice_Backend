@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nice.constant.Constant;
+import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.DashBoardDetailDTO;
@@ -66,7 +67,7 @@ import com.nice.validator.DeliveryBoyValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : Jun 18, 2020
+ * @date : Jun 18, 2020
  */
 @RequestMapping(path = "/deliveryboy")
 @RestController
@@ -118,9 +119,9 @@ public class DeliveryBoyController {
 	/**
 	 * Add DeliveryBoy
 	 *
-	 * @param  deliveryBoyDTO
-	 * @param  result
-	 * @param  userId
+	 * @param deliveryBoyDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -148,9 +149,9 @@ public class DeliveryBoyController {
 	/**
 	 * Update account details
 	 *
-	 * @param  deliveryBoyDTO
-	 * @param  result
-	 * @param  userId
+	 * @param deliveryBoyDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -175,8 +176,8 @@ public class DeliveryBoyController {
 	/**
 	 * Get DeliveryBoy
 	 *
-	 * @param  deliveryBoyId
-	 * @param  userId
+	 * @param deliveryBoyId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -192,13 +193,13 @@ public class DeliveryBoyController {
 	/**
 	 * Get DeliveryBoy List
 	 *
-	 * @param  accessToken
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyword
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param accessToken
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyword
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -220,10 +221,10 @@ public class DeliveryBoyController {
 	/**
 	 * Export delivery boy
 	 *
-	 * @param  accessToken
-	 * @param  httpServletResponse
-	 * @param  activeRecords
-	 * @param  searchKeyword
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param activeRecords
+	 * @param searchKeyword
 	 * @return
 	 * @throws FileNotFoundException
 	 */
@@ -239,8 +240,8 @@ public class DeliveryBoyController {
 	/**
 	 * Change Status of DeliveryBoy (Active/DeActive)
 	 *
-	 * @param  deliveryBoyId
-	 * @param  active
+	 * @param deliveryBoyId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -262,8 +263,8 @@ public class DeliveryBoyController {
 	/**
 	 * update profile picture of delivery boy
 	 *
-	 * @param  deliveryBoyId
-	 * @param  userId
+	 * @param deliveryBoyId
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -285,8 +286,8 @@ public class DeliveryBoyController {
 	/**
 	 * Accept order
 	 *
-	 * @param  accessToken
-	 * @param  orderId
+	 * @param accessToken
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -297,6 +298,7 @@ public class DeliveryBoyController {
 			@PathVariable("taskType") final String taskType) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside accept order where order id {} and task type {}", orderId, taskType);
 		deliveryBoyService.acceptOrder(orderId, taskType);
+		deliveryBoyService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_CUSTOMER, orderId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(deliveryBoyService.getDashBoard())
 				.setMessage(messageByLocaleService.getMessage("accept.order.success", null)).create();
 	}
@@ -319,8 +321,8 @@ public class DeliveryBoyController {
 	/**
 	 * log out delivery boy
 	 *
-	 * @param  accessToken
-	 * @param  userId
+	 * @param accessToken
+	 * @param userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -338,9 +340,9 @@ public class DeliveryBoyController {
 	/**
 	 * Update personal details
 	 *
-	 * @param  deliveryBoyDTO
-	 * @param  result
-	 * @param  userId
+	 * @param deliveryBoyDTO
+	 * @param result
+	 * @param userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -379,7 +381,7 @@ public class DeliveryBoyController {
 	/**
 	 * Get assigned orders count
 	 *
-	 * @param  deliveryBoyId
+	 * @param deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -398,7 +400,7 @@ public class DeliveryBoyController {
 	/**
 	 * Get delivered orders count
 	 *
-	 * @param  deliveryBoyId
+	 * @param deliveryBoyId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -418,8 +420,8 @@ public class DeliveryBoyController {
 	/**
 	 * update is available status for delivering orders
 	 *
-	 * @param  deliveryBoyId
-	 * @param  active
+	 * @param deliveryBoyId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -437,9 +439,9 @@ public class DeliveryBoyController {
 	/**
 	 * Get order detail in accept notification
 	 *
-	 * @param  accessToken
-	 * @param  deliveryBoyId
-	 * @param  orderId
+	 * @param accessToken
+	 * @param deliveryBoyId
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -457,8 +459,8 @@ public class DeliveryBoyController {
 	 * Get order detail for delivery boy (This is used for all the order detail screens except (accept/reject notification
 	 * screen) )
 	 *
-	 * @param  accessToken
-	 * @param  taskId
+	 * @param accessToken
+	 * @param taskId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -475,11 +477,11 @@ public class DeliveryBoyController {
 	/**
 	 * Get assigned order list for delivery boy
 	 *
-	 * @param  accessToken
-	 * @param  deliveryBoyId
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  orderDate
+	 * @param accessToken
+	 * @param deliveryBoyId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param orderDate
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -508,10 +510,10 @@ public class DeliveryBoyController {
 	/**
 	 * Get today's delivered order list for delivery boy
 	 *
-	 * @param  accessToken
-	 * @param  deliveryBoyId
-	 * @param  pageNumber
-	 * @param  pageSize
+	 * @param accessToken
+	 * @param deliveryBoyId
+	 * @param pageNumber
+	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -540,10 +542,10 @@ public class DeliveryBoyController {
 	/**
 	 * get delivery log list based on params
 	 *
-	 * @param  accessToken
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  deliveryLogFilterDTO
+	 * @param accessToken
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param deliveryLogFilterDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -564,9 +566,9 @@ public class DeliveryBoyController {
 	/**
 	 * export delivery log list based on filters
 	 *
-	 * @param  accessToken
-	 * @param  httpServletResponse
-	 * @param  deliveryLogFilterDTO
+	 * @param accessToken
+	 * @param httpServletResponse
+	 * @param deliveryLogFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws FileNotFoundException

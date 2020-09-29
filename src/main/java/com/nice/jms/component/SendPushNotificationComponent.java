@@ -17,9 +17,11 @@ import com.nice.constant.NotificationMessageConstantsArabic;
 import com.nice.constant.NotificationMessageConstantsEnglish;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.UserType;
+import com.nice.constant.WalletTransactionTypeEnum;
 import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.NotificationPayloadDto;
 import com.nice.dto.PushNotificationDTO;
+import com.nice.dto.WalletTrxDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.Customer;
@@ -44,12 +46,13 @@ import com.nice.service.TaskService;
 import com.nice.service.TicketService;
 import com.nice.service.UserLoginService;
 import com.nice.service.VendorService;
+import com.nice.service.WalletTrxService;
 import com.nice.util.CommonUtility;
 import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Apr-2020
+ * @date : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -102,6 +105,9 @@ public class SendPushNotificationComponent {
 
 	@Autowired
 	private CompanyService companyService;
+
+	@Autowired
+	private WalletTrxService walletTxnService;
 
 	@Value("${application.name}")
 	private String applicationName;
@@ -234,7 +240,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -284,7 +290,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -349,7 +355,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -402,7 +408,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -578,16 +584,23 @@ public class SendPushNotificationComponent {
 
 	public void cancelOrderNotification(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(pushNotificationDTO.getType())
-				&& NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
+				&& (NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
+						|| NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType()))
 				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
+
+			Boolean orderCancelledByCustomer = true;
+			if (NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())) {
+				orderCancelledByCustomer = false;
+			}
+
 			StringBuilder message = new StringBuilder();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
 					UserType.CUSTOMER.name());
 			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
-			String messageEnglish = NotificationMessageConstantsEnglish.getCancelOrderMessage(pushNotificationDTO.getOrderId());
-			String messageArabic = NotificationMessageConstantsArabic.getCancelOrderMessage(pushNotificationDTO.getOrderId());
+			String messageEnglish = NotificationMessageConstantsEnglish.getCancelOrderMessage(pushNotificationDTO.getOrderId(), orderCancelledByCustomer);
+			String messageArabic = NotificationMessageConstantsArabic.getCancelOrderMessage(pushNotificationDTO.getOrderId(), orderCancelledByCustomer);
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
@@ -622,8 +635,11 @@ public class SendPushNotificationComponent {
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
 					UserType.CUSTOMER.name());
 			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
-			String messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId());
-			String messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId());
+			Orders order = ordersService.getOrder(pushNotificationDTO.getOrderId());
+			String messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
+					order.getOrderStatus());
+			String messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
+					order.getOrderStatus());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
@@ -657,9 +673,10 @@ public class SendPushNotificationComponent {
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
 					UserType.CUSTOMER.name());
+			Orders order = ordersService.getOrder(pushNotificationDTO.getOrderId());
 			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
-			String messageEnglish = NotificationMessageConstantsEnglish.orderDeliverySuccessful(pushNotificationDTO.getOrderId());
-			String messageArabic = NotificationMessageConstantsArabic.orderDeliverySuccessful(pushNotificationDTO.getOrderId());
+			String messageEnglish = NotificationMessageConstantsEnglish.orderDeliverySuccessful(pushNotificationDTO.getOrderId(), order.getOrderStatus());
+			String messageArabic = NotificationMessageConstantsArabic.orderDeliverySuccessful(pushNotificationDTO.getOrderId(), order.getOrderStatus());
 			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 					messageArabic, Constant.ORDER_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
@@ -791,4 +808,118 @@ public class SendPushNotificationComponent {
 			}
 		}
 	}
+
+	public void refundOrderNotification(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(pushNotificationDTO.getType())
+				&& NotificationQueueConstants.REFUND_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
+				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
+			StringBuilder message = new StringBuilder();
+			JsonObject notificationObject = new JsonObject();
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
+					UserType.CUSTOMER.name());
+			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			WalletTrxDTO walletTrx = walletTxnService.getWalletTxnByOrderIdAndTxnType(pushNotificationDTO.getOrderId(),
+					WalletTransactionTypeEnum.REFUND.name());
+			String messageEnglish = NotificationMessageConstantsEnglish.getRefundOrderMessage(pushNotificationDTO.getOrderId(), walletTrx.getAmount());
+			String messageArabic = NotificationMessageConstantsArabic.getRefundOrderMessage(pushNotificationDTO.getOrderId(), walletTrx.getAmount());
+			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
+					messageArabic, Constant.ORDER_MODULE);
+			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
+			if (customer.getPreferredLanguage().equals("en")) {
+				message = message.append(pushNotification.getMessageEnglish());
+			} else {
+				message = message.append(pushNotification.getMessageArabic());
+			}
+			notificationObject.addProperty(BODY, message.toString());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+			LOGGER.info("Customer place order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
+			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+			for (DeviceDetail deviceDetail : deviceDetailList) {
+				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
+						userLoginSender.getId(), userLoginReceiver.getId());
+				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+			}
+		}
+	}
+
+	public void acceptOrderNotificationToCustomer(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(pushNotificationDTO.getType())
+				&& NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_CUSTOMER.equalsIgnoreCase(pushNotificationDTO.getType())
+				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
+			StringBuilder message = new StringBuilder();
+			JsonObject notificationObject = new JsonObject();
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
+					UserType.CUSTOMER.name());
+			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(pushNotificationDTO.getDeliveryBoyId());
+			String messageEnglish = NotificationMessageConstantsEnglish.getOrderAcceptedMessageToCustomer(pushNotificationDTO.getOrderId(),
+					deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()));
+			String messageArabic = NotificationMessageConstantsArabic.getOrderAcceptedMessageToCustomer(pushNotificationDTO.getOrderId(),
+					deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
+			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
+					messageArabic, Constant.ORDER_MODULE);
+			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
+			if (customer.getPreferredLanguage().equals("en")) {
+				message = message.append(pushNotification.getMessageEnglish());
+			} else {
+				message = message.append(pushNotification.getMessageArabic());
+			}
+			notificationObject.addProperty(BODY, message.toString());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+			LOGGER.info("Customer place order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
+			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+			for (DeviceDetail deviceDetail : deviceDetailList) {
+				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
+						userLoginSender.getId(), userLoginReceiver.getId());
+				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+			}
+		}
+	}
+
+	public void deactivationNotificationToCustomer(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(pushNotificationDTO.getType())
+				&& NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION.equalsIgnoreCase(pushNotificationDTO.getType())
+				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
+			StringBuilder message = new StringBuilder();
+			JsonObject notificationObject = new JsonObject();
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
+					UserType.CUSTOMER.name());
+			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			String messageEnglish = NotificationMessageConstantsEnglish.profileSuspendedForCustomer();
+			String messageArabic = NotificationMessageConstantsArabic.profileSuspendedForCustomer();
+			PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
+					messageArabic, Constant.ORDER_MODULE);
+			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+			Customer customer = customerService.getCustomerDetails(userLoginReceiver.getEntityId());
+			if (customer.getPreferredLanguage().equals("en")) {
+				message = message.append(pushNotification.getMessageEnglish());
+			} else {
+				message = message.append(pushNotification.getMessageArabic());
+			}
+			notificationObject.addProperty(BODY, message.toString());
+			NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+			notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+			notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+			LOGGER.info("Customer place order notification for customer: {} and order: {}", customer.getId(), pushNotificationDTO.getOrderId());
+			List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+			for (DeviceDetail deviceDetail : deviceDetailList) {
+				PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
+						userLoginSender.getId(), userLoginReceiver.getId());
+				pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
+				sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+			}
+		}
+	}
+
 }

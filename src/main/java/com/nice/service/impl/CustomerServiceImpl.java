@@ -37,6 +37,7 @@ import com.nice.dto.CustomerExport;
 import com.nice.dto.CustomerPersonalDetailsDTO;
 import com.nice.dto.CustomerResponseDTO;
 import com.nice.dto.Notification;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.SettingsDto;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
@@ -60,7 +61,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -115,8 +116,7 @@ public class CustomerServiceImpl implements CustomerService {
 		customer.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 
 		/**
-		 * Set wallet balance for customer to the value of signup bonus intended by the
-		 * user
+		 * Set wallet balance for customer to the value of signup bonus intended by the user
 		 */
 		SettingsDto settingsDto = settingsService.getSettingsDetailsByNameForNonEncryptedFields(Constant.CUSTOMER_SIGNUP_REWARD);
 		customer.setWalletAmt(Double.valueOf(settingsDto.getFieldValue()));
@@ -254,8 +254,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -315,8 +315,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -343,8 +343,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
@@ -421,9 +421,8 @@ public class CustomerServiceImpl implements CustomerService {
 			Optional<Customer> optCustomer = customerRepository.findByEmail(customerDTO.getEmail().toLowerCase());
 			if (optCustomer.isPresent()) {
 				/**
-				 * If the customer is present and his email not verified, then we will be
-				 * sending the verification link for him again, if the email is verified then we
-				 * will be returning true.
+				 * If the customer is present and his email not verified, then we will be sending the verification link for him again,
+				 * if the email is verified then we will be returning true.
 				 */
 				Customer customer = optCustomer.get();
 				return customer.getEmailVerified();
@@ -513,6 +512,15 @@ public class CustomerServiceImpl implements CustomerService {
 	public Double getWalletBalance() {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		return customerRepository.getWalletAmountForCustomer(userLogin.getEntityId());
+	}
+
+	@Override
+	public void sendPushNotification(final String deactiveCustomerNotification, final Long customerId) {
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setModule(Constant.DELIVERY_BOY_PROFILE);
+		pushNotificationDTO.setCustomerId(customerId);
+		pushNotificationDTO.setType(deactiveCustomerNotification);
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
 }

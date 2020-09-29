@@ -225,8 +225,9 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		orderService.cancelOrder(replaceCancelOrderDto, false);
-		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
-		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,
+				replaceCancelOrderDto.getOrderId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -384,6 +385,7 @@ public class OrdersController {
 
 		}
 		orderService.refundAmount(refundAmountDto);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.REFUND_ORDER_PUSH_NOTIFICATION_CUSTOMER, refundAmountDto.getOrderId());
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.update.message", null))
 				.create();
 	}

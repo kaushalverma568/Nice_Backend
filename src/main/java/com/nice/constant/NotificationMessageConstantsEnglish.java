@@ -87,9 +87,14 @@ public final class NotificationMessageConstantsEnglish {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getCancelOrderMessage(final Long orderId) {
+	public static String getCancelOrderMessage(final Long orderId, final boolean cancelByCustomer) {
 		StringBuilder message = new StringBuilder();
-		message.append("You have cancelled an order ").append(orderId).append(". If it is cancelled by mistake please place the order again.");
+		if (cancelByCustomer) {
+			message.append("You have cancelled an order ").append(orderId).append(". If it is cancelled by mistake please place the order again.");
+		} else {
+			message.append("Your order ").append(orderId).append("is cancelled by admin, sorry for disappointment.");
+		}
+
 		return message.toString();
 	}
 
@@ -97,9 +102,9 @@ public final class NotificationMessageConstantsEnglish {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId) {
+	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, final String currentStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("We have process your order no. ").append(orderId).append(". We will delivery it shortly.");
+		message.append("Your order no. ").append(orderId).append(" is ").append(currentStatus).append(". We will delivery it shortly.");
 		return message.toString();
 	}
 
@@ -107,9 +112,9 @@ public final class NotificationMessageConstantsEnglish {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String orderDeliverySuccessful(final Long orderId) {
+	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your order no. ").append(orderId).append(" has been delivered to you successfully.");
+		message.append("Your order no. ").append(orderId).append(" has been sucessfully ").append(orderStatus);
 		return message.toString();
 	}
 
@@ -144,4 +149,39 @@ public final class NotificationMessageConstantsEnglish {
 				.append(" has been rejected by vendor. If you have paid for the order online the amount would be refunded your nice wallet");
 		return message.toString();
 	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param amount
+	 * @return
+	 */
+	public static String getRefundOrderMessage(final Long orderId, final Double amount) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your refund for ").append(amount).append(" against order no. ").append(orderId).append(" has credited to your Nice wallet");
+		return message.toString();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public static String profileSuspendedForCustomer() {
+		StringBuilder message = new StringBuilder();
+		message.append("Your Customer account on ").append("Nice").append(" has been temporarily  suspended for violating the terms and conditions of ")
+				.append("Nice");
+		return message.toString();
+	}
+
+	/**
+	 * @param orderId
+	 * @param concat
+	 * @return
+	 */
+	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
+		return message.toString();
+	}
+
 }

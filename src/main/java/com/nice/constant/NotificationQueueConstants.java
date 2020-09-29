@@ -2,7 +2,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public final class NotificationQueueConstants {
 
@@ -39,8 +39,11 @@ public final class NotificationQueueConstants {
 	public static final String REPLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Replace Order Push Notification Customer";
 	public static final String RETURN_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Return Order Push Notification Customer";
 	public static final String CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER = "Cancel Order Push Notification Customer";
+	public static final String CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER = "Cancel Order By Admin Push Notification Customer";
 	public static final String REJECT_ORDER_PUSH_NOTIFICATION_CUSTOMER = "REJECT_ORDER_PUSH_NOTIFICATION_CUSTOMER";
 	public static final String PAYOUT = "Payout";
+	public static final String REFUND_ORDER_PUSH_NOTIFICATION_CUSTOMER = "REFUND_ORDER_PUSH_NOTIFICATION_CUSTOMER";
+	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_CUSTOMER = "ACCEPT_ORDER_PUSH_NOTIFICATION_CUSTOMER";
 
 	/**
 	 * Email notifications for orders to customer
@@ -49,4 +52,9 @@ public final class NotificationQueueConstants {
 	public static final String REPLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Replace Order Email Notification Customer";
 	public static final String RETURN_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Return Order Email Notification Customer";
 	public static final String CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER = "Cancel Order Email Notification Customer";
+
+	/**
+	 * Deactive notification to customer for deactivation.
+	 */
+	public static final String DEACTIVE_CUSTOMER_NOTIFICATION = "Deactive customer push notification";
 }

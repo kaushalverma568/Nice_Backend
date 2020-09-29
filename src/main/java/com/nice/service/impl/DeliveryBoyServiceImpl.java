@@ -49,6 +49,7 @@ import com.nice.dto.OrderItemResponseDTO;
 import com.nice.dto.OrdersCountDTO;
 import com.nice.dto.OrdersDetailDTOForDeliveryBoy;
 import com.nice.dto.OrdersListDTOForDeliveryBoy;
+import com.nice.dto.PushNotificationDTO;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.dto.UserOtpDto;
@@ -90,7 +91,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -250,8 +251,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -275,8 +276,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -424,8 +425,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param  profilePicture
-	 * @param  deliveryBoy
+	 * @param profilePicture
+	 * @param deliveryBoy
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -511,8 +512,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  deliveryBoy
+	 * @param userLogin
+	 * @param deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -987,6 +988,19 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Override
 	public Long getCountOfNewDeliveryBoys() {
 		return deliveryBoyRepository.getCountOfNewDeliveryBoys(DeliveryBoyStatus.PENDING.name(), DeliveryBoyStatus.VERIFIED.name());
+	}
+
+	@Override
+	public void sendPushNotification(final String acceptOrderPushNotificationCustomer, final Long orderId) throws NotFoundException {
+		Orders orders = ordersService.getOrderById(orderId);
+		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+		pushNotificationDTO.setModule(Constant.ORDER_MODULE);
+		pushNotificationDTO.setOrderId(orderId);
+		pushNotificationDTO.setCustomerId(orders.getCustomer().getId());
+		pushNotificationDTO.setType(acceptOrderPushNotificationCustomer);
+		pushNotificationDTO
+				.setDeliveryBoyId(orders.getReplacementDeliveryBoy() != null ? orders.getReplacementDeliveryBoy().getId() : orders.getDeliveryBoy().getId());
+		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
 }
