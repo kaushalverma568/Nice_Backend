@@ -247,6 +247,8 @@ public class SendEmailNotificationComponent {
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		if (emailNotification.getCustomerId() != null) {
+			String subject;
+			String content;
 			LOGGER.info("send customer registration email");
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
@@ -259,8 +261,14 @@ public class SendEmailNotificationComponent {
 
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
-			String welcomeEmailSubject = "Welcome to " + applicationName;
-			emailUtil.sendEmail(welcomeEmailSubject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
+			if (customer.getPreferredLanguage().equals("en")) {
+				content = NotificationMessageConstantsEnglish.welcome(applicationName);
+				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationName);
+			} else {
+				content = NotificationMessageConstantsArabic.welcome(applicationName);
+				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationName);
+			}
+			emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
 					emailNotification.getLanguage());
 		}
 	}

@@ -14,9 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.UserType;
 import com.nice.dto.DeliveryBoyPayoutDTO;
@@ -35,6 +37,7 @@ import com.nice.mapper.PaymentDetailsMapper;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
+import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.PaymentDetailsRepository;
 import com.nice.repository.TaskRepository;
@@ -42,6 +45,7 @@ import com.nice.service.DeliveryBoyService;
 import com.nice.service.PaymentDetailsService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
+import com.nice.util.CommonUtility;
 import com.nice.util.ExportCSV;
 
 /**
@@ -186,8 +190,12 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public Page<PaymentDetails> getPaymentHistory(final Long deliveryBoyId, final Long vendorId, final Date fromDate, final Date toDate,
-			final Integer pageNumber, final Integer pageSize) throws ValidationException, NotFoundException {
+	public Page<PaymentDetails> getPaymentHistory(final Long deliveryBoyId, Long vendorId, final Date fromDate, final Date toDate, final Integer pageNumber,
+			final Integer pageSize) throws ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
 		if ((deliveryBoyId == null && vendorId == null) || (deliveryBoyId != null && vendorId != null)) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.or.vendor.required", null));
 		}
@@ -237,12 +245,20 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public Long getVendorPayoutCountBasedOnParam(final Long vendorId, final Long businessCategoryId) {
+	public Long getVendorPayoutCountBasedOnParam(Long vendorId, final Long businessCategoryId) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
 		return paymentDetailsRepository.getVendorPayoutCountBasedOnParam(vendorId, businessCategoryId);
 	}
 
 	@Override
-	public List<VendorPayoutDTO> getVendorPayout(final Long vendorId, final Long businessCategoryId, final Integer startIndex, final Integer pageSize) {
+	public List<VendorPayoutDTO> getVendorPayout(Long vendorId, final Long businessCategoryId, final Integer startIndex, final Integer pageSize) {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
 		return paymentDetailsRepository.getVendorPayout(vendorId, businessCategoryId, startIndex, pageSize);
 	}
 
@@ -289,8 +305,12 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public void exportPaymentHistory(final HttpServletResponse httpServletResponse, final Long deliveryBoyId, final Long vendorId, final Date fromDate,
+	public void exportPaymentHistory(final HttpServletResponse httpServletResponse, final Long deliveryBoyId, Long vendorId, final Date fromDate,
 			final Date toDate) throws NotFoundException, ValidationException, FileOperationException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
 		if ((deliveryBoyId == null && vendorId == null) || (deliveryBoyId != null && vendorId != null)) {
 			throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.or.vendor.required", null));
 		}
@@ -352,8 +372,11 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	}
 
 	@Override
-	public void exportVendorPayout(final Long vendorId, final Long businessCategoryId, final HttpServletResponse httpServletResponse)
-			throws FileOperationException {
+	public void exportVendorPayout(Long vendorId, final Long businessCategoryId, final HttpServletResponse httpServletResponse) throws FileOperationException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
 		List<VendorPayoutDTO> vendorPayoutDTOs = paymentDetailsRepository.getVendorPayout(vendorId, businessCategoryId, null, null);
 		final Object[] vendorPayoutHeaderField = new Object[] { "Business Name", "Business Contact Number", "Vendor Name", "Vendor Contact Number", "Vendor Id",
 				"Business Category", "Registered On", "Cart Orders", "Replacement Orders", "Return Orders", "Total Orders", "Total Paid", "Last Paid On" };
