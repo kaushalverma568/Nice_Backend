@@ -157,6 +157,30 @@ public class SendEmailNotificationComponent {
 			sendEmailForPlaceOrderToCustomer(emailNotification);
 		} else if (NotificationQueueConstants.PAYOUT.equals(emailNotification.getType())) {
 			sendEmailAfterPayout(emailNotification);
+		} else if (NotificationQueueConstants.DELIVERY_BOY_ACCOUNT_ACTIVATION.equals(emailNotification.getType())) {
+			sendEmailAfterDeliveryBoyAccountActivation(emailNotification);
+		}
+	}
+
+	private void sendEmailAfterDeliveryBoyAccountActivation(final Notification emailNotification)
+			throws GeneralSecurityException, IOException, MessagingException, NotFoundException {
+		LOGGER.info("send account activation email");
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		if (emailNotification.getDeliveryBoyId() != null) {
+			CompanyResponseDTO company = companyService.getCompany(true);
+			emailParameterMap.put(LOGO, company.getCompanyImage());
+			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
+			emailParameterMap.put("deliveryBoyName",
+					deliveryBoy.getPreferredLanguage().equals("en") ? deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish())
+							: deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
+			String subject = "Account Activation";
+			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.DELIVERY_BOY_ACCOUNT_ACTIVATION.name(),
+					deliveryBoy.getPreferredLanguage());
 		}
 	}
 

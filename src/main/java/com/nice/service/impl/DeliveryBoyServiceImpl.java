@@ -91,7 +91,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -251,8 +251,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -276,8 +276,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -425,8 +425,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param profilePicture
-	 * @param deliveryBoy
+	 * @param  profilePicture
+	 * @param  deliveryBoy
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -512,8 +512,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -927,21 +927,46 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		BeanUtils.copyProperties(orders, ordersDetailDTOForDeliveryBoy);
 		ordersDetailDTOForDeliveryBoy.setCustomerEmail(orders.getCustomer().getEmail());
 		ordersDetailDTOForDeliveryBoy.setCustomerName(orders.getFirstName() + " " + orders.getLastName());
-		ordersDetailDTOForDeliveryBoy.setOrderRequest("New Order");
-		ordersDetailDTOForDeliveryBoy.setDropLatitude(orders.getLatitude());
-		ordersDetailDTOForDeliveryBoy.setDropLongitude(orders.getLongitude());
-		ordersDetailDTOForDeliveryBoy.setDropContactNo(orders.getPhoneNumber());
-		ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getFirstName() + " " + orders.getLastName());
-		ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getVendor().getLatitude());
-		ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getVendor().getLongitude());
-		ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getVendor().getStorePhoneNumber());
-		ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
-		if (locale.getLanguage().equals("en")) {
-			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressEnglish());
-			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameEnglish());
+		if (Constant.normalOrderStatusList().contains(orders.getOrderStatus())) {
+			ordersDetailDTOForDeliveryBoy.setOrderRequest("New Order");
+			ordersDetailDTOForDeliveryBoy.setDropLatitude(orders.getLatitude());
+			ordersDetailDTOForDeliveryBoy.setDropLongitude(orders.getLongitude());
+			ordersDetailDTOForDeliveryBoy.setDropContactNo(orders.getPhoneNumber());
+			ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getFirstName() + " " + orders.getLastName());
+			ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getVendor().getLatitude());
+			ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getVendor().getLongitude());
+			ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getVendor().getStorePhoneNumber());
+			ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
+			if (locale.getLanguage().equals("en")) {
+				ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressEnglish());
+				ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameEnglish());
+			} else {
+				ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressArabic());
+				ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameArabic());
+			}
 		} else {
-			ordersDetailDTOForDeliveryBoy.setDropAddress(orders.getAddressArabic());
-			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getVendor().getStoreNameArabic());
+			if (Constant.returnOrderStatusList().contains(orders.getOrderStatus())) {
+				ordersDetailDTOForDeliveryBoy.setOrderRequest("Return Order");
+			} else {
+				ordersDetailDTOForDeliveryBoy.setOrderRequest("Replacement");
+			}
+			ordersDetailDTOForDeliveryBoy.setDropLatitude(orders.getVendor().getLatitude());
+			ordersDetailDTOForDeliveryBoy.setDropLongitude(orders.getVendor().getLongitude());
+			ordersDetailDTOForDeliveryBoy.setDropContactNo(orders.getVendor().getStorePhoneNumber());
+			ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getLatitude());
+			ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getLongitude());
+			ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getPhoneNumber());
+			ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
+			ordersDetailDTOForDeliveryBoy.setDropAddress(getVendorAddress(orders.getVendor()));
+			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getFirstName() + " " + orders.getLastName());
+			if (locale.getLanguage().equals("en")) {
+				ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getVendor().getStoreNameEnglish());
+				ordersDetailDTOForDeliveryBoy.setPickUpAddress(orders.getAddressEnglish());
+			} else {
+				ordersDetailDTOForDeliveryBoy.setDropContactName(orders.getVendor().getStoreNameArabic());
+				ordersDetailDTOForDeliveryBoy.setPickUpAddress(orders.getAddressEnglish());
+
+			}
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(orders.getVendor().getStoreImageName())) {
 			ordersDetailDTOForDeliveryBoy.setStoreImageUrl(assetService.getGeneratedUrl(orders.getVendor().getStoreImageName(), AssetConstant.VENDOR));
@@ -1003,4 +1028,11 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);
 	}
 
+	@Override
+	public void sendEmailAfterAccountActivation(final Long deliveryBoyId) {
+		Notification notification = new Notification();
+		notification.setDeliveryBoyId(deliveryBoyId);
+		notification.setType(NotificationQueueConstants.DELIVERY_BOY_ACCOUNT_ACTIVATION);
+		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+	}
 }

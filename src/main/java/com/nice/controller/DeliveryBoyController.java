@@ -256,6 +256,12 @@ public class DeliveryBoyController {
 		if (userName != null) {
 			revokeToken(userName.concat("!!").concat(UserType.DELIVERY_BOY.name()));
 		}
+		/**
+		 * send push notification to delivery boy
+		 */
+		if (Boolean.TRUE.equals(active)) {
+			deliveryBoyService.sendEmailAfterAccountActivation(deliveryBoyId);
+		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_UPDATE_MESSAGE, null))
 				.create();
 	}

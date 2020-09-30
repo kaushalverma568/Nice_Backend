@@ -242,23 +242,21 @@ public interface StockDetailsService {
 
 	/**
 	 * 
-	 * @param vendorId
 	 * @param pageNumber
 	 * @param pageSize
 	 * @return
 	 * @throws ValidationException 
 	 * @throws NotFoundException 
 	 */
-	Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
+	Page<ProductVariantResponseDTO> getLowStockProduct(Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
 
 	/**
 	 * 
-	 * @param vendorId
 	 * @param pageNumber
 	 * @param pageSize
 	 * @return
 	 * @throws NotFoundException 
 	 */
-	Page<StockDetailsDTO> getExpireStockDetails(Long vendorId, Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
+	Page<StockDetailsDTO> getExpireStockDetails(Integer pageNumber, Integer pageSize) throws ValidationException, NotFoundException;
 
 }

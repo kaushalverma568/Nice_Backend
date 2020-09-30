@@ -3,11 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Registration</title>
+    <title>Welcome</title>
     <style>
         body {
          font-family: "Segoe UI", sans-serif;
-          direction: rtl ;
      }
 
      table{
@@ -18,7 +17,7 @@
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
-    
+
     table tr{
         line-height: 1;
         padding: 0;
@@ -40,25 +39,22 @@
                 <td>
                     <img src="{{applicationBigLogo}}" alt="Banner image">
                 </td>
-            </tr>           
-              <tr> 
+            </tr>   
+            <tr> 
                 <td style="padding: 30px 20px 0px 20px;">
-                    <p style="line-height: 22px;"> Dear {{userName}}, Your Payment date {{paidOn}} is Release by admin, Please check you added Bank Account for more Update
-           </p>
+                     <p><span style="font-weight: 700; font-size: 17px;"> Dear {{deliveryBoyName}},</span></p>
+
+					<p style="line-height: 22px;">  Your Nice account activated by admin ,Now you can Login-in into the Nice delivery boy application Thank you. </p>
                 </td>
             </tr>
-            
             <tr>
-                <td style="padding:20px;">الأفضل،
-<br/>الفريق {{applicationName}}</td>
+                <td style="padding:20px; line-height: 22px;">regards,<br/>Team {{applicationName}}</td>
             </tr>
 
             <tr>
                 <td style="color: #666666;font-size:14px; padding: 10px 20px;">
-                    <span style="padding-bottom: 5px; display: inline-block;">خدمة العملاء لا.
-: {{customerCareContact}}</span><br>
-                    <span style="padding-bottom: 5px; display: inline-block;">عنوان البريد الالكترونى
-: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
+                    <span style="padding-bottom: 5px; display: inline-block;">Customer care no.: {{customerCareContact}}</span><br>
+                    <span style="padding-bottom: 5px; display: inline-block;">Email address: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
                 </td>
             </tr>
         </tbody>
