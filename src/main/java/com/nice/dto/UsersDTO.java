@@ -43,4 +43,6 @@ public class UsersDTO implements Serializable {
 	private Boolean active;
 
 	private String password;
+
+	private String preferredLanguage;
 }

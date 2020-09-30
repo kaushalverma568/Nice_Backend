@@ -31,7 +31,7 @@ import com.nice.service.UsersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "usersService")
 @Transactional(rollbackFor = Throwable.class)
@@ -102,6 +102,7 @@ public class UsersServiceImpl implements UsersService {
 			}
 		}
 		Users users = usersMapper.toEntity(usersDTO);
+		users.setPreferredLanguage(existingUsers.getPreferredLanguage());
 		users.setRole(role);
 		usersRepository.save(users);
 	}
@@ -114,7 +115,7 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	/**
-	 * @param usersId
+	 * @param  usersId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -142,7 +143,7 @@ public class UsersServiceImpl implements UsersService {
 			throw new ValidationException(messageByLocaleService.getMessage("active.not.null", null));
 		} else if (existingUsers.getActive().equals(active)) {
 			throw new ValidationException(
-					messageByLocaleService.getMessage("user.active.deactive", new Object[] { (active.booleanValue() ? "active" : "deActive") }));
+					messageByLocaleService.getMessage("user.active.deactive", new Object[] { active.booleanValue() ? "active" : "deActive" }));
 		} else {
 			if (Boolean.FALSE.equals(active)) {
 				LOGGER.info("Deactivate user login");

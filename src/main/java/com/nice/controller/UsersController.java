@@ -113,7 +113,7 @@ public class UsersController {
 	 * @throws NotFoundException
 	 */
 	@PutMapping
-	@PreAuthorize("hasPermission('Users','CAN_EDIT')")
+	// @PreAuthorize("hasPermission('Users','CAN_EDIT')")
 	public ResponseEntity<Object> updateUsers(@RequestHeader("Authorization") final String accessToken, @RequestBody @Valid final UsersDTO usersDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside update users {}", usersDTO);
