@@ -529,6 +529,15 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setBusinessCategoryNameArabic(businessCategoryDto.getNameArabic());
 		Category category = categoryService.getCategoryDetail(productResponseDTO.getCategoryId());
 
+		/**
+		 * Get Vendor details
+		 */
+
+		Vendor vendor = vendorService.getVendorDetail(product.getVendorId());
+
+		productResponseDTO.setStoreNameArabic(vendor.getStoreNameArabic());
+		productResponseDTO.setStoreNameEnglish(vendor.getStoreNameEnglish());
+
 		productResponseDTO.setCategoryNameEnglish(category.getNameEnglish());
 		productResponseDTO.setCategoryNameArabic(category.getNameArabic());
 		if (productResponseDTO.getSubcategoryId() != null) {
@@ -554,12 +563,16 @@ public class ProductServiceImpl implements ProductService {
 			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameEnglish());
 			productResponseDTO.setBrandName(productResponseDTO.getBrandNameEnglish());
 			productResponseDTO.setBusinessCategoryName(productResponseDTO.getBusinessCategoryNameEnglish());
+			productResponseDTO.setStoreName(vendor.getStoreNameEnglish());
+			productResponseDTO.setStoreContactNumber(vendor.getStorePhoneNumber());
 		} else {
 			productResponseDTO.setCategoryName(productResponseDTO.getCategoryNameArabic());
 			productResponseDTO.setSubcategoryName(productResponseDTO.getSubcategoryNameArabic());
 			productResponseDTO.setCuisineName(productResponseDTO.getCuisineNameArabic());
 			productResponseDTO.setBrandName(productResponseDTO.getBrandNameArabic());
 			productResponseDTO.setBusinessCategoryName(productResponseDTO.getBusinessCategoryNameArabic());
+			productResponseDTO.setStoreName(vendor.getStoreNameArabic());
+			productResponseDTO.setStoreContactNumber(vendor.getStorePhoneNumber());
 		}
 		productResponseDTO.setImage(assetService.getGeneratedUrl(product.getImage(), AssetConstant.PRODUCT_DIR));
 		productResponseDTO.setDetailImage(assetService.getGeneratedUrl(product.getDetailImage(), AssetConstant.PRODUCT_DIR));
@@ -622,6 +635,7 @@ public class ProductServiceImpl implements ProductService {
 		if (product.getDiscountId() != null) {
 			productResponseDTO.setDiscountStatus(discountService.getDiscountDetails(product.getDiscountId()).getStatus());
 		}
+
 		return productResponseDTO;
 	}
 

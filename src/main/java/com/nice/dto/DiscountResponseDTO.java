@@ -7,7 +7,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class DiscountResponseDTO implements Serializable {
@@ -38,6 +38,12 @@ public class DiscountResponseDTO implements Serializable {
 	private Date createdAt;
 
 	private String storeName;
+
+	private String storeNameEnglish;
+
+	private String storeNameArabic;
+
+	private String storeContactNumber;
 
 	private Long vendorId;
 }

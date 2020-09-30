@@ -322,11 +322,14 @@ public class DiscountServiceImpl implements DiscountService {
 		BeanUtils.copyProperties(discount, discountResponseDTO);
 		discountResponseDTO.setCategoryName(categoryService.getCategory(discount.getCategoryId()).getName());
 		discountResponseDTO.setDiscountDate(discount.getCreatedAt());
+		discountResponseDTO.setStoreNameArabic(vendor.getStoreNameArabic());
+		discountResponseDTO.setStoreNameEnglish(vendor.getStoreNameEnglish());
 		if (locale.getLanguage().equals("en")) {
 			discountResponseDTO.setStoreName(vendor.getStoreNameEnglish());
 		} else {
 			discountResponseDTO.setStoreName(vendor.getStoreNameArabic());
 		}
+		discountResponseDTO.setStoreContactNumber(vendor.getStorePhoneNumber());
 		return discountResponseDTO;
 	}
 

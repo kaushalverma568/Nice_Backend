@@ -66,4 +66,8 @@ public class ProductResponseDTO implements Serializable {
 	private String businessCategoryNameArabic;
 	private String businessCategoryNameEnglish;
 	private Long businessCategoryId;
+	private String storeName;
+	private String storeNameEnglish;
+	private String storeNameArabic;
+	private String storeContactNumber;
 }
