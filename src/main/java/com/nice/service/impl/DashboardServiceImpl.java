@@ -83,7 +83,7 @@ public class DashboardServiceImpl implements DashboardService {
 		/**
 		 * total order count Consider all the status except cancelled orders.
 		 */
-		orderListFilterDto.setOrderStatusNotIn(Arrays.asList(OrderStatusEnum.CANCELLED.getStatusValue()));
+		orderListFilterDto.setOrderStatusNotIn(Arrays.asList(OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.REJECTED.getStatusValue()));
 		dashboardCountDTO.setTotalorders(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
 		orderListFilterDto.setOrderStatusNotIn(new ArrayList<>());
 		/**

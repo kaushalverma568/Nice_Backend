@@ -143,7 +143,7 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, 0 as replace_orders, count(t.id) as return_orders from vendor v join task t on v.id=t.vendor_id\r\n"
 						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (v.id) )as que\r\n"
-						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where 1=1 ");
+						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where v.profile_completed='true' and 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
 		sqlQuery.append("group by(v.id,");
@@ -187,7 +187,7 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 						+ "where t.task_type='Replacement' and t.status in('Delivered','Cancelled') group by (v.id) union\r\n"
 						+ "select v.id as vendor_id, 0 as cart_orders, 0 as replace_orders, count(t.id) as return_orders from vendor v join task t on v.id=t.vendor_id\r\n"
 						+ "where t.task_type='Return' and t.status in('Delivered','Cancelled') group by (v.id) )as que\r\n"
-						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where 1=1 ");
+						+ "on v.id=que.vendor_id left join payment_details pd on v.id=pd.vendor_id left join business_category bc on bc.id=v.business_category_id where v.profile_completed='true' and 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
 		sqlQuery.append(" group by(v.id,");
