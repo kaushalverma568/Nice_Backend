@@ -35,9 +35,29 @@ public final class NotificationMessageConstantsEnglish {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getNewOrderMessage(final Long orderId) {
+	public static String getNormalOrderAcceptMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("New Order for Delivery ").append(orderId.toString());
+		message = message.append("You have new order Request to accept with order ID ").append(orderId.toString());
+		return message.toString();
+	}
+
+	/**
+	 * @param  orderId
+	 * @return
+	 */
+	public static String getReturnOrderAcceptMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You have new Return order Request to accept with Order ID").append(orderId.toString());
+		return message.toString();
+	}
+
+	/**
+	 * @param  orderId
+	 * @return
+	 */
+	public static String getReplaceOrderAcceptMessage(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append(" You have new Replacement order Request to accept with order ID").append(orderId.toString());
 		return message.toString();
 	}
 
@@ -48,6 +68,26 @@ public final class NotificationMessageConstantsEnglish {
 	public static String getNewTicketMessage(final String name) {
 		StringBuilder message = new StringBuilder();
 		message = message.append("You receive the new ticket to validate for the ").append(name);
+		return message.toString();
+	}
+
+	/**
+	 * @param  name
+	 * @return
+	 */
+	public static String regularOrderIsPreparedMessageToDeliveryBoy(final String vendorName, final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your Regular order ").append(orderId).append(" is prepared,Please collect from the vendor ").append(vendorName);
+		return message.toString();
+	}
+
+	/**
+	 * @param  name
+	 * @return
+	 */
+	public static String replaceOrderIsPreparedMessageToDeliveryBoy(final String vendorName, final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your Replacement order ").append(orderId).append(" is prepared,Please collect from the vendor ").append(vendorName);
 		return message.toString();
 	}
 
@@ -197,6 +237,12 @@ public final class NotificationMessageConstantsEnglish {
 	public static String cancelOrderByAdmin(final Long orderId) {
 		StringBuilder message = new StringBuilder();
 		message.append("order ").append(orderId.toString()).append(" has cancel by admin,Sorry for disappointment");
+		return message.toString();
+	}
+
+	public static String cancelOrderByAdminForDeliveryBoy(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your accepted order is cancel by the admin with order ID ").append(orderId);
 		return message.toString();
 	}
 
@@ -448,13 +494,13 @@ public final class NotificationMessageConstantsEnglish {
 
 	public static String getOtpValidityMessage(final Long otpValidity) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("You can use below OTP which is valid only for the next ").append(otpValidity).append(" minutes.").append(" minutes.");
+		message = message.append("You can use below OTP which is valid only for the next ").append(otpValidity).append(" minutes.");
 		return message.toString();
 	}
 
 	public static String getLinkValidityMessage(final Long otpValidity) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("The password reset link is valid till next ").append(otpValidity).append(" minutes.").append(" minutes.");
+		message = message.append("The password reset link is valid till next ").append(otpValidity).append(" minutes.");
 		return message.toString();
 	}
 

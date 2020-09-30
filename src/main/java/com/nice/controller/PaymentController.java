@@ -29,9 +29,8 @@ import com.nice.service.OrdersService;
 import com.nice.service.PaymentService;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 13-07-2020
+ * @date   : 13-07-2020
  */
 
 @RequestMapping(path = "/payment")
@@ -76,7 +75,7 @@ public class PaymentController {
 			 * send push notification
 			 */
 			if (orderId != 0) {
-				ordersService.sendPushNotificationToVendor(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION, orderId);
+				ordersService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION, orderId);
 				ordersService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 			} else {
 				/**
