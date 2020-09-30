@@ -1,5 +1,7 @@
 package com.nice.constant;
 
+import java.util.Date;
+
 /**
  * @author : Kody Technolab PVT. LTD.
  * @date : 25-Jun-2020
@@ -230,4 +232,89 @@ public final class NotificationMessageConstantsArabic {
 		message.append("Your raised Ticket ").append(ticketId.toString()).append(" is resolved by admin, You can check the more details  in ticket section");
 		return message.toString();
 	}
+
+	/**
+	 * Email related notification msg starts from here
+	 */
+	public static String approveVendorProfileSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Approve the profile");
+		return message.toString();
+	}
+
+	public static String rejectVendorProfileSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Reject the profile");
+		return message.toString();
+	}
+
+	public static String suspendVendorProfileSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Suspend profile");
+		return message.toString();
+	}
+
+	public static String resumeVendorProfileSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Resume the profile");
+		return message.toString();
+	}
+
+	public static String expiredVendorSubscriptionSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Subscription Expired");
+		return message.toString();
+	}
+
+	public static String expiredReminderVendorSubscriptionSubject() {
+		StringBuilder message = new StringBuilder();
+		message.append("Reminder for Subscription Expire");
+		return message.toString();
+	}
+
+	public static String approveVendorProfileMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append(
+				"Nice has Review the Your profile, & your profile is approved by our team Now to be part of the Nice, and You are able to  login into the system.");
+		return message.toString();
+	}
+
+	public static String rejectVendorProfileMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice has Review the Your profile, & your profile is not approved by our team Sorry for inconvenience.\r\n"
+				+ "For further information you can contact to our customer care");
+		return message.toString();
+	}
+
+	public static String suspendVendorProfileMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append(
+				"This is to notify you that your vendor account on Nice Application has been temporarily  suspended for violating the terms and conditions of Nice Application."
+						+ "Please the contact to customer care for further information and You will be notified once your account will be resume");
+		return message.toString();
+	}
+
+	public static String resumeVendorProfileMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append(
+				"This is to notify you that your vendor account on Nice Application has  been Resume our side. Now you are able to use the our panel service.\r\n"
+						+ "Please the contact to customer care for further information ");
+		return message.toString();
+	}
+
+	public static String vendorSubscriptionExpiredMessage(final Double amount) {
+		StringBuilder message = new StringBuilder();
+		message.append("You Nice Application subscription plan of KD").append(amount.toString()).append(
+				" has expired on <date>. To Continue enjoying  Nice Application services, renew the subscription plan, or purchase a new subscription.\r\n"
+						+ "\r\n" + "To renew or make a purchase of subscription plan click ");
+		return message.toString();
+	}
+
+	public static String vendorSubscriptionExpiredReminderMessage(final Double amount, final Date expiryDate) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your current subscription plan of KD").append(amount.toString()).append("for Nice Application is going to expire on ")
+				.append(expiryDate.toString()).append(". After the current plan expiry, your services will stop working if you do not renew your plan.");
+		return message.toString();
+	}
+
 }

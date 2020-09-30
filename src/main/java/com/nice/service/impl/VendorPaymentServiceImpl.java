@@ -26,7 +26,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 04-Sep-2020
+ * @date : 04-Sep-2020
  */
 
 @Service("vendorPaymentService")
@@ -132,6 +132,12 @@ public class VendorPaymentServiceImpl implements VendorPaymentService {
 			vendorPaymentResponseDTOs.add(dto);
 		}
 		return vendorPaymentResponseDTOs;
+	}
+
+	@Override
+	public VendorPayment getLatestVendorPaymentByVendorIdAndBusinessCategoryId(final Long vendorId, final Long subscriptionPlanId) {
+		return vendorPaymentRepository.getLatestVendorPaymentByVendorIdAndSubscriptionPlan(vendorId, subscriptionPlanId);
+
 	}
 
 }

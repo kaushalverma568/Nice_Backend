@@ -75,4 +75,13 @@ public interface VendorPaymentService {
 	 * @return
 	 */
 	List<VendorPaymentResponseDTO> getVendorPaymentListByVendorId(Long vendorId);
+
+	/**
+	 * get latest payment of vendor
+	 *
+	 * @param vendorId
+	 * @param subscriptionPlanId
+	 * @return
+	 */
+	VendorPayment getLatestVendorPaymentByVendorIdAndBusinessCategoryId(Long vendorId, Long subscriptionPlanId);
 }

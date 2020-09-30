@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.EmailConstants;
+import com.nice.constant.NotificationMessageConstantsArabic;
+import com.nice.constant.NotificationMessageConstantsEnglish;
 import com.nice.constant.NotificationQueueConstants;
 import com.nice.constant.SendingType;
 import com.nice.constant.UserOtpTypeEnum;
@@ -35,12 +37,15 @@ import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
 import com.nice.model.PaymentDetails;
+import com.nice.model.Vendor;
+import com.nice.model.VendorPayment;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrdersService;
 import com.nice.service.PaymentDetailsService;
+import com.nice.service.VendorPaymentService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 import com.nice.util.EmailTemplatesEnum;
@@ -50,7 +55,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -116,8 +121,11 @@ public class SendEmailNotificationComponent {
 	@Autowired
 	private OrdersService ordersService;
 
+	@Autowired
+	private VendorPaymentService vendorPaymentService;
+
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -236,7 +244,8 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -279,7 +288,8 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -313,26 +323,60 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForChangeVendorStatus(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
-		VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
+		Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
+		String subject = null;
 		String message = null;
-		if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
-			message = messageByLocaleService.getMessage("vendor.approve.message", null);
-		} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
-			message = messageByLocaleService.getMessage("vendor.suspend.message", new Object[] { applicationName, applicationName });
-			message.concat(" ").concat(messageByLocaleService.getMessage("vendor.contact.customer.care", null));
-		} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
-			message = messageByLocaleService.getMessage("vendor.reject.messag", null);
-		} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
-			message = messageByLocaleService.getMessage("vendor.expire.message", null);
+		if (emailNotification.getLanguage().equals("en")) {
+			if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsEnglish.approveVendorProfileSubject();
+				message = NotificationMessageConstantsEnglish.approveVendorProfileMessage();
+			} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsEnglish.suspendVendorProfileSubject();
+				message = NotificationMessageConstantsEnglish.suspendVendorProfileMessage();
+			} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsEnglish.rejectVendorProfileSubject();
+				message = NotificationMessageConstantsEnglish.rejectVendorProfileMessage();
+			} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsEnglish.expiredVendorSubscriptionSubject();
+				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
+						vendor.getSubscriptionPlan().getId());
+				message = NotificationMessageConstantsEnglish.vendorSubscriptionExpiredMessage(vendorPayment.getAmount());
+			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsEnglish.resumeVendorProfileSubject();
+				message = NotificationMessageConstantsEnglish.resumeVendorProfileMessage();
+			} else {
+				return;
+			}
 		} else {
-			return;
+			if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsArabic.approveVendorProfileSubject();
+				message = NotificationMessageConstantsArabic.approveVendorProfileMessage();
+			} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsArabic.suspendVendorProfileSubject();
+				message = NotificationMessageConstantsArabic.suspendVendorProfileMessage();
+			} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsArabic.rejectVendorProfileSubject();
+				message = NotificationMessageConstantsArabic.rejectVendorProfileMessage();
+			} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsArabic.expiredVendorSubscriptionSubject();
+				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
+						vendor.getSubscriptionPlan().getId());
+				message = NotificationMessageConstantsArabic.vendorSubscriptionExpiredMessage(vendorPayment.getAmount());
+			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
+				subject = NotificationMessageConstantsArabic.resumeVendorProfileSubject();
+				message = NotificationMessageConstantsArabic.resumeVendorProfileMessage();
+			} else {
+				return;
+			}
 		}
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		String subject = applicationName + " vendor update";
+		CompanyResponseDTO company = companyService.getCompany(false);
 		emailParameterMap.put("vendorName",
-				vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
+				emailNotification.getLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
 						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 		emailParameterMap.put("message", message);
+		emailParameterMap.put("companyNumber", company.getPhoneNumber());
+		emailParameterMap.put("companyEmail", company.getCustomerCareEmail());
 		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name(),
 				emailNotification.getLanguage());
 	}

@@ -216,24 +216,29 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
 			<version>1.11.578</version>
-		</dependency> 
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>2.9.8</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-		
+
 		<!-- netty-socketio: Imitate`node.js`Realized socket.io Server -->
 		<dependency>
 			<groupId>com.corundumstudio.socketio</groupId>
 			<artifactId>netty-socketio</artifactId>
 			<version>1.7.7</version>
 		</dependency>
-		
+
 		<!-- Image Resize dependency -->
 		<dependency>
-		    <groupId>org.imgscalr</groupId>
-		    <artifactId>imgscalr-lib</artifactId>
-		    <version>4.2</version>
+			<groupId>org.imgscalr</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+			<version>4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -248,12 +253,12 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-    </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
 		</plugins>
 		<finalName>nice</finalName>
 	</build>
@@ -288,8 +293,8 @@
 				</plugins>
 			</build>
 		</profile>
-	
-	<!-- Profile to create Cloud build -->
+
+		<!-- Profile to create Cloud build -->
 		<profile>
 			<id>cloud</id>
 			<build>
@@ -309,7 +314,8 @@
 										<delete
 											file="${project.build.outputDirectory}/application.properties" />
 										<echo>Using env.cloud.properties</echo>
-										<copy file="src/main/resources/application.cloud.properties"
+										<copy
+											file="src/main/resources/application.cloud.properties"
 											tofile="${project.build.outputDirectory}/application.properties" />
 									</tasks>
 								</configuration>

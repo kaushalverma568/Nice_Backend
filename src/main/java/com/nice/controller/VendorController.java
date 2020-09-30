@@ -429,8 +429,9 @@ public class VendorController {
 			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
 		vendorService.changeVendorStatus(vendorId, newStatus);
-		if (VendorStatus.APPROVED.getStatusValue().equals(newStatus) || VendorStatus.REJECTED.getStatusValue().equals(newStatus)
-				|| VendorStatus.SUSPENDED.getStatusValue().equals(newStatus) || VendorStatus.EXPIRED.getStatusValue().equals(newStatus)) {
+		if (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) || VendorStatus.APPROVED.getStatusValue().equals(newStatus)
+				|| VendorStatus.REJECTED.getStatusValue().equals(newStatus) || VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)
+				|| VendorStatus.EXPIRED.getStatusValue().equals(newStatus)) {
 			vendorService.sendEmailForChangeVendorStatus(vendorId);
 		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
