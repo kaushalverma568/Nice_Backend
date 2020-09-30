@@ -16,6 +16,9 @@ public final class NotificationMessageConstantsArabic {
 	public static final String DELIVERY_BOY_PAYOUT_SUBJECT = "Delivery Boy Payment";
 	public static final String VENDOR_PAYOUT_SUBJECT = "Vendor Payment";
 	public static final String ACCOUNT_ACCTIVATION_SUBJECT = "Account Activation";
+	public static final String USER_TYPE_CUSTOMER = "Customer";
+	public static final String USER_TYPE_DELIVERY_BOY = "Delivery Boy";
+	public static final String USER_TYPE_USER = "User";
 
 	/**
 	 * @param  name
@@ -419,7 +422,13 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String welcomeSubject(final String applicationName) {
 		StringBuilder message = new StringBuilder();
-		message.append("Welcome to ").append(applicationName);
+		message.append("Welcome to the ").append(applicationName);
+		return message.toString();
+	}
+
+	public static String resetPasswordSubject(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append(applicationName).append("- Reset Password");
 		return message.toString();
 	}
 
@@ -430,4 +439,28 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
+	public static String getResetMessage(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("We have received a request to reset your ").append(applicationName).append(" password.");
+		return message.toString();
+	}
+
+	public static String getEmailVerificationMessage(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your email confirmation request has been received from ").append(applicationName)
+				.append(", please confirm your email here -");
+		return message.toString();
+	}
+
+	public static String getOtpValidityMessage(final Long otpValidity) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You can use below OTP which is valid only for the next ").append(otpValidity).append(" minutes.").append(" minutes.");
+		return message.toString();
+	}
+
+	public static String getLinkValidityMessage(final Long otpValidity) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("The password reset link is valid till next ").append(otpValidity).append(" minutes.").append(" minutes.");
+		return message.toString();
+	}
 }

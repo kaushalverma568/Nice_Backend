@@ -54,7 +54,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -124,7 +124,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -188,6 +188,7 @@ public class SendEmailNotificationComponent {
 				content = NotificationMessageConstantsArabic.deliveryBoyActivation();
 			}
 			emailParameterMap.put("content", content);
+			emailParameterMap.put("subject", subject);
 			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.DELIVERY_BOY_ACCOUNT_ACTIVATION.name(),
 					deliveryBoy.getPreferredLanguage());
 		}
@@ -222,7 +223,6 @@ public class SendEmailNotificationComponent {
 					subject = NotificationMessageConstantsArabic.VENDOR_PAYOUT_SUBJECT;
 				}
 				emailNotification.setLanguage(vendor.getPreferredLanguage());
-
 			} else {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 				emailAddress = deliveryBoy.getEmail();
@@ -239,6 +239,7 @@ public class SendEmailNotificationComponent {
 				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
 			}
 			emailParameterMap.put("content", content);
+			emailParameterMap.put("subject", subject);
 			emailUtil.sendEmail(subject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
 		}
 	}
@@ -261,22 +262,30 @@ public class SendEmailNotificationComponent {
 
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
-			if (customer.getPreferredLanguage().equals("en")) {
+			if (emailNotification.getLanguage().equals("en")) {
 				content = NotificationMessageConstantsEnglish.welcome(applicationName);
 				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationName);
 			} else {
 				content = NotificationMessageConstantsArabic.welcome(applicationName);
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationName);
 			}
+			emailParameterMap.put("content", content);
+			emailParameterMap.put("subject", subject);
 			emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
 					emailNotification.getLanguage());
 		}
 	}
 
 	private void forgotPassword(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException, NotFoundException {
-		final Map<String, String> emailParameterMap = new HashMap<>();
 		if (emailNotification.getOtp() != null && emailNotification.getEmail() != null) {
 			LOGGER.info("send forgot Password email");
+			String subject = null;
+			String content = null;
+			String userType = null;
+			String otpValidity = null;
+			String linkValidity = null;
+
+			final Map<String, String> emailParameterMap = new HashMap<>();
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
@@ -284,19 +293,58 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
-			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
 			emailParameterMap.put("OTP", emailNotification.getOtp());
 			if (UserType.CUSTOMER.name().equals(emailNotification.getUserType())) {
-				emailParameterMap.put(USER_TYPE, "Customer");
-				emailParameterMap.put("forgotPasswordUrl", customerUrl + "authentication/forgot-password?otp=" + emailNotification.getOtp() + "&userType="
-						+ UserType.CUSTOMER.name() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_CUSTOMER;
+					content = NotificationMessageConstantsEnglish.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_CUSTOMER;
+					content = NotificationMessageConstantsArabic.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				}
 			} else if (UserType.USER.name().equals(emailNotification.getUserType())) {
-				emailParameterMap.put(USER_TYPE, "User");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_USER;
+					content = NotificationMessageConstantsEnglish.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_USER;
+					content = NotificationMessageConstantsArabic.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				}
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "auth/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
-				emailParameterMap.put(USER_TYPE, "Delivery Boy");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_DELIVERY_BOY;
+					content = NotificationMessageConstantsEnglish.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_DELIVERY_BOY;
+					content = NotificationMessageConstantsArabic.getResetMessage(applicationName);
+					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationName);
+					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				}
 			}
+			emailParameterMap.put("content", content);
+			emailParameterMap.put("subject", subject);
+			emailParameterMap.put(USER_TYPE, userType);
+			emailParameterMap.put("otpValidity", otpValidity);
+			emailParameterMap.put("linkValidity", otpValidity);
+
 			/**
 			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
