@@ -92,7 +92,9 @@ public class DashboardServiceImpl implements DashboardService {
 		orderListFilterDto.setOrderStatus(Arrays.asList(OrderStatusEnum.CONFIRMED.getStatusValue(),
 				OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(),
 				OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(),
-				OrderStatusEnum.DELIVERED.getStatusValue()));
+				OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue(),
+				OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.PENDING.getStatusValue(),
+				OrderStatusEnum.RETURN_REQUESTED.getStatusValue(), OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue()));
 		dashboardCountDTO.setNewOrders(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
 		/**
 		 * whose status is returned
