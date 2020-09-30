@@ -59,6 +59,10 @@ import net.sf.jasperreports.engine.JRException;
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
 
+	private static final String SUBJECT2 = "subject";
+
+	private static final String CONTENT2 = "content";
+
 	private static final String ORDER_ID = "orderId";
 
 	private static final String USER_TYPE = "userType";
@@ -174,7 +178,6 @@ public class SendEmailNotificationComponent {
 			String subject;
 			String content;
 			String applicationName;
-
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
@@ -193,8 +196,8 @@ public class SendEmailNotificationComponent {
 				content = NotificationMessageConstantsArabic.deliveryBoyActivation();
 				applicationName = applicationNameFr;
 			}
-			emailParameterMap.put("content", content);
-			emailParameterMap.put("subject", subject);
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.DELIVERY_BOY_ACCOUNT_ACTIVATION.name(),
 					deliveryBoy.getPreferredLanguage());
@@ -248,8 +251,8 @@ public class SendEmailNotificationComponent {
 				}
 				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
 			}
-			emailParameterMap.put("content", content);
-			emailParameterMap.put("subject", subject);
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailUtil.sendEmail(subject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
 		}
@@ -282,8 +285,8 @@ public class SendEmailNotificationComponent {
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
 				applicationName = applicationNameFr;
 			}
-			emailParameterMap.put("content", content);
-			emailParameterMap.put("subject", subject);
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
 					emailNotification.getLanguage());
@@ -311,56 +314,39 @@ public class SendEmailNotificationComponent {
 			if (UserType.CUSTOMER.name().equals(emailNotification.getUserType())) {
 				if (emailNotification.getLanguage().equals("en")) {
 					userType = NotificationMessageConstantsEnglish.USER_TYPE_CUSTOMER;
-					content = NotificationMessageConstantsEnglish.getResetMessage(applicationNameEn);
-					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn);
-					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameEn;
 				} else {
 					userType = NotificationMessageConstantsArabic.USER_TYPE_CUSTOMER;
-					content = NotificationMessageConstantsArabic.getResetMessage(applicationNameFr);
-					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr);
-					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameFr;
 				}
 			} else if (UserType.USER.name().equals(emailNotification.getUserType())) {
 				if (emailNotification.getLanguage().equals("en")) {
 					userType = NotificationMessageConstantsEnglish.USER_TYPE_USER;
-					content = NotificationMessageConstantsEnglish.getResetMessage(applicationNameEn);
-					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn);
-					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameEn;
 				} else {
 					userType = NotificationMessageConstantsArabic.USER_TYPE_USER;
-					content = NotificationMessageConstantsArabic.getResetMessage(applicationNameFr);
-					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr);
-					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameFr;
 				}
 				emailParameterMap.put("forgotPasswordUrl", adminUrl + "auth/reset-password?otp=" + emailNotification.getOtp() + "&userType="
 						+ emailNotification.getUserType() + "&type=" + UserOtpTypeEnum.EMAIL.name() + "&email=" + emailNotification.getEmail());
 			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
 				if (emailNotification.getLanguage().equals("en")) {
 					userType = NotificationMessageConstantsEnglish.USER_TYPE_DELIVERY_BOY;
-					content = NotificationMessageConstantsEnglish.getResetMessage(applicationNameEn);
-					subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn);
-					otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameEn;
 				} else {
 					userType = NotificationMessageConstantsArabic.USER_TYPE_DELIVERY_BOY;
-					content = NotificationMessageConstantsArabic.getResetMessage(applicationNameFr);
-					subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr);
-					otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
-					applicationName = applicationNameFr;
 				}
 			}
-			emailParameterMap.put("content", content);
-			emailParameterMap.put("subject", subject);
+			if (emailNotification.getLanguage().equals("en")) {
+				content = NotificationMessageConstantsEnglish.getResetMessage(applicationNameEn);
+				subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn);
+				otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				applicationName = applicationNameEn;
+			} else {
+				content = NotificationMessageConstantsArabic.getResetMessage(applicationNameFr);
+				subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr);
+				otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				applicationName = applicationNameFr;
+			}
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(USER_TYPE, userType);
 			emailParameterMap.put("otpValidity", otpValidity);
 			emailParameterMap.put("linkValidity", linkValidity);
@@ -387,42 +373,77 @@ public class SendEmailNotificationComponent {
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		if (emailNotification.getOtp() != null && emailNotification.getEmail() != null) {
 			LOGGER.info("email verification");
-			String applicationName = applicationNameEn;
+			String subject = null;
+			String content = null;
+			String userType = null;
+			String otpValidity = null;
+			String linkValidity = null;
+			String applicationName = null;
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
-			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put("verify", serviceUrl + "user/login/verify/email/" + emailNotification.getUserId() + "?lang=" + emailNotification.getLanguage()
 					+ "&otp=" + emailNotification.getOtp());
 			emailParameterMap.put("OTP", emailNotification.getOtp());
-			emailParameterMap.put("OtpValidity", String.valueOf(Constant.OTP_VALIDITY_TIME_IN_MIN));
-
 			if (UserType.CUSTOMER.name().equals(emailNotification.getUserType())) {
 				emailParameterMap.put(USER_TYPE, "Customer");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_CUSTOMER;
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_CUSTOMER;
+				}
 			} else if (UserType.DELIVERY_BOY.name().equals(emailNotification.getUserType())) {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_DELIVERY_BOY;
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_DELIVERY_BOY;
+				}
 			} else if (UserType.VENDOR.name().equals(emailNotification.getUserType())) {
 				emailParameterMap.put(USER_TYPE, "Vendor");
 			} else {
-				emailParameterMap.put(USER_TYPE, "User");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_USER;
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_USER;
+				}
 			}
+			if (emailNotification.getLanguage().equals("en")) {
+				content = NotificationMessageConstantsEnglish.getEmailVerificationMessage(applicationNameEn);
+				subject = NotificationMessageConstantsEnglish.EMAIL_VERIFICATION_SUBJECT;
+				otpValidity = NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				linkValidity = NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				applicationName = applicationNameEn;
+			} else {
+				content = NotificationMessageConstantsArabic.getEmailVerificationMessage(applicationNameFr);
+				subject = NotificationMessageConstantsArabic.EMAIL_VERIFICATION_SUBJECT;
+				otpValidity = NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				linkValidity = NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN);
+				applicationName = applicationNameFr;
+			}
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
+			emailParameterMap.put(USER_TYPE, userType);
+			emailParameterMap.put("otpValidity", otpValidity);
+			emailParameterMap.put("linkValidity", linkValidity);
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
 
 			/**
 			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.EMAIL_VERIFICATION_BOTH.name(),
+						emailNotification.getLanguage());
 			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.EMAIL_VERIFICATION_OTP.name(),
+						emailNotification.getLanguage());
 			} else {
-				emailUtil.sendEmail(EmailConstants.EMAIL_VERIFICATION_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.EMAIL_VERIFICATION_LINK.name(),
+						emailNotification.getLanguage());
 			}
 		}
 	}
@@ -430,16 +451,26 @@ public class SendEmailNotificationComponent {
 	private void sendOtp(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put("otp", emailNotification.getOtp());
-		String sendOtpSubject = applicationNameEn + " : OTP";
-		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.OTP_VERIFICATION.name(),
+		String subject;
+		if (emailNotification.getLanguage().equals("en")) {
+			subject = NotificationMessageConstantsEnglish.sendOtpSubject(applicationNameEn);
+		} else {
+			subject = NotificationMessageConstantsArabic.sendOtpSubject(applicationNameFr);
+		}
+		emailUtil.sendEmail(subject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.OTP_VERIFICATION.name(),
 				emailNotification.getLanguage());
 	}
 
 	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
 		Map<String, String> paramMap = new HashMap<>();
-		String sendOtpSubject = applicationNameEn + " Subscription Expire Reminder";
+		String subject;
+		if (emailNotification.getLanguage().equals("en")) {
+			subject = NotificationMessageConstantsEnglish.subscriptionExpireSubject(applicationNameEn);
+		} else {
+			subject = NotificationMessageConstantsArabic.subscriptionExpireSubject(applicationNameFr);
+		}
 		paramMap.put("message", messageByLocaleService.getMessage("subscription.plan.reminder.message", null));
-		emailUtil.sendEmail(sendOtpSubject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name(),
+		emailUtil.sendEmail(subject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name(),
 				emailNotification.getLanguage());
 	}
 
@@ -503,7 +534,12 @@ public class SendEmailNotificationComponent {
 		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 		emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
-		emailParameterMap.put("subject", subject);
+		if (emailNotification.getLanguage().equals("en")) {
+			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
+		} else {
+			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
+		}
+		emailParameterMap.put(SUBJECT2, subject);
 		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name(),
 				emailNotification.getLanguage());
 	}

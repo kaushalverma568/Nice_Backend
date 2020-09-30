@@ -19,6 +19,7 @@ public final class NotificationMessageConstantsEnglish {
 	public static final String USER_TYPE_CUSTOMER = "Customer";
 	public static final String USER_TYPE_DELIVERY_BOY = "Delivery Boy";
 	public static final String USER_TYPE_USER = "User";
+	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification alert!";
 
 	/**
 	 * @param  name
@@ -454,6 +455,18 @@ public final class NotificationMessageConstantsEnglish {
 	public static String getLinkValidityMessage(final Long otpValidity) {
 		StringBuilder message = new StringBuilder();
 		message = message.append("The password reset link is valid till next ").append(otpValidity).append(" minutes.").append(" minutes.");
+		return message.toString();
+	}
+
+	public static String sendOtpSubject(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append(applicationName).append(" : OTP");
+		return message.toString();
+	}
+
+	public static String subscriptionExpireSubject(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append(applicationName).append(" Subscription Expire Reminder");
 		return message.toString();
 	}
 

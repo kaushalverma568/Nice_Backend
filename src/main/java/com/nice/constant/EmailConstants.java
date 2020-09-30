@@ -19,7 +19,6 @@ public final class EmailConstants {
 	/**
 	 * Email Subjects based in cases
 	 */
-	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification alert!";
 
 	/**
 	 * Email Template Names </br>

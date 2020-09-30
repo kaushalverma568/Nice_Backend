@@ -19,6 +19,7 @@ public final class NotificationMessageConstantsArabic {
 	public static final String USER_TYPE_CUSTOMER = "Customer";
 	public static final String USER_TYPE_DELIVERY_BOY = "Delivery Boy";
 	public static final String USER_TYPE_USER = "User";
+	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification alert!";
 
 	/**
 	 * @param  name
@@ -429,6 +430,18 @@ public final class NotificationMessageConstantsArabic {
 	public static String resetPasswordSubject(final String applicationName) {
 		StringBuilder message = new StringBuilder();
 		message.append(applicationName).append("- Reset Password");
+		return message.toString();
+	}
+
+	public static String sendOtpSubject(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append(applicationName).append(" : OTP");
+		return message.toString();
+	}
+
+	public static String subscriptionExpireSubject(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append(applicationName).append(" Subscription Expire Reminder");
 		return message.toString();
 	}
 
