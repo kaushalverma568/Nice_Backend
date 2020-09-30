@@ -392,7 +392,8 @@ public class TaskServiceImpl implements TaskService {
 		saveTaskHistory(task);
 	}
 
-	private void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException {
+	@Override
+	public void removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(final Task task) throws NotFoundException {
 		/**
 		 * set isBusy to false if delivery boy has no any other assigned orders
 		 */
@@ -401,9 +402,9 @@ public class TaskServiceImpl implements TaskService {
 		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		Long count = getTaskCountBasedOnParams(taskFilterDTO);
 		/**
-		 * if count > 1 means delivery boy has any orders other then this order which is not delivered yet
+		 * if count > 0 means delivery boy has any orders which is not delivered yet
 		 */
-		if (count == 1) {
+		if (count == 0) {
 			DeliveryBoyCurrentStatus deliveryBoyCurrentStatus = deliveryBoyService.getDeliveryBoyCurrentStatusDetail(task.getDeliveryBoy());
 			deliveryBoyCurrentStatus.setIsBusy(false);
 			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);

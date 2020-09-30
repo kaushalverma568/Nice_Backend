@@ -1617,6 +1617,7 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("orders.return.replace.not.cancelled", null));
 		} else if (!taskList.isEmpty()) {
 			taskService.changeTaskStatus(taskList.get(0).getId(), TaskStatusEnum.CANCELLED.getStatusValue());
+			taskService.removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(taskList.get(0));
 		}
 
 		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
