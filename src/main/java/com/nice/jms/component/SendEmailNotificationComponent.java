@@ -54,7 +54,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -124,7 +124,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -154,6 +154,8 @@ public class SendEmailNotificationComponent {
 			sendEmailForReplaceOrderToCustomer(emailNotification);
 		} else if (NotificationQueueConstants.PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
 			sendEmailForPlaceOrderToCustomer(emailNotification);
+		} else if (NotificationQueueConstants.DELIVER_ORDER_EMAIL_NOTIFICATION_CUSTOMER.equals(emailNotification.getType())) {
+			sendEmailForDeliverOrderToCustomer(emailNotification);
 		} else if (NotificationQueueConstants.PAYOUT.equals(emailNotification.getType())) {
 			sendEmailAfterPayout(emailNotification);
 		} else if (NotificationQueueConstants.DELIVERY_BOY_ACCOUNT_ACTIVATION.equals(emailNotification.getType())) {
@@ -434,9 +436,18 @@ public class SendEmailNotificationComponent {
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		String subject = applicationName + " Return Order";
-		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
-		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.RETURN_ORDER_CUSTOMER.name(), emailLanguage);
+		String subject = null;
+		String message = null;
+		if ("en".equalsIgnoreCase(emailLanguage)) {
+			subject = NotificationMessageConstantsEnglish.returnOrderSubject(orders.getId());
+			message = NotificationMessageConstantsEnglish.returnOrderMessage(orders.getId());
+		} else {
+			subject = NotificationMessageConstantsArabic.returnOrderSubject(orders.getId());
+			message = NotificationMessageConstantsArabic.returnOrderMessage(orders.getId());
+		}
+		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
+		emailParameterMap.put("message", message);
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
 	}
 
 	private void sendEmailForCancelOrderToCustomer(final Notification emailNotification)
@@ -445,9 +456,18 @@ public class SendEmailNotificationComponent {
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		String subject = applicationName + " Cancel Order";
-		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
-		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.CANCEL_ORDER_CUSTOMER.name(), emailLanguage);
+		String subject = null;
+		String message = null;
+		if ("en".equalsIgnoreCase(emailLanguage)) {
+			subject = NotificationMessageConstantsEnglish.cancelOrderSubject();
+			message = NotificationMessageConstantsEnglish.cancelOrderMessage(orders.getId());
+		} else {
+			subject = NotificationMessageConstantsArabic.cancelOrderSubject();
+			message = NotificationMessageConstantsArabic.cancelOrderMessage(orders.getId());
+		}
+		emailParameterMap.put("message", message);
+		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
 	}
 
 	private void sendEmailForReplaceOrderToCustomer(final Notification emailNotification)
@@ -456,9 +476,18 @@ public class SendEmailNotificationComponent {
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		String subject = applicationName + " Replace Order";
-		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
-		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.REPLACE_ORDER_CUSTOMER.name(), emailLanguage);
+		String subject = null;
+		String message = null;
+		if ("en".equalsIgnoreCase(emailLanguage)) {
+			subject = NotificationMessageConstantsEnglish.replacementOrderSubject(orders.getId());
+			message = NotificationMessageConstantsEnglish.replaceOrderMessage(orders.getId());
+		} else {
+			subject = NotificationMessageConstantsArabic.replacementOrderSubject(orders.getId());
+			message = NotificationMessageConstantsArabic.replaceOrderMessage(orders.getId());
+		}
+		emailParameterMap.put("message", message);
+		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
 	}
 
 	private void sendEmailForPlaceOrderToCustomer(final Notification emailNotification)
@@ -467,10 +496,42 @@ public class SendEmailNotificationComponent {
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		String subject = applicationName + " Place Order";
-		emailParameterMap.put(ORDER_ID, emailNotification.getOrderId().toString());
-		emailParameterMap.put("orderAmount", orders.getTotalOrderAmount().toString());
-		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.PLACE_ORDER_CUSTOMER.name(), emailLanguage);
+		String subject = null;
+		String message = null;
+		String thankyouMessage = null;
+		if ("en".equalsIgnoreCase(emailLanguage)) {
+			subject = NotificationMessageConstantsEnglish.placeOrderSubject();
+			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
+			thankyouMessage = NotificationMessageConstantsEnglish.thankYouForShopping();
+		} else {
+			subject = NotificationMessageConstantsArabic.placeOrderSubject();
+			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
+			thankyouMessage = NotificationMessageConstantsArabic.thankYouForShopping();
+		}
+		emailParameterMap.put("message", message);
+		emailParameterMap.put("thankyou", thankyouMessage);
+		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.PLACE_ORDER_TEMPLATE.name(), emailLanguage);
+	}
+
+	private void sendEmailForDeliverOrderToCustomer(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
+		Customer customer = orders.getCustomer();
+		String emailLanguage = customer.getPreferredLanguage();
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		String subject = null;
+		String message = null;
+		if ("en".equalsIgnoreCase(emailLanguage)) {
+			subject = NotificationMessageConstantsEnglish.deliveryOrderSubject();
+			message = NotificationMessageConstantsEnglish.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
+		} else {
+			subject = NotificationMessageConstantsArabic.deliveryOrderSubject();
+			message = NotificationMessageConstantsArabic.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
+		}
+		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
+		emailParameterMap.put("message", message);
+		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
 	}
 
 }
