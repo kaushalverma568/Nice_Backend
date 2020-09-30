@@ -3,6 +3,7 @@
  */
 package com.nice.repository;
 
+import java.math.BigInteger;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -290,15 +291,17 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 
 	@Override
 	public Long countByStatusAndCreatedAtAndVendorId(String status, java.util.Date createdAt, Long vendorId) {
-		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-		Root<OrderStatusHistory> orderHistory = criteriaQuery.from(OrderStatusHistory.class);
-		List<Predicate> predicates = new ArrayList<>();
-		predicates.add(criteriaBuilder.equal(orderHistory.get("createdAt").as(Date.class), createdAt));
-		predicates.add(criteriaBuilder.equal(orderHistory.get("status"), status));
-		predicates.add(criteriaBuilder.equal(orderHistory.get("vendorId"), vendorId));
-		criteriaQuery.select(criteriaBuilder.count(orderHistory)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
-		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
-		return query.getSingleResult();
+		Map<String, Object> paramMap = new HashMap<>();
+		StringBuilder sqlQuery = new StringBuilder();
+		sqlQuery.append("select count(*) from orders_Status_History osh " + 
+				" inner join orders o on osh.order_id = o.id " + 
+				" where osh.status = :status and CAST (osh.created_at AS DATE) = :createdAt and " + 
+				" o.vendor_id = :vendorId");
+		paramMap.put("vendorId", vendorId);
+		paramMap.put("status", status);
+		paramMap.put("createdAt", createdAt);
+		Query q = entityManager.createNativeQuery(sqlQuery.toString());
+		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
+		return ((BigInteger) q.getSingleResult()).longValue();
 	}
 }
