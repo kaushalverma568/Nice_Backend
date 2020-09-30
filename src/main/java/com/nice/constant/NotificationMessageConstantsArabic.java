@@ -2,10 +2,11 @@ package com.nice.constant;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 public final class NotificationMessageConstantsArabic {
 
@@ -21,8 +22,12 @@ public final class NotificationMessageConstantsArabic {
 	public static final String USER_TYPE_USER = "User";
 	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification alert!";
 
+	// TODO
+	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.DELIVERED.getStatusValue(), "Delivered",
+			OrderStatusEnum.REJECTED.getStatusValue(), "Rejected", OrderStatusEnum.REPLACED.getStatusValue(), "Replaced");
+
 	/**
-	 * @param  name
+	 * @param name
 	 * @return
 	 */
 	public static String getNewProfileMessage(final String name) {
@@ -32,7 +37,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String getNewOrderMessage(final Long orderId) {
@@ -42,7 +47,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  name
+	 * @param name
 	 * @return
 	 */
 	public static String getNewTicketMessage(final String name) {
@@ -60,7 +65,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String getNewOrderToVendorMessage(final Long orderId) {
@@ -70,8 +75,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  name
-	 * @param  orderId
+	 * @param name
+	 * @param orderId
 	 * @return
 	 */
 	public static String getDeliveryOrderToVendorMessage(final String name, final Long orderId) {
@@ -81,8 +86,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  orderAmount
+	 * @param orderId
+	 * @param orderAmount
 	 * @return
 	 */
 	public static String getCreateOrderMessage(final Long orderId, final Double orderAmount) {
@@ -92,7 +97,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String getCancelOrderMessage(final Long orderId, final boolean cancelledByCustomer) {
@@ -107,7 +112,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, final String currentStatus) {
@@ -117,7 +122,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String orderDeliverySuccessful(final Long orderId) {
@@ -127,7 +132,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String orderItemReplaceSuccessful(final Long orderId) {
@@ -137,7 +142,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String orderItemReturnSuccessful(final Long orderId) {
@@ -147,7 +152,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String getRejectedOrderMessage(final Long orderId) {
@@ -157,7 +162,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String replaceRequestInitiated(final Long orderId) {
@@ -167,7 +172,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String returnRequestInitiated(final Long orderId) {
@@ -177,7 +182,7 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 */
 	public static String cancelOrderByAdmin(final Long orderId) {
@@ -193,8 +198,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String getRefundOrderMessage(final Long orderId, final Double amount) {
@@ -213,8 +218,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  deliveryBoyName
+	 * @param orderId
+	 * @param deliveryBoyName
 	 * @return
 	 */
 	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName) {
@@ -224,18 +229,18 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  orderStatus
+	 * @param orderId
+	 * @param orderStatus
 	 * @return
 	 */
 	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatus).append("بنجاح");
+		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatusMap.get(orderStatus)).append("بنجاح");
 		return message.toString();
 	}
 
 	/**
-	 * @param  ticketId
+	 * @param ticketId
 	 * @return
 	 */
 	public static String resolveTicketByAdmin(final Long ticketId) {
@@ -341,8 +346,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String returnOrderMessage(final Long orderId) {
@@ -358,8 +363,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String cancelOrderMessage(final Long orderId) {
@@ -376,8 +381,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String replaceOrderMessage(final Long orderId) {
@@ -393,8 +398,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String placeOrderMessage(final Long orderId, final Double amount) {
@@ -405,8 +410,8 @@ public final class NotificationMessageConstantsArabic {
 	}
 
 	/**
-	 * @param  orderId
-	 * @param  amount
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 */
 	public static String thankYouForShopping() {
