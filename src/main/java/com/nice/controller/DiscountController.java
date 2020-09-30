@@ -36,8 +36,8 @@ import com.nice.service.DiscountService;
 
 /**
  *
- * @author      : Kody Technolab PVT. LTD.
- * @date        : 23-Mar-2020
+ * @author : Kody Technolab PVT. LTD.
+ * @date : 23-Mar-2020
  * @description : Discount Related APIs
  */
 @RequestMapping(path = "/discount")
@@ -57,10 +57,10 @@ public class DiscountController {
 	/**
 	 * Add Discount
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  discountDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param discountDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -83,10 +83,10 @@ public class DiscountController {
 	/**
 	 * Update Discount
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  discountDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param discountDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -110,13 +110,15 @@ public class DiscountController {
 	/**
 	 * Get Discount Details based on id
 	 *
-	 * @param  discountId
+	 * @param discountId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	@GetMapping("/{discountId}")
-	public ResponseEntity<Object> getDiscount(@PathVariable("discountId") final Long discountId) throws NotFoundException, ValidationException {
+	@PreAuthorize("hasPermission('Discount','CAN_VIEW')")
+	public ResponseEntity<Object> getDiscount(@RequestHeader("Authorization") final String accessToken, @PathVariable("discountId") final Long discountId)
+			throws NotFoundException, ValidationException {
 		final DiscountResponseDTO discountResponseDTO = discountService.getDiscount(discountId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.detail.message", null))
 				.setData(discountResponseDTO).create();
@@ -125,19 +127,20 @@ public class DiscountController {
 	/**
 	 * Get Discount list based on parameters
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  pincodeId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param pincodeId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getDiscountListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestParam(name = "status", required = false) final String status, @RequestParam(name = "vendorId", required = false) final Long vendorId)
-			throws ValidationException, NotFoundException {
+	@PreAuthorize("hasPermission('Discount','CAN_VIEW')")
+	public ResponseEntity<Object> getDiscountListBasedOnParams(@RequestHeader("Authorization") final String accessToken, @PathVariable final Integer pageNumber,
+			@PathVariable final Integer pageSize, @RequestParam(name = "status", required = false) final String status,
+			@RequestParam(name = "vendorId", required = false) final Long vendorId) throws ValidationException, NotFoundException {
 		final Page<Discount> resultDiscounts = discountService.getDiscountListBasedOnParams(pageNumber, pageSize, status, vendorId);
 		List<DiscountResponseDTO> discountResponseDTOs = discountService.getDiscountListBasedOnParams(resultDiscounts.getContent());
 
@@ -151,10 +154,10 @@ public class DiscountController {
 	/**
 	 * Change status of discount (CANCELLED)
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  discountId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param discountId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -174,18 +177,19 @@ public class DiscountController {
 	/**
 	 * Get product list of that discounted
 	 *
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  pincodeId
-	 * @param  searchKeyword
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param pincodeId
+	 * @param searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	@GetMapping("/product/{discountId}")
+	@PreAuthorize("hasPermission('Discount','CAN_VIEW')")
 	public ResponseEntity<Object> getProductListOfThatDiscount(@RequestHeader("Authorization") final String accessToken,
-			@PathVariable("discountId") final Long discountId) throws NotFoundException {
+			@PathVariable("discountId") final Long discountId) throws NotFoundException, ValidationException {
 		Map<String, String> productMap = discountService.getProductListOfThatDiscount(discountId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("discount.list.message", null))
 				.setData(productMap).create();

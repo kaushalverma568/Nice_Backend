@@ -21,12 +21,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.DiscountStatusEnum;
+import com.nice.constant.UserType;
 import com.nice.dto.DiscountDTO;
 import com.nice.dto.DiscountResponseDTO;
 import com.nice.dto.ProductParamRequestDTO;
@@ -38,6 +41,7 @@ import com.nice.model.Discount;
 import com.nice.model.DiscountAppliedProductHistory;
 import com.nice.model.Product;
 import com.nice.model.ProductVariant;
+import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.DiscountAppliedProductHistoryRepository;
 import com.nice.repository.DiscountRepository;
@@ -54,7 +58,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service("discountService")
 @Transactional(rollbackFor = Throwable.class)
@@ -132,10 +136,19 @@ public class DiscountServiceImpl implements DiscountService {
 
 	@Override
 	public void updateDiscount(final DiscountDTO discountDTO) throws ValidationException, NotFoundException {
+		/**
+		 * Check related to updating discount
+		 */
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
 		if (discountDTO.getId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("discount.id.not.null", null));
 		} else {
 			final Discount existingDiscount = getDiscountDetails(discountDTO.getId());
+			if (!UserType.VENDOR.name().equals(userLogin.getEntityType()) || !userLogin.getEntityId().equals(existingDiscount.getVendorId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+			}
+
 			if (!DiscountStatusEnum.UPCOMING.getStatusValue().equals(existingDiscount.getStatus())) {
 				throw new ValidationException(messageByLocaleService.getMessage("discount.can.not.update", new Object[] { existingDiscount.getStatus() }));
 			}
@@ -161,8 +174,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  discountDTO
-	 * @param  discount
+	 * @param discountDTO
+	 * @param discount
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -240,8 +253,8 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  discountId
-	 * @param  status
+	 * @param discountId
+	 * @param status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -283,11 +296,21 @@ public class DiscountServiceImpl implements DiscountService {
 
 	@Override
 	public DiscountResponseDTO getDiscount(final Long discountId) throws NotFoundException, ValidationException {
+		/**
+		 * Check related to updating discount
+		 */
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		Discount existingDiscount = getDiscountDetails(discountId);
+		if (userLogin.getEntityType() != null
+				&& (!UserType.VENDOR.name().equals(userLogin.getEntityType()) || !userLogin.getEntityId().equals(existingDiscount.getVendorId()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+		}
+
 		return convertEntityToResponseDto((getDiscountDetails(discountId)));
 	}
 
 	/**
-	 * @param  discount
+	 * @param discount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -316,8 +339,22 @@ public class DiscountServiceImpl implements DiscountService {
 	@Override
 	public void changeStatus(final Long discountId, final String status) throws ValidationException, NotFoundException {
 		LOGGER.info("Inside change status of discount method discountId: {} status {} ", discountId, status);
+
+		/**
+		 * Check related to updating discount
+		 */
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
 		final Discount existingDiscount = getDiscountDetails(discountId);
 		LOGGER.info("Existing discount details {} ", existingDiscount);
+
+		/**
+		 * check related to discount
+		 */
+		if (!UserType.VENDOR.name().equals(userLogin.getEntityType()) || !userLogin.getEntityId().equals(existingDiscount.getVendorId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+		}
+
 		/**
 		 * check new discount status is valid or not
 		 */
@@ -350,7 +387,7 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	/**
-	 * @param  existingDiscount
+	 * @param existingDiscount
 	 * @throws NotFoundException
 	 */
 	private void setDiscountInProducts(final Discount existingDiscount) throws NotFoundException {
@@ -380,7 +417,17 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	@Override
-	public Page<Discount> getDiscountListBasedOnParams(final Integer pageNumber, final Integer pageSize, final String status, final Long vendorId) {
+	public Page<Discount> getDiscountListBasedOnParams(final Integer pageNumber, final Integer pageSize, final String status, Long vendorId) {
+
+		/**
+		 * Check related to updating discount
+		 */
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+			vendorId = userLogin.getEntityId();
+		}
+
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(status) && vendorId != null) {
 			return discountRepository.findAllByStatusAndVendorId(status, vendorId, pageable);
@@ -460,8 +507,22 @@ public class DiscountServiceImpl implements DiscountService {
 	}
 
 	@Override
-	public Map<String, String> getProductListOfThatDiscount(final Long discountId) throws NotFoundException {
+	public Map<String, String> getProductListOfThatDiscount(final Long discountId) throws NotFoundException, ValidationException {
 		Map<String, String> productMap = new HashMap<>();
+		/**
+		 * Check related to updating discount
+		 */
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+
+		Discount discount = getDiscountDetails(discountId);
+
+		/**
+		 * check related to discount
+		 */
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType()) && !userLogin.getEntityId().equals(discount.getVendorId())) {
+			throw new ValidationException(messageByLocaleService.getMessage("unauthorized", null));
+		}
+
 		List<DiscountAppliedProductHistory> discountAppliedProductHistoryList = discountAppliedProductHistoryRepository.findAllByDiscountId(discountId);
 		for (Long productId : discountAppliedProductHistoryList.stream().map(DiscountAppliedProductHistory::getProductId).collect(Collectors.toList())) {
 			final Product product = productService.getProductDetail(productId);

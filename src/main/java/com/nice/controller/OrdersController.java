@@ -220,6 +220,7 @@ public class OrdersController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/admin/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> cancelOrderAdmin(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
