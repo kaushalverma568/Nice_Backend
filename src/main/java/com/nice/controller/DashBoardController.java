@@ -53,9 +53,9 @@ public class DashBoardController {
 	 * @throws ValidationException
 	 */
 	@GetMapping("/lowStock/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getStockDetails(@RequestHeader("Authorization") final String accessToken, @RequestParam("vendorId") final Long vendorId,
+	public ResponseEntity<Object> getStockDetails(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws ValidationException, NotFoundException {
-		Page<ProductVariantResponseDTO> productVariantList = stockDetailsService.getLowStockProduct(vendorId, pageNumber, pageSize);
+		Page<ProductVariantResponseDTO> productVariantList = stockDetailsService.getLowStockProduct( pageNumber, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("lowstock.list.message", null))
 				.setData(productVariantList.getContent()).setHasNextPage(productVariantList.hasNext()).setHasPreviousPage(productVariantList.hasPrevious())
 				.setTotalPages(productVariantList.getTotalPages()).setPageNumber(productVariantList.getNumber() + 1)
@@ -64,9 +64,9 @@ public class DashBoardController {
 	
 	
 	@GetMapping("/expire/pageNumber/{pageNumber}/pageSize/{pageSize}")
-	public ResponseEntity<Object> getExpireStockDetails(@RequestHeader("Authorization") final String accessToken, @RequestParam("vendorId") final Long vendorId,
+	public ResponseEntity<Object> getExpireStockDetails(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize) throws ValidationException, NotFoundException {
-		Page<StockDetailsDTO> productVariantList = stockDetailsService.getExpireStockDetails(vendorId, pageNumber, pageSize);
+		Page<StockDetailsDTO> productVariantList = stockDetailsService.getExpireStockDetails( pageNumber, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("lowstock.list.message", null))
 				.setData(productVariantList.getContent()).setHasNextPage(productVariantList.hasNext()).setHasPreviousPage(productVariantList.hasPrevious())
 				.setTotalPages(productVariantList.getTotalPages()).setPageNumber(productVariantList.getNumber() + 1)

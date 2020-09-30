@@ -579,19 +579,19 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Page<ProductVariantResponseDTO> getLowStockProduct(Long vendorId, Integer pageNumber, Integer pageSize)
+	public Page<ProductVariantResponseDTO> getLowStockProduct(Integer pageNumber, Integer pageSize)
 			throws ValidationException, NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal()).getUser();
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType()) && vendorId.equals(userLogin.getEntityId())) {
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-			List<BigInteger> productVariantIdList = stockDetailsCustomRepository.getLowStockProductDetails(vendorId,
+			List<BigInteger> productVariantIdList = stockDetailsCustomRepository.getLowStockProductDetails(userLogin.getEntityId(),
 					(int) pageable.getOffset(), pageSize);
 			List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
 			for (BigInteger productVariantId : productVariantIdList) {
 				productVariantResponseDTOs.add(productVariantService.getProductVariant(productVariantId.longValue()));
 			}
-			Long totalCount = stockDetailsCustomRepository.getLowStockProductDetailsCount(vendorId);
+			Long totalCount = stockDetailsCustomRepository.getLowStockProductDetailsCount(userLogin.getEntityId());
 			return new PageImpl<>(productVariantResponseDTOs, pageable, totalCount);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -599,15 +599,16 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Page<StockDetailsDTO> getExpireStockDetails(Long vendorId, Integer pageNumber, Integer pageSize)
+	public Page<StockDetailsDTO> getExpireStockDetails( Integer pageNumber, Integer pageSize)
 			throws ValidationException, NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal()).getUser();
-		if (UserType.VENDOR.name().equals(userLogin.getEntityType()) && vendorId.equals(userLogin.getEntityId())) {
+		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
 			List<StockDetailsDTO> stockDetailsDTOs = new ArrayList<>();
-			List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getExpiredStockDetails(vendorId, (int) pageable.getOffset(), pageSize);
-			Long totalCount = stockDetailsCustomRepository.getExpiredStockDetailsCount(vendorId);
+			List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getExpiredStockDetails(userLogin.getEntityId(),
+					(int) pageable.getOffset(), pageSize);
+			Long totalCount = stockDetailsCustomRepository.getExpiredStockDetailsCount(userLogin.getEntityId());
 			for (StockDetails stockDetails : stockDetailsList) {
 				stockDetailsDTOs.add(fetchStockInfo(stockDetails));
 			}
