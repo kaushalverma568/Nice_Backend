@@ -399,8 +399,13 @@ public class SendEmailNotificationComponent {
 				emailNotification.getLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
 						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 		emailParameterMap.put("message", message);
-		emailParameterMap.put("companyNumber", company.getPhoneNumber());
-		emailParameterMap.put("companyEmail", company.getCustomerCareEmail());
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
+		emailParameterMap.put("subject", subject);
 		emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.VENDOR_STATUS_CHANGE.name(),
 				emailNotification.getLanguage());
 	}

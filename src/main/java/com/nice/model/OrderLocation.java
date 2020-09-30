@@ -8,13 +8,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jul-2020
+ * @date : 17-Jul-2020
  */
 @Entity
 @Table(name = "order_location")
@@ -46,4 +47,7 @@ public class OrderLocation extends CommonModel {
 
 	@Column(name = "customer_id", nullable = false)
 	private Long customerId;
+
+	@Transient
+	private String orderStatus;
 }

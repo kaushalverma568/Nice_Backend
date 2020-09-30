@@ -22,6 +22,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.OrderLocation;
 import com.nice.service.OrderLocationService;
+import com.nice.service.OrdersService;
 import com.nice.service.SocketIOService;
 import com.nice.util.JsonObjectMapper;
 
@@ -47,6 +48,9 @@ public class SocketIOServiceImpl implements SocketIOService {
 
 	@Autowired
 	private SocketIOServer socketIOServer;
+
+	@Autowired
+	private OrdersService ordersService;
 
 	/**
 	 * Spring IoC After the container is created, start after loading the
@@ -114,6 +118,7 @@ public class SocketIOServiceImpl implements SocketIOService {
 					 * delivery Boy orderId will be orderId_deliveryBoyId_sender
 					 */
 					messageConverted.put(CUSTOMER_ID, orderLocation.getCustomerId().toString());
+					messageConverted.put("orderStatus", orderLocation.getOrderStatus());
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getCustomerId().toString()).concat("_receiver"),
 							messageConverted);
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getDeliveryBoyId().toString()).concat("_sender"),

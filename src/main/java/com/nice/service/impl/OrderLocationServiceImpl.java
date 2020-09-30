@@ -20,7 +20,7 @@ import com.nice.service.OrdersService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jul-2020
+ * @date : 17-Jul-2020
  */
 @Service("orderLocationService")
 @Transactional(rollbackFor = Throwable.class)
@@ -54,6 +54,7 @@ public class OrderLocationServiceImpl implements OrderLocationService {
 			OrderLocation orderLocation = orderLocationMapper.toEntity(orderLocationDTO);
 			orderLocation.setActive(true);
 			orderLocationRepository.save(orderLocation);
+			orderLocation.setOrderStatus(orders.getOrderStatus());
 			return orderLocation;
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage("order.delivery.boy.mismatch",
