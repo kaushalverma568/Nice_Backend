@@ -85,6 +85,7 @@ public class DashboardServiceImpl implements DashboardService {
 		 */
 		orderListFilterDto.setOrderStatusNotIn(Arrays.asList(OrderStatusEnum.CANCELLED.getStatusValue()));
 		dashboardCountDTO.setTotalorders(ordersService.getOrderCountBasedOnParams(orderListFilterDto));
+		orderListFilterDto.setOrderStatusNotIn(new ArrayList<>());
 		/**
 		 * any status between order confirmation to order delivery
 		 */
