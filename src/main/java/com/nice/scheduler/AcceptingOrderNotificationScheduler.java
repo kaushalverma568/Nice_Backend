@@ -57,50 +57,56 @@ public class AcceptingOrderNotificationScheduler {
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
 		/**
 		 * get order list which is appproved, notification not sended more then three times and next time we have to send is
-		 * less then current time
+		 * less then current time ,we will try MAX_ASSIGNMENT_TRY_COUNT times
 		 */
+
 		List<Orders> ordersList = ordersService.getAllQualifiedDeliveryOrdersForSendingNotification(
 				Arrays.asList(OrderStatusEnum.CONFIRMED.getStatusValue(), OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(),
 						OrderStatusEnum.RETURN_CONFIRMED.getStatusValue()),
 				DeliveryType.DELIVERY.getStatusValue(), Constant.MAX_ASSIGNMENT_TRY_COUNT, new Date());
 		for (Orders orders : ordersList) {
-
-			List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 			/**
-			 * if not a single delivery boy is logged in for accepting order then throw exception
+			 * if we have tried exact MAX_ASSIGNMENT_TRY_COUNT times then we will simply increase a try count for maintaining retry
+			 * button in UI
 			 */
-			if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+			if (!orders.getAssignmentTryCount().equals(Constant.MAX_ASSIGNMENT_TRY_COUNT)) {
+				List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 				/**
-				 * We will send notification to vendor / admin
+				 * if not a single delivery boy is logged in for accepting order then throw exception
 				 */
-			} else {
-				PushNotificationDTO pushNotification = new PushNotificationDTO();
-				pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
-				pushNotification.setOrderId(orders.getId());
-				if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
-					pushNotification.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
-				} else if (OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
-					pushNotification.setTaskType(TaskTypeEnum.REPLACEMENT.getTaskValue());
+				if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
+					throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+					/**
+					 * We will send notification to vendor / admin
+					 */
 				} else {
-					pushNotification.setTaskType(TaskTypeEnum.RETURN.getTaskValue());
+					PushNotificationDTO pushNotification = new PushNotificationDTO();
+					pushNotification.setDeliveryBoyIds(nextNearestDeliveryBoys);
+					pushNotification.setOrderId(orders.getId());
+					if (OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+						pushNotification.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+					} else if (OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
+						pushNotification.setTaskType(TaskTypeEnum.REPLACEMENT.getTaskValue());
+					} else {
+						pushNotification.setTaskType(TaskTypeEnum.RETURN.getTaskValue());
+					}
+					pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
+					jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
+					/**
+					 * add entry in delivery boy notification history for this order
+					 */
+					for (Long deliveryBoyId : nextNearestDeliveryBoys) {
+						DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
+						DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory = new DeliveryBoySendNotificationHistory();
+						deliveryBoyNotificationHistory.setActive(true);
+						deliveryBoyNotificationHistory.setDeliveryBoy(deliveryBoy);
+						deliveryBoyNotificationHistory.setOrderId(orders.getId());
+						deliveryBoySendNotificationHistoryRepository.save(deliveryBoyNotificationHistory);
+					}
 				}
-				pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
-				jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
-				/**
-				 * add entry in delivery boy notification history for this order
-				 */
-				for (Long deliveryBoyId : nextNearestDeliveryBoys) {
-					DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(deliveryBoyId);
-					DeliveryBoySendNotificationHistory deliveryBoyNotificationHistory = new DeliveryBoySendNotificationHistory();
-					deliveryBoyNotificationHistory.setActive(true);
-					deliveryBoyNotificationHistory.setDeliveryBoy(deliveryBoy);
-					deliveryBoyNotificationHistory.setOrderId(orders.getId());
-					deliveryBoySendNotificationHistoryRepository.save(deliveryBoyNotificationHistory);
-				}
+				orders.setNotificationTimer(new Date(System.currentTimeMillis() + Constant.NOTIFICATION_SENDING_TIME_IN_MILIS));
 			}
 			orders.setAssignmentTryCount(orders.getAssignmentTryCount() + 1);
-			orders.setNotificationTimer(new Date(System.currentTimeMillis() + Constant.NOTIFICATION_SENDING_TIME_IN_MILIS));
 			ordersRepository.save(orders);
 		}
 	}

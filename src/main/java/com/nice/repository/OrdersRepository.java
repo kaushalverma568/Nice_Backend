@@ -47,15 +47,15 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>, OrderCust
 
 	/**
 	 * find all orders for sending notification(Here only that delivery order is acceptable whose assignment try count less
-	 * than 3 and timer less than current time )
+	 * than equals 3 and timer less than current time )
 	 *
 	 * @param  status
 	 * @param  assignmentTryCount
 	 * @param  notificationTimer
 	 * @return
 	 */
-	List<Orders> findAllByOrderStatusInAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(List<String> statusList, String deliveryType,
-			Integer assignmentTryCount, Date notificationTimer);
+	List<Orders> findAllByOrderStatusInAndDeliveryTypeAndAssignmentTryCountLessThanEqualAndNotificationTimerLessThan(List<String> statusList,
+			String deliveryType, Integer assignmentTryCount, Date notificationTimer);
 
 	List<Orders> findAllByOrderStatusInAndDeliveryBoyOrOrderStatusInAndReplacementDeliveryBoy(List<String> statusList, DeliveryBoy deliveryBoy,
 			List<String> statusList1, DeliveryBoy replacementDeliveryBoy);

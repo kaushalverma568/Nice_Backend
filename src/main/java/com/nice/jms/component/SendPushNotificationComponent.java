@@ -39,7 +39,6 @@ import com.nice.service.CustomerService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
 import com.nice.service.OrdersService;
-import com.nice.service.PaymentDetailsService;
 import com.nice.service.PushNotificationReceiverService;
 import com.nice.service.PushNotificationService;
 import com.nice.service.TaskService;
@@ -52,7 +51,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -93,9 +92,6 @@ public class SendPushNotificationComponent {
 
 	@Autowired
 	private PushNotificationService pushNotificationService;
-
-	@Autowired
-	private PaymentDetailsService paymentDetailsService;
 
 	@Autowired
 	private OrdersService ordersService;
@@ -171,8 +167,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -226,8 +221,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -308,7 +302,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -358,7 +352,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -423,7 +417,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -476,7 +470,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -880,7 +874,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * replcae request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -924,7 +918,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * return request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -968,7 +962,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * cancel order by admin send notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

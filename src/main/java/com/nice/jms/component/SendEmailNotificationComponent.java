@@ -5,7 +5,6 @@ package com.nice.jms.component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -125,7 +124,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -167,6 +166,8 @@ public class SendEmailNotificationComponent {
 		LOGGER.info("send account activation email");
 		final Map<String, String> emailParameterMap = new HashMap<>();
 		if (emailNotification.getDeliveryBoyId() != null) {
+			String subject;
+			String content;
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
@@ -175,10 +176,16 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
-			emailParameterMap.put("deliveryBoyName",
-					deliveryBoy.getPreferredLanguage().equals("en") ? deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish())
-							: deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
-			String subject = "Account Activation";
+			if (deliveryBoy.getPreferredLanguage().equals("en")) {
+				emailParameterMap.put("deliveryBoyName", deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()));
+				subject = NotificationMessageConstantsEnglish.ACCOUNT_ACCTIVATION_SUBJECT;
+				content = NotificationMessageConstantsEnglish.deliveryBoyActivation();
+			} else {
+				emailParameterMap.put("deliveryBoyName", deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
+				subject = NotificationMessageConstantsArabic.ACCOUNT_ACCTIVATION_SUBJECT;
+				content = NotificationMessageConstantsArabic.deliveryBoyActivation();
+			}
+			emailParameterMap.put("content", content);
 			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.DELIVERY_BOY_ACCOUNT_ACTIVATION.name(),
 					deliveryBoy.getPreferredLanguage());
 		}
@@ -197,27 +204,40 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			String emailAddress;
-			String payoutSubject;
+			String subject;
+			String content;
 			PaymentDetails paymentDetails = paymentDetailsService.getPaymentDetailsDetail(emailNotification.getPaymentDetailsId());
-			emailParameterMap.put("paidOn", paymentDetails.getPaidOn().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString());
 			if (emailNotification.getVendorId() != null) {
 				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
-				emailParameterMap.put("userName",
-						vendor.getPreferredLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
-								: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 				emailAddress = vendor.getEmail();
+				if (vendor.getPreferredLanguage().equals("en")) {
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish()),
+							paymentDetails.getPaidOn());
+					subject = NotificationMessageConstantsEnglish.VENDOR_PAYOUT_SUBJECT;
+				} else {
+					content = NotificationMessageConstantsArabic.getPayoutMessage(vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()),
+							paymentDetails.getPaidOn());
+					subject = NotificationMessageConstantsArabic.VENDOR_PAYOUT_SUBJECT;
+				}
 				emailNotification.setLanguage(vendor.getPreferredLanguage());
-				payoutSubject = "Vendor Payment";
+
 			} else {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
-				emailParameterMap.put("userName",
-						deliveryBoy.getPreferredLanguage().equals("en") ? deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish())
-								: deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
 				emailAddress = deliveryBoy.getEmail();
+				if (deliveryBoy.getPreferredLanguage().equals("en")) {
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(
+							deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()), paymentDetails.getPaidOn());
+					subject = NotificationMessageConstantsEnglish.DELIVERY_BOY_PAYOUT_SUBJECT;
+				} else {
+					content = NotificationMessageConstantsArabic
+							.getPayoutMessage(deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()), paymentDetails.getPaidOn());
+					subject = NotificationMessageConstantsArabic.DELIVERY_BOY_PAYOUT_SUBJECT;
+
+				}
 				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
-				payoutSubject = "Delivery Boy Payment";
 			}
-			emailUtil.sendEmail(payoutSubject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
+			emailParameterMap.put("content", content);
+			emailUtil.sendEmail(subject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
 		}
 	}
 
@@ -268,8 +288,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(USER_TYPE, "Delivery Boy");
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -312,8 +331,7 @@ public class SendEmailNotificationComponent {
 			}
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {

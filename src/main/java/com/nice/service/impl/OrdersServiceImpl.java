@@ -78,7 +78,6 @@ import com.nice.model.CartToppings;
 import com.nice.model.City;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
-import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.OnlineAddons;
 import com.nice.model.OnlineCart;
 import com.nice.model.OnlineExtras;
@@ -1691,7 +1690,7 @@ public class OrdersServiceImpl implements OrdersService {
 	@Override
 	public List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(final List<String> statusList, final String deliveryType,
 			final Integer assignmentTryCount, final Date notificationTimer) {
-		return ordersRepository.findAllByOrderStatusInAndDeliveryTypeAndAssignmentTryCountLessThanAndNotificationTimerLessThan(statusList, deliveryType,
+		return ordersRepository.findAllByOrderStatusInAndDeliveryTypeAndAssignmentTryCountLessThanEqualAndNotificationTimerLessThan(statusList, deliveryType,
 				assignmentTryCount, notificationTimer);
 	}
 
@@ -1868,14 +1867,6 @@ public class OrdersServiceImpl implements OrdersService {
 		} else {
 			orders.setAssignmentTryCount(0);
 			ordersRepository.save(orders);
-			/**
-			 * remove delivery boy notification history for this order
-			 */
-			List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
-					.findAllByOrderId(orderId);
-			if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
-				deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
-			}
 		}
 	}
 
