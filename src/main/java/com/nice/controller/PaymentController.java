@@ -4,7 +4,6 @@
 package com.nice.controller;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
 import com.nice.constant.NotificationQueueConstants;
-import com.nice.constant.SuccessErrorType;
 import com.nice.dto.HesabeDecryptPaymentDTO;
 import com.nice.dto.HesabePaymentResponseDTO;
 import com.nice.exception.NotFoundException;
@@ -48,8 +46,8 @@ public class PaymentController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentController.class);
 
-	@Value("${admin.url}")
-	private String adminUrl;
+	@Value("${static.url}")
+	private String staticUrl;
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -97,9 +95,11 @@ public class PaymentController {
 			 */
 			paymentService.sendPushNotificationForPlacedOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, orderId);
 
-			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type=" + SuccessErrorType.PAYMENT);
+//			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type=" + SuccessErrorType.PAYMENT);
+			return new ModelAndView(REDIRECT + staticUrl + "success");
 		} else {
-			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + URLEncoder.encode(msg, "UTF-8") + " &type=" + SuccessErrorType.PAYMENT);
+//			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + URLEncoder.encode(msg, "UTF-8") + " &type=" + SuccessErrorType.PAYMENT);
+			return new ModelAndView(REDIRECT + staticUrl + "error");
 		}
 	}
 }
