@@ -50,7 +50,7 @@ import com.nice.util.PaginationUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 08-Jul-2020
+ * @date   : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -73,9 +73,9 @@ public class OrdersController {
 	private MessageByLocaleService messageByLocaleService;
 
 	/**
-	 * @param token
-	 * @param orderRequestDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  orderRequestDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -89,7 +89,7 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		String orderId = orderService.validateOrder(orderRequestDto);
-		LOGGER.info("Inside the validate order method");
+		LOGGER.info("Inside the validate order method OrderRequestDTO:{}", orderRequestDto);
 		/**
 		 * send email to customer when he/she place order and payment type is cod
 		 */
@@ -107,10 +107,10 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param token
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param orderListFilterDto
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -143,9 +143,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param orderListFilterDto
-	 * @param httpServletResponse
+	 * @param  accessToken
+	 * @param  orderListFilterDto
+	 * @param  httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -161,8 +161,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param token
-	 * @param orderId
+	 * @param  token
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -178,9 +178,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param token
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -208,9 +208,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param token
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -238,10 +238,10 @@ public class OrdersController {
 	/**
 	 * replace order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -267,10 +267,10 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param token
-	 * @param userId
-	 * @param replaceCancelOrderDto
-	 * @param bindingResult
+	 * @param  token
+	 * @param  userId
+	 * @param  replaceCancelOrderDto
+	 * @param  bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -295,13 +295,12 @@ public class OrdersController {
 
 	/**
 	 * Change status of order </br>
-	 * This API is useful for
-	 * CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
+	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param orderId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  orderId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -317,6 +316,9 @@ public class OrdersController {
 		orderService.changeStatus(ordersId, status);
 		if (!OrderStatusEnum.DELIVERED.getStatusValue().equals(status)) {
 			orderService.sendPushNotificationForOrder(NotificationQueueConstants.ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER, ordersId);
+		} else if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(status)
+				|| OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(status)) {
+			orderService.sendPushNotificationForOrder(NotificationQueueConstants.ORDER_PREPARED, ordersId);
 		}
 		LOGGER.info("Outside change status of order");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("order.change.status.messege", null))
@@ -350,8 +352,8 @@ public class OrdersController {
 	/**
 	 * Retry for searching delivery boys for assignment of order
 	 *
-	 * @param accessToken
-	 * @param orderId
+	 * @param  accessToken
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -366,15 +368,13 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method is used to refund amount for the orders that are cancelled by
-	 * admin, as for orders cancelled by admin no refund would be made
-	 * automatically, for other type of cancelled order (Cancelled By
-	 * Customer/Rejected by Vendor) refund would be made automatically if the
-	 * payment mode is not COD
+	 * This method is used to refund amount for the orders that are cancelled by admin, as for orders cancelled by admin no
+	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
+	 * refund would be made automatically if the payment mode is not COD
 	 *
-	 * @param accessToken
-	 * @param orderId
-	 * @param amount
+	 * @param  accessToken
+	 * @param  orderId
+	 * @param  amount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -399,11 +399,11 @@ public class OrdersController {
 	}
 
 	/**
-	 * This method will only be used to deliver pickup type order by vendor, for all
-	 * other orders the delivery would be done by delivery boy.
+	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
+	 * by delivery boy.
 	 *
-	 * @param token
-	 * @param orderId
+	 * @param  token
+	 * @param  orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -421,7 +421,7 @@ public class OrdersController {
 	/**
 	 * Gives the details of current ongoing orders for a customer.
 	 *
-	 * @param token
+	 * @param  token
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

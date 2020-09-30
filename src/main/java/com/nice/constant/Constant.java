@@ -175,9 +175,9 @@ public final class Constant {
 	public static final String DELIVERY_BOY_PROFILE = "Delivery Boy Profile";
 	public static final String VENDOR_MODULE = "Vendor";
 	public static final String PAYOUT_MODULE = "Payout";
-	
+
 	public static final Long LOW_STOCK_LIMIT = 10L;
-	
+
 	/**
 	 * Status for vendor return/replace
 	 */
@@ -189,11 +189,49 @@ public final class Constant {
 			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(),
 			OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue());
 
+	private static List<String> normalOrderStatusList = Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.CONFIRMED.getStatusValue(),
+			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(), OrderStatusEnum.REJECTED.getStatusValue(),
+			OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue());
+
+	private static List<String> replaceOrderStatusList = Arrays.asList(OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
+			OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue(),
+			OrderStatusEnum.REPLACE_REJECTED.getStatusValue(), OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(),
+			OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue(),
+			OrderStatusEnum.REPLACED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue());
+
+	private static List<String> returnOrderStatusList = Arrays.asList(OrderStatusEnum.RETURN_REQUESTED.getStatusValue(),
+			OrderStatusEnum.CONFIRMED.getStatusValue(), OrderStatusEnum.RETURN_CONFIRMED.getStatusValue(), OrderStatusEnum.RETURN_PROCESSED.getStatusValue(),
+			OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.RETURN_REJECTED.getStatusValue());
+
 	/**
 	 * @return
 	 */
 	public static List<String> getOngoingOrderStatusList() {
 		return ongoingOrderStatusList;
+	}
+
+	/**
+	 * @return
+	 */
+
+	public static List<String> normalOrderStatusList() {
+		return normalOrderStatusList;
+	}
+
+	/**
+	 * @return
+	 */
+
+	public static List<String> replaceOrderStatusList() {
+		return replaceOrderStatusList;
+	}
+
+	/**
+	 * @return
+	 */
+
+	public static List<String> returnOrderStatusList() {
+		return returnOrderStatusList;
 	}
 
 }
