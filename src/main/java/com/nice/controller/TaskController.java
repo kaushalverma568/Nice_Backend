@@ -245,7 +245,7 @@ public class TaskController {
 		LOGGER.info("Inside update task status to repalce delivery on the way method for task Id: {}", taskId);
 		taskService.changeTaskStatus(taskId, TaskStatusEnum.REPLACE_DELIVERY_ON_THE_WAY.getStatusValue());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
-				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
+				.setData(/* deliveryBoyService.getDashBoard() */deliveryBoyService.getOrderDetails(taskId, null)).setStatus(HttpStatus.OK).create();
 	}
 
 	/**
