@@ -262,12 +262,20 @@ public class SendEmailNotificationComponent {
 				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
 				emailAddress = vendor.getEmail();
 				if (vendor.getPreferredLanguage().equals("en")) {
+					emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
+					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+					emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish());
 					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
 				} else {
+					emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
+					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+					emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic());
 					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
@@ -279,12 +287,20 @@ public class SendEmailNotificationComponent {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 				emailAddress = deliveryBoy.getEmail();
 				if (deliveryBoy.getPreferredLanguage().equals("en")) {
+					emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
+					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+					emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish());
 					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
 				} else {
+					emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
+					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+					emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic());
 					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
@@ -308,6 +324,7 @@ public class SendEmailNotificationComponent {
 		if (emailNotification.getCustomerId() != null) {
 			String subject;
 			String content;
+			String secondMessage;
 			String applicationName;
 			LOGGER.info("send customer registration email");
 			CompanyResponseDTO company = companyService.getCompany(true);
@@ -321,14 +338,25 @@ public class SendEmailNotificationComponent {
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
 			if (emailNotification.getLanguage().equals("en")) {
+				emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
+				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+				emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 				content = NotificationMessageConstantsEnglish.welcome(applicationNameEn);
 				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
+				secondMessage = NotificationMessageConstantsEnglish.welcomeSecondMessage();
 				applicationName = applicationNameEn;
 			} else {
+				emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
+				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+				emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 				content = NotificationMessageConstantsArabic.welcome(applicationNameFr);
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
 				applicationName = applicationNameFr;
+				secondMessage = NotificationMessageConstantsArabic.welcomeSecondMessage();
 			}
+			emailParameterMap.put("secondMessage", secondMessage);
 			emailParameterMap.put(CONTENT2, content);
 			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
@@ -553,6 +581,7 @@ public class SendEmailNotificationComponent {
 		Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
 		String subject = null;
 		String message = null;
+		String secondMessage = null;
 		String applicationName = null;
 		if (emailNotification.getLanguage().equals("en")) {
 			if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
@@ -561,9 +590,11 @@ public class SendEmailNotificationComponent {
 			} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsEnglish.suspendVendorProfileSubject();
 				message = NotificationMessageConstantsEnglish.suspendVendorProfileMessage();
+				secondMessage = NotificationMessageConstantsEnglish.suspendVendorProfileSecondMessage();
 			} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsEnglish.rejectVendorProfileSubject();
 				message = NotificationMessageConstantsEnglish.rejectVendorProfileMessage();
+				secondMessage = NotificationMessageConstantsEnglish.rejectVendorProfileSecondMessage();
 			} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsEnglish.expiredVendorSubscriptionSubject();
 				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
@@ -572,6 +603,7 @@ public class SendEmailNotificationComponent {
 			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsEnglish.resumeVendorProfileSubject();
 				message = NotificationMessageConstantsEnglish.resumeVendorProfileMessage(applicationNameEn);
+				secondMessage = NotificationMessageConstantsEnglish.resumeVendorProfileSecondMessage();
 			} else {
 				return;
 			}
@@ -587,9 +619,11 @@ public class SendEmailNotificationComponent {
 			} else if (VendorStatus.SUSPENDED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.suspendVendorProfileSubject();
 				message = NotificationMessageConstantsArabic.suspendVendorProfileMessage();
+				secondMessage = NotificationMessageConstantsArabic.suspendVendorProfileSecondMessage();
 			} else if (VendorStatus.REJECTED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.rejectVendorProfileSubject();
 				message = NotificationMessageConstantsArabic.rejectVendorProfileMessage();
+				secondMessage = NotificationMessageConstantsArabic.rejectVendorProfileSecondMessage();
 			} else if (VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.expiredVendorSubscriptionSubject();
 				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
@@ -598,6 +632,7 @@ public class SendEmailNotificationComponent {
 			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.resumeVendorProfileSubject();
 				message = NotificationMessageConstantsArabic.resumeVendorProfileMessage(applicationNameFr);
+				secondMessage = NotificationMessageConstantsArabic.resumeVendorProfileSecondMessage();
 			} else {
 				return;
 			}
@@ -612,6 +647,7 @@ public class SendEmailNotificationComponent {
 				emailNotification.getLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
 						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
 		emailParameterMap.put(MESSAGE, message);
+		emailParameterMap.put("secondMessage", secondMessage);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
