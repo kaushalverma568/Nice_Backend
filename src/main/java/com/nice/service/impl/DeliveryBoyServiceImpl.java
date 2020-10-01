@@ -478,8 +478,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			/**
 			 * if delivery boy's device detail is not present then can not be available for accept order
 			 */
-			List<DeviceDetail> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
-			if (deviceDetailList.isEmpty()) {
+			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLogin.getId());
+			if (!deviceDetailList.isPresent()) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.device.detail.required.active", null));
 			}
 		} else {
