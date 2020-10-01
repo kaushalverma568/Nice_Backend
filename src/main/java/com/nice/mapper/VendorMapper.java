@@ -191,10 +191,12 @@ public class VendorMapper {
 			vendorExport.setFirstName(vendor.getFirstNameEnglish());
 			vendorExport.setLastName(vendor.getLastNameEnglish());
 			vendorExport.setStoreName(vendor.getStoreNameEnglish());
+			vendorExport.setBusinessCategoryName(vendor.getBusinessCategory().getNameEnglish());
 		} else {
 			vendorExport.setFirstName(vendor.getFirstNameArabic());
 			vendorExport.setLastName(vendor.getLastNameArabic());
 			vendorExport.setStoreName(vendor.getStoreNameArabic());
+			vendorExport.setBusinessCategoryName(vendor.getBusinessCategory().getNameArabic());
 		}
 		return vendorExport;
 	}

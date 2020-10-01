@@ -25,5 +25,17 @@ public class VendorExport implements Serializable {
 	private String storeName;
 
 	private String phoneNumber;
+	
+	private Boolean isFeatured;
+	
+	private String businessCategoryName;
+	
+	private String status;
+	
+	private String accepts;
+	
+	private String storePhoneNumber;
+	
+	private String preferredLanguage;
 
 }

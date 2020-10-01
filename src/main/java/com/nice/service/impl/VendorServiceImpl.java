@@ -916,8 +916,8 @@ public class VendorServiceImpl implements VendorService {
 		for (Vendor vendor : vendorList) {
 			vendorExportList.add(vendorMapper.toExportDTO(vendor));
 		}
-		final Object[] vendorHeaderField = new Object[] { "First Name", "Last Name", "Email", "Store Name", "Phone Number" };
-		final Object[] vendorDataField = new Object[] { "firstName", "lastName", "email", "storeName", "phoneNumber" };
+		final Object[] vendorHeaderField = new Object[] { "First Name", "Last Name", "Email", "Store Name", "Phone Number", "Business Category Name", "is Featured", "status", "Return/Replace", "Store Phone Number", "preferred Language"  };
+		final Object[] vendorDataField = new Object[] { "firstName", "lastName", "email", "storeName", "phoneNumber", "businessCategoryName", "isFeatured", "status", "accepts", "storePhoneNumber", "preferredLanguage"  };
 		try {
 			exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
 		} catch (IOException e) {
