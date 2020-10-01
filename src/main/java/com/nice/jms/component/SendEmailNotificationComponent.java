@@ -30,7 +30,6 @@ import com.nice.dto.Notification;
 import com.nice.dto.VendorBasicDetailDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
-import com.nice.locale.MessageByLocaleService;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.Orders;
@@ -53,7 +52,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -63,8 +62,6 @@ public class SendEmailNotificationComponent {
 	private static final String SUBJECT2 = "subject";
 
 	private static final String CONTENT2 = "content";
-
-	private static final String ORDER_ID = "orderId";
 
 	private static final String USER_TYPE = "userType";
 
@@ -123,16 +120,13 @@ public class SendEmailNotificationComponent {
 	private PaymentDetailsService paymentDetailsService;
 
 	@Autowired
-	private MessageByLocaleService messageByLocaleService;
-
-	@Autowired
 	private OrdersService ordersService;
 
 	@Autowired
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -404,7 +398,8 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -486,7 +481,8 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -515,16 +511,39 @@ public class SendEmailNotificationComponent {
 				emailNotification.getLanguage());
 	}
 
-	private void subscriptionExpireReminder(final Notification emailNotification) throws GeneralSecurityException, IOException, MessagingException {
-		Map<String, String> paramMap = new HashMap<>();
-		String subject;
+	private void subscriptionExpireReminder(final Notification emailNotification)
+			throws GeneralSecurityException, IOException, MessagingException, NotFoundException {
+		Map<String, String> emailParameterMap = new HashMap<>();
+		Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
+		VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
+				vendor.getSubscriptionPlan().getId());
+		String subject = null;
+		String message = null;
+		String applicationName = null;
 		if (emailNotification.getLanguage().equals("en")) {
 			subject = NotificationMessageConstantsEnglish.subscriptionExpireSubject(applicationNameEn);
+			message = NotificationMessageConstantsEnglish.vendorSubscriptionExpiredReminderMessage(vendorPayment.getAmount(),
+					vendor.getSubscriptionPlanEndDate());
+			applicationName = applicationNameEn;
 		} else {
 			subject = NotificationMessageConstantsArabic.subscriptionExpireSubject(applicationNameFr);
+			message = NotificationMessageConstantsArabic.vendorSubscriptionExpiredReminderMessage(vendorPayment.getAmount(),
+					vendor.getSubscriptionPlanEndDate());
+			applicationName = applicationNameFr;
 		}
-		paramMap.put(MESSAGE, messageByLocaleService.getMessage("subscription.plan.reminder.message", null));
-		emailUtil.sendEmail(subject, emailNotification.getEmail(), paramMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name(),
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put("vendorName",
+				emailNotification.getLanguage().equals("en") ? vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish())
+						: vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()));
+		emailParameterMap.put(MESSAGE, message);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
+		emailParameterMap.put(SUBJECT2, subject);
+		emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.SUBSCRIPTION_EXPIRE_REMINDER.name(),
 				emailNotification.getLanguage());
 	}
 
@@ -549,7 +568,7 @@ public class SendEmailNotificationComponent {
 				subject = NotificationMessageConstantsEnglish.expiredVendorSubscriptionSubject();
 				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
 						vendor.getSubscriptionPlan().getId());
-				message = NotificationMessageConstantsEnglish.vendorSubscriptionExpiredMessage(vendorPayment.getAmount());
+				message = NotificationMessageConstantsEnglish.vendorSubscriptionExpiredMessage(vendorPayment.getAmount(), vendor.getSubscriptionPlanEndDate());
 			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsEnglish.resumeVendorProfileSubject();
 				message = NotificationMessageConstantsEnglish.resumeVendorProfileMessage(applicationNameEn);
@@ -575,7 +594,7 @@ public class SendEmailNotificationComponent {
 				subject = NotificationMessageConstantsArabic.expiredVendorSubscriptionSubject();
 				VendorPayment vendorPayment = vendorPaymentService.getLatestVendorPaymentByVendorIdAndBusinessCategoryId(vendor.getId(),
 						vendor.getSubscriptionPlan().getId());
-				message = NotificationMessageConstantsArabic.vendorSubscriptionExpiredMessage(vendorPayment.getAmount());
+				message = NotificationMessageConstantsArabic.vendorSubscriptionExpiredMessage(vendorPayment.getAmount(), vendor.getSubscriptionPlanEndDate());
 			} else if (VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.resumeVendorProfileSubject();
 				message = NotificationMessageConstantsArabic.resumeVendorProfileMessage(applicationNameFr);

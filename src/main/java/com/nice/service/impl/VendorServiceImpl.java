@@ -197,7 +197,7 @@ public class VendorServiceImpl implements VendorService {
 	private UserOtpRepository userOtpRepository;
 
 	@Override
-	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
+	public Long addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
@@ -206,11 +206,11 @@ public class VendorServiceImpl implements VendorService {
 		 * Check if vendor already exists, if so then lets only send him email again.
 		 */
 		Optional<Vendor> optVendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
-		if (optVendor.isPresent() && !optVendor.get().getEmailVerified().booleanValue()) {
+		if (!vendorDTO.getIsAdmin().booleanValue() && optVendor.isPresent() && !optVendor.get().getEmailVerified().booleanValue()) {
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(optVendor.get().getEmail(), UserType.VENDOR.name());
 			if (optUserLogin.isPresent()) {
 				sendOtpForEmailVerification(optUserLogin.get(), optVendor.get());
-				return;
+				return optUserLogin.get().getId();
 			}
 		}
 
@@ -260,7 +260,11 @@ public class VendorServiceImpl implements VendorService {
 		 */
 		if (!vendorDTO.getIsAdmin().booleanValue()) {
 			sendOtpForEmailVerification(userLogin, vendor);
+		} else {
+			verifyEmailByAdmin(vendor.getId());
+			changeVendorStatus(vendor.getId(), VendorStatus.APPROVED.getStatusValue());
 		}
+		return userLogin.getId();
 	}
 
 	@Override

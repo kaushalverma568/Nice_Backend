@@ -372,11 +372,11 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String vendorSubscriptionExpiredMessage(final Double amount) {
+	public static String vendorSubscriptionExpiredMessage(final Double amount, final Date expiredDate) {
 		StringBuilder message = new StringBuilder();
-		message.append("You Nice Application subscription plan of KD").append(amount.toString()).append(
-				" has expired on <date>. To Continue enjoying  Nice Application services, renew the subscription plan, or purchase a new subscription.\r\n"
-						+ "\r\n" + "To renew or make a purchase of subscription plan click ");
+		message.append("You Nice Application subscription plan of KD").append(amount.toString()).append(" has expired on ").append(expiredDate)
+				.append(". To Continue enjoying  Nice Application services, renew the subscription plan, or purchase a new subscription.\r\n" + "\r\n"
+						+ "To renew or make a purchase of subscription plan click ");
 		return message.toString();
 	}
 
