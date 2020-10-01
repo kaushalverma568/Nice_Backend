@@ -9,8 +9,6 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
-import com.nice.constant.Constant;
-import com.nice.constant.SettingsConstant;
 import com.nice.dto.TaskDto;
 import com.nice.dto.TaskPayoutDTO;
 import com.nice.dto.TaskResponseDto;
@@ -56,14 +54,13 @@ public class TaskMapper {
 		taskPayoutDTO.setOrderId(task.getOrder().getId());
 		taskPayoutDTO.setOrderDate(task.getOrder().getCreatedAt());
 		taskPayoutDTO.setOrderStatus(task.getOrder().getOrderStatus());
-		taskPayoutDTO.setAdminCommissionPercentage((Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION));
 		/**
 		 * Get Details related to delivery boy Payment, if payment is done
 		 */
 		if (task.getDeliveryBoyPaymentDetails() != null) {
 			taskPayoutDTO.setDeliveryBoyPaymentDetailsId(task.getDeliveryBoyPaymentDetails().getId());
 			taskPayoutDTO.setDeliveryBoyTransactionId(task.getDeliveryBoyPaymentDetails().getTransactionNo());
-			taskPayoutDTO.setDeliveryBoyPaidOn(task.getDeliveryBoyPaymentDetails().getCreatedAt());
+			taskPayoutDTO.setDeliveryBoyPaidOn(task.getDeliveryBoyPaymentDetails().getPaidOn());
 		}
 		/**
 		 * Set details related to vendor payment, if payment done
@@ -71,7 +68,7 @@ public class TaskMapper {
 		if (task.getVendorPaymentDetails() != null) {
 			taskPayoutDTO.setVendorPaymentDetailsId(task.getVendorPaymentDetails().getId());
 			taskPayoutDTO.setVendorTransactionId(task.getVendorPaymentDetails().getTransactionNo());
-			taskPayoutDTO.setVendorPaidOn(task.getVendorPaymentDetails().getCreatedAt());
+			taskPayoutDTO.setVendorPaidOn(task.getVendorPaymentDetails().getPaidOn());
 		}
 		return taskPayoutDTO;
 	}

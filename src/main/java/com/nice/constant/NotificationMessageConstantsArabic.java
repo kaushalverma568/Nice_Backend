@@ -66,11 +66,16 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String getPayoutMessage(final String userName, final Date paidOn) {
+	public static String getPayoutMessage(final Date paidOn) {
 		StringBuilder message = new StringBuilder();
-		message = message.append(" Dear ").append(userName).append(", Your Payment date ")
-				.append(paidOn.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString())
-				.append(" is Release by admin, Please check you added Bank Account for more Update");
+		message = message.append("Admin has confirmed the payment date ").append(paidOn.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString())
+				.append(".");
+		return message.toString();
+	}
+
+	public static String getPayoutSecondMessage() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Check out your bank account for more updates.");
 		return message.toString();
 	}
 
@@ -331,7 +336,7 @@ public final class NotificationMessageConstantsArabic {
 	public static String approveVendorProfileMessage() {
 		StringBuilder message = new StringBuilder();
 		message.append(
-				"Nice has Review the Your profile, & your profile is approved by our team Now to be part of the Nice, and You are able to  login into the system.");
+				"Nice team has reviewed and approved your profile. Now, you are a part of the Nice Application. Log in to the system and get full access to the Nice Application.");
 		return message.toString();
 	}
 
@@ -375,7 +380,7 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String deliveryBoyActivation() {
 		StringBuilder message = new StringBuilder();
-		message.append("Your Nice account activated by admin ,Now you can Login-in into the Nice delivery boy application Thank you.");
+		message.append("Your Nice account is activated by admin ,Now you can Login-in into the Nice delivery boy application.");
 		return message.toString();
 	}
 

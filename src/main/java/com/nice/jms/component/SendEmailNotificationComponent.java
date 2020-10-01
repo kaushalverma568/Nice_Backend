@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
-import com.nice.constant.EmailConstants;
 import com.nice.constant.NotificationMessageConstantsArabic;
 import com.nice.constant.NotificationMessageConstantsEnglish;
 import com.nice.constant.NotificationQueueConstants;
@@ -218,19 +217,23 @@ public class SendEmailNotificationComponent {
 			String emailAddress;
 			String subject;
 			String content;
+			String secondLineContent;
 			String applicationName;
+			String userName;
 			PaymentDetails paymentDetails = paymentDetailsService.getPaymentDetailsDetail(emailNotification.getPaymentDetailsId());
 			if (emailNotification.getVendorId() != null) {
 				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
 				emailAddress = vendor.getEmail();
 				if (vendor.getPreferredLanguage().equals("en")) {
-					content = NotificationMessageConstantsEnglish.getPayoutMessage(vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish()),
-							paymentDetails.getPaidOn());
+					userName = vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish());
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
+					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
 				} else {
-					content = NotificationMessageConstantsArabic.getPayoutMessage(vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic()),
-							paymentDetails.getPaidOn());
+					userName = vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic());
+					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
+					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
 				}
@@ -239,19 +242,23 @@ public class SendEmailNotificationComponent {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 				emailAddress = deliveryBoy.getEmail();
 				if (deliveryBoy.getPreferredLanguage().equals("en")) {
-					content = NotificationMessageConstantsEnglish.getPayoutMessage(
-							deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()), paymentDetails.getPaidOn());
+					userName = deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish());
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
+					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
 				} else {
-					content = NotificationMessageConstantsArabic
-							.getPayoutMessage(deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()), paymentDetails.getPaidOn());
+					userName = deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic());
+					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
+					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
 				}
 				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
 			}
 			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put("secondLineContent", secondLineContent);
+			emailParameterMap.put("userName", userName);
 			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailUtil.sendEmail(subject, emailAddress, emailParameterMap, null, null, EmailTemplatesEnum.PAYOUT.name(), emailNotification.getLanguage());
@@ -357,14 +364,14 @@ public class SendEmailNotificationComponent {
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.FORGOT_PASSWORD_BOTH.name(),
+						emailNotification.getLanguage());
 			} else if (SendingType.OTP.name().equalsIgnoreCase(emailNotification.getSendingType())) {
-				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.FORGOT_PASSWORD_OTP.name(),
+						emailNotification.getLanguage());
 			} else {
-				emailUtil.sendEmail(EmailConstants.FORGOT_CREDS_SUBJECT, emailNotification.getEmail(), emailParameterMap, null, null,
-						EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name(), emailNotification.getLanguage());
+				emailUtil.sendEmail(subject, emailNotification.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.FORGOT_PASSWORD_LINK.name(),
+						emailNotification.getLanguage());
 			}
 		}
 	}

@@ -25,7 +25,6 @@ public class TaskPayoutDTO implements Serializable {
 	private Double totalOrderAmount;
 	private Double deliveryCharge;
 	private Double adminCommission;
-	private Double adminCommissionPercentage;
 	private Double vendorPayableAmt;
 	private String paymentMode;
 	private Date orderDate;
