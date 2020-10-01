@@ -192,7 +192,7 @@ public final class NotificationMessageConstantsEnglish {
 	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your order no. ").append(orderId).append(" has been sucessfully ").append(orderStatus)
-				.append(". Kindly help us improve our service by giving your feedback!");
+				.append(". Kindly help us to improve our service by giving your feedback!");
 		return message.toString();
 	}
 

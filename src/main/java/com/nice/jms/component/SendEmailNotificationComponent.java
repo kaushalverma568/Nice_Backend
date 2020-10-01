@@ -590,6 +590,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForReturnOrderToCustomer(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		String applicationName = null;
 		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
@@ -599,10 +600,19 @@ public class SendEmailNotificationComponent {
 		if ("en".equalsIgnoreCase(emailLanguage)) {
 			subject = NotificationMessageConstantsEnglish.returnOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.returnOrderMessage(orders.getId());
+			applicationName = applicationNameEn;
 		} else {
+			applicationName = applicationNameFr;
 			subject = NotificationMessageConstantsArabic.returnOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.returnOrderMessage(orders.getId());
 		}
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
 		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
 		emailParameterMap.put(MESSAGE, message);
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
@@ -610,6 +620,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForCancelOrderToCustomer(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		String applicationName = null;
 		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
@@ -617,12 +628,21 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
+			applicationName = applicationNameEn;
 			subject = NotificationMessageConstantsEnglish.cancelOrderSubject();
 			message = NotificationMessageConstantsEnglish.cancelOrderMessage(orders.getId());
 		} else {
+			applicationName = applicationNameFr;
 			subject = NotificationMessageConstantsArabic.cancelOrderSubject();
 			message = NotificationMessageConstantsArabic.cancelOrderMessage(orders.getId());
 		}
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
 		emailParameterMap.put(MESSAGE, message);
 		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
@@ -630,6 +650,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForReplaceOrderToCustomer(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		String applicationName = null;
 		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
@@ -637,12 +658,21 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
+			applicationName = applicationNameEn;
 			subject = NotificationMessageConstantsEnglish.replacementOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.replaceOrderMessage(orders.getId());
 		} else {
+			applicationName = applicationNameFr;
 			subject = NotificationMessageConstantsArabic.replacementOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.replaceOrderMessage(orders.getId());
 		}
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
 		emailParameterMap.put(MESSAGE, message);
 		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
@@ -650,6 +680,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForPlaceOrderToCustomer(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		String applicationName = null;
 		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
@@ -658,14 +689,23 @@ public class SendEmailNotificationComponent {
 		String message = null;
 		String thankyouMessage = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
+			applicationName = applicationNameEn;
 			subject = NotificationMessageConstantsEnglish.placeOrderSubject();
 			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsEnglish.thankYouForShopping();
 		} else {
+			applicationName = applicationNameFr;
 			subject = NotificationMessageConstantsArabic.placeOrderSubject();
 			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsArabic.thankYouForShopping();
 		}
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
 		emailParameterMap.put(MESSAGE, message);
 		emailParameterMap.put("thankyou", thankyouMessage);
 		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
@@ -674,6 +714,7 @@ public class SendEmailNotificationComponent {
 
 	private void sendEmailForDeliverOrderToCustomer(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		String applicationName = null;
 		Orders orders = ordersService.getOrder(emailNotification.getOrderId());
 		Customer customer = orders.getCustomer();
 		String emailLanguage = customer.getPreferredLanguage();
@@ -681,12 +722,21 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
+			applicationName = applicationNameEn;
 			subject = NotificationMessageConstantsEnglish.deliveryOrderSubject();
 			message = NotificationMessageConstantsEnglish.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
 		} else {
+			applicationName = applicationNameFr;
 			subject = NotificationMessageConstantsArabic.deliveryOrderSubject();
 			message = NotificationMessageConstantsArabic.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
 		}
+		CompanyResponseDTO company = companyService.getCompany(false);
+		emailParameterMap.put(LOGO, company.getCompanyImage());
+		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+		emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+		emailParameterMap.put(APPLICATION_NAME, applicationName);
 		emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName().concat(" ").concat(customer.getLastName()));
 		emailParameterMap.put(MESSAGE, message);
 		emailUtil.sendEmail(subject, customer.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.ORDER_TEMPLATE.name(), emailLanguage);
