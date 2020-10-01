@@ -52,14 +52,34 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
 
+	private static final String WELCOME = "welcome";
+
+	private static final String CUSTOMER_CARE_NO = "customerCareNo";
+
+	private static final String EMAIL_ADDRESS = "emailAddress";
+
+	private static final String CUSTOMER_SUPPORT_TEAM = "customerSupportTeam";
+
+	private static final String THANKS_REGARDS = "thanksRegards";
+
+	private static final String OTP_VALIDITY = "otpValidity";
+
+	private static final String HELLO = "hello";
+
+	private static final String INSTRUCTION = "instruction";
+
+	private static final String LINK_VALIDITY = "linkValidity";
+
+	private static final String SUBJECT = "subject";
+
 	private static final String MESSAGE = "message";
 
-	private static final String SUBJECT2 = "subject";
+	private static final String SUBJECT2 = SUBJECT;
 
 	private static final String CONTENT2 = "content";
 
@@ -126,7 +146,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -184,15 +204,19 @@ public class SendEmailNotificationComponent {
 			final Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
 
 			if (emailNotification.getLanguage().equals("en")) {
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsEnglish.WELCOME);
 				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
 				content = NotificationMessageConstantsEnglish.welcomeVendor(applicationNameEn);
 				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
 				applicationName = applicationNameEn;
+				emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 			} else {
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsArabic.WELCOME);
 				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
 				content = NotificationMessageConstantsArabic.welcomeVendor(applicationNameFr);
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
 				applicationName = applicationNameFr;
+				emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 			}
 			emailParameterMap.put(CONTENT2, content);
 			emailParameterMap.put(SUBJECT2, subject);
@@ -215,25 +239,27 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 			if (deliveryBoy.getPreferredLanguage().equals("en")) {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 				emailParameterMap.put("deliveryBoyName", deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()));
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsEnglish.deliveryBoyActivation());
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsEnglish.ACCOUNT_ACCTIVATION_SUBJECT);
 				subject = NotificationMessageConstantsEnglish.ACCOUNT_ACCTIVATION_SUBJECT;
+				emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 			} else {
 				emailParameterMap.put("deliveryBoyName", deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsArabic.deliveryBoyActivation());
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsArabic.ACCOUNT_ACCTIVATION_SUBJECT);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 				subject = NotificationMessageConstantsArabic.ACCOUNT_ACCTIVATION_SUBJECT;
+				emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 			}
 			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.DELIVERY_BOY_ACCOUNT_ACTIVATION.name(),
 					deliveryBoy.getPreferredLanguage());
@@ -262,50 +288,54 @@ public class SendEmailNotificationComponent {
 				VendorBasicDetailDTO vendor = vendorService.getVendorBasicDetailById(emailNotification.getVendorId());
 				emailAddress = vendor.getEmail();
 				if (vendor.getPreferredLanguage().equals("en")) {
-					emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-					emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-					emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+					emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+					emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish());
 					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
+					emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 				} else {
-					emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-					emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-					emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+					emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+					emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic());
 					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
+					emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 				}
 				emailNotification.setLanguage(vendor.getPreferredLanguage());
 			} else {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 				emailAddress = deliveryBoy.getEmail();
 				if (deliveryBoy.getPreferredLanguage().equals("en")) {
-					emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-					emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-					emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+					emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+					emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish());
 					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
+					emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 				} else {
-					emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-					emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-					emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-					emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+					emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+					emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic());
 					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
+					emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 				}
 				emailNotification.setLanguage(deliveryBoy.getPreferredLanguage());
 			}
@@ -338,23 +368,25 @@ public class SendEmailNotificationComponent {
 			final Customer customer = customerService.getCustomerDetails(emailNotification.getCustomerId());
 			emailParameterMap.put(CUSTOMER_NAME, customer.getFirstName() + " " + customer.getLastName());
 			if (emailNotification.getLanguage().equals("en")) {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 				content = NotificationMessageConstantsEnglish.welcome(applicationNameEn);
 				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
 				secondMessage = NotificationMessageConstantsEnglish.welcomeSecondMessage();
 				applicationName = applicationNameEn;
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsEnglish.WELCOME);
 			} else {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 				content = NotificationMessageConstantsArabic.welcome(applicationNameFr);
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
 				applicationName = applicationNameFr;
 				secondMessage = NotificationMessageConstantsArabic.welcomeSecondMessage();
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsArabic.WELCOME);
 			}
 			emailParameterMap.put("secondMessage", secondMessage);
 			emailParameterMap.put(CONTENT2, content);
@@ -400,34 +432,35 @@ public class SendEmailNotificationComponent {
 				}
 			}
 			if (emailNotification.getLanguage().equals("en")) {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsEnglish.getResetMessage(applicationNameEn));
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn));
-				emailParameterMap.put("otpValidity", NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("linkValidity", NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("instruction", NotificationMessageConstantsEnglish.getResetPasswordInsructionMessage());
+				emailParameterMap.put(OTP_VALIDITY, NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsEnglish.getResetPasswordInsructionMessage());
 				subject = NotificationMessageConstantsEnglish.resetPasswordSubject(applicationNameEn);
+				emailParameterMap.put(HELLO, NotificationMessageConstantsEnglish.HELLO);
 			} else {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsArabic.getResetMessage(applicationNameFr));
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr));
-				emailParameterMap.put("otpValidity", NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("linkValidity", NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("instruction", NotificationMessageConstantsArabic.getResetPasswordInsructionMessage());
+				emailParameterMap.put(OTP_VALIDITY, NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsArabic.getResetPasswordInsructionMessage());
 				subject = NotificationMessageConstantsArabic.resetPasswordSubject(applicationNameFr);
+				emailParameterMap.put(HELLO, NotificationMessageConstantsArabic.HELLO);
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -482,35 +515,36 @@ public class SendEmailNotificationComponent {
 				}
 			}
 			if (emailNotification.getLanguage().equals("en")) {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 				subject = NotificationMessageConstantsEnglish.EMAIL_VERIFICATION_SUBJECT;
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsEnglish.getEmailVerificationMessage(applicationNameEn));
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsEnglish.EMAIL_VERIFICATION_SUBJECT);
-				emailParameterMap.put("otpValidity", NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("linkValidity", NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("instruction", NotificationMessageConstantsEnglish.getInsructionMessage());
+				emailParameterMap.put(OTP_VALIDITY, NotificationMessageConstantsEnglish.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsEnglish.getInsructionMessage());
+				emailParameterMap.put(HELLO, NotificationMessageConstantsEnglish.HELLO);
 			} else {
-				emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-				emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-				emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-				emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+				emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+				emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 				emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 				subject = NotificationMessageConstantsArabic.EMAIL_VERIFICATION_SUBJECT;
 				emailParameterMap.put(CONTENT2, NotificationMessageConstantsArabic.getEmailVerificationMessage(applicationNameFr));
 				emailParameterMap.put(SUBJECT2, NotificationMessageConstantsArabic.EMAIL_VERIFICATION_SUBJECT);
 				emailParameterMap.put(USER_TYPE, userType);
-				emailParameterMap.put("otpValidity", NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("linkValidity", NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
-				emailParameterMap.put("instruction", NotificationMessageConstantsArabic.getInsructionMessage());
+				emailParameterMap.put(OTP_VALIDITY, NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
+				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsArabic.getInsructionMessage());
+				emailParameterMap.put(HELLO, NotificationMessageConstantsArabic.HELLO);
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -553,11 +587,13 @@ public class SendEmailNotificationComponent {
 			message = NotificationMessageConstantsEnglish.vendorSubscriptionExpiredReminderMessage(vendorPayment.getAmount(),
 					vendor.getSubscriptionPlanEndDate());
 			applicationName = applicationNameEn;
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
 			subject = NotificationMessageConstantsArabic.subscriptionExpireSubject(applicationNameFr);
 			message = NotificationMessageConstantsArabic.vendorSubscriptionExpiredReminderMessage(vendorPayment.getAmount(),
 					vendor.getSubscriptionPlanEndDate());
 			applicationName = applicationNameFr;
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
 		emailParameterMap.put("vendorName",
@@ -607,11 +643,12 @@ public class SendEmailNotificationComponent {
 			} else {
 				return;
 			}
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
 			if (VendorStatus.APPROVED.getStatusValue().equals(vendor.getStatus())) {
 				subject = NotificationMessageConstantsArabic.approveVendorProfileSubject();
@@ -636,11 +673,12 @@ public class SendEmailNotificationComponent {
 			} else {
 				return;
 			}
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
 		emailParameterMap.put("vendorName",
@@ -671,22 +709,24 @@ public class SendEmailNotificationComponent {
 		if ("en".equalsIgnoreCase(emailLanguage)) {
 			subject = NotificationMessageConstantsEnglish.returnOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.returnOrderMessage(orders.getId());
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			subject = NotificationMessageConstantsArabic.returnOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.returnOrderMessage(orders.getId());
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
-		emailParameterMap.put("subject", subject);
+		emailParameterMap.put(SUBJECT, subject);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
@@ -708,24 +748,26 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 			subject = NotificationMessageConstantsEnglish.cancelOrderSubject();
 			message = NotificationMessageConstantsEnglish.cancelOrderMessage(orders.getId());
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			subject = NotificationMessageConstantsArabic.cancelOrderSubject();
 			message = NotificationMessageConstantsArabic.cancelOrderMessage(orders.getId());
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
-		emailParameterMap.put("subject", subject);
+		emailParameterMap.put(SUBJECT, subject);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
@@ -747,24 +789,26 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 			subject = NotificationMessageConstantsEnglish.replacementOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.replaceOrderMessage(orders.getId());
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			subject = NotificationMessageConstantsArabic.replacementOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.replaceOrderMessage(orders.getId());
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
-		emailParameterMap.put("subject", subject);
+		emailParameterMap.put(SUBJECT, subject);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
@@ -787,26 +831,28 @@ public class SendEmailNotificationComponent {
 		String message = null;
 		String thankyouMessage = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 			subject = NotificationMessageConstantsEnglish.placeOrderSubject();
 			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsEnglish.thankYouForShopping();
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 			subject = NotificationMessageConstantsArabic.placeOrderSubject();
 			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsArabic.thankYouForShopping();
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
-		emailParameterMap.put("subject", subject);
+		emailParameterMap.put(SUBJECT, subject);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
@@ -829,25 +875,27 @@ public class SendEmailNotificationComponent {
 		String subject = null;
 		String message = null;
 		if ("en".equalsIgnoreCase(emailLanguage)) {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsEnglish.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsEnglish.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsEnglish.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 			subject = NotificationMessageConstantsEnglish.deliveryOrderSubject();
 			message = NotificationMessageConstantsEnglish.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
+			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
-			emailParameterMap.put("thanksRegards", NotificationMessageConstantsArabic.THANKS_REGARDS);
-			emailParameterMap.put("customerSupportTeam", NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
-			emailParameterMap.put("customerCareNo", NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
-			emailParameterMap.put("emailAddress", NotificationMessageConstantsArabic.EMAIL_ADDRESS);
+			emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
+			emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
+			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
+			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			subject = NotificationMessageConstantsArabic.deliveryOrderSubject();
 			message = NotificationMessageConstantsArabic.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
+			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
 		emailParameterMap.put(LOGO, company.getCompanyImage());
-		emailParameterMap.put("subject", subject);
+		emailParameterMap.put(SUBJECT, subject);
 		emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 		emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 		emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());

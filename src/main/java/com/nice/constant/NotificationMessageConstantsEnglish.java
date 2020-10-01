@@ -24,6 +24,10 @@ public final class NotificationMessageConstantsEnglish {
 	public static final String CUSTOMER_SUPPORT_TEAM = "customer support team";
 	public static final String CUSTOMER_CARE_NO = "Customer care no.";
 	public static final String EMAIL_ADDRESS = "Email address";
+	public static final String HELLO = "Hello";
+	public static final String DEAR = "Dear";
+	public static final String WELCOME = "Welcome";
+	public static final String OR = "OR";
 
 	/**
 	 * @param  name

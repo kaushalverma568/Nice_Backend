@@ -42,20 +42,18 @@
             </tr>   
 			<tr>
                 <td style="padding: 30px 20px 0px 20px;">
-                    <span span style="font-weight: 700; font-size: 17px;">Dear {{vendorName}},</span>
+                    <span span style="font-weight: 700; font-size: 17px;">{{dear}} {{vendorName}},</span>
 
 					<p style="line-height: 20px;">{{message}}</p>
 		</td>
 			</tr>
-			<tr>
-                <td style="padding:20px; line-height: 22px;">Best,<br/>Team {{applicationName}}</td>
-            </tr>
-
             <tr>
-               <td style="color: #666666;font-size:14px; padding: 10px 20px;">
-                    <span style="padding-bottom: 5px; display: inline-block;">Customer care no.: {{customerCareContact}}</span><br>
-                    <span style="padding-bottom: 5px; display: inline-block;">Email address: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
-               </td>
+              <td style="color: #666666;font-size:14px; padding: 10px 20px;">
+                  <span style="padding-bottom: 5px; display: inline-block;">{{thanksRegards}}</span><br>
+                       <span style="padding-bottom: 5px; display: inline-block;">{{applicationName}} {{customerSupportTeam}}</span><br>
+                 <span style="padding-bottom: 5px; display: inline-block;">{{customerCareNo}}: {{customerCareContact}}</span><br>
+                    <span style="padding-bottom: 5px; display: inline-block;">{{emailAddress}}: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
+                </td>
             </tr>
 
         </tbody>
