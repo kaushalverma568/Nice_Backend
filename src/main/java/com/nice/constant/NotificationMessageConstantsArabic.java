@@ -75,7 +75,7 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String getPayoutSecondMessage() {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Check out your bank account for more updates.");
+		message = message.append("Kindly check your registered bank account for more details.");
 		return message.toString();
 	}
 
@@ -208,7 +208,7 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String getPayoutMessage() {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Your weekly/monthy Payment is Release by admin, Please check you added Bank Account for more update");
+		message = message.append("Your payment is release by admin, Kindly check your registered bank account for more details");
 		return message.toString();
 	}
 
@@ -280,7 +280,7 @@ public final class NotificationMessageConstantsArabic {
 	 */
 	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatusMap.get(orderStatus)).append("بنجاح");
+		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatusMap.get(orderStatus)).append(" .بنجاح");
 		return message.toString();
 	}
 
@@ -355,11 +355,16 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String resumeVendorProfileMessage() {
+	public static String resumeVendorProfileMessage(final String applicationName) {
 		StringBuilder message = new StringBuilder();
-		message.append(
-				"This is to notify you that your vendor account on Nice Application has  been Resume our side. Now you are able to use the our panel service.\r\n"
-						+ "Please the contact to customer care for further information ");
+		message.append("This is to notify you that your vendor account on ").append(applicationName)
+				.append(" has been resumed from our side. Now you are able to use our panel services.");
+		return message.toString();
+	}
+
+	public static String resumeVendorProfileSecondMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append("Please contact customer care for further information.");
 		return message.toString();
 	}
 

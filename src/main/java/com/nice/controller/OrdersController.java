@@ -325,8 +325,8 @@ public class OrdersController {
 		orderService.changeStatus(ordersId, status);
 		if (!OrderStatusEnum.DELIVERED.getStatusValue().equals(status)) {
 			orderService.sendPushNotificationForOrder(NotificationQueueConstants.ORDER_STATUS_CHANGE_PUSH_NOTIFICATION_CUSTOMER, ordersId);
-		} else if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(status)
-				|| OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(status)) {
+		}
+		if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(status) || OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(status)) {
 			orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.ORDER_PREPARED, ordersId);
 		}
 		LOGGER.info("Outside change status of order");

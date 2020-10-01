@@ -52,7 +52,7 @@ public class PaymentDetailsValidator implements Validator {
 			// to check paymentDetails duplication
 			if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(paymentDetailsDTO.getTransactionNo())
 					&& paymentDetailsService.isPaymentDetailsExists(paymentDetailsDTO).booleanValue()) {
-				errors.rejectValue("transactionNo", "409", messageByLocaleService.getMessage("payment.details.transactionNo.not.unique", null));
+				errors.rejectValue("transactionNo", "409", messageByLocaleService.getMessage("transactionNo.not.unique", null));
 			}
 		} else {
 			LOGGER.info("target is not instance of PaymentDetailsDTO");

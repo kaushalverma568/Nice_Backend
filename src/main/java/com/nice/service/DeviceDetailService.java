@@ -1,6 +1,7 @@
 package com.nice.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -46,5 +47,5 @@ public interface DeviceDetailService {
 	 * @return
 	 * @throws NotFoundException
 	 */
-	List<DeviceDetail> getDeviceDetailListByUserId(Long userId) throws NotFoundException;
+	Optional<List<DeviceDetail>> getDeviceDetailListByUserId(Long userId) throws NotFoundException;
 }

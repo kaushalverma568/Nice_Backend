@@ -46,8 +46,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	@Override
 	public void addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
 		/**
-		 * Delete device details by deviceId first and then add new device. This is to
-		 * ensure that one device is not associated with multiple users.
+		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated
+		 * with multiple users.
 		 */
 		deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
 
@@ -78,11 +78,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	}
 
 	@Override
-	public List<DeviceDetail> getDeviceDetailListByUserId(final Long userId) throws NotFoundException {
+	public Optional<List<DeviceDetail>> getDeviceDetailListByUserId(final Long userId) throws NotFoundException {
 		Optional<UserLogin> userLogin = userLoginService.getUserLogin(userId);
 		if (userLogin.isPresent()) {
-			return deviceDetailRepository.findAllByUserLogin(userLogin.get())
-					.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("device.detail.user.not.found", new Object[] { userId })));
+			return deviceDetailRepository.findAllByUserLogin(userLogin.get());
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { userId }));
 		}

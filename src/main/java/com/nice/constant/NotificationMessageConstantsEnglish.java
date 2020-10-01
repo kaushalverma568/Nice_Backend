@@ -119,7 +119,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getPayoutMessage() {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Your weekly/monthy Payment is Release by admin, Please check you added Bank Account for more update");
+		message = message.append("Your payment is release by admin, Kindly check your registered bank account for more details");
 		return message.toString();
 	}
 
@@ -132,7 +132,20 @@ public final class NotificationMessageConstantsEnglish {
 
 	public static String getPayoutSecondMessage() {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Check out your bank account for more updates.");
+		message = message.append("Kindly check your registered bank account for more details.");
+		return message.toString();
+	}
+
+	public static String resumeVendorProfileMessage(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message.append("This is to notify you that your vendor account on ").append(applicationName)
+				.append(" has been resumed from our side. Now you are able to use our panel services.");
+		return message.toString();
+	}
+
+	public static String resumeVendorProfileSecondMessage() {
+		StringBuilder message = new StringBuilder();
+		message.append("Please contact customer care for further information.");
 		return message.toString();
 	}
 
@@ -179,7 +192,7 @@ public final class NotificationMessageConstantsEnglish {
 	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your order no. ").append(orderId).append(" has been sucessfully ").append(orderStatus)
-				.append("Kindly help us improve our service by giving your feedback!");
+				.append(". Kindly help us to improve our service by giving your feedback!");
 		return message.toString();
 	}
 
@@ -330,14 +343,6 @@ public final class NotificationMessageConstantsEnglish {
 		message.append(
 				"This is to notify you that your vendor account on Nice Application has been temporarily  suspended for violating the terms and conditions of Nice Application."
 						+ "Please the contact to customer care for further information and You will be notified once your account will be resume");
-		return message.toString();
-	}
-
-	public static String resumeVendorProfileMessage() {
-		StringBuilder message = new StringBuilder();
-		message.append(
-				"This is to notify you that your vendor account on Nice Application has  been Resume our side. Now you are able to use the our panel service.\r\n"
-						+ "Please the contact to customer care for further information ");
 		return message.toString();
 	}
 
