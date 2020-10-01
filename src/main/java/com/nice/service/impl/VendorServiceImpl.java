@@ -78,6 +78,7 @@ import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.model.VendorCuisine;
 import com.nice.model.VendorPayment;
+import com.nice.repository.UserOtpRepository;
 import com.nice.repository.VendorBankDetailsRepository;
 import com.nice.repository.VendorCuisineRepository;
 import com.nice.repository.VendorRepository;
@@ -192,6 +193,9 @@ public class VendorServiceImpl implements VendorService {
 	@Autowired
 	private SchedulerDetailsService schedulerDetailsService;
 
+	@Autowired
+	private UserOtpRepository userOtpRepository;
+
 	@Override
 	public void addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
@@ -251,9 +255,12 @@ public class VendorServiceImpl implements VendorService {
 		LOGGER.info("Inside add Vendor service vendor:{}", vendor);
 
 		/**
-		 * Code to generate OTP and send that in email.
+		 * Code to generate OTP and send that in email if vendor himself/herself signed
+		 * up.
 		 */
-		sendOtpForEmailVerification(userLogin, vendor);
+		if (!vendorDTO.getIsAdmin().booleanValue()) {
+			sendOtpForEmailVerification(userLogin, vendor);
+		}
 	}
 
 	@Override
@@ -916,8 +923,10 @@ public class VendorServiceImpl implements VendorService {
 		for (Vendor vendor : vendorList) {
 			vendorExportList.add(vendorMapper.toExportDTO(vendor));
 		}
-		final Object[] vendorHeaderField = new Object[] { "First Name", "Last Name", "Email", "Store Name", "Phone Number", "Business Category Name", "is Featured", "status", "Return/Replace", "Store Phone Number", "preferred Language"  };
-		final Object[] vendorDataField = new Object[] { "firstName", "lastName", "email", "storeName", "phoneNumber", "businessCategoryName", "isFeatured", "status", "accepts", "storePhoneNumber", "preferredLanguage"  };
+		final Object[] vendorHeaderField = new Object[] { "First Name", "Last Name", "Email", "Store Name", "Phone Number", "Business Category Name",
+				"is Featured", "status", "Return/Replace", "Store Phone Number", "preferred Language" };
+		final Object[] vendorDataField = new Object[] { "firstName", "lastName", "email", "storeName", "phoneNumber", "businessCategoryName", "isFeatured",
+				"status", "accepts", "storePhoneNumber", "preferredLanguage" };
 		try {
 			exportCSV.writeCSVFile(vendorExportList, vendorDataField, vendorHeaderField, httpServletResponse);
 		} catch (IOException e) {
@@ -1086,5 +1095,21 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public Long getActiveVendor(final boolean active) {
 		return vendorRepository.countByActive(active);
+	}
+
+	@Override
+	public Long verifyEmailByAdmin(final Long vendorId) throws ValidationException, NotFoundException {
+		/**
+		 * check if vendor is signed up by himself/herself then the OTP sent in email
+		 * should be expired.
+		 */
+		UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendorId, UserType.VENDOR.name());
+		Optional<UserOtp> userOtp = userOtpRepository.findAllByTypeIgnoreCaseAndUserLoginAndActive(UserOtpTypeEnum.EMAIL.name(), userLogin, true);
+		if (userOtp.isPresent() && userOtp.get().getActive().booleanValue()) {
+			userOtp.get().setActive(false);
+			userOtpRepository.save(userOtp.get());
+		}
+		verifyEmail(vendorId);
+		return userLogin.getId();
 	}
 }

@@ -39,4 +39,14 @@ public interface UserOtpRepository extends JpaRepository<UserOtp, Long> {
 	 * @return
 	 */
 	Optional<UserOtp> findAllByTypeIgnoreCaseAndUserLogin(String type, UserLogin userLogin);
+
+	/**
+	 * get user otp by type userlogin and active
+	 *
+	 * @param type
+	 * @param userLogin
+	 * @param active
+	 * @return
+	 */
+	Optional<UserOtp> findAllByTypeIgnoreCaseAndUserLoginAndActive(String type, UserLogin userLogin, boolean active);
 }

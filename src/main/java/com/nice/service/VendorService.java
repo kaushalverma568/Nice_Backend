@@ -326,9 +326,19 @@ public interface VendorService {
 	VendorResponseDTO getVendorDetailForApp(Long vendorId, VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
 
 	/**
-	 * 
+	 *
 	 * @param active
 	 * @return
 	 */
 	Long getActiveVendor(boolean active);
+
+	/**
+	 * email verification by admin
+	 *
+	 * @param vendorId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	Long verifyEmailByAdmin(Long vendorId) throws ValidationException, NotFoundException;
 }

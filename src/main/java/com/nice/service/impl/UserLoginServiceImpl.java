@@ -85,7 +85,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -499,11 +499,20 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void sendWelComeEmail(final Long userId) throws NotFoundException {
 		final Notification notification = new Notification();
-		Customer customer = customerService.getCustomerDetails(getUserLoginDetail(userId).getEntityId());
-		notification.setCustomerId(customer.getId());
-		notification.setType(NotificationQueueConstants.CUSTOMER_REGISTRATION);
-		notification.setLanguage(customer.getPreferredLanguage());
-		jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+		UserLogin userLogin = getUserLoginDetail(userId);
+		if (userLogin.getEntityType().equals(UserType.CUSTOMER.name())) {
+			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
+			notification.setCustomerId(customer.getId());
+			notification.setType(NotificationQueueConstants.CUSTOMER_REGISTRATION);
+			notification.setLanguage(customer.getPreferredLanguage());
+			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+		} else if (userLogin.getEntityType().equals(UserType.VENDOR.name())) {
+			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
+			notification.setVendorId(vendor.getId());
+			notification.setType(NotificationQueueConstants.VENDOR_REGISTRATION);
+			notification.setLanguage(vendor.getPreferredLanguage());
+			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+		}
 	}
 
 	@Override
@@ -715,7 +724,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				BeanUtils.copyProperties(customer, loginResponse);
 				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
 						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
-				loginResponse.setPreferredLanguage(customer.getPreferredLanguage());
 			} else if (UserType.USER.name().equals(userLogin.get().getEntityType())) {
 				Users users = usersService.getUsersDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(users, loginResponse);
@@ -726,6 +734,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					loginResponse.setFirstName(users.getFirstNameArabic());
 					loginResponse.setLastName(users.getLastNameArabic());
 				}
+				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
+						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
 				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
 						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
 				loginResponse.setPreferredLanguage(users.getPreferredLanguage());
@@ -741,7 +751,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				}
 				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
 						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
-				loginResponse.setPreferredLanguage(vendor.getPreferredLanguage());
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(deliveryBoy, loginResponse);
@@ -863,8 +872,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  emailUpdateDTO
-	 * @param  userLogin
+	 * @param emailUpdateDTO
+	 * @param userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -950,11 +959,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param  phoneNumber
-	 * @param  otp
-	 * @param  userType
-	 * @param  userName
-	 * @param  userLogin
+	 * @param phoneNumber
+	 * @param otp
+	 * @param userType
+	 * @param userName
+	 * @param userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -1028,7 +1037,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			BeanUtils.copyProperties(customer, loginResponse);
 			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
 					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
-			loginResponse.setPreferredLanguage(customer.getPreferredLanguage());
 		} else if (UserType.USER.name().equals(userLogin.getEntityType())) {
 			Users users = usersService.getUsersDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(users, loginResponse);
@@ -1039,7 +1047,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				loginResponse.setFirstName(users.getFirstNameArabic());
 				loginResponse.setLastName(users.getLastNameArabic());
 			}
-			loginResponse.setPreferredLanguage(users.getPreferredLanguage());
 			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
 					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
 		} else if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
@@ -1054,7 +1061,6 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
 					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
-			loginResponse.setPreferredLanguage(vendor.getPreferredLanguage());
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
 			BeanUtils.copyProperties(deliveryBoy, loginResponse);

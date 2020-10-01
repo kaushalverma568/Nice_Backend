@@ -74,4 +74,7 @@ public class VendorDTO implements Serializable {
 	private BigDecimal longitude;
 
 	private String preferredLanguage;
+
+	@NotNull(message = "{admin.flag.not.null}")
+	private Boolean isAdmin;
 }

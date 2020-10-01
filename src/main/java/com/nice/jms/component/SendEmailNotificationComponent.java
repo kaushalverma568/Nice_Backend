@@ -53,7 +53,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -130,7 +130,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -166,6 +166,43 @@ public class SendEmailNotificationComponent {
 			sendEmailAfterPayout(emailNotification);
 		} else if (NotificationQueueConstants.DELIVERY_BOY_ACCOUNT_ACTIVATION.equals(emailNotification.getType())) {
 			sendEmailAfterDeliveryBoyAccountActivation(emailNotification);
+		} else if (NotificationQueueConstants.VENDOR_REGISTRATION.equals(emailNotification.getType())) {
+			vendorRegistration(emailNotification);
+		}
+	}
+
+	private void vendorRegistration(final Notification emailNotification) throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		if (emailNotification.getCustomerId() != null) {
+			String subject;
+			String content;
+			String applicationName;
+			LOGGER.info("send customer registration email");
+			CompanyResponseDTO company = companyService.getCompany(true);
+			emailParameterMap.put(LOGO, company.getCompanyImage());
+			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+			emailParameterMap.put("customerUrl", customerUrl);
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+
+			final Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
+
+			if (emailNotification.getLanguage().equals("en")) {
+				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
+				content = NotificationMessageConstantsEnglish.welcome(applicationNameEn);
+				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
+				applicationName = applicationNameEn;
+			} else {
+				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
+				content = NotificationMessageConstantsArabic.welcome(applicationNameFr);
+				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
+				applicationName = applicationNameFr;
+			}
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
+			emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(), emailNotification.getLanguage());
 		}
 	}
 
@@ -360,7 +397,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -439,7 +477,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {

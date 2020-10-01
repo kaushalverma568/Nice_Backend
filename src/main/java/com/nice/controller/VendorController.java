@@ -66,6 +66,7 @@ import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.response.GenericResponseHandlers;
 import com.nice.service.HesabePaymentService;
+import com.nice.service.UserLoginService;
 import com.nice.service.VendorPaymentService;
 import com.nice.service.VendorService;
 import com.nice.util.PaginationUtil;
@@ -140,6 +141,9 @@ public class VendorController {
 
 	@Autowired
 	private VendorMapper vendorMapper;
+
+	@Autowired
+	private UserLoginService userLoginService;
 
 	/**
 	 * Add Vendor
@@ -583,6 +587,20 @@ public class VendorController {
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_DETAIL_MESSAGE, null))
 				.setData(vendor).create();
 
+	}
+
+	@PutMapping("/admin/email/verify/{vendorId}")
+	public ResponseEntity<Object> emailVerificationByAdmin(@RequestHeader("Authorization") final String accessToken,
+			@PathVariable("vendorId") final Long vendorId) throws NotFoundException, ValidationException {
+		LOGGER.info("Inside email verification of vendor by admin for id {} ", vendorId);
+		Long userId = vendorService.verifyEmailByAdmin(vendorId);
+		LOGGER.info("Outside email verification of vendor by admin");
+		/**
+		 * send welcome email
+		 */
+		userLoginService.sendWelComeEmail(userId);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
+				.create();
 	}
 
 }

@@ -64,7 +64,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @RestController
 @RequestMapping(value = "/user/login")
@@ -108,8 +108,8 @@ public class UserLoginController {
 	/**
 	 * Generic Forgot password API
 	 *
-	 * @param  forgotPasswordParameterDTO
-	 * @param  result
+	 * @param forgotPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -132,11 +132,11 @@ public class UserLoginController {
 	/**
 	 * Reset password after forgot password based on OTP, USER TYPE and TYPE
 	 *
-	 * @param  email
-	 * @param  otp
-	 * @param  password
-	 * @param  type
-	 * @param  userType
+	 * @param email
+	 * @param otp
+	 * @param password
+	 * @param type
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -155,8 +155,8 @@ public class UserLoginController {
 	/**
 	 * Verify email by userLogin Id
 	 *
-	 * @param  userId
-	 * @param  otp
+	 * @param userId
+	 * @param otp
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -179,7 +179,7 @@ public class UserLoginController {
 			/**
 			 * send email code starts from here
 			 */
-			if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
+			if (UserType.CUSTOMER.name().equals(userLogin.getEntityType()) || UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 				userLoginService.sendWelComeEmail(userId);
 			}
 			/**
@@ -204,8 +204,8 @@ public class UserLoginController {
 	/**
 	 * verify email by userName(email) and userType
 	 *
-	 * @param  resetPasswordParameterDTO
-	 * @param  result
+	 * @param resetPasswordParameterDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -259,9 +259,9 @@ public class UserLoginController {
 	/**
 	 * Change password for login user
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  passwordDTO
+	 * @param accessToken
+	 * @param userId
+	 * @param passwordDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -284,7 +284,7 @@ public class UserLoginController {
 	/**
 	 * Logout API : Also revoke access of token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@GetMapping(path = "/logout")
@@ -296,11 +296,10 @@ public class UserLoginController {
 
 	/**
 	 * Login using Facebook and Google. If User is not registered then we will add
-	 * that user's information and if exists
-	 * then will sent generated token.
+	 * that user's information and if exists then will sent generated token.
 	 *
-	 * @param  socialLoginDto
-	 * @param  result
+	 * @param socialLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -337,8 +336,8 @@ public class UserLoginController {
 	/**
 	 * ADMIN & USER Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -359,8 +358,8 @@ public class UserLoginController {
 	/**
 	 * Customer Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -386,8 +385,8 @@ public class UserLoginController {
 	/**
 	 * Delivery boy Login and generate token
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -431,8 +430,8 @@ public class UserLoginController {
 	/**
 	 * Login with OTP for customer
 	 *
-	 * @param  userLoginDto
-	 * @param  result
+	 * @param userLoginDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -461,7 +460,7 @@ public class UserLoginController {
 	 * If customer is not exist with respect to mobile then it will create customer
 	 * based on phoneNumber.
 	 *
-	 * @param  phoneNumber
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -477,10 +476,10 @@ public class UserLoginController {
 	/**
 	 * check password for user
 	 *
-	 * @param  accessToken
-	 * @param  entityId
-	 * @param  entityType
-	 * @param  password
+	 * @param accessToken
+	 * @param entityId
+	 * @param entityType
+	 * @param password
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -499,9 +498,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update email
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -545,9 +544,9 @@ public class UserLoginController {
 	/**
 	 * Add/Update phone number
 	 *
-	 * @param  accessToken
-	 * @param  customerId
-	 * @param  phoneNumber
+	 * @param accessToken
+	 * @param customerId
+	 * @param phoneNumber
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -588,7 +587,7 @@ public class UserLoginController {
 	/**
 	 * Get user info based on token
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
