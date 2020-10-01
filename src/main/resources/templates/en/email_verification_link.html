@@ -47,18 +47,17 @@
 
                     <p style="line-height: 20px;">{{content}}</p>
 
-                    <a href="{{verify}}" style="font-size:12px;font-weight: 500;letter-spacing: 1px;padding: 9px 19px; margin:9px 0;display:inline-block;text-transform: uppercase;cursor:pointer;background: #000;color: #fff;text-decoration: none; border: none;">Click here</a>
+                    <a href="{{verify}}" style="font-size:12px;font-weight: 500;letter-spacing: 1px;padding: 9px 19px; margin:9px 0;display:inline-block;text-transform: uppercase;cursor:pointer;background: #000;color: #fff;text-decoration: none; border: none;">Click Here</a>
                     
                 </td>
             </tr>
             <tr>
-                <td style="padding:20px; line-height: 22px;">Thanks & regards,<br/>Team {{applicationName}}</td>
-            </tr>
-            <tr>
-                  <td style="color: #666666;font-size:14px; padding: 10px 20px;">
-                    <span style="padding-bottom: 5px; display: inline-block;">Customer care no.: {{customerCareContact}}</span><br>
-                    <span style="padding-bottom: 5px; display: inline-block;">Email address: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
-               </td>
+                <td style="color: #666666;font-size:14px; padding: 10px 20px;">
+                  <span style="padding-bottom: 5px; display: inline-block;">{{thanksRegards}}</span><br>
+                       <span style="padding-bottom: 5px; display: inline-block;">{{applicationName}} {{customerSupportTeam}}</span><br>
+                 <span style="padding-bottom: 5px; display: inline-block;">{{customerCareNo}}: {{customerCareContact}}</span><br>
+                    <span style="padding-bottom: 5px; display: inline-block;">{{emailAddress}}: <a href="{{customerCareEmail}}" style="color: #666666;font-size:14px;">{{customerCareEmail}}</a> </span><br>
+                </td>
             </tr>
         </tbody>
     </table>

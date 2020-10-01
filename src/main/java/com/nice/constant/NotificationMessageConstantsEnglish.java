@@ -19,7 +19,11 @@ public final class NotificationMessageConstantsEnglish {
 	public static final String USER_TYPE_CUSTOMER = "Customer";
 	public static final String USER_TYPE_DELIVERY_BOY = "Delivery Boy";
 	public static final String USER_TYPE_USER = "User";
-	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification alert!";
+	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification Alert!";
+	public static final String THANKS_REGARDS = "Thanks & regards,";
+	public static final String CUSTOMER_SUPPORT_TEAM = "customer support team";
+	public static final String CUSTOMER_CARE_NO = "Customer care no.";
+	public static final String EMAIL_ADDRESS = "Email address";
 
 	/**
 	 * @param name
@@ -363,7 +367,7 @@ public final class NotificationMessageConstantsEnglish {
 
 	public static String deliveryBoyActivation() {
 		StringBuilder message = new StringBuilder();
-		message.append("Your Nice account is activated by admin ,Now you can Login-in into the Nice delivery boy application.");
+		message.append("Your Nice account is activated by admin, Now you can Login-in into the Nice delivery boy application.");
 		return message.toString();
 	}
 
@@ -427,7 +431,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String returnOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your return request for order ").append(orderId).append(" has been received. We will process return promptly");
+		message.append("Your return request for order ").append(orderId).append(" has been received. We will process return promptly.");
 		return message.toString();
 	}
 
@@ -439,7 +443,7 @@ public final class NotificationMessageConstantsEnglish {
 	public static String cancelOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your order ").append(orderId).append(" has been cancelled. Please order again if it is cancelled by mistake.")
-				.append("If you have paid the amount online it would be refunded in your Nice wallet. You can use this amount for next purchase");
+				.append("If you have paid the amount online it would be refunded in your Nice wallet. You can use this amount for next purchase.");
 		return message.toString();
 	}
 
@@ -472,7 +476,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String replaceOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your replacement request for order: ").append(orderId).append(" has been successfully placed. We will process replacement promptly");
+		message.append("Your replacement request for order ").append(orderId).append(" has been successfully placed. We will process replacement promptly.");
 		return message.toString();
 	}
 
@@ -537,6 +541,18 @@ public final class NotificationMessageConstantsEnglish {
 	public static String getResetMessage(final String applicationName) {
 		StringBuilder message = new StringBuilder();
 		message = message.append("We have received a request to reset your ").append(applicationName).append(" password.");
+		return message.toString();
+	}
+
+	public static String getInsructionMessage() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Do not share this OTP to anyone for security reasons.");
+		return message.toString();
+	}
+
+	public static String getResetPasswordInsructionMessage() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Do not ignore this message or else your password will not be changed.");
 		return message.toString();
 	}
 }
