@@ -220,9 +220,6 @@ public class SendPushNotificationComponent {
 					messageArabic = NotificationMessageConstantsArabic.replaceOrderIsPreparedMessageToDeliveryBoy(
 							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
 				}
-				PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
-						Constant.ORDER_MODULE);
-				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 				/**
 				 * here sender will be entity will be vendor and receiver will be either delivery boy
 				 */
@@ -231,6 +228,10 @@ public class SendPushNotificationComponent {
 				Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
 				if (deviceDetailList.isPresent()) {
 					List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+					PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
+							Constant.ORDER_MODULE);
+					pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+
 					for (DeviceDetail deviceDetail : deviceDetailList.get()) {
 						PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 								userLoginSender.getId(), userLoginReceiver.getId());
