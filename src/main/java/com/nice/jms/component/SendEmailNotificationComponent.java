@@ -173,29 +173,28 @@ public class SendEmailNotificationComponent {
 
 	private void vendorRegistration(final Notification emailNotification) throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		if (emailNotification.getCustomerId() != null) {
+		if (emailNotification.getVendorId() != null) {
 			String subject;
 			String content;
 			String applicationName;
-			LOGGER.info("send customer registration email");
+			LOGGER.info("send vendor registration email");
 			CompanyResponseDTO company = companyService.getCompany(true);
 			emailParameterMap.put(LOGO, company.getCompanyImage());
 			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
-			emailParameterMap.put("customerUrl", customerUrl);
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
 
 			final Vendor vendor = vendorService.getVendorDetail(emailNotification.getVendorId());
 
 			if (emailNotification.getLanguage().equals("en")) {
 				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameEnglish() + " " + vendor.getLastNameEnglish());
-				content = NotificationMessageConstantsEnglish.welcome(applicationNameEn);
+				content = NotificationMessageConstantsEnglish.welcomeVendor(applicationNameEn);
 				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
 				applicationName = applicationNameEn;
 			} else {
 				emailParameterMap.put(CUSTOMER_NAME, vendor.getFirstNameArabic() + " " + vendor.getLastNameArabic());
-				content = NotificationMessageConstantsArabic.welcome(applicationNameFr);
+				content = NotificationMessageConstantsArabic.welcomeVendor(applicationNameFr);
 				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
 				applicationName = applicationNameFr;
 			}

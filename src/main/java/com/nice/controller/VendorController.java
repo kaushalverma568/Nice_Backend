@@ -164,7 +164,10 @@ public class VendorController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		vendorDTO.setCountryId(1L);
-		vendorService.addVendor(vendorDTO);
+		Long userId = vendorService.addVendor(vendorDTO);
+		if (vendorDTO.getIsAdmin().booleanValue()) {
+			userLoginService.sendWelComeEmail(userId);
+		}
 		LOGGER.info("Outside add Vendor ");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("vendor.create.message", null))
 				.create();

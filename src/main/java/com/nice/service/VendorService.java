@@ -40,7 +40,7 @@ public interface VendorService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	void addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
+	Long addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get DTO object of vendor
