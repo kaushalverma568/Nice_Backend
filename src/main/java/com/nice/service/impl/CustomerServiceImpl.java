@@ -140,9 +140,21 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 			if (!optCustomer.get().getEmailVerified().booleanValue()) {
 				customer = optCustomer.get();
+				customer.setEmail(customerDTO.getEmail());
+				customer.setFirstName(customerDTO.getFirstName());
+				customer.setLastName(customerDTO.getLastName());
+				customer.setBirthDate(customerDTO.getBirthDate());
+				customer.setGender(customer.getGender());
+				customer.setPhoneNumber(customer.getPhoneNumber());
+				customer.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
 				if (optUserLogin.isPresent()) {
 					sendOtpForEmailVerification(optUserLogin.get(), customer);
+
+					UserLogin userLogin = optUserLogin.get();
+					userLogin.setPassword(CommonUtility.generateBcrypt(customerDTO.getPassword()));
+					userLoginService.updateUserLogin(userLogin);
+
 					customerResponseDTO = customerMapper.toDto(customer);
 					customerResponseDTO.setUserId(optUserLogin.get().getId());
 					return customerResponseDTO;

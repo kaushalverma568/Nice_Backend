@@ -44,11 +44,9 @@ public class EmailUtil {
 	private String applicationName;
 
 	/**
-	 * Send email generic method, sends email to the specified recepients in sendTo
-	 * (as To)(List) in sendCc(as Cc)(List), specify the subject of the email in
-	 * email Subject, also specify the template with which the email is to be sent
-	 * and the emailParameterMap contains the place holders to specify for the
-	 * dynamic template values.
+	 * Send email generic method, sends email to the specified recepients in sendTo (as To)(List) in sendCc(as Cc)(List),
+	 * specify the subject of the email in email Subject, also specify the template with which the email is to be sent and
+	 * the emailParameterMap contains the place holders to specify for the dynamic template values.
 	 *
 	 * @param emailSubject
 	 * @param sendTo
@@ -84,7 +82,7 @@ public class EmailUtil {
 		Session session = Session.getDefaultInstance(props);
 		session.setDebug(false);
 		final MimeMessage message = new MimeMessage(session);
-		final MimeMessageHelper helper = new MimeMessageHelper(message);
+		final MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 		/**
 		 * Set Email to
 		 */
@@ -133,7 +131,7 @@ public class EmailUtil {
 			MimeBodyPart messageBodypart1 = new MimeBodyPart();
 			messageBodypart1.setContent(emailContent.getEmailBody(), "text/html");
 			multipart.addBodyPart(messageBodypart1);
-			message.setContent(multipart);
+			message.setContent(multipart, "text/plain; charset=utf-8");
 			message.saveChanges();
 		}
 
