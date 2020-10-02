@@ -156,6 +156,44 @@ public class SendPushNotificationComponent {
 			rejectOrderNotification(pushNotificationDTO);
 		} else if (NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_CUSTOMER.equals(pushNotificationDTO.getType())) {
 			acceptOrderNotificationToCustomer(pushNotificationDTO);
+		} else if (NotificationQueueConstants.RETRY_TO_SEARCH_DELIVERY_BOY.equals(pushNotificationDTO.getType())) {
+			retryToSearchDeliveryBoy(pushNotificationDTO);
+		}
+	}
+
+	private void retryToSearchDeliveryBoy(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
+		if (pushNotificationDTO.getOrderId() != null) {
+			StringBuilder message = new StringBuilder();
+			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
+			JsonObject notificationObject = new JsonObject();
+			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
+			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			if (deviceDetailList.isPresent()) {
+				String messageArabic = NotificationMessageConstantsArabic.retryToSearchDeliveryBoy(pushNotificationDTO.getOrderId(),
+						orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic());
+				String messageEnglish = NotificationMessageConstantsEnglish.retryToSearchDeliveryBoy(pushNotificationDTO.getOrderId(),
+						orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish());
+				PushNotification pushNotification = setPushNotification(orders.getVendor().getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
+						Constant.ORDER_MODULE);
+				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
+				if (orders.getVendor().getPreferredLanguage().equals("en")) {
+					message = message.append(pushNotification.getMessageEnglish());
+				} else {
+					message = message.append(pushNotification.getMessageArabic());
+				}
+				notificationObject.addProperty(BODY, message.toString());
+				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
+				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+				notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
+				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
+					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
+							userLoginSender.getId(), userLoginReceiver.getId());
+					pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
+					sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+				}
+			}
 		}
 	}
 

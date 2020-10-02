@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,8 @@ import com.nice.util.CommonUtility;
 
 @Component
 public class AcceptingOrderNotificationScheduler {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AcceptingOrderNotificationScheduler.class);
 
 	@Autowired
 	private DeliveryBoyService deliveryBoyService;
@@ -72,10 +76,10 @@ public class AcceptingOrderNotificationScheduler {
 			if (!orders.getAssignmentTryCount().equals(Constant.MAX_ASSIGNMENT_TRY_COUNT)) {
 				List<Long> nextNearestDeliveryBoys = deliveryBoyService.getNextThreeNearestDeliveryBoysFromVendor(orders.getId(), orders.getVendor().getId());
 				/**
-				 * if not a single delivery boy is logged in for accepting order then throw exception
+				 * if not a single delivery boy is logged in for accepting order then add logger
 				 */
 				if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(nextNearestDeliveryBoys)) {
-					throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.not.available", null));
+					LOGGER.info("Delivery boy is not present for accepting order, order no : {}", orders.getId());
 					/**
 					 * We will send notification to vendor / admin
 					 */
@@ -108,6 +112,15 @@ public class AcceptingOrderNotificationScheduler {
 			}
 			orders.setAssignmentTryCount(orders.getAssignmentTryCount() + 1);
 			ordersRepository.save(orders);
+			/**
+			 * send retry again push notification if condition match
+			 */
+			if (orders.getAssignmentTryCount().compareTo(Constant.MAX_ASSIGNMENT_TRY_COUNT) > 0) {
+				PushNotificationDTO pushNotification = new PushNotificationDTO();
+				pushNotification.setOrderId(orders.getId());
+				pushNotification.setType(NotificationQueueConstants.RETRY_TO_SEARCH_DELIVERY_BOY);
+				jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotification);
+			}
 		}
 	}
 }

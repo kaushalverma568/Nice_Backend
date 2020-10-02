@@ -2,7 +2,7 @@ package com.nice.constant;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 public final class NotificationQueueConstants {
 
@@ -41,6 +41,7 @@ public final class NotificationQueueConstants {
 	public static final String REPLACE_ORDER_PUSH_NOTIFICATION_VENDOR = "Replace Order Push Notification Vendor";
 	public static final String RETURN_ORDER_PUSH_NOTIFICATION_VENDOR = "Return Order Push Notification Vendor";
 	public static final String CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR = "Cancel Order Push Notification Vendor";
+	public static final String RETRY_TO_SEARCH_DELIVERY_BOY = "Retry to search delivery boy";
 	/**
 	 * Push notifications for orders to customer
 	 */

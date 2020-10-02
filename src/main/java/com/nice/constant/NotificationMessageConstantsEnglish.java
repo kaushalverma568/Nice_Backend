@@ -397,9 +397,9 @@ public final class NotificationMessageConstantsEnglish {
 		return message.toString();
 	}
 
-	public static String placeOrderSubject() {
+	public static String placeOrderSubject(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Nice - Order Placed");
+		message.append("Nice - Placed Order - ").append(orderId);
 		return message.toString();
 	}
 
@@ -409,9 +409,9 @@ public final class NotificationMessageConstantsEnglish {
 		return message.toString();
 	}
 
-	public static String cancelOrderSubject() {
+	public static String cancelOrderSubject(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Nice - Cancel Order");
+		message.append("Nice - Cancel Order - ").append(orderId);
 		return message.toString();
 	}
 
@@ -421,9 +421,16 @@ public final class NotificationMessageConstantsEnglish {
 		return message.toString();
 	}
 
-	public static String deliveryOrderSubject() {
+	public static String deliveryOrderSubject(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Nice - Order Delivery");
+		message.append("Nice - Delivered Order - ").append(orderId);
+		return message.toString();
+	}
+
+	public static String retryToSearchDeliveryBoy(final Long orderId, final String vendorName) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Dear Vendor ").append(vendorName).append(" System couldn't found the near by delivery boy for order no. ").append(orderId);
+		message.append(", Please Retry the Request");
 		return message.toString();
 	}
 

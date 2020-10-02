@@ -460,8 +460,7 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -545,8 +544,7 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -811,7 +809,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
-			subject = NotificationMessageConstantsEnglish.cancelOrderSubject();
+			subject = NotificationMessageConstantsEnglish.cancelOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.cancelOrderMessage(orders.getId());
 			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
@@ -820,7 +818,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
-			subject = NotificationMessageConstantsArabic.cancelOrderSubject();
+			subject = NotificationMessageConstantsArabic.cancelOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.cancelOrderMessage(orders.getId());
 			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 		}
@@ -894,7 +892,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
-			subject = NotificationMessageConstantsEnglish.placeOrderSubject();
+			subject = NotificationMessageConstantsEnglish.placeOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsEnglish.thankYouForShopping();
 			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
@@ -905,7 +903,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
-			subject = NotificationMessageConstantsArabic.placeOrderSubject();
+			subject = NotificationMessageConstantsArabic.placeOrderSubject(orders.getId());
 			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
 			thankyouMessage = NotificationMessageConstantsArabic.thankYouForShopping();
 		}
@@ -938,7 +936,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
-			subject = NotificationMessageConstantsEnglish.deliveryOrderSubject();
+			subject = NotificationMessageConstantsEnglish.deliveryOrderSubject(orders.getId());
 			message = NotificationMessageConstantsEnglish.orderDeliverySuccessful(orders.getId(), orders.getOrderStatus());
 			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {

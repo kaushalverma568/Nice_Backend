@@ -63,6 +63,36 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
+	public static String placeOrderSubject(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice - Placed Order - ").append(orderId);
+		return message.toString();
+	}
+
+	public static String returnOrderSubject(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice - Return Order - ").append(orderId);
+		return message.toString();
+	}
+
+	public static String cancelOrderSubject(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice - Cancel Order - ").append(orderId);
+		return message.toString();
+	}
+
+	public static String replacementOrderSubject(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice - Replacement Order - ").append(orderId);
+		return message.toString();
+	}
+
+	public static String deliveryOrderSubject(final Long orderId) {
+		StringBuilder message = new StringBuilder();
+		message.append("Nice - Delivered Order - ").append(orderId);
+		return message.toString();
+	}
+
 	/**
 	 * @param  name
 	 * @return
@@ -406,12 +436,6 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String returnOrderSubject(final Long orderId) {
-		StringBuilder message = new StringBuilder();
-		message.append("Nice - Return Order - ").append(orderId);
-		return message.toString();
-	}
-
 	public static String welcomeSecondMessage() {
 		StringBuilder message = new StringBuilder();
 		message.append("Join our online supermarket and enjoy your shopping with us!");
@@ -429,12 +453,6 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String cancelOrderSubject() {
-		StringBuilder message = new StringBuilder();
-		message.append("Nice - Cancel Order");
-		return message.toString();
-	}
-
 	/**
 	 * @param  orderId
 	 * @param  amount
@@ -447,12 +465,6 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String replacementOrderSubject(final Long orderId) {
-		StringBuilder message = new StringBuilder();
-		message.append("Nice - Replacement Order - ").append(orderId);
-		return message.toString();
-	}
-
 	/**
 	 * @param  orderId
 	 * @param  amount
@@ -461,12 +473,6 @@ public final class NotificationMessageConstantsArabic {
 	public static String replaceOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your replacement request for order ").append(orderId).append(" has been successfully placed. We will process replacement promptly.");
-		return message.toString();
-	}
-
-	public static String placeOrderSubject() {
-		StringBuilder message = new StringBuilder();
-		message.append("Nice - Order Placed");
 		return message.toString();
 	}
 
@@ -586,4 +592,12 @@ public final class NotificationMessageConstantsArabic {
 		message = message.append("Your one time password to proceed with verification");
 		return message.toString();
 	}
+
+	public static String retryToSearchDeliveryBoy(final Long orderId, final String vendorName) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Dear Vendor ").append(vendorName).append(" System couldn't found the near by delivery boy for order no ").append(orderId);
+		message.append(", Please Retry the Request");
+		return message.toString();
+	}
+
 }
