@@ -55,7 +55,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Apr-2020
+ * @date : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -464,7 +464,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -516,7 +516,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -583,7 +583,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -637,7 +637,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1069,7 +1069,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * replcae request raised notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1106,7 +1106,7 @@ public class SendPushNotificationComponent {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 							userLoginSender.getId(), userLoginReceiver.getId());
 					pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-					sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+					sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 				}
 			}
 		}
@@ -1115,7 +1115,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * return request raised notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -1152,7 +1152,7 @@ public class SendPushNotificationComponent {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 							userLoginSender.getId(), userLoginReceiver.getId());
 					pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-					sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+					sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 				}
 			}
 		}
@@ -1161,7 +1161,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * cancel order by admin send notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
