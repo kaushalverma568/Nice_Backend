@@ -37,6 +37,9 @@ public class JMSQueuerService {
 		 * if send push notification only when dto is not null
 		 */
 		if ((pushNotification != null)) {
+			if (pushNotification.getLanguage() == null) {
+				pushNotification.setLanguage(Constant.DEFAULT_LANGUAGE);
+			}
 			jmsQueuer.sendPushNotification(queueName, pushNotification);
 		}
 	}
