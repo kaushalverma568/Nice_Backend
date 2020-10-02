@@ -55,7 +55,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Apr-2020
+ * @date : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -203,8 +203,11 @@ public class SendPushNotificationComponent {
 			DeliveryBoy deliveryBoy;
 			if (orders.getReplacementDeliveryBoy() != null) {
 				deliveryBoy = orders.getReplacementDeliveryBoy();
-			} else {
+			} else if (orders.getDeliveryBoy() != null) {
 				deliveryBoy = orders.getDeliveryBoy();
+			} else {
+				LOGGER.info("no delivery boy assigned to order : {}", pushNotificationDTO.getOrderId());
+				return;
 			}
 			StringBuilder message = new StringBuilder();
 			JsonObject notificationObject = new JsonObject();
@@ -259,7 +262,8 @@ public class SendPushNotificationComponent {
 							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either delivery boy
+				 * here sender will be entity will be vendor and receiver will be either
+				 * delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -316,7 +320,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -371,7 +376,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -460,7 +466,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -512,7 +518,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -579,7 +585,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -633,7 +639,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1065,7 +1071,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * replcae request raised notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1111,7 +1117,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * return request raised notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -1157,7 +1163,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * cancel order by admin send notification to vendor
 	 *
-	 * @param  pushNotificationDTO
+	 * @param pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1193,7 +1199,7 @@ public class SendPushNotificationComponent {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
 							userLoginSender.getId(), userLoginReceiver.getId());
 					pushNotificationReceivers.add(pushNotificationReceiverService.addUpdatePushNotificationReceiver(pushNotificationReceiver));
-					sendPushNotificationToCustomer(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
+					sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, deviceDetail.getDeviceId());
 				}
 			}
 		}
