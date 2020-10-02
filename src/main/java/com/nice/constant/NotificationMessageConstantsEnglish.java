@@ -588,4 +588,12 @@ public final class NotificationMessageConstantsEnglish {
 		message = message.append("Your one time password to proceed with verification");
 		return message.toString();
 	}
+
+	public static String welcomeDeliveryBoy(final String applicationName) {
+		StringBuilder message = new StringBuilder();
+		message = message.append("You are now part of a ").append(applicationName)
+				.append(" community. Together we will deliver a pleasant experience to our customers with their order.").append("\r\n")
+				.append("For any queries, contact our customer support.");
+		return message.toString();
+	}
 }

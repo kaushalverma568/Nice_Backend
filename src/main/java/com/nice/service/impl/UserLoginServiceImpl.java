@@ -85,7 +85,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "userLoginService")
 @Transactional(rollbackFor = Throwable.class)
@@ -198,7 +198,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			optUserLogin = userLoginRepository.findByEmailAndEntityType(actualUser, userType);
 		}
 		/**
-		 * If the userType is USERS and optUserLogin is empty, the user might be a superadmin, check if the user is superadmin.
+		 * If the userType is USERS and optUserLogin is empty, the user might be a
+		 * superadmin, check if the user is superadmin.
 		 */
 		if (!optUserLogin.isPresent() && UserType.USER.name().equalsIgnoreCase(userType)) {
 			try {
@@ -279,9 +280,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			}
 		} else {
 			/**
-			 * This case possible when first login with OTP and then sign-up with email + mobile. In this case userLogin can be
-			 * active but customer can not login with email and password but it can login with OTP. This case possible when first
-			 * login with OTP and then sign-up with email + mobile. In this case userLogin can be active but customer can not login
+			 * This case possible when first login with OTP and then sign-up with email +
+			 * mobile. In this case userLogin can be
+			 * active but customer can not login with email and password but it can login
+			 * with OTP. This case possible when first
+			 * login with OTP and then sign-up with email + mobile. In this case userLogin
+			 * can be active but customer can not login
 			 * with email and password but it can login with OTP.
 			 */
 			if (optUserLogin.get().getEntityType() != null && optUserLogin.get().getEntityType().equals(UserType.CUSTOMER.name())
@@ -469,8 +473,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public UserLogin updatePassword(final PasswordDTO passwordDTO) throws ValidationException, NotFoundException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
-		Boolean canChangePassword = ((userLogin.getPassword() != null)
-				|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null)));
+		Boolean canChangePassword = userLogin.getPassword() != null
+				|| userLogin.getFacebookKey() == null && userLogin.getGoogleKey() == null && userLogin.getOtp() == null;
 		if (Boolean.TRUE.equals(canChangePassword)) {
 			if (passwordDTO.getOldPassword() == null) {
 				throw new ValidationException(messageByLocaleService.getMessage("old.password.not.null", null));
@@ -511,6 +515,12 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			notification.setVendorId(vendor.getId());
 			notification.setType(NotificationQueueConstants.VENDOR_REGISTRATION);
 			notification.setLanguage(vendor.getPreferredLanguage());
+			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
+		} else if (userLogin.getEntityType().equals(UserType.DELIVERY_BOY.name())) {
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
+			notification.setDeliveryBoyId(deliveryBoy.getId());
+			notification.setType(NotificationQueueConstants.DELIVERY_BOY_REGISTRATION);
+			notification.setLanguage(deliveryBoy.getPreferredLanguage());
 			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 		}
 	}
@@ -580,10 +590,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public void forgotPassword(final ForgotPasswordParameterDTO forgotPasswordParameterDTO) throws ValidationException, NotFoundException, MessagingException {
 		/**
-		 * verify type and if type is email then email is required and if type is sms then phone number is required
+		 * verify type and if type is email then email is required and if type is sms
+		 * then phone number is required
 		 */
-		if ((!forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
-				&& !forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name()))) {
+		if (!forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
+				&& !forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.SMS.name())) {
 			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
 		} else if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())
 				&& !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(forgotPasswordParameterDTO.getEmail())
@@ -627,7 +638,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public Optional<UserLogin> getUserLoginBasedOnUserNameAndUserType(final String userName, final String userType) throws ValidationException {
 
 		/**
-		 * when user type is user then check is email or phone is exist for super admin or any admin panel users
+		 * when user type is user then check is email or phone is exist for super admin
+		 * or any admin panel users
 		 */
 		if (UserType.USER.name().equals(userType)) {
 			return userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userName, UserType.ADMIN_PANEL_USER_LIST);
@@ -642,8 +654,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public String resetPassword(final ResetPasswordParameterDTO resetPasswordParameterDTO) throws ValidationException, NotFoundException {
-		if ((!UserType.CUSTOMER.name().equals(resetPasswordParameterDTO.getUserType()) && !UserType.USER.name().equals(resetPasswordParameterDTO.getUserType())
-				&& !UserType.DELIVERY_BOY.name().equals(resetPasswordParameterDTO.getUserType()))) {
+		if (!UserType.CUSTOMER.name().equals(resetPasswordParameterDTO.getUserType()) && !UserType.USER.name().equals(resetPasswordParameterDTO.getUserType())
+				&& !UserType.DELIVERY_BOY.name().equals(resetPasswordParameterDTO.getUserType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		} else if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(resetPasswordParameterDTO.getType())) {
 			throw new ValidationException(messageByLocaleService.getMessage("type.not.null", null));
@@ -668,7 +680,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String generateOtpForLogin(final String phoneNumber) throws ValidationException, NotFoundException {
 		/**
-		 * First check whether user(customer) exist or not Here userName : PhoneNumber and password : OTP
+		 * First check whether user(customer) exist or not Here userName : PhoneNumber
+		 * and password : OTP
 		 */
 		final Optional<UserLogin> optUserLogin = userLoginRepository.findByPhoneNumberIgnoreCaseAndEntityType(phoneNumber, UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent()) {
@@ -689,7 +702,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			return otp;
 		} else {
 			/**
-			 * Generate OTP and save OTP as password because it is internally save in userLogin table
+			 * Generate OTP and save OTP as password because it is internally save in
+			 * userLogin table
 			 */
 			String otp = String.valueOf(CommonUtility.getRandomNumber());
 
@@ -722,8 +736,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 			if (UserType.CUSTOMER.name().equals(userLogin.get().getEntityType())) {
 				Customer customer = customerService.getCustomerDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(customer, loginResponse);
-				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
-						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
+				loginResponse.setCanChangePassword(userLogin.get().getPassword() != null
+						|| userLogin.get().getFacebookKey() == null && userLogin.get().getGoogleKey() == null && userLogin.get().getOtp() == null);
 			} else if (UserType.USER.name().equals(userLogin.get().getEntityType())) {
 				Users users = usersService.getUsersDetails(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(users, loginResponse);
@@ -734,10 +748,10 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					loginResponse.setFirstName(users.getFirstNameArabic());
 					loginResponse.setLastName(users.getLastNameArabic());
 				}
-				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
-						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
-				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
-						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
+				loginResponse.setCanChangePassword(userLogin.get().getPassword() != null
+						|| userLogin.get().getFacebookKey() == null && userLogin.get().getGoogleKey() == null && userLogin.get().getOtp() == null);
+				loginResponse.setCanChangePassword(userLogin.get().getPassword() != null
+						|| userLogin.get().getFacebookKey() == null && userLogin.get().getGoogleKey() == null && userLogin.get().getOtp() == null);
 				loginResponse.setPreferredLanguage(users.getPreferredLanguage());
 			} else if (UserType.VENDOR.name().equals(userLogin.get().getEntityType())) {
 				Vendor vendor = vendorService.getVendorDetail(userLogin.get().getEntityId());
@@ -749,8 +763,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 					loginResponse.setFirstName(vendor.getFirstNameArabic());
 					loginResponse.setLastName(vendor.getLastNameArabic());
 				}
-				loginResponse.setCanChangePassword(((userLogin.get().getPassword() != null)
-						|| (((userLogin.get().getFacebookKey() == null) && (userLogin.get().getGoogleKey() == null)) && (userLogin.get().getOtp() == null))));
+				loginResponse.setCanChangePassword(userLogin.get().getPassword() != null
+						|| userLogin.get().getFacebookKey() == null && userLogin.get().getGoogleKey() == null && userLogin.get().getOtp() == null);
 			} else if (UserType.DELIVERY_BOY.name().equals(userLogin.get().getEntityType())) {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.get().getEntityId());
 				BeanUtils.copyProperties(deliveryBoy, loginResponse);
@@ -788,7 +802,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				UserType.CUSTOMER.name());
 		if (optUserLogin.isPresent() && BCrypt.checkpw(userLoginDto.getPassword(), optUserLogin.get().getOtp())) {
 			/**
-			 * OTP Verified. Check userLogin is active or not . if not then activate customer and activate userLogin
+			 * OTP Verified. Check userLogin is active or not . if not then activate
+			 * customer and activate userLogin
 			 */
 			if (!optUserLogin.get().getActive().booleanValue()) {
 				UserLogin userLogin = optUserLogin.get();
@@ -832,12 +847,13 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public String addUpdateEmail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
 		/**
-		 * Note : For all admin panel user(super admin,vendor) userType will come as User
+		 * Note : For all admin panel user(super admin,vendor) userType will come as
+		 * User
 		 */
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.EMAIL.name(), emailUpdateDTO.getOtp(), false);
 
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType())
-				&& (!userLogin.getEntityType().equals(emailUpdateDTO.getUserType()) && !UserType.USER.name().equals(emailUpdateDTO.getUserType()))) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equals(emailUpdateDTO.getUserType())
+				&& !UserType.USER.name().equals(emailUpdateDTO.getUserType())) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		/**
@@ -872,15 +888,16 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param emailUpdateDTO
-	 * @param userLogin
+	 * @param  emailUpdateDTO
+	 * @param  userLogin
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	private String updateUserDetail(final EmailUpdateDTO emailUpdateDTO, final UserLogin userLogin) throws NotFoundException, ValidationException {
 		String userName = null;
 		/**
-		 * if email is not null it means there is possibility that user is logged in with old email right now
+		 * if email is not null it means there is possibility that user is logged in
+		 * with old email right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEmail())) {
 			/**
@@ -933,13 +950,14 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public String addUpdatePhoneNumber(final String phoneNumber, final String otp, final String userType, final UserLogin userLogin)
 			throws NotFoundException, ValidationException {
 		/**
-		 * Note : For all admin panel user(super admin,vendor) userType will come as User
+		 * Note : For all admin panel user(super admin,vendor) userType will come as
+		 * User
 		 */
 
 		otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp, false);
 
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType())
-				&& (!userLogin.getEntityType().equals(userType) && !UserType.USER.name().equals(userType))) {
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && !userLogin.getEntityType().equals(userType)
+				&& !UserType.USER.name().equals(userType)) {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_USER_TYPE, null));
 		}
 		/**
@@ -959,11 +977,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	}
 
 	/**
-	 * @param phoneNumber
-	 * @param otp
-	 * @param userType
-	 * @param userName
-	 * @param userLogin
+	 * @param  phoneNumber
+	 * @param  otp
+	 * @param  userType
+	 * @param  userName
+	 * @param  userLogin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -972,7 +990,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 		String userName = null;
 		/**
-		 * if phone number is not null it means there is possibility that customer is logged in with old phone number right now
+		 * if phone number is not null it means there is possibility that customer is
+		 * logged in with old phone number right now
 		 */
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getPhoneNumber())) {
 			/**
@@ -1035,8 +1054,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 		if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			Customer customer = customerService.getCustomerDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(customer, loginResponse);
-			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
-					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
+			loginResponse.setCanChangePassword(
+					userLogin.getPassword() != null || userLogin.getFacebookKey() == null && userLogin.getGoogleKey() == null && userLogin.getOtp() == null);
 		} else if (UserType.USER.name().equals(userLogin.getEntityType())) {
 			Users users = usersService.getUsersDetails(userLogin.getEntityId());
 			BeanUtils.copyProperties(users, loginResponse);
@@ -1047,8 +1066,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				loginResponse.setFirstName(users.getFirstNameArabic());
 				loginResponse.setLastName(users.getLastNameArabic());
 			}
-			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
-					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
+			loginResponse.setCanChangePassword(
+					userLogin.getPassword() != null || userLogin.getFacebookKey() == null && userLogin.getGoogleKey() == null && userLogin.getOtp() == null);
 		} else if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 			BeanUtils.copyProperties(vendor, loginResponse);
@@ -1059,8 +1078,8 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				loginResponse.setFirstName(vendor.getFirstNameArabic());
 				loginResponse.setLastName(vendor.getLastNameArabic());
 			}
-			loginResponse.setCanChangePassword(((userLogin.getPassword() != null)
-					|| (((userLogin.getFacebookKey() == null) && (userLogin.getGoogleKey() == null)) && (userLogin.getOtp() == null))));
+			loginResponse.setCanChangePassword(
+					userLogin.getPassword() != null || userLogin.getFacebookKey() == null && userLogin.getGoogleKey() == null && userLogin.getOtp() == null);
 		} else if (UserType.DELIVERY_BOY.name().equals(userLogin.getEntityType())) {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(userLogin.getEntityId());
 			BeanUtils.copyProperties(deliveryBoy, loginResponse);

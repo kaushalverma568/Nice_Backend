@@ -184,6 +184,8 @@ public class SendEmailNotificationComponent {
 			sendEmailAfterDeliveryBoyAccountActivation(emailNotification);
 		} else if (NotificationQueueConstants.VENDOR_REGISTRATION.equals(emailNotification.getType())) {
 			vendorRegistration(emailNotification);
+		} else if (NotificationQueueConstants.DELIVERY_BOY_REGISTRATION.equals(emailNotification.getType())) {
+			deliveryBoyRegistration(emailNotification);
 		}
 	}
 
@@ -222,6 +224,46 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(SUBJECT2, subject);
 			emailParameterMap.put(APPLICATION_NAME, applicationName);
 			emailUtil.sendEmail(subject, vendor.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(), emailNotification.getLanguage());
+		}
+	}
+
+	private void deliveryBoyRegistration(final Notification emailNotification)
+			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
+		final Map<String, String> emailParameterMap = new HashMap<>();
+		if (emailNotification.getVendorId() != null) {
+			String subject;
+			String content;
+			String applicationName;
+			LOGGER.info("send Delivery boy registration email");
+			CompanyResponseDTO company = companyService.getCompany(true);
+			emailParameterMap.put(LOGO, company.getCompanyImage());
+			emailParameterMap.put(BIG_LOGO, assetService.getGeneratedUrl(emailBackgroundImage, AssetConstant.COMPANY_DIR));
+			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
+			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
+			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
+
+			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
+
+			if (emailNotification.getLanguage().equals("en")) {
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsEnglish.WELCOME);
+				emailParameterMap.put(CUSTOMER_NAME, deliveryBoy.getFirstNameEnglish() + " " + deliveryBoy.getLastNameEnglish());
+				content = NotificationMessageConstantsEnglish.welcomeDeliveryBoy(applicationNameEn);
+				subject = NotificationMessageConstantsEnglish.welcomeSubject(applicationNameEn);
+				applicationName = applicationNameEn;
+				emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
+			} else {
+				emailParameterMap.put(WELCOME, NotificationMessageConstantsArabic.WELCOME);
+				emailParameterMap.put(CUSTOMER_NAME, deliveryBoy.getFirstNameArabic() + " " + deliveryBoy.getLastNameArabic());
+				content = NotificationMessageConstantsArabic.welcomeDeliveryBoy(applicationNameFr);
+				subject = NotificationMessageConstantsArabic.welcomeSubject(applicationNameFr);
+				applicationName = applicationNameFr;
+				emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
+			}
+			emailParameterMap.put(CONTENT2, content);
+			emailParameterMap.put(SUBJECT2, subject);
+			emailParameterMap.put(APPLICATION_NAME, applicationName);
+			emailUtil.sendEmail(subject, deliveryBoy.getEmail(), emailParameterMap, null, null, EmailTemplatesEnum.WELCOME.name(),
+					emailNotification.getLanguage());
 		}
 	}
 
