@@ -88,6 +88,9 @@ public class UsersServiceImpl implements UsersService {
 		} else if (role.getIsDefault().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("default.user.not.creatable", null));
 		}
+		if (usersDTO.getPreferredLanguage() == null) {
+			throw new ValidationException(messageByLocaleService.getMessage("preferred.language.not.null", null));
+		}
 		Users existingUsers = getUsersDetails(usersDTO.getId());
 		/**
 		 * Change UserLogin Role if Users role is changed
@@ -102,7 +105,6 @@ public class UsersServiceImpl implements UsersService {
 			}
 		}
 		Users users = usersMapper.toEntity(usersDTO);
-		users.setPreferredLanguage(existingUsers.getPreferredLanguage());
 		users.setRole(role);
 		usersRepository.save(users);
 	}

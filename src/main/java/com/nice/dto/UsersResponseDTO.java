@@ -39,4 +39,6 @@ public class UsersResponseDTO implements Serializable {
 	private Boolean active;
 
 	private Long userLoginId;
+
+	private String preferredLanguage;
 }

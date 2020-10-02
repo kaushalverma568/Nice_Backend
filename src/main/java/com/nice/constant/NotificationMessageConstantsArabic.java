@@ -30,7 +30,6 @@ public final class NotificationMessageConstantsArabic {
 	public static final String WELCOME = "Welcome";
 	public static final String OR = "OR";
 
-	// TODO
 	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.DELIVERED.getStatusValue(), "Delivered",
 			OrderStatusEnum.REJECTED.getStatusValue(), "Rejected", OrderStatusEnum.REPLACED.getStatusValue(), "Replaced");
 

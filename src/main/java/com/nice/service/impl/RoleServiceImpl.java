@@ -32,7 +32,6 @@ import com.nice.repository.PermissionRepository;
 import com.nice.repository.RoleRepository;
 import com.nice.repository.UserLoginRepository;
 import com.nice.service.ModulesService;
-import com.nice.service.PermissionService;
 import com.nice.service.RoleService;
 import com.nice.util.CommonUtility;
 
@@ -54,9 +53,6 @@ public class RoleServiceImpl implements RoleService {
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
-
-	@Autowired
-	private PermissionService permissionService;
 
 	@Autowired
 	private PermissionMapper permissionMapper;
@@ -104,7 +100,8 @@ public class RoleServiceImpl implements RoleService {
 			BeanUtils.copyProperties(moduleAndPermissionDTO, permissionDTO);
 			Permission permission = permissionMapper.toEntity(permissionDTO);
 			/**
-			 * For a special requirement by client regarding super admin and new user can view product list we have to add some restrictions here
+			 * For a special requirement by client regarding super admin and new user can
+			 * view product list we have to add some restrictions here
 			 */
 			if (modules.getName().equals("Product List")) {
 				permission.setCanAdd(false);
