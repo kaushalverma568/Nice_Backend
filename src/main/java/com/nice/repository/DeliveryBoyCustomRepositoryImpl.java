@@ -23,7 +23,6 @@ import com.nice.model.DeliveryBoy;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
  * @date   : Sep 2, 2020
  */
@@ -71,6 +70,10 @@ public class DeliveryBoyCustomRepositoryImpl implements DeliveryBoyCustomReposit
 					criteriaBuilder.or(predicateForFirstNameEnglish, predicateForFirstNameArabic, predicateForLastNameEnglish, predicateForLastNameArabic));
 		}
 
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getStatus())) {
+			predicates.add(criteriaBuilder.equal(deliveryBoy.get("status"), deliveryBoyFilterDTO.getStatus()));
+		}
+
 		/**
 		 * Add the clauses for the query.
 		 */
@@ -85,7 +88,8 @@ public class DeliveryBoyCustomRepositoryImpl implements DeliveryBoyCustomReposit
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<DeliveryBoy> fetchGraph = entityManager.createEntityGraph(DeliveryBoy.class);
 		TypedQuery<DeliveryBoy> query = entityManager.createQuery(criteriaQuery).setHint("javax.persistence.loadgraph", fetchGraph);
@@ -119,6 +123,9 @@ public class DeliveryBoyCustomRepositoryImpl implements DeliveryBoyCustomReposit
 			predicates.add(criteriaBuilder.equal(deliveryBoy.get("active"), deliveryBoyFilterDTO.getActiveRecords()));
 		}
 
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getStatus())) {
+			predicates.add(criteriaBuilder.equal(deliveryBoy.get("status"), deliveryBoyFilterDTO.getStatus()));
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(deliveryBoyFilterDTO.getSearchKeyword())) {
 			Predicate predicateForFirstNameEnglish = criteriaBuilder.like(criteriaBuilder.lower(deliveryBoy.get("firstNameEnglish")),
 					"%" + deliveryBoyFilterDTO.getSearchKeyword().toLowerCase() + "%");

@@ -104,6 +104,10 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			if (!deliveryBoys.isEmpty() && deliveryBoys.size() > 1) {
 				throw new ValidationException(messageByLocaleService.getMessage("orders.belong.multiple.delivery.boy", null));
 			}
+			DeliveryBoy deliveryBoy = deliveryBoys.get(0);
+			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryBoy.getBankAccountNumber())) {
+				throw new ValidationException(messageByLocaleService.getMessage("deliveryboy.bank.detail.required", null));
+			}
 			/**
 			 * get task list calculate amount and validate it
 			 */
