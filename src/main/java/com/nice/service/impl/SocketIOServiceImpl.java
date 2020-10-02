@@ -21,9 +21,11 @@ import com.nice.dto.OrderLocationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.model.OrderLocation;
+import com.nice.model.Task;
 import com.nice.service.OrderLocationService;
 import com.nice.service.OrdersService;
 import com.nice.service.SocketIOService;
+import com.nice.service.TaskService;
 import com.nice.util.JsonObjectMapper;
 
 @Service(value = "socketIOService")
@@ -36,6 +38,9 @@ public class SocketIOServiceImpl implements SocketIOService {
 	private static final String CUSTOMER_ID = "customerId";
 	@Autowired
 	private OrderLocationService orderLocationService;
+
+	@Autowired
+	private TaskService taskService;
 	/**
 	 * Store connected orders
 	 */
@@ -113,12 +118,14 @@ public class SocketIOServiceImpl implements SocketIOService {
 					locationDTO.setLatitude(new BigDecimal(messageConverted.get(LATITUDE)));
 					locationDTO.setLongitude(new BigDecimal(messageConverted.get(LONGITUDE)));
 					OrderLocation orderLocation = orderLocationService.addOrderLocation(locationDTO);
+					Task task = taskService.getLatestTaskByOrderId(orderLocation.getOrderId());
 					/**
 					 * here for customer orderId will be orderId_customerId_receiver and for
 					 * delivery Boy orderId will be orderId_deliveryBoyId_sender
 					 */
 					messageConverted.put(CUSTOMER_ID, orderLocation.getCustomerId().toString());
 					messageConverted.put("orderStatus", orderLocation.getOrderStatus());
+					messageConverted.put("taskStatus", task.getStatus());
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getCustomerId().toString()).concat("_receiver"),
 							messageConverted);
 					pushMessageToUser(locationDTO.getOrderId().toString().concat("_").concat(locationDTO.getDeliveryBoyId().toString()).concat("_sender"),

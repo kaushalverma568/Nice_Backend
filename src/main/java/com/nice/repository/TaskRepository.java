@@ -23,8 +23,8 @@ import com.nice.model.Task;
 public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRepository {
 
 	/**
-	 * get all task by status and task type for delivery boy(Used for replacement pending/attempted ,delivery
-	 * pending/attempted)
+	 * get all task by status and task type for delivery boy(Used for replacement
+	 * pending/attempted ,delivery pending/attempted)
 	 *
 	 * @param deliveryBoy
 	 * @param status
@@ -34,8 +34,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRep
 	List<Task> findAllByDeliveryBoyAndStatusAndTaskType(DeliveryBoy deliveryBoy, String status, String taskType);
 
 	/**
-	 * get all task by status,task type and created at for delivery boy(Used for replacement delivered ,delivery delivered
-	 * for today)
+	 * get all task by status,task type and created at for delivery boy(Used for
+	 * replacement delivered ,delivery delivered for today)
 	 *
 	 * @param deliveryBoy
 	 * @param status
@@ -47,8 +47,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRep
 			Date createdAt1);
 
 	/**
-	 * get all task by task type and created at for delivery boy(Used for delivery log detail get pending/delivered task for
-	 * date)
+	 * get all task by task type and created at for delivery boy(Used for delivery
+	 * log detail get pending/delivered task for date)
 	 *
 	 * @param deliveryBoy
 	 *
@@ -168,4 +168,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, TaskCustomRep
 	 */
 	@Query(value = "Select sum(t.deliveryCharge) from Task t where t.deliveryBoy.id = :deliveryBoyId")
 	Double getTotalDeliveryChargeForDeliveryPerson(Long deliveryBoyId);
+
+	@Query(value = "select t.* from Task t where t.order_id=:orderId order by t.id desc limit 1", nativeQuery = true)
+	Task getLatestTaskByOrderId(Long orderId);
 }
