@@ -1648,7 +1648,7 @@ public class OrdersServiceImpl implements OrdersService {
 			/**
 			 * this means the refund is to be made to customer wallet after deducting the charges from the order
 			 */
-			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution() - orders.getDeliveryCharge();
+			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
 			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
 			/**
 			 * make an entry in wallet txn
