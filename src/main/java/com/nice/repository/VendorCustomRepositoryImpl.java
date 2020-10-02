@@ -157,6 +157,9 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (vendorFilterDTO.getIsFeatured() != null) {
 			predicates.add(criteriaBuilder.equal(vendor.get("isFeatured"), vendorFilterDTO.getIsFeatured()));
 		}
+		if (vendorFilterDTO.getIsProfileCompleted() != null) {
+			predicates.add(criteriaBuilder.equal(vendor.get("profileCompleted"), vendorFilterDTO.getIsProfileCompleted()));
+		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorFilterDTO.getSearchKeyword())) {
 			Expression<String> concatOfFirstNameEnglish = criteriaBuilder.concat(criteriaBuilder.lower(vendor.get("firstNameEnglish")), " ");
 			Expression<String> fullNameEnglish = criteriaBuilder.concat(concatOfFirstNameEnglish, criteriaBuilder.lower(vendor.get("lastNameEnglish")));
