@@ -33,7 +33,7 @@ import com.nice.service.CartItemService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 03-Jul-2020
+ * @date : 03-Jul-2020
  */
 @RequestMapping(path = "/cart/item")
 @RestController
@@ -54,10 +54,10 @@ public class CartItemController {
 	/**
 	 * add product to cart
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  cartItemDTO
-	 * @param  result
+	 * @param accessToken
+	 * @param userId
+	 * @param cartItemDTO
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -78,8 +78,8 @@ public class CartItemController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  uuid
+	 * @param accessToken
+	 * @param uuid
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -88,16 +88,16 @@ public class CartItemController {
 	public ResponseEntity<Object> moveFromTempCartToCart(@RequestHeader("Authorization") final String accessToken, @PathVariable final String uuid)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside move Cart Item with uuid {}", uuid);
-		cartItemService.moveFromTempCartToCart(uuid);
+		List<CartItemResponseDTO> cartItemResponseDtoList = cartItemService.moveFromTempCartToCart(uuid);
 		LOGGER.info("Outside move Cart Item with uuid {}", uuid);
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK)
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(cartItemResponseDtoList)
 				.setMessage(messageByLocaleService.getMessage("cart.item.moved.successfully", null)).create();
 	}
 
 	/**
 	 * Get cart item list based on uuid *
 	 *
-	 * @param  uuid
+	 * @param uuid
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -116,8 +116,8 @@ public class CartItemController {
 	/**
 	 * Remove cart item by cartItemId
 	 *
-	 * @param  accessToken
-	 * @param  cartItemId
+	 * @param accessToken
+	 * @param cartItemId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -135,8 +135,8 @@ public class CartItemController {
 	/**
 	 * Get cart item count for uuid
 	 *
-	 * @param  accessToken
-	 * @param  uuid
+	 * @param accessToken
+	 * @param uuid
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -154,8 +154,8 @@ public class CartItemController {
 	/**
 	 * update cart item qty by id
 	 *
-	 * @param  cartItemId
-	 * @param  qty
+	 * @param cartItemId
+	 * @param qty
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -173,7 +173,7 @@ public class CartItemController {
 	/**
 	 * delete all cart items for customer
 	 *
-	 * @param  uuid
+	 * @param uuid
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -189,8 +189,8 @@ public class CartItemController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  vendorId
+	 * @param accessToken
+	 * @param vendorId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -206,8 +206,8 @@ public class CartItemController {
 	/**
 	 * get vendor from cart item
 	 *
-	 * @param  accessToken
-	 * @param  vendorId
+	 * @param accessToken
+	 * @param vendorId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

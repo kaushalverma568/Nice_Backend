@@ -500,7 +500,7 @@ public class CartItemServiceImpl implements CartItemService {
 	}
 
 	@Override
-	public void moveFromTempCartToCart(final String uuid) throws NotFoundException, ValidationException {
+	public List<CartItemResponseDTO> moveFromTempCartToCart(final String uuid) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside moveFromTempCartToCart for uuid :{}", uuid);
 		List<CartItemResponseDTO> cartItemResponseList = tempCartItemService.getTempCartItemDetailListByParam(uuid);
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(cartItemResponseList)) {
@@ -515,6 +515,7 @@ public class CartItemServiceImpl implements CartItemService {
 		LOGGER.info("After moveFromTempCartToCart for uuid :{}", uuid);
 		tempCartItemService.deleteTempCartItemForUuid(uuid);
 		LOGGER.info("Deleted tempcart for uuid :{} after moveFromTempCartToCart ", uuid);
+		return getCartItemDetailList();
 	}
 
 	private CartItemDTO convertFromCartItemResponseToCartItemDto(final CartItemResponseDTO cartItemResponseDto) {
