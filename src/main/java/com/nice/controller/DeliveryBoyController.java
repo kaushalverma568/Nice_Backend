@@ -223,16 +223,15 @@ public class DeliveryBoyController {
 	 *
 	 * @param  accessToken
 	 * @param  httpServletResponse
-	 * @param  activeRecords
-	 * @param  searchKeyword
+	 * @param  deliveryBoyFilterDTO
 	 * @return
 	 * @throws FileNotFoundException
+	 * @throws ValidationException
 	 */
-	@GetMapping("/export/list")
+	@PostMapping("/export/list")
 	public ResponseEntity<Object> exportList(@RequestHeader("Authorization") final String accessToken, final HttpServletResponse httpServletResponse,
-			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws FileNotFoundException {
-		deliveryBoyService.exportList(activeRecords, searchKeyword, httpServletResponse);
+			@RequestBody final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws FileNotFoundException, ValidationException {
+		deliveryBoyService.exportList(deliveryBoyFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.list.message", null))
 				.create();
 	}
@@ -586,5 +585,26 @@ public class DeliveryBoyController {
 		taskService.exportDeliveryLogList(deliveryLogFilterDTO, httpServletResponse);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("delivery.log.list.message", null))
 				.create();
+	}
+
+	/**
+	 * Get all DeliveryBoy count
+	 *
+	 * @param  accessToken
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PostMapping("/count")
+	public ResponseEntity<Object> getAllDeliveryBoyCount(@RequestHeader("Authorization") final String accessToken) throws ValidationException {
+		LOGGER.info("Inside get all delivery boy count");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.detail.message", null))
+				.setData(deliveryBoyService.getAllDeliveryBoyCount()).create();
 	}
 }

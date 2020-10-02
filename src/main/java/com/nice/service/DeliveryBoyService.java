@@ -1,6 +1,5 @@
 package com.nice.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -173,13 +172,12 @@ public interface DeliveryBoyService {
 	Boolean isPhoneNumberExists(DeliveryBoyDTO deliveryBoyDTO);
 
 	/**
-	 * @param  activeRecords
-	 * @param  searchKeyword
+	 * @param  deliveryBoyFilterDTO
 	 * @param  httpServletResponse
 	 * @throws FileNotFoundException
-	 * @throws IOException
+	 * @throws ValidationException
 	 */
-	void exportList(Boolean activeRecords, String searchKeyword, HttpServletResponse httpServletResponse) throws FileNotFoundException;
+	void exportList(DeliveryBoyFilterDTO deliveryBoyFilterDTO, HttpServletResponse httpServletResponse) throws FileNotFoundException, ValidationException;
 
 	/**
 	 * get delivery boy current status details
@@ -282,7 +280,7 @@ public interface DeliveryBoyService {
 	Long getDeliveryBoyIdFromToken() throws ValidationException;
 
 	/**
-	 * get on field Delivery boys <<<<<<< Updated upstream ======= >>>>>>> Stashed changes
+	 * get on field Delivery boys
 	 */
 	Long getCountOfOnFieldDeliveryBoy();
 
@@ -306,4 +304,6 @@ public interface DeliveryBoyService {
 	 * @param deliveryBoyId
 	 */
 	void sendEmailAfterAccountActivation(Long deliveryBoyId);
+
+	Long getAllDeliveryBoyCount();
 }

@@ -312,27 +312,11 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	@Override
-	public void exportList(final Boolean activeRecords, final String searchKeyword, final HttpServletResponse httpServletResponse)
-			throws FileNotFoundException {
-		List<DeliveryBoy> deliveryBoyList;
+	public void exportList(final DeliveryBoyFilterDTO deliveryBoyFilterDTO, final HttpServletResponse httpServletResponse)
+			throws FileNotFoundException, ValidationException {
+		sortByFieldAndDirection(deliveryBoyFilterDTO);
+		List<DeliveryBoy> deliveryBoyList = deliveryBoyRepository.getDeliveryBoyListBasedOnParams(null, null, deliveryBoyFilterDTO);
 		List<DeliveryBoyResponseDTO> deliveryBoyDtoList = new ArrayList<>();
-		if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(searchKeyword)) {
-			if (activeRecords != null) {
-				deliveryBoyList = deliveryBoyRepository
-						.findAllByActiveAndFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
-								activeRecords, searchKeyword, searchKeyword, searchKeyword, searchKeyword);
-			} else {
-				deliveryBoyList = deliveryBoyRepository
-						.findAllByFirstNameEnglishContainingIgnoreCaseOrLastNameEnglishContainingIgnoreCaseOrFirstNameArabicContainingIgnoreCaseOrLastNameArabicContainingIgnoreCase(
-								searchKeyword, searchKeyword, searchKeyword, searchKeyword);
-			}
-		} else {
-			if (activeRecords != null) {
-				deliveryBoyList = deliveryBoyRepository.findAllByActive(activeRecords);
-			} else {
-				deliveryBoyList = deliveryBoyRepository.findAll();
-			}
-		}
 		for (DeliveryBoy deliveryBoy : deliveryBoyList) {
 			deliveryBoyDtoList.add(deliveryBoyMapper.toDto(deliveryBoy));
 		}
@@ -1034,5 +1018,11 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		notification.setDeliveryBoyId(deliveryBoyId);
 		notification.setType(NotificationQueueConstants.DELIVERY_BOY_ACCOUNT_ACTIVATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
+	}
+
+	@Override
+	public Long getAllDeliveryBoyCount() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
