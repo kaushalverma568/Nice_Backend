@@ -43,7 +43,7 @@ public class DiscountResponseDTO implements Serializable {
 
 	private String storeNameArabic;
 
-	private String storeContactNumber;
+	private String storePhoneNumber;
 
 	private Long vendorId;
 }

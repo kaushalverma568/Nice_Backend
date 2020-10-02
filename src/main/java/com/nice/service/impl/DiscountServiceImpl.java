@@ -329,7 +329,7 @@ public class DiscountServiceImpl implements DiscountService {
 		} else {
 			discountResponseDTO.setStoreName(vendor.getStoreNameArabic());
 		}
-		discountResponseDTO.setStoreContactNumber(vendor.getStorePhoneNumber());
+		discountResponseDTO.setStorePhoneNumber(vendor.getStorePhoneNumber());
 		return discountResponseDTO;
 	}
 

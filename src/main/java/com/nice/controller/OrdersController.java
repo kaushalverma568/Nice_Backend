@@ -103,7 +103,6 @@ public class OrdersController {
 			 */
 			orderService.sendPushNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 			orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.NEW_ORDER_PUSH_NOTIFICATION, Long.valueOf(orderId));
-			orderService.sendEmailNotificationForOrder(NotificationQueueConstants.PLACE_ORDER_EMAIL_NOTIFICATION_CUSTOMER, Long.valueOf(orderId));
 
 		}
 		return new GenericResponseHandlers.Builder().setData(orderId).setMessage(messageByLocaleService.getMessage("order.create.successful", null))
@@ -244,7 +243,7 @@ public class OrdersController {
 
 	@PostMapping("/admin/replace/cancel")
 	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
-	public ResponseEntity<Object> cancelReplaceReturnOrderAdmin(@RequestHeader("Authorization") final String token,
+	public ResponseEntity<Object> cancelReplaceOrderAdmin(@RequestHeader("Authorization") final String token,
 			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
 			throws ValidationException, NotFoundException {
 		LOGGER.info("Inside the cancel order method of Admin");
@@ -252,7 +251,7 @@ public class OrdersController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto);
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto, OrderStatusEnum.REPLACE_CANCELLED.getStatusValue());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR,
 				replaceCancelOrderDto.getOrderId());
@@ -261,6 +260,51 @@ public class OrdersController {
 		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_DELIVERY_BOY,
 				replaceCancelOrderDto.getOrderId());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
+	@PostMapping("/admin/return/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
+	public ResponseEntity<Object> cancelReturnOrderAdmin(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method of Admin");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto, OrderStatusEnum.RETURN_CANCELLED.getStatusValue());
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR,
+				replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,
+				replaceCancelOrderDto.getOrderId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_DELIVERY_BOY,
+				replaceCancelOrderDto.getOrderId());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
+	@PostMapping("/return/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
+	public ResponseEntity<Object> cancelReturnOrder(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+
+		Orders order = orderService.getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(order.getOrderStatus())) {
+			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
+		}
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto, OrderStatusEnum.RETURN_CANCELLED.getStatusValue());
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, order.getId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, order.getId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
 				.create();
 	}
@@ -277,11 +321,10 @@ public class OrdersController {
 		}
 
 		Orders order = orderService.getOrderById(replaceCancelOrderDto.getOrderId());
-		if (!(OrderStatusEnum.REPLACE_REQUESTED.getStatusValue().equals(order.getOrderStatus())
-				|| OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(order.getOrderStatus()))) {
+		if (!OrderStatusEnum.REPLACE_REQUESTED.getStatusValue().equals(order.getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
 		}
-		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto);
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto, OrderStatusEnum.REPLACE_CANCELLED.getStatusValue());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, order.getId());
 		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, order.getId());
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)

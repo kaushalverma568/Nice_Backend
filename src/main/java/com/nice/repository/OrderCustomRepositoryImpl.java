@@ -45,6 +45,10 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	/**
 	 *
 	 */
+	private static final String PAYMENT_DATE = "paymentDate";
+	/**
+	 *
+	 */
 	private static final String PAYMENT_MODE = "paymentMode";
 	/**
 	 *
@@ -178,37 +182,39 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 			predicates.add(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class), orderListFilterDto.getDeliveryDate()));
 		}
 		if (orderListFilterDto.getIsForPaymentTransaction() != null && orderListFilterDto.getIsForPaymentTransaction().booleanValue()) {
+
 			/***
 			 * get orders which payment is online or offline and delivered
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() == null) {
 				predicates.add(criteriaBuilder.or(criteriaBuilder.equal(orders.get(PAYMENT_MODE), PaymentMode.ONLINE.name()),
-						criteriaBuilder.isNotNull(orders.get(DELIVERY_DATE))));
+						criteriaBuilder.isNotNull(orders.get(PAYMENT_DATE))));
 			}
 			/**
 			 * get all offline orders
 			 */
 			else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
 					&& PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() == null) {
-				predicates.add(criteriaBuilder.isNotNull(orders.get(DELIVERY_DATE)));
+				predicates.add(criteriaBuilder.isNotNull(orders.get(PAYMENT_DATE)));
 			}
 			/**
 			 * get online order for date
 			 */
 			else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
 					&& PaymentMode.ONLINE.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() != null) {
-				predicates.add(criteriaBuilder.equal(orders.get("createdAt").as(Date.class), orderListFilterDto.getPaymentDate()));
+				predicates.add(criteriaBuilder.equal(orders.get(PAYMENT_DATE).as(Date.class), orderListFilterDto.getPaymentDate()));
 			}
 			/**
 			 * get offline order for date
 			 */
 			else if (CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(orderListFilterDto.getPaymentMode())
 					&& PaymentMode.COD.name().equals(orderListFilterDto.getPaymentMode()) && orderListFilterDto.getPaymentDate() != null) {
-				predicates.add(criteriaBuilder.equal(orders.get(DELIVERY_DATE).as(Date.class), orderListFilterDto.getPaymentDate()));
+				predicates.add(criteriaBuilder.equal(orders.get(PAYMENT_DATE).as(Date.class), orderListFilterDto.getPaymentDate()));
 			}
 		}
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public SalesReportDto getSalesReport(final Integer year, final Long vendorId) {
 		StringBuilder query = new StringBuilder();
@@ -219,7 +225,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 			query.append("and vendor_id=:vendorId ");
 			paramMap.put("vendorId", vendorId);
 		}
-		query.append("group by months;");		
+		query.append("group by months;");
 		Query q = entityManager.createNativeQuery(query.toString());
 		paramMap.entrySet().forEach(p -> q.setParameter(p.getKey(), p.getValue()));
 		List<Object> objectList = q.getResultList();
@@ -240,10 +246,10 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	}
 
 	/**
-	 * @param  month
-	 * @param  sales
-	 * @param  salesReportDto2
-	 * @param  salesReportDto
+	 * @param month
+	 * @param sales
+	 * @param salesReportDto2
+	 * @param salesReportDto
 	 * @return
 	 */
 	private void setSalesValue(final String month, final Double sales, final SalesReportDto salesReportDto) {
@@ -276,7 +282,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 	}
 
 	@Override
-	public Long countByStatusAndCreatedAt(String status, java.util.Date createdAt) {
+	public Long countByStatusAndCreatedAt(final String status, final java.util.Date createdAt) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		Root<OrderStatusHistory> orderHistory = criteriaQuery.from(OrderStatusHistory.class);
@@ -286,17 +292,15 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 		criteriaQuery.select(criteriaBuilder.count(orderHistory)).where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
 		TypedQuery<Long> query = entityManager.createQuery(criteriaQuery);
 		return query.getSingleResult();
-		
+
 	}
 
 	@Override
-	public Long countByStatusAndCreatedAtAndVendorId(String status, java.util.Date createdAt, Long vendorId) {
+	public Long countByStatusAndCreatedAtAndVendorId(final String status, final java.util.Date createdAt, final Long vendorId) {
 		Map<String, Object> paramMap = new HashMap<>();
 		StringBuilder sqlQuery = new StringBuilder();
-		sqlQuery.append("select count(*) from orders_Status_History osh " + 
-				" inner join orders o on osh.order_id = o.id " + 
-				" where osh.status = :status and CAST (osh.created_at AS DATE) = :createdAt and " + 
-				" o.vendor_id = :vendorId");
+		sqlQuery.append("select count(*) from orders_Status_History osh " + " inner join orders o on osh.order_id = o.id "
+				+ " where osh.status = :status and CAST (osh.created_at AS DATE) = :createdAt and " + " o.vendor_id = :vendorId");
 		paramMap.put("vendorId", vendorId);
 		paramMap.put("status", status);
 		paramMap.put("createdAt", createdAt);

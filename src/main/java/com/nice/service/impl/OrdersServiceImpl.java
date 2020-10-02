@@ -1659,7 +1659,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void cancelReturnReplaceOrder(final ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException {
+	public void cancelReturnReplaceOrder(final ReplaceCancelOrderDto replaceCancelOrderDto, final String orderStatus)
+			throws NotFoundException, ValidationException {
 		Orders orders = getOrderById(replaceCancelOrderDto.getOrderId());
 		if (OrderStatusEnum.RETURNED.getStatusValue().equals(orders.getOrderStatus())
 				|| OrderStatusEnum.REPLACED.getStatusValue().equals(orders.getOrderStatus())) {
@@ -1832,7 +1833,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Update the wallet for the customer, incase of online payment
 		 */
-		if (OrderStatusEnum.PENDING.getStatusValue().equals(orders.getOrderStatus()) && !PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
 			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
 

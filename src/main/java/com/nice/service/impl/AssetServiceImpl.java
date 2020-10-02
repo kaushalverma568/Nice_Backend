@@ -29,7 +29,7 @@ import com.nice.util.MediaFileUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
@@ -82,7 +82,7 @@ public class AssetServiceImpl implements AssetService {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
-			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION))) {
+			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION)) && width != 0 && height != 0) {
 				image = imageUtility.resizeImage(image, width, height);
 			}
 			if (count != 0) {
@@ -101,11 +101,11 @@ public class AssetServiceImpl implements AssetService {
 
 	/**
 	 *
-	 * @param  image
-	 * @param  subDirectory
-	 * @param  count                  : if value is not 0 then it will append number to imageName to avoid conflict
-	 * @param  width                  : if width 0 then image will not be resized, pass the image dimension to resize image
-	 * @param  height                 : if height 0 then image will not be resized, pass the image dimension to resize image
+	 * @param image
+	 * @param subDirectory
+	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
+	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
+	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
 	 * @return
 	 * @throws FileOperationException
 	 * @throws ValidationException

@@ -40,6 +40,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 	public List<PaymentTransactionDTO> getPaymentTransactionList(final OrderListFilterDto orderListFilterDto, final Integer startIndex, final Integer pageSize)
 			throws NotFoundException, ValidationException {
 		List<OrdersResponseDTO> ordersList;
+		orderListFilterDto.setIsForPaymentTransaction(true);
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (Role.SUPER_ADMIN.getStatusValue().equals(userLogin.getRole().getName()) || Role.VENDOR.getStatusValue().equals(userLogin.getRole().getName())) {
 			ordersList = ordersService.getOrderListBasedOnParams(startIndex, pageSize, orderListFilterDto);

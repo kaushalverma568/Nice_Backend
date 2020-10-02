@@ -44,27 +44,6 @@ public interface OrdersService {
 	Orders getOrderById(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param replaceCancelOrderDto
-	 * @param userId
-	 * @return
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	// void replaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId)
-	// throws NotFoundException,
-	// ValidationException;
-
-	/**
-	 * @param replaceCancelOrderDto
-	 * @param userId
-	 * @throws NotFoundException
-	 * @throws ValidationException
-	 */
-	// void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, Long userId)
-	// throws NotFoundException,
-	// ValidationException;
-
-	/**
 	 * @param orderId
 	 * @param isFromAdmin
 	 * @return
@@ -83,18 +62,6 @@ public interface OrdersService {
 	 */
 	List<OrdersResponseDTO> getOrderListBasedOnParams(Integer startIndex, Integer pageSize, OrderListFilterDto orderListFilterDto)
 			throws NotFoundException, ValidationException;
-
-	/**
-	 * @param deliveryBoy
-	 * @return
-	 */
-	// List<Orders> getTodaysDeliveredOrdersForDeliveryBoy(DeliveryBoy deliveryBoy);
-
-	/**
-	 * @param deliveryBoyId
-	 * @return
-	 */
-	// Double getTotalCashCollectionByDeliveryBoyForToday(Long deliveryBoyId);
 
 	/**
 	 * @param cartItemList
@@ -308,5 +275,5 @@ public interface OrdersService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	void cancelReturnReplaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
+	void cancelReturnReplaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto, String orderStatus) throws NotFoundException, ValidationException;
 }
