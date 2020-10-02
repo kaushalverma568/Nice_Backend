@@ -601,7 +601,7 @@ public class SendPushNotificationComponent {
 				String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(deliveryBoy.getFirstNameArabic()).concat(" ")
 						.concat(deliveryBoy.getLastNameArabic());
 				PushNotification pushNotification = setPushNotification(deliveryBoy.getId(), UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
-						Constant.DELIVERY_BOY_PROFILE);
+						Constant.DELIVERY_BOY_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
@@ -622,7 +622,7 @@ public class SendPushNotificationComponent {
 				notificationObject.addProperty(IMAGE, company.getCompanyImage());
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getDeliveryBoyId());
-				notificationPayloadDto.setModule(Constant.DELIVERY_BOY_PROFILE);
+				notificationPayloadDto.setModule(Constant.DELIVERY_BOY_MODULE);
 				for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 					sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 				}
@@ -653,7 +653,7 @@ public class SendPushNotificationComponent {
 				String messageEnglish = NotificationMessageConstantsEnglish.getNewProfileMessage(vendor.getStoreNameEnglish());
 				String messageArabic = NotificationMessageConstantsArabic.getNewProfileMessage(vendor.getStoreNameArabic());
 				PushNotification pushNotification = setPushNotification(vendor.getId(), UserType.VENDOR.name(), messageEnglish, messageArabic,
-						Constant.VENDOR_PROFILE);
+						Constant.VENDOR_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
@@ -674,7 +674,7 @@ public class SendPushNotificationComponent {
 				notificationObject.addProperty(IMAGE, company.getCompanyImage());
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getVendorId());
-				notificationPayloadDto.setModule(Constant.VENDOR_PROFILE);
+				notificationPayloadDto.setModule(Constant.VENDOR_MODULE);
 				for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 					sendPushNotificationToAdminOrVendor(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 				}

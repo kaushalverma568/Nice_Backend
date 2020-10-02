@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -171,10 +171,8 @@ public final class Constant {
 	 * Push notification Module name
 	 */
 	public static final String ORDER_MODULE = "Orders";
-
+	public static final String DELIVERY_BOY_MODULE = "Delivery Boy";
 	public static final String TICKET_MODULE = "Tickets";
-	public static final String VENDOR_PROFILE = "Vendor Profile";
-	public static final String DELIVERY_BOY_PROFILE = "Delivery Boy Profile";
 	public static final String VENDOR_MODULE = "Vendor";
 	public static final String PAYOUT_MODULE = "Payout";
 
