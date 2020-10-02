@@ -602,9 +602,9 @@ public class DeliveryBoyController {
 	 * @throws ValidationException
 	 */
 	@PostMapping("/count")
-	public ResponseEntity<Object> getAllDeliveryBoyCount(@RequestHeader("Authorization") final String accessToken) throws ValidationException {
+	public ResponseEntity<Object> getAllDeliveryBoyCount(@RequestHeader("Authorization") final String accessToken) {
 		LOGGER.info("Inside get all delivery boy count");
-		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.detail.message", null))
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(DELIVERYBOY_DETAIL_MESSAGE, null))
 				.setData(deliveryBoyService.getAllDeliveryBoyCount()).create();
 	}
 }

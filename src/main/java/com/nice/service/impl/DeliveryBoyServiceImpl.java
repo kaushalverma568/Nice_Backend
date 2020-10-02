@@ -865,6 +865,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			orders = task.getOrder();
 			ordersDetailDTOForDeliveryBoy.setTaskId(taskId);
 			ordersDetailDTOForDeliveryBoy.setTaskStatus(task.getStatus());
+			ordersDetailDTOForDeliveryBoy.setTaskType(task.getTaskType());
 			ordersDetailDTOForDeliveryBoy.setDeliveryDate(task.getDeliveredDate());
 			if (locale.getLanguage().equals("en")) {
 				ordersDetailDTOForDeliveryBoy.setStoreName(orders.getVendor().getStoreNameEnglish());
@@ -1022,7 +1023,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 	@Override
 	public Long getAllDeliveryBoyCount() {
-		// TODO Auto-generated method stub
-		return null;
+		return deliveryBoyRepository.count();
 	}
 }

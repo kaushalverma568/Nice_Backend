@@ -74,7 +74,7 @@ import com.nice.validator.VendorValidator;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @RequestMapping(path = "/vendor")
 @RestController
@@ -105,8 +105,7 @@ public class VendorController {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorController.class);
 	/**
-	 * Locale message service - to display response messages from
-	 * messages_en_US.properties
+	 * Locale message service - to display response messages from messages_en_US.properties
 	 */
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -148,8 +147,8 @@ public class VendorController {
 	/**
 	 * Add Vendor
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -176,8 +175,8 @@ public class VendorController {
 	/**
 	 * Update vendor's personal details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -202,8 +201,8 @@ public class VendorController {
 	/**
 	 * Update bank details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -227,8 +226,8 @@ public class VendorController {
 	/**
 	 * Update restaurant details
 	 *
-	 * @param vendorDTO
-	 * @param result
+	 * @param  vendorDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -259,9 +258,9 @@ public class VendorController {
 	/**
 	 * Update subscription plan
 	 *
-	 * @param accessToken
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -281,9 +280,9 @@ public class VendorController {
 	/**
 	 * Update order service enable or not for vendor
 	 *
-	 * @param accessToken
-	 * @param vendorBankDetailsDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  vendorBankDetailsDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -303,7 +302,7 @@ public class VendorController {
 	/**
 	 * Get Vendor
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -319,7 +318,7 @@ public class VendorController {
 	/**
 	 * Get Vendor Bank details
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -335,11 +334,11 @@ public class VendorController {
 	/**
 	 * Get vendor list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param countryId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  countryId
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -359,8 +358,8 @@ public class VendorController {
 	/**
 	 * Change Status of Vendor (Active/DeActive)
 	 *
-	 * @param vendorId
-	 * @param active
+	 * @param  vendorId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -395,7 +394,7 @@ public class VendorController {
 	/**
 	 * Get vendor list for customer app
 	 *
-	 * @param vendorListFilterDTO
+	 * @param  vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -423,9 +422,9 @@ public class VendorController {
 	/**
 	 * Change status of vendor
 	 *
-	 * @param accessToken
-	 * @param vendorId
-	 * @param newStatus
+	 * @param  accessToken
+	 * @param  vendorId
+	 * @param  newStatus
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -446,9 +445,9 @@ public class VendorController {
 	}
 
 	/**
-	 * @param accessToken
-	 * @param httpServletResponse
-	 * @param vendorFilterDTO
+	 * @param  accessToken
+	 * @param  httpServletResponse
+	 * @param  vendorFilterDTO
 	 * @return
 	 * @throws IOException
 	 * @throws FileNotFoundException
@@ -464,9 +463,9 @@ public class VendorController {
 	/**
 	 * update vendor is featured
 	 *
-	 * @param accessToken
-	 * @param productId
-	 * @param active
+	 * @param  accessToken
+	 * @param  productId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -485,9 +484,9 @@ public class VendorController {
 	/**
 	 * to delete image by type
 	 *
-	 * @param accessToken
-	 * @param imageType
-	 * @param productId
+	 * @param  accessToken
+	 * @param  imageType
+	 * @param  productId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -505,8 +504,8 @@ public class VendorController {
 	/**
 	 * get vendor basic details
 	 *
-	 * @param accessToken
-	 * @param vendorId
+	 * @param  accessToken
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -521,10 +520,9 @@ public class VendorController {
 	}
 
 	/**
-	 * redirect api from hesabe for vendor subscription. data is response from
-	 * hesabe in encrypted form
+	 * redirect api from hesabe for vendor subscription. data is response from hesabe in encrypted form
 	 *
-	 * @param data
+	 * @param  data
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -554,8 +552,8 @@ public class VendorController {
 	/**
 	 * get subscription history
 	 *
-	 * @param accessToken
-	 * @param vendorId
+	 * @param  accessToken
+	 * @param  vendorId
 	 * @return
 	 */
 	@GetMapping("/subscription/history/{vendorId}")
@@ -570,9 +568,9 @@ public class VendorController {
 	/**
 	 * get detail for app
 	 *
-	 * @param vendorId
-	 * @param vendorListFilterDTO
-	 * @param result
+	 * @param  vendorId
+	 * @param  vendorListFilterDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -604,6 +602,27 @@ public class VendorController {
 		userLoginService.sendWelComeEmail(userId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))
 				.create();
+	}
+
+	/**
+	 * Get all vendor count
+	 *
+	 * @param  accessToken
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyword
+	 * @param  sortByDirection
+	 * @param  sortByField
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@PostMapping("/count")
+	public ResponseEntity<Object> getAllVendorCount(@RequestHeader("Authorization") final String accessToken) {
+		LOGGER.info("Inside get all vendor count");
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_DETAIL_MESSAGE, null))
+				.setData(vendorService.getAllVendorCount()).create();
 	}
 
 }

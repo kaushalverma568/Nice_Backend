@@ -36,6 +36,8 @@ public class OrdersDetailDTOForDeliveryBoy implements Serializable {
 
 	private String taskStatus;
 
+	private String taskType;
+
 	private String address;
 
 	private Double deliveryCharge;

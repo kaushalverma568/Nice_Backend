@@ -27,15 +27,15 @@ import com.nice.model.VendorBankDetails;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 
 public interface VendorService {
 	/**
 	 * persist vendor object
 	 *
-	 * @param vendorDTO
-	 * @param userId
+	 * @param  vendorDTO
+	 * @param  userId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -45,7 +45,7 @@ public interface VendorService {
 	/**
 	 * get DTO object of vendor
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -54,9 +54,9 @@ public interface VendorService {
 	/**
 	 * change status of vendor (active/deActive)
 	 *
-	 * @param vendorId
-	 * @param isActive
-	 * @param userId
+	 * @param  vendorId
+	 * @param  isActive
+	 * @param  userId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -66,7 +66,7 @@ public interface VendorService {
 	/**
 	 * check vendor duplication on based on email and returning Boolean value.
 	 *
-	 * @param vendorDTO
+	 * @param  vendorDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -76,7 +76,7 @@ public interface VendorService {
 	/**
 	 * check vendor duplication on based on contact and returning Boolean value.
 	 *
-	 * @param vendorDTO
+	 * @param  vendorDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -86,17 +86,16 @@ public interface VendorService {
 	/**
 	 * get detail object of vendor
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Vendor getVendorDetail(Long vendorId) throws NotFoundException;
 
 	/**
-	 * check is email exist in user login at the time of create or update delivery
-	 * boy
+	 * check is email exist in user login at the time of create or update delivery boy
 	 *
-	 * @param vendorDTO
+	 * @param  vendorDTO
 	 * @return
 	 */
 	Boolean isUserLoginExists(VendorDTO vendorDTO);
@@ -104,7 +103,7 @@ public interface VendorService {
 	/**
 	 * Update bank details
 	 *
-	 * @param vendorBankDetailsDTO
+	 * @param  vendorBankDetailsDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -113,10 +112,10 @@ public interface VendorService {
 	/**
 	 * get page of delivery boy by parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param isEmailVerified
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  isEmailVerified
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -125,7 +124,7 @@ public interface VendorService {
 	/**
 	 * update email verified status of delivery boy
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @throws NotFoundException
 	 */
 	void verifyEmail(Long vendorId) throws NotFoundException;
@@ -133,7 +132,7 @@ public interface VendorService {
 	/**
 	 * update vendor's personal details
 	 *
-	 * @param vendorDTO
+	 * @param  vendorDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -143,8 +142,8 @@ public interface VendorService {
 	/**
 	 * generates hesabe paymentLink
 	 *
-	 * @param vendorId
-	 * @param subscriptionPlanId
+	 * @param  vendorId
+	 * @param  subscriptionPlanId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -154,8 +153,8 @@ public interface VendorService {
 	/**
 	 * update restaurant details
 	 *
-	 * @param vendorRestaurantDetailsDTO
-	 * @param userId
+	 * @param  vendorRestaurantDetailsDTO
+	 * @param  userId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws FileOperationException
@@ -166,8 +165,8 @@ public interface VendorService {
 	/**
 	 * update order service is unable or not for the vendor
 	 *
-	 * @param vendorId
-	 * @param isOrderServiceEnable
+	 * @param  vendorId
+	 * @param  isOrderServiceEnable
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -176,7 +175,7 @@ public interface VendorService {
 	/**
 	 * get vendor count based on filter
 	 *
-	 * @param vendorFilterDTO
+	 * @param  vendorFilterDTO
 	 * @return
 	 */
 	Long getVendorCountBasedOnParams(VendorFilterDTO vendorFilterDTO);
@@ -184,9 +183,9 @@ public interface VendorService {
 	/**
 	 * get vendor list based on parameters
 	 *
-	 * @param startIndex
-	 * @param pageSize
-	 * @param vendorFilterDTO
+	 * @param  startIndex
+	 * @param  pageSize
+	 * @param  vendorFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -195,7 +194,7 @@ public interface VendorService {
 	/**
 	 * get vendor bank detail
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -204,9 +203,9 @@ public interface VendorService {
 	/**
 	 * vendor list for customer app
 	 *
-	 * @param vendorListFilterDTO
-	 * @param pageSize
-	 * @param startIndex
+	 * @param  vendorListFilterDTO
+	 * @param  pageSize
+	 * @param  startIndex
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -231,16 +230,16 @@ public interface VendorService {
 	/**
 	 * change vendor status
 	 *
-	 * @param vendorId
-	 * @param newStatus
+	 * @param  vendorId
+	 * @param  newStatus
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	String changeVendorStatus(Long vendorId, String newStatus) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param activeRecords
-	 * @param httpServletResponse
+	 * @param  activeRecords
+	 * @param  httpServletResponse
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 * @throws ValidationException
@@ -250,8 +249,8 @@ public interface VendorService {
 	/**
 	 * verify vendor contact
 	 *
-	 * @param vendorId
-	 * @param otp
+	 * @param  vendorId
+	 * @param  otp
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -260,8 +259,8 @@ public interface VendorService {
 	/**
 	 * delete vendor image by type
 	 *
-	 * @param vendorId
-	 * @param type
+	 * @param  vendorId
+	 * @param  type
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -270,8 +269,8 @@ public interface VendorService {
 	/**
 	 * set vendor is featured
 	 *
-	 * @param vendorId
-	 * @param active
+	 * @param  vendorId
+	 * @param  active
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -280,7 +279,7 @@ public interface VendorService {
 	/**
 	 * get vendor basic details by id
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -289,7 +288,7 @@ public interface VendorService {
 	/**
 	 * send email for change vendor status
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @throws NotFoundException
 	 */
 	void sendEmailForChangeVendorStatus(Long vendorId) throws NotFoundException;
@@ -297,7 +296,7 @@ public interface VendorService {
 	/**
 	 * vendor count for app list
 	 *
-	 * @param vendorListFilterDTO
+	 * @param  vendorListFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -307,7 +306,7 @@ public interface VendorService {
 	/**
 	 * hesabe payment response for add vendor subscription
 	 *
-	 * @param response
+	 * @param  response
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -317,8 +316,8 @@ public interface VendorService {
 	/**
 	 * get vendor details for app with distance
 	 *
-	 * @param vendorFilterDTO
-	 * @param vendorId
+	 * @param  vendorFilterDTO
+	 * @param  vendorId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -326,8 +325,7 @@ public interface VendorService {
 	VendorResponseDTO getVendorDetailForApp(Long vendorId, VendorListFilterDTO vendorListFilterDTO) throws ValidationException, NotFoundException;
 
 	/**
-	 *
-	 * @param active
+	 * @param  active
 	 * @return
 	 */
 	Long getActiveVendor(boolean active);
@@ -335,10 +333,12 @@ public interface VendorService {
 	/**
 	 * email verification by admin
 	 *
-	 * @param vendorId
+	 * @param  vendorId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	Long verifyEmailByAdmin(Long vendorId) throws ValidationException, NotFoundException;
+
+	Long getAllVendorCount();
 }
