@@ -20,6 +20,7 @@ public final class NotificationMessageConstantsArabic {
 	public static final String USER_TYPE_CUSTOMER = "Customer";
 	public static final String USER_TYPE_DELIVERY_BOY = "Delivery Boy";
 	public static final String USER_TYPE_USER = "User";
+	public static final String USER_TYPE_VENDOR = "Vendor";
 	public static final String EMAIL_VERIFICATION_SUBJECT = "Email Verification Alert!";
 	public static final String THANKS_REGARDS = "Thanks & regards,";
 	public static final String CUSTOMER_SUPPORT_TEAM = "customer support team";
@@ -599,7 +600,6 @@ public final class NotificationMessageConstantsArabic {
 		message.append(", Please Retry the Request");
 		return message.toString();
 	}
-
 
 	public static String welcomeDeliveryBoy(final String applicationName) {
 		StringBuilder message = new StringBuilder();

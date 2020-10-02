@@ -548,7 +548,11 @@ public class SendEmailNotificationComponent {
 					userType = NotificationMessageConstantsArabic.USER_TYPE_DELIVERY_BOY;
 				}
 			} else if (UserType.VENDOR.name().equals(emailNotification.getUserType())) {
-				emailParameterMap.put(USER_TYPE, "Vendor");
+				if (emailNotification.getLanguage().equals("en")) {
+					userType = NotificationMessageConstantsEnglish.USER_TYPE_VENDOR;
+				} else {
+					userType = NotificationMessageConstantsArabic.USER_TYPE_VENDOR;
+				}
 			} else {
 				if (emailNotification.getLanguage().equals("en")) {
 					userType = NotificationMessageConstantsEnglish.USER_TYPE_USER;
