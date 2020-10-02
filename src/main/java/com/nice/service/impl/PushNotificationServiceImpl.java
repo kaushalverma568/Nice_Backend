@@ -109,4 +109,16 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 			pushNotificationRepository.delete(pushNotification);
 		}
 	}
+
+	@Override
+	public Long getTodaysPushNotificationCountForUser() throws NotFoundException, ValidationException {
+		UserLogin userLoginReceiver;
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(userLogin.getEntityType()) && UserType.USER.name().equals(userLogin.getEntityType())) {
+			userLoginReceiver = userLoginService.getSuperAdminLoginDetail();
+		} else {
+			userLoginReceiver = userLogin;
+		}
+		return pushNotificationRepository.countOfTodaysPushNotificationByReceiver(userLoginReceiver.getId());
+	}
 }

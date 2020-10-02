@@ -55,7 +55,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -248,7 +248,8 @@ public class SendPushNotificationComponent {
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
 			DeliveryBoy deliveryBoy;
 			if (DeliveryType.DELIVERY.getStatusValue().equals(orders.getDeliveryType())) {
-				if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(orders.getOrderStatus())) {
+				if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(orders.getOrderStatus())
+						|| OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(orders.getOrderStatus())) {
 					deliveryBoy = orders.getDeliveryBoy();
 					messageEnglish = NotificationMessageConstantsEnglish.regularOrderIsPreparedMessageToDeliveryBoy(
 							orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish(), pushNotificationDTO.getOrderId());
@@ -262,8 +263,7 @@ public class SendPushNotificationComponent {
 							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either
-				 * delivery boy
+				 * here sender will be entity will be vendor and receiver will be either delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -320,8 +320,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -376,8 +375,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -466,7 +464,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -518,7 +516,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -585,7 +583,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -639,7 +637,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -712,7 +710,7 @@ public class SendPushNotificationComponent {
 						messageArabic = NotificationMessageConstantsArabic.getReturnOrderAcceptMessage(pushNotificationDTO.getOrderId());
 					}
 					PushNotification pushNotification = setPushNotification(deliveryBoyId, UserType.DELIVERY_BOY.name(), messageEnglish, messageArabic,
-							Constant.ORDER_MODULE);
+							Constant.ACCEPT_ORDER_MODULE);
 					pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 					if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
 						message = message.append(pushNotification.getMessageEnglish());
@@ -722,7 +720,7 @@ public class SendPushNotificationComponent {
 					notificationObject.addProperty(BODY, message.toString());
 					NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 					notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
-					notificationPayloadDto.setModule(Constant.ORDER_MODULE);
+					notificationPayloadDto.setModule(Constant.ACCEPT_ORDER_MODULE);
 					notificationPayloadDto.setTaskType(pushNotificationDTO.getTaskType());
 					LOGGER.info("Delivery boy accept order notification for delivery boy: {}, order: {} and taskType:{}", deliveryBoyId,
 							pushNotificationDTO.getOrderId(), pushNotificationDTO.getTaskType());
@@ -1071,7 +1069,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * replcae request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1117,7 +1115,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * return request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -1163,7 +1161,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * cancel order by admin send notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */

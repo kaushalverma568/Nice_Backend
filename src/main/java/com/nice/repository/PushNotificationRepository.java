@@ -33,4 +33,13 @@ public interface PushNotificationRepository extends JpaRepository<PushNotificati
 	@Query(value = "select count (total) from (Select pn.* from push_notification pn join push_notification_receiver pnr on pnr.push_notification_id=pn.id where pnr.receiver_id = :receiverId group by (pn.id))as total", nativeQuery = true)
 	Long countOfPushNotificationByReceiver(Long receiverId);
 
+	/**
+	 * Get count of push notification list by receiver id
+	 *
+	 * @param
+	 * @return
+	 */
+	@Query(value = "select count (total) from (Select pn.* from push_notification pn join push_notification_receiver pnr on pnr.push_notification_id=pn.id where pnr.receiver_id = :receiverId and CAST(pnr.created_at as date)= CAST(current_date as date) group by (pn.id))as total", nativeQuery = true)
+	Long countOfTodaysPushNotificationByReceiver(Long receiverId);
+
 }

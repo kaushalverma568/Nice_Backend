@@ -49,4 +49,6 @@ public interface PushNotificationService {
 
 	Long getCountOfPushNotificationForUser() throws NotFoundException, ValidationException;
 
+	Long getTodaysPushNotificationCountForUser() throws NotFoundException, ValidationException;
+
 }

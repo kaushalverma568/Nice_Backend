@@ -66,6 +66,22 @@ public class PushNotificationController {
 	}
 
 	/**
+	 * Get today's count push notification
+	 *
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @return
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	@GetMapping("/count")
+	public ResponseEntity<Object> getTodaysPushNotificationCountForUser(@RequestHeader("Authorization") final String accessToken)
+			throws NotFoundException, ValidationException {
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("notification.list.message", null))
+				.setData(pushNotificationService.getTodaysPushNotificationCountForUser()).create();
+	}
+
+	/**
 	 * Delete push notification by id
 	 *
 	 * @param  accessToken
