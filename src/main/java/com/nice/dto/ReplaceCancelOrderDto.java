@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import lombok.Data;
 
@@ -26,5 +27,6 @@ public class ReplaceCancelOrderDto implements Serializable {
 	@NotNull(message = "{reason.required}")
 	private Long reasonId;
 	@NotBlank(message = "{description.required}")
+	@Size(max = 255, message = "{max.length}")
 	private String description;
 }

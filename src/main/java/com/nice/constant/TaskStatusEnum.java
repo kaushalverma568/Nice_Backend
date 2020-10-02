@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 	/**
@@ -73,16 +73,16 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 		TaskStatusEnum[] nextStatus = null;
 		switch (this) {
 		case ORDER_ACCEPTED:
-			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, RETURN_ON_THE_WAY, DELIVERED };
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, RETURN_ON_THE_WAY, DELIVERED, CANCELLED };
 			break;
 		case PICK_UP_ON_WAY:
-			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER };
+			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER, CANCELLED };
 			break;
 		case REACHED_CUSTOMER:
-			nextStatus = new TaskStatusEnum[] { RETURN_ON_THE_WAY };
+			nextStatus = new TaskStatusEnum[] { RETURN_ON_THE_WAY, CANCELLED };
 			break;
 		case RETURN_ON_THE_WAY:
-			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			nextStatus = new TaskStatusEnum[] { DELIVERED, CANCELLED };
 			break;
 		default:
 			nextStatus = new TaskStatusEnum[] {};
@@ -95,22 +95,22 @@ public enum TaskStatusEnum implements BasicStatus<TaskStatusEnum> {
 		TaskStatusEnum[] nextStatus = null;
 		switch (this) {
 		case ORDER_ACCEPTED:
-			nextStatus = new TaskStatusEnum[] { REPLACE_CUSTOMER_PICKUP_ON_THE_WAY, REPLACE_DELIVERY_ON_THE_WAY, DELIVERED };
+			nextStatus = new TaskStatusEnum[] { REPLACE_CUSTOMER_PICKUP_ON_THE_WAY, REPLACE_DELIVERY_ON_THE_WAY, DELIVERED, CANCELLED };
 			break;
 		case REPLACE_CUSTOMER_PICKUP_ON_THE_WAY:
-			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER };
+			nextStatus = new TaskStatusEnum[] { REACHED_CUSTOMER, CANCELLED };
 			break;
 		case REACHED_CUSTOMER:
-			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY };
+			nextStatus = new TaskStatusEnum[] { PICK_UP_ON_WAY, CANCELLED };
 			break;
 		case PICK_UP_ON_WAY:
-			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR };
+			nextStatus = new TaskStatusEnum[] { REACHED_VENDOR, CANCELLED };
 			break;
 		case REACHED_VENDOR:
-			nextStatus = new TaskStatusEnum[] { REPLACE_DELIVERY_ON_THE_WAY };
+			nextStatus = new TaskStatusEnum[] { REPLACE_DELIVERY_ON_THE_WAY, CANCELLED };
 			break;
 		case REPLACE_DELIVERY_ON_THE_WAY:
-			nextStatus = new TaskStatusEnum[] { DELIVERED };
+			nextStatus = new TaskStatusEnum[] { DELIVERED, CANCELLED };
 			break;
 		default:
 			nextStatus = new TaskStatusEnum[] {};

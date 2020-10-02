@@ -32,7 +32,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 13-Apr-2020
+ * @date : 13-Apr-2020
  */
 @Repository
 public class TaskCustomRepositoryImpl implements TaskCustomRepository {
@@ -254,6 +254,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 	private void addConditionForDeliveryLog(final DeliveryLogFilterDTO deliveryLogFilterDTO, final CriteriaBuilder criteriaBuilder, final Root<Task> task,
 			final List<Predicate> predicates, final Join<Task, Orders> orders) {
+
+		predicates.add(criteriaBuilder.isNotNull(task.get(DELIVERY_BOY)));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryLogFilterDTO.getTaskType())) {
 			predicates.add(criteriaBuilder.equal(task.get("taskType"), deliveryLogFilterDTO.getTaskType()));
 		}

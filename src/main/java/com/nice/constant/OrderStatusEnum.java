@@ -22,6 +22,8 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 	REPLACE_WAITING_FOR_PICKUP(Constant.REPLACE_WAITING_FOR_PICKUP, Constant.RESERVED), REPLACE_ORDER_PICKUP(Constant.REPLACE_ORDER_PICKUP, Constant.RESERVED),
 	REPLACED(Constant.REPLACED, Constant.DELIVERED), CANCELLED(Constant.CANCELLED, Constant.AVAILABLE),
 
+	REPLACE_CANCELLED(Constant.REPLACE_CANCELLED, Constant.AVAILABLE), RETURN_CANCELLED(Constant.RETURN_CANCELLED, Constant.AVAILABLE),
+
 	RETURN_REQUESTED(Constant.RETURN_REQUESTED, Constant.DELIVERED), RETURN_CONFIRMED(Constant.RETURN_CONFIRMED, Constant.DELIVERED),
 	RETURN_REJECTED(Constant.RETURN_REJECTED, Constant.DELIVERED), RETURN_PROCESSED(Constant.RETURN_PROCESSED, Constant.DELIVERED),
 	RETURN_ORDER_PICKUP(Constant.RETURN_ORDER_PICKUP, Constant.DELIVERED), RETURNED(Constant.RETURNED, Constant.RETURNED);
@@ -65,19 +67,19 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { CONFIRMED, CANCELLED, REJECTED };
 			break;
 		case CONFIRMED:
-			nextStatus = new OrderStatusEnum[] { IN_PROCESS };
+			nextStatus = new OrderStatusEnum[] { IN_PROCESS, CANCELLED };
 			break;
 		case IN_PROCESS:
-			nextStatus = new OrderStatusEnum[] { ORDER_IS_PREPARED };
+			nextStatus = new OrderStatusEnum[] { ORDER_IS_PREPARED, CANCELLED };
 			break;
 		case ORDER_IS_PREPARED:
-			nextStatus = new OrderStatusEnum[] { WAITING_FOR_PICKUP };
+			nextStatus = new OrderStatusEnum[] { WAITING_FOR_PICKUP, CANCELLED };
 			break;
 		case WAITING_FOR_PICKUP:
-			nextStatus = new OrderStatusEnum[] { ORDER_PICKED_UP };
+			nextStatus = new OrderStatusEnum[] { ORDER_PICKED_UP, CANCELLED };
 			break;
 		case ORDER_PICKED_UP:
-			nextStatus = new OrderStatusEnum[] { DELIVERED };
+			nextStatus = new OrderStatusEnum[] { DELIVERED, CANCELLED };
 			break;
 		case DELIVERED:
 			nextStatus = new OrderStatusEnum[] { REPLACE_REQUESTED, RETURN_REQUESTED };
@@ -86,31 +88,31 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACE_CONFIRMED, REPLACE_REJECTED };
 			break;
 		case REPLACE_CONFIRMED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_PROCESSED };
+			nextStatus = new OrderStatusEnum[] { REPLACE_PROCESSED, REPLACE_CANCELLED };
 			break;
 		case REPLACE_PROCESSED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PREPARED };
+			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PREPARED, REPLACE_CANCELLED };
 			break;
 		case REPLACE_ORDER_PREPARED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_WAITING_FOR_PICKUP };
+			nextStatus = new OrderStatusEnum[] { REPLACE_WAITING_FOR_PICKUP, REPLACE_CANCELLED };
 			break;
 		case REPLACE_WAITING_FOR_PICKUP:
-			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PICKUP };
+			nextStatus = new OrderStatusEnum[] { REPLACE_ORDER_PICKUP, REPLACE_CANCELLED };
 			break;
 		case REPLACE_ORDER_PICKUP:
-			nextStatus = new OrderStatusEnum[] { REPLACED };
+			nextStatus = new OrderStatusEnum[] { REPLACED, REPLACE_CANCELLED };
 			break;
 		case RETURN_REQUESTED:
 			nextStatus = new OrderStatusEnum[] { RETURN_CONFIRMED, RETURN_REJECTED };
 			break;
 		case RETURN_CONFIRMED:
-			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED };
+			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED, RETURN_CANCELLED };
 			break;
 		case RETURN_PROCESSED:
-			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PICKUP, RETURNED };
+			nextStatus = new OrderStatusEnum[] { RETURN_ORDER_PICKUP, RETURNED, RETURN_CANCELLED };
 			break;
 		case RETURN_ORDER_PICKUP:
-			nextStatus = new OrderStatusEnum[] { RETURNED };
+			nextStatus = new OrderStatusEnum[] { RETURNED, RETURN_CANCELLED };
 			break;
 		default:
 			nextStatus = new OrderStatusEnum[] {};

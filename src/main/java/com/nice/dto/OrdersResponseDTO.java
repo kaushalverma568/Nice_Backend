@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class OrdersResponseDTO implements Serializable {
@@ -34,8 +34,6 @@ public class OrdersResponseDTO implements Serializable {
 	private String orderStatus;
 	private Date createdAt;
 	private Date deliveryDate;
-	private Date replacementDate;
-	private Date replacementReqDate;
 	private String vendorName;
 	private String address;
 	private Double deliveryCharge;
@@ -70,6 +68,9 @@ public class OrdersResponseDTO implements Serializable {
 	private String replacementDeliveryBoyPhoneNumber;
 
 	private String cancelReturnReplaceDescription;
+
+	private String returnReplaceRequestCancelRejectDescription;
+	private String returnReplaceRequestReason;
 	/**
 	 * city field is added for set city in email templates
 	 */

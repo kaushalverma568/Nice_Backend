@@ -113,8 +113,22 @@ public class Orders extends CommonModel {
 	@JoinColumn(name = "return_replace_cancel_reject_reason_id", nullable = true)
 	private TicketReason returnReplaceReason;
 
+	/**
+	 * This field contains the reason for which the normal deliver order, is cancelled or rejected or replace(requested) or
+	 * returned(requested)
+	 */
 	@Column(name = "cancel_return_replace_description", nullable = true)
 	private String cancelReturnReplaceDescription;
+
+	/**
+	 * This field contains the reason for which the replace/return requests are cancelled/rejected for/by the user.
+	 */
+	@Column(name = "return_replace_request_cancel_reject_description", nullable = true)
+	private String returnReplaceRequestCancelRejectDescription;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+	@JoinColumn(name = "return_replace_request_cancel_reject_reason_id", nullable = true)
+	private TicketReason returnReplaceRequestReason;
 
 	@Column(name = "description", nullable = true)
 	private String description;

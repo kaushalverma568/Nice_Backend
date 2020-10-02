@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 17-Jun-2020
+ * @date : 17-Jun-2020
  */
 public final class Constant {
 
@@ -99,6 +99,8 @@ public final class Constant {
 	public static final String RETURN_REJECTED = "Return Rejected";
 	public static final String RETURN_PROCESSED = "Return Processed";
 	public static final String RETURN_ORDER_PICKUP = "Return Order Picked Up";
+	public static final String REPLACE_CANCELLED = "Replace Cancelled";
+	public static final String RETURN_CANCELLED = "Return Cancelled";
 
 	public static final String ORDER_IS_PREPARED = "Order Is Prepared";
 	public static final String ORDER_PICKED_UP = "Order Picked Up";

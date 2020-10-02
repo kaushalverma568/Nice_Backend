@@ -50,7 +50,7 @@ import com.nice.util.PaginationUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @RequestMapping(path = "/order")
 @RestController
@@ -73,9 +73,9 @@ public class OrdersController {
 	private MessageByLocaleService messageByLocaleService;
 
 	/**
-	 * @param  token
-	 * @param  orderRequestDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param orderRequestDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -111,10 +111,10 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  orderListFilterDto
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param orderListFilterDto
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -147,9 +147,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param  accessToken
-	 * @param  orderListFilterDto
-	 * @param  httpServletResponse
+	 * @param accessToken
+	 * @param orderListFilterDto
+	 * @param httpServletResponse
 	 * @return
 	 * @throws IOException
 	 * @throws ValidationException
@@ -165,8 +165,8 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  orderId
+	 * @param token
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -182,9 +182,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -212,9 +212,9 @@ public class OrdersController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -242,13 +242,59 @@ public class OrdersController {
 				.create();
 	}
 
+	@PostMapping("/admin/replace/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
+	public ResponseEntity<Object> cancelReplaceReturnOrderAdmin(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method of Admin");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR,
+				replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,
+				replaceCancelOrderDto.getOrderId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
+		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_DELIVERY_BOY,
+				replaceCancelOrderDto.getOrderId());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
+	@PostMapping("/replace/cancel")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
+	public ResponseEntity<Object> cancelReplaceReturnOrder(@RequestHeader("Authorization") final String token,
+			@Valid @RequestBody final ReplaceCancelOrderDto replaceCancelOrderDto, final BindingResult bindingResult)
+			throws ValidationException, NotFoundException {
+		LOGGER.info("Inside the cancel order method");
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
+		}
+
+		Orders order = orderService.getOrderById(replaceCancelOrderDto.getOrderId());
+		if (!(OrderStatusEnum.REPLACE_REQUESTED.getStatusValue().equals(order.getOrderStatus())
+				|| OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(order.getOrderStatus()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("only.pending.order.cancel", null));
+		}
+		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto);
+		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, order.getId());
+		orderService.sendEmailNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_EMAIL_NOTIFICATION_CUSTOMER, order.getId());
+		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("cancel.order.success", null)).setStatus(HttpStatus.OK)
+				.create();
+	}
+
 	/**
 	 * replace order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -275,10 +321,10 @@ public class OrdersController {
 	/**
 	 * return order
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  replaceCancelOrderDto
-	 * @param  bindingResult
+	 * @param token
+	 * @param userId
+	 * @param replaceCancelOrderDto
+	 * @param bindingResult
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -306,10 +352,10 @@ public class OrdersController {
 	 * Change status of order </br>
 	 * This API is useful for CONFIRMED,REJECT,ORDER_IS_READY,RETURN_PROCESSED,REPLACE-PROCESSED
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  orderId
-	 * @param  active
+	 * @param accessToken
+	 * @param userId
+	 * @param orderId
+	 * @param active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -361,8 +407,8 @@ public class OrdersController {
 	/**
 	 * Retry for searching delivery boys for assignment of order
 	 *
-	 * @param  accessToken
-	 * @param  orderId
+	 * @param accessToken
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -381,9 +427,9 @@ public class OrdersController {
 	 * refund would be made automatically, for other type of cancelled order (Cancelled By Customer/Rejected by Vendor)
 	 * refund would be made automatically if the payment mode is not COD
 	 *
-	 * @param  accessToken
-	 * @param  orderId
-	 * @param  amount
+	 * @param accessToken
+	 * @param orderId
+	 * @param amount
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -411,8 +457,8 @@ public class OrdersController {
 	 * This method will only be used to deliver pickup type order by vendor, for all other orders the delivery would be done
 	 * by delivery boy.
 	 *
-	 * @param  token
-	 * @param  orderId
+	 * @param token
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -431,7 +477,7 @@ public class OrdersController {
 	/**
 	 * Gives the details of current ongoing orders for a customer.
 	 *
-	 * @param  token
+	 * @param token
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
