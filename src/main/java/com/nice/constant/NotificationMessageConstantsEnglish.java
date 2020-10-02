@@ -55,7 +55,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getReturnOrderAcceptMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("You have new Return order Request to accept with Order ID").append(orderId.toString());
+		message = message.append("You have new Return order Request to accept with Order no. ").append(orderId.toString());
 		return message.toString();
 	}
 
@@ -65,7 +65,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getReplaceOrderAcceptMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message = message.append(" You have new Replacement order Request to accept with order ID").append(orderId.toString());
+		message = message.append(" You have new Replacement order Request to accept with order no. ").append(orderId.toString());
 		return message.toString();
 	}
 
@@ -95,7 +95,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String replaceOrderIsPreparedMessageToDeliveryBoy(final String vendorName, final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Your Replacement order ").append(orderId).append(" is prepared,Please collect from the vendor ").append(vendorName);
+		message = message.append("Your Replacement order no. ").append(orderId).append(" is prepared,Please collect from the vendor ").append(vendorName);
 		return message.toString();
 	}
 
@@ -164,7 +164,8 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getCreateOrderMessage(final Long orderId, final Double orderAmount) {
 		StringBuilder message = new StringBuilder();
-		message.append("Congratulations! Your order ").append(orderId).append(" worth ").append(orderAmount).append(" has been placed successfully.");
+		message.append("Congratulations! Your order no.").append(orderId).append(" for total payable amount ").append(orderAmount)
+				.append(" has been placed successfully.");
 		return message.toString();
 	}
 
@@ -177,7 +178,7 @@ public final class NotificationMessageConstantsEnglish {
 		if (cancelByCustomer) {
 			message.append("You have cancelled an order ").append(orderId).append(". If it is cancelled by mistake please place the order again.");
 		} else {
-			message.append("Your order ").append(orderId).append("is cancelled by admin, sorry for disappointment.");
+			message.append("Your order no. ").append(orderId).append("is cancelled by admin, sorry for disappointment.");
 		}
 
 		return message.toString();
@@ -231,7 +232,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getRejectedOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Sorry! Your order ").append(orderId)
+		message.append("Sorry! Your order no. ").append(orderId)
 				.append(" has been rejected by vendor. If you have paid for the order online the amount would be refunded your nice wallet");
 		return message.toString();
 	}
@@ -242,7 +243,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String replaceRequestInitiated(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("You have received replacement request for the order id : ").append(orderId.toString());
+		message.append("You have received replacement request for the order no. : ").append(orderId.toString());
 		return message.toString();
 	}
 
@@ -252,7 +253,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String returnRequestInitiated(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("You have received return request for the order id : ").append(orderId.toString());
+		message.append("You have received return request for the order no. : ").append(orderId.toString());
 		return message.toString();
 	}
 
@@ -262,13 +263,13 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String cancelOrderByAdmin(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("order ").append(orderId.toString()).append(" has cancel by admin,Sorry for disappointment");
+		message.append("Your order no. ").append(orderId.toString()).append(" has cancel by admin,Sorry for disappointment");
 		return message.toString();
 	}
 
 	public static String cancelOrderByAdminForDeliveryBoy(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Your accepted order is cancel by the admin with order ID ").append(orderId);
+		message = message.append("Your accepted order is cancel by the admin with order no ").append(orderId);
 		return message.toString();
 	}
 
@@ -287,8 +288,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String profileSuspendedForCustomer() {
 		StringBuilder message = new StringBuilder();
-		message.append("Your Customer account on ").append("Nice").append(" has been temporarily  suspended for violating the terms and conditions of ")
-				.append("Nice");
+		message.append("Your Customer account on Nice has been temporarily  suspended for violating the terms and conditions of Nice");
 		return message.toString();
 	}
 
@@ -392,7 +392,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String placeOrderMessage(final Long orderId, final Double amount) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your Order with Order no ").append(orderId).append(" worth total amount ").append(amount)
+		message.append("Your Order with Order no ").append(orderId).append(" with payable amount ").append(amount)
 				.append(" has been received by the vendor. It will be processed shortly.");
 		return message.toString();
 	}
@@ -456,7 +456,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String cancelOrderMessage(final Long orderId) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your order ").append(orderId).append(" has been cancelled. Please order again if it is cancelled by mistake.")
+		message.append("Your order no ").append(orderId).append(" has been cancelled. If it is cancelled by mistake, please place the order again.")
 				.append("If you have paid the amount online it would be refunded in your Nice wallet. You can use this amount for next purchase.");
 		return message.toString();
 	}
