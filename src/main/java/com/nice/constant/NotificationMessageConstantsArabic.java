@@ -513,7 +513,7 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String sendOtpSubject(final String applicationName) {
 		StringBuilder message = new StringBuilder();
-		message.append(applicationName).append(" : OTP");
+		message.append(applicationName).append(" : OTP for verification");
 		return message.toString();
 	}
 
@@ -578,6 +578,12 @@ public final class NotificationMessageConstantsArabic {
 	public static String getResetPasswordInsructionMessage() {
 		StringBuilder message = new StringBuilder();
 		message = message.append("Do not ignore this message or else your password will not be changed.");
+		return message.toString();
+	}
+
+	public static String getOTPMessage() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Your one time password to proceed with verification");
 		return message.toString();
 	}
 }
