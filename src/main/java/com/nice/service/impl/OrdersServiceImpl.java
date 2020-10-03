@@ -1646,9 +1646,19 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (!PaymentMode.COD.name().equals(orders.getPaymentMode()) && autoRefund) {
 			/**
-			 * this means the refund is to be made to customer wallet after deducting the charges from the order
+			 * this means the refund is to be made to customer wallet without deducting the charges
 			 */
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
+			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
+			/**
+			 * make an entry in wallet txn
+			 */
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
+		} else if (orders.getWalletContribution() != 0 && autoRefund) {
+			/**
+			 * this means the refund is to be made to customer wallet without deducting the charges
+			 */
+			Double amountToBeCredited = orders.getWalletContribution();
 			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
 			/**
 			 * make an entry in wallet txn
@@ -1842,6 +1852,15 @@ public class OrdersServiceImpl implements OrdersService {
 			 * make an entry in wallet txn
 			 */
 			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
+		} else if (orders.getWalletContribution() != 0) {
+			Double amountToBeCredited = orders.getWalletContribution();
+			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
+
+			customerService.updateWalletBalance(amountToBeCredited + existingWalletAmt, orders.getCustomer().getId());
+			/**
+			 * make an entry in wallet txn
+			 */
+			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
 		}
 	}
 
@@ -1952,15 +1971,16 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		Double amount = Double.sum(Double.sum(refundAmountDto.getAdminContribution(), refundAmountDto.getVendorContribution()),
 				refundAmountDto.getDeliveryBoyContribution());
+		Double totalOrderAmount;
 		if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
-			throw new ValidationException(messageByLocaleService.getMessage("COD.orders.not.refunded", null));
+			totalOrderAmount = orders.getWalletContribution();
+		} else {
+			totalOrderAmount = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 		}
-
-		Double totalOrderAmount = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 
 		if (amount.compareTo(0.0d) == 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("refund.amount.non.zero", new Object[] { totalOrderAmount }));
-		} else if (Math.abs(amount) > totalOrderAmount.doubleValue()) {
+		} else if (amount > totalOrderAmount.doubleValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("max.refund.amount", new Object[] { totalOrderAmount }));
 		}
 
