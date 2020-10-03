@@ -106,4 +106,7 @@ public class Task extends CommonModel {
 
 	@Column(name = "amount_borne_by_vendor", nullable = true)
 	private Double amountBorneByVendor;
+	
+	@Column(name = "admin_commission_rate")
+	private Double adminCommissionRate;
 }

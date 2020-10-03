@@ -44,10 +44,37 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 	private UserLoginService userLoginService;
 
 	@Override
-	public void addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
+	public DeviceDetail addUpdateDeviceDetail(final DeviceDetailDTO deviceDetailDTO) throws NotFoundException {
+
+		Optional<UserLogin> userLogin = userLoginService.getUserLogin(deviceDetailDTO.getUserId());
+		if (!userLogin.isPresent()) {
+			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { deviceDetailDTO.getUserId() }));
+		}
 		/**
-		 * Delete device details by deviceId first and then add new device. This is to ensure that one device is not associated
-		 * with multiple users.
+		 * Check same deviceId for same user then no need to change anything and return
+		 */
+		Optional<DeviceDetail> optDeviceDetails = deviceDetailRepository.findByDeviceIdAndUserLogin(deviceDetailDTO.getDeviceId(), userLogin.get());
+		if (optDeviceDetails.isPresent()) {
+			return optDeviceDetails.get();
+		}
+		/**
+		 * Check same user, and unique id if available then update that device against
+		 * that user and unique id and return
+		 */
+		if (deviceDetailDTO.getUniqueDeviceId() != null) {
+			Optional<DeviceDetail> optUniqueDeviceDetails = deviceDetailRepository.findByUniqueDeviceIdAndUserLogin(deviceDetailDTO.getUniqueDeviceId(),
+					userLogin.get());
+			if (optUniqueDeviceDetails.isPresent()) {
+				DeviceDetail deviceDetail = optUniqueDeviceDetails.get();
+				deviceDetail.setDeviceId(deviceDetailDTO.getDeviceId());
+				deviceDetailRepository.save(deviceDetail);
+				return deviceDetail;
+			}
+		}
+		/**
+		 * Delete device details by deviceId first and then add new device. This is to
+		 * ensure that one device is not associated with multiple users. this is the
+		 * case when admin login and vendor login on same browser
 		 */
 		deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
 
@@ -57,13 +84,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 		LOGGER.info("inside update device detail for user {} and deviceid {}", deviceDetailDTO.getUserId(), deviceDetailDTO.getDeviceId());
 		DeviceDetail deviceDetail = deviceDetailMapper.toEntity(deviceDetailDTO);
-		Optional<UserLogin> userLogin = userLoginService.getUserLogin(deviceDetailDTO.getUserId());
-		if (userLogin.isPresent()) {
-			deviceDetail.setUserLogin(userLogin.get());
-		} else {
-			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { deviceDetailDTO.getUserId() }));
-		}
-		deviceDetailRepository.save(deviceDetail);
+
+		deviceDetail.setUserLogin(userLogin.get());
+		return deviceDetailRepository.save(deviceDetail);
 	}
 
 	@Override

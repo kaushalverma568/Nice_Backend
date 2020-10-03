@@ -20,9 +20,10 @@ public interface DeviceDetailService {
 	 *
 	 * @param  deviceDetailDTO
 	 * @param  userId
+	 * @return
 	 * @throws NotFoundException
 	 */
-	void addUpdateDeviceDetail(DeviceDetailDTO deviceDetailDTO) throws NotFoundException;
+	DeviceDetail addUpdateDeviceDetail(DeviceDetailDTO deviceDetailDTO) throws NotFoundException;
 
 	/**
 	 * get device detail by id

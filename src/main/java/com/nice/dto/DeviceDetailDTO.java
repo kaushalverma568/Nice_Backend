@@ -13,6 +13,7 @@ public class DeviceDetailDTO {
 	private Long id;
 	@NotNull(message = "{device.id.not.null}")
 	private String deviceId;
+	private String uniqueDeviceId;
 	@NotNull(message = "{user.type.not.null}")
 	private String userType;
 	@NotNull(message = "{user.id.not.null}")

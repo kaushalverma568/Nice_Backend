@@ -37,6 +37,9 @@ public class DeviceDetail extends CommonModel {
 	@Column(name = "device_id", nullable = false)
 	private String deviceId;
 
+	@Column(name = "unique_device_id")
+	private String uniqueDeviceId;
+
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private UserLogin userLogin;

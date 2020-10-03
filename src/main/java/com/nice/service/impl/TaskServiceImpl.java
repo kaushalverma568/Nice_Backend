@@ -12,8 +12,6 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -72,7 +70,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -86,8 +84,6 @@ public class TaskServiceImpl implements TaskService {
 	private static final String ORDER_ID = "Order Id";
 
 	private static final String INVALID_TASK_STATUS = "invalid.task.status";
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
 
 	/**
 	 *
@@ -163,6 +159,11 @@ public class TaskServiceImpl implements TaskService {
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
+
+		if (!TaskTypeEnum.DELIVERY.getTaskValue().equals(taskDto.getTaskType())) {
+			List<Task> taskList = getTaskListForOrderId(taskDto.getOrderId());
+			adminCommisionRate = taskList.get(0).getAdminCommissionRate();
+		}
 		/**
 		 * Here order total amount would be the combination of wallet contribution and
 		 * amount paid by the customer
@@ -229,6 +230,7 @@ public class TaskServiceImpl implements TaskService {
 			task.setActive(true);
 			task.setVendorPayableAmt(vendorPayableAmt);
 			task.setAdminCommission(adminCommissionAmt);
+			task.setAdminCommissionRate(adminCommisionRate);
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
@@ -511,7 +513,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
