@@ -800,8 +800,9 @@ public class SendPushNotificationComponent {
 			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
 			if (deviceDetailList.isPresent()) {
 				String messageEnglish = NotificationMessageConstantsEnglish.getCreateOrderMessage(pushNotificationDTO.getOrderId(),
-						order.getTotalOrderAmount());
-				String messageArabic = NotificationMessageConstantsArabic.getCreateOrderMessage(pushNotificationDTO.getOrderId(), order.getTotalOrderAmount());
+						Double.sum(order.getGrossOrderAmount(), order.getDeliveryCharge()));
+				String messageArabic = NotificationMessageConstantsArabic.getCreateOrderMessage(pushNotificationDTO.getOrderId(),
+						Double.sum(order.getGrossOrderAmount(), order.getDeliveryCharge()));
 				PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 						messageArabic, Constant.ORDER_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);

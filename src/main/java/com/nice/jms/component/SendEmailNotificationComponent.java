@@ -52,7 +52,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 29-Jun-2020
+ * @date : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -146,7 +146,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param  notification
+	 * @param notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -939,7 +939,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 			emailParameterMap.put(APPLICATION_NAME, applicationNameEn);
 			subject = NotificationMessageConstantsEnglish.placeOrderSubject(orders.getId());
-			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
+			message = NotificationMessageConstantsEnglish.placeOrderMessage(orders.getId(),
+					Double.sum(orders.getGrossOrderAmount(), orders.getDeliveryCharge()));
 			thankyouMessage = NotificationMessageConstantsEnglish.thankYouForShopping();
 			emailParameterMap.put("dear", NotificationMessageConstantsEnglish.DEAR);
 		} else {
@@ -950,7 +951,8 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(APPLICATION_NAME, applicationNameFr);
 			emailParameterMap.put("dear", NotificationMessageConstantsArabic.DEAR);
 			subject = NotificationMessageConstantsArabic.placeOrderSubject(orders.getId());
-			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(), orders.getTotalOrderAmount());
+			message = NotificationMessageConstantsArabic.placeOrderMessage(orders.getId(),
+					Double.sum(orders.getGrossOrderAmount(), orders.getDeliveryCharge()));
 			thankyouMessage = NotificationMessageConstantsArabic.thankYouForShopping();
 		}
 		CompanyResponseDTO company = companyService.getCompany(false);
