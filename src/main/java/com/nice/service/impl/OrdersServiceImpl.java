@@ -594,15 +594,15 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
-		return customerAddress.getStreetNo().concat(", ").concat(customerAddress.getBuildingName()).concat(", ").concat(customerAddress.getArea()).concat(", ")
-				.concat(customerAddress.getCity().getNameEnglish()).concat(", ").concat(customerAddress.getPincode().getCodeValue()).concat(", ")
-				.concat(customerAddress.getState().getNameEnglish());
+		return customerAddress.getBlock().concat(", ").concat(customerAddress.getBuildingName()).concat(", ").concat(customerAddress.getStreetNo()).concat(", ")
+				.concat(customerAddress.getArea()).concat(", ").concat(customerAddress.getCity().getNameEnglish()).concat(", ")
+				.concat(customerAddress.getPincode().getCodeValue()).concat(", ").concat(customerAddress.getState().getNameEnglish());
 	}
 
 	private String makeCustomerAddressArabic(final CustomerAddress customerAddress) {
-		return customerAddress.getStreetNo().concat(", ").concat(customerAddress.getBuildingName()).concat(", ").concat(customerAddress.getArea()).concat(", ")
-				.concat(customerAddress.getCity().getNameArabic()).concat(", ").concat(customerAddress.getPincode().getCodeValue()).concat(", ")
-				.concat(customerAddress.getState().getNameArabic());
+		return customerAddress.getBlock().concat(", ").concat(customerAddress.getBuildingName()).concat(", ").concat(customerAddress.getStreetNo())
+				.concat(customerAddress.getArea()).concat(", ").concat(customerAddress.getCity().getNameArabic()).concat(", ")
+				.concat(customerAddress.getPincode().getCodeValue()).concat(", ").concat(customerAddress.getState().getNameArabic());
 	}
 
 	@Override
