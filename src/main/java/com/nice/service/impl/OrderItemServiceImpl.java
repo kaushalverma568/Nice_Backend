@@ -6,7 +6,6 @@ package com.nice.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.constant.AssetConstant;
 import com.nice.dto.CategoryResponseDTO;
-import com.nice.dto.OrderAddonsDTO;
-import com.nice.dto.OrderExtrasDto;
 import com.nice.dto.OrderItemResponseDTO;
-import com.nice.dto.OrderProductAttributeValueDTO;
-import com.nice.dto.OrderToppingsDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -39,7 +34,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 @Service(value = "orderItemService")
 @Transactional(rollbackFor = Throwable.class)
@@ -121,7 +116,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	}
 
 	/**
-	 * @param  orderItem
+	 * @param orderItem
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -156,24 +151,19 @@ public class OrderItemServiceImpl implements OrderItemService {
 		boolean isExtrasAvailalbe = false;
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItemResponseDTO.getOrderAddonsDtoList())) {
 			isExtrasAvailalbe = true;
-			totalOrderItemAmount += orderItemResponseDTO.getOrderAddonsDtoList().stream().collect(Collectors.summingDouble(OrderAddonsDTO::getAmount));
 		}
 		orderItemResponseDTO.setOrderExtraDtoList(orderExtrasService.getOrderExtrasListForOrderItem(orderItem.getId()));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItemResponseDTO.getOrderExtraDtoList())) {
 			isExtrasAvailalbe = true;
-			totalOrderItemAmount += orderItemResponseDTO.getOrderExtraDtoList().stream().collect(Collectors.summingDouble(OrderExtrasDto::getAmount));
 		}
 		orderItemResponseDTO
 				.setOrderProductAttributeValueDtoList(orderProductAttributeValueService.getOrderProductAttributeValueListForOrderItem(orderItem.getId()));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItemResponseDTO.getOrderProductAttributeValueDtoList())) {
 			isExtrasAvailalbe = true;
-			totalOrderItemAmount += orderItemResponseDTO.getOrderProductAttributeValueDtoList().stream()
-					.collect(Collectors.summingDouble(OrderProductAttributeValueDTO::getAmount));
 		}
 		orderItemResponseDTO.setOrderToppingsDtoList(orderToppingsService.getOrderToppingsListForOrderItem(orderItem.getId()));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(orderItemResponseDTO.getOrderToppingsDtoList())) {
 			isExtrasAvailalbe = true;
-			totalOrderItemAmount += orderItemResponseDTO.getOrderToppingsDtoList().stream().collect(Collectors.summingDouble(OrderToppingsDto::getAmount));
 		}
 		orderItemResponseDTO.setIsExtrasAvailalbe(isExtrasAvailalbe);
 		orderItemResponseDTO.setTotalOrderItemAmount(totalOrderItemAmount);
