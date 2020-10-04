@@ -35,9 +35,10 @@ public class CheckOutController {
 
 	@GetMapping()
 	public ResponseEntity<Object> checkout(@RequestHeader("Authorization") final String accessToken, @RequestParam(required = true) final String deliveryType,
-			@RequestParam(required = true) final Boolean useWallet) throws ValidationException, NotFoundException {
+			@RequestParam(required = true) final Boolean useWallet, @RequestParam(required = false) final Long shippingAddressId)
+			throws ValidationException, NotFoundException {
 
-		CheckOutDTO checkOutDto = checkOutService.getCheckOutPageDetails(deliveryType, useWallet);
+		CheckOutDTO checkOutDto = checkOutService.getCheckOutPageDetails(deliveryType, useWallet, shippingAddressId);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(checkOutDto)
 				.setMessage(messageByLocaleService.getMessage("check.out.details.displayed", null)).create();
 	}

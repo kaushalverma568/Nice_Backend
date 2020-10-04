@@ -229,7 +229,6 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		orderService.cancelOrder(replaceCancelOrderDto, false);
-		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR,
 				replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,
@@ -275,7 +274,6 @@ public class OrdersController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		orderService.cancelReturnReplaceOrder(replaceCancelOrderDto, OrderStatusEnum.RETURN_CANCELLED.getStatusValue());
-		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_CUSTOMER, replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationToVendorOrDeliveryBoy(NotificationQueueConstants.CANCEL_ORDER_PUSH_NOTIFICATION_VENDOR,
 				replaceCancelOrderDto.getOrderId());
 		orderService.sendPushNotificationForOrder(NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER,

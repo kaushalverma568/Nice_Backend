@@ -713,6 +713,10 @@ public class OrdersServiceImpl implements OrdersService {
 		order.setWalletContribution(orderRequestDto.getWalletContribution());
 		if (calculatedOrderAmt == 0.0d) {
 			order.setPaymentMode(PaymentMode.WALLET.name());
+			/**
+			 * This is done so that while placing order details are picked up from normal cart table and not online cart.
+			 */
+			orderRequestDto.setPaymentMode(PaymentMode.WALLET.name());
 		}
 
 		/**
@@ -896,10 +900,10 @@ public class OrdersServiceImpl implements OrdersService {
 			addWalletTxn(orderRequestDto.getWalletContribution() * -1, orderRequestDto.getCustomerId(), order.getId(), null,
 					WalletTransactionTypeEnum.PAYMENT.name());
 			/**
-			 * Set updated wallet balance
+			 * Set updated wallet balance, the amount should be deducated from wallet and hence the contribution is multiplied with
+			 * -1 and sent to update customer wallet balance
 			 */
-			Double updatedWalletBalance = customer.getWalletAmt() - orderRequestDto.getWalletContribution();
-			customerService.updateWalletBalance(updatedWalletBalance, customer.getId());
+			customerService.updateWalletBalance(orderRequestDto.getWalletContribution() * (-1), customer.getId());
 		}
 
 		for (OrdersItem orderItem : orderItemList) {
@@ -1845,18 +1849,14 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (!PaymentMode.COD.name().equals(orders.getPaymentMode())) {
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
-			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
-
-			customerService.updateWalletBalance(amountToBeCredited + existingWalletAmt, orders.getCustomer().getId());
+			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
 			/**
 			 * make an entry in wallet txn
 			 */
 			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
 		} else if (orders.getWalletContribution() != 0) {
 			Double amountToBeCredited = orders.getWalletContribution();
-			Double existingWalletAmt = orders.getCustomer().getWalletAmt();
-
-			customerService.updateWalletBalance(amountToBeCredited + existingWalletAmt, orders.getCustomer().getId());
+			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
 			/**
 			 * make an entry in wallet txn
 			 */

@@ -16,9 +16,10 @@ public interface CheckOutService {
 	/**
 	 * @param deliveryType
 	 * @param useWallet
+	 * @param shippingAddressId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	CheckOutDTO getCheckOutPageDetails(String deliveryType, Boolean useWallet) throws NotFoundException, ValidationException;
+	CheckOutDTO getCheckOutPageDetails(String deliveryType, Boolean useWallet, Long shippingAddressId) throws NotFoundException, ValidationException;
 
 }

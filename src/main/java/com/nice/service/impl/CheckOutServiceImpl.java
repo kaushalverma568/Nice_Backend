@@ -12,15 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.DeliveryType;
+import com.nice.dto.CartItemResponseDTO;
 import com.nice.dto.CheckOutDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.locale.MessageByLocaleService;
 import com.nice.model.CartItem;
+import com.nice.model.CustomerAddress;
 import com.nice.model.UserLogin;
+import com.nice.model.Vendor;
 import com.nice.service.CartItemService;
 import com.nice.service.CheckOutService;
+import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
 import com.nice.service.OrdersService;
+import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -39,14 +45,37 @@ public class CheckOutServiceImpl implements CheckOutService {
 	@Autowired
 	private CustomerService customerService;
 
+	@Autowired
+	private CustomerAddressService customerAddressService;
+
+	@Autowired
+	private VendorService vendorService;
+
+	@Autowired
+	private MessageByLocaleService messageByLocaleService;
+
 	@Override
-	public CheckOutDTO getCheckOutPageDetails(final String deliveryType, final Boolean useWallet) throws NotFoundException, ValidationException {
+	public CheckOutDTO getCheckOutPageDetails(final String deliveryType, final Boolean useWallet, final Long shippingAddressId)
+			throws NotFoundException, ValidationException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		CheckOutDTO checkOutDto = new CheckOutDTO();
 		checkOutDto.setDeliveryCharge(0.0d);
 		checkOutDto.setWalletContribution(0.0d);
-		checkOutDto.setCartItemResponseList(cartItemService.getCartItemDetailList());
+		List<CartItemResponseDTO> cartItemResponseDTOList = cartItemService.getCartItemDetailList();
+
+		checkOutDto.setCartItemResponseList(cartItemResponseDTOList);
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(userLogin.getEntityId());
+		/**
+		 * Check if vendor delivery to this city, if not throw an error.
+		 */
+		if (shippingAddressId != null) {
+			CustomerAddress customerAddress = customerAddressService.getAddressDetails(shippingAddressId);
+			Vendor vendor = vendorService.getVendorDetail(cartItemResponseDTOList.get(0).getVendorId());
+			if (customerAddress.getCity().getId().compareTo(vendor.getCity().getId()) != 0) {
+				throw new ValidationException(messageByLocaleService.getMessage("donot.deliver.address", null));
+			}
+		}
+
 		/**
 		 * Calculate the total order amount for checkout
 		 */
