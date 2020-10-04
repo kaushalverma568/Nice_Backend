@@ -61,7 +61,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -266,8 +266,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  resultCustomer
+	 * @param userLogin
+	 * @param resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -327,8 +327,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -355,8 +355,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {
@@ -516,7 +516,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void updateWalletBalance(final Double amount, final Long customerId) throws NotFoundException {
 		Customer customer = getCustomerDetails(customerId);
-		customer.setWalletAmt(amount);
+		customer.setWalletAmt(Double.sum(customer.getWalletAmt(), amount));
 		customerRepository.save(customer);
 	}
 
