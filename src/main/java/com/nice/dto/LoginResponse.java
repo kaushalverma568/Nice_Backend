@@ -64,4 +64,8 @@ public class LoginResponse implements Serializable {
 	private Boolean canChangePassword;
 
 	private String preferredLanguage;
+
+	private Boolean emailVerified;
+
+	private Boolean phoneVerified;
 }
