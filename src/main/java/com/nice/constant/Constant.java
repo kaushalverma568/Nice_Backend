@@ -176,6 +176,7 @@ public final class Constant {
 	public static final String TICKET_MODULE = "Tickets";
 	public static final String VENDOR_MODULE = "Vendor";
 	public static final String PAYOUT_MODULE = "Payout";
+	public static final String CUSTOMER = "Customer";
 
 	public static final Long LOW_STOCK_LIMIT = 10L;
 

@@ -30,7 +30,7 @@ import com.nice.service.PaymentService;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date   : 13-07-2020
+ * @date : 13-07-2020
  */
 
 @RequestMapping(path = "/payment")
@@ -89,15 +89,8 @@ public class PaymentController {
 			msg = e.getMessage();
 		}
 		if (orderId.compareTo(0l) != 0) {
-			/**
-			 * Send Push Notification for order placed
-			 */
-			paymentService.sendPushNotificationForPlacedOrder(NotificationQueueConstants.PLACE_ORDER_PUSH_NOTIFICATION_CUSTOMER, orderId);
-
-//			return new ModelAndView(REDIRECT + adminUrl + "auth/thank-you?message=" + URLEncoder.encode(msg, "UTF-8") + "'&type=" + SuccessErrorType.PAYMENT);
 			return new ModelAndView(REDIRECT + staticUrl + "success");
 		} else {
-//			return new ModelAndView(REDIRECT + adminUrl + "auth/error?message=" + URLEncoder.encode(msg, "UTF-8") + " &type=" + SuccessErrorType.PAYMENT);
 			return new ModelAndView(REDIRECT + staticUrl + "error");
 		}
 	}

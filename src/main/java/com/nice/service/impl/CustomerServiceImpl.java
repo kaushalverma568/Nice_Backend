@@ -518,7 +518,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void sendPushNotification(final String deactiveCustomerNotification, final Long customerId) {
 		PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
-		pushNotificationDTO.setModule(Constant.DELIVERY_BOY_MODULE);
+		pushNotificationDTO.setModule(Constant.CUSTOMER);
 		pushNotificationDTO.setCustomerId(customerId);
 		pushNotificationDTO.setType(deactiveCustomerNotification);
 		jmsQueuerService.sendPushNotification(NotificationQueueConstants.GENERAL_PUSH_NOTIFICATION_QUEUE, pushNotificationDTO);

@@ -473,9 +473,14 @@ public final class NotificationMessageConstantsEnglish {
 	 * @param  concat
 	 * @return
 	 */
-	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName) {
+	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
+		if (orderStatus.equals("DELVIERY")) {
+			message.append("Your").append(" order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
+		} else {
+			message.append("Your").append(orderStatus).append(" order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
+		}
+
 		return message.toString();
 	}
 

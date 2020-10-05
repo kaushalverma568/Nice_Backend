@@ -158,6 +158,8 @@ public class SendPushNotificationComponent {
 			acceptOrderNotificationToCustomer(pushNotificationDTO);
 		} else if (NotificationQueueConstants.RETRY_TO_SEARCH_DELIVERY_BOY.equals(pushNotificationDTO.getType())) {
 			retryToSearchDeliveryBoy(pushNotificationDTO);
+		} else if (NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION.equals(pushNotificationDTO.getType())) {
+			deactivationNotificationToCustomer(pushNotificationDTO);
 		}
 	}
 
@@ -1254,12 +1256,19 @@ public class SendPushNotificationComponent {
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(pushNotificationDTO.getCustomerId(),
 					UserType.CUSTOMER.name());
 			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
+			Orders orders = ordersService.getOrderById(pushNotificationDTO.getOrderId());
+			String orderStatus = "DELIVERY";
+			if (orders.getOrderStatus().contains("Replace")) {
+				orderStatus = "REPLACE";
+			} else if (orders.getOrderStatus().contains("Return")) {
+				orderStatus = "RETURN";
+			}
 			if (deviceDetailList.isPresent()) {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(pushNotificationDTO.getDeliveryBoyId());
 				String messageEnglish = NotificationMessageConstantsEnglish.getOrderAcceptedMessageToCustomer(pushNotificationDTO.getOrderId(),
-						deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()));
+						deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish()), orderStatus);
 				String messageArabic = NotificationMessageConstantsArabic.getOrderAcceptedMessageToCustomer(pushNotificationDTO.getOrderId(),
-						deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()));
+						deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic()), orderStatus);
 				PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 						messageArabic, Constant.ORDER_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
@@ -1288,7 +1297,7 @@ public class SendPushNotificationComponent {
 	public void deactivationNotificationToCustomer(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(pushNotificationDTO.getType())
 				&& NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION.equalsIgnoreCase(pushNotificationDTO.getType())
-				&& pushNotificationDTO.getCustomerId() != null && pushNotificationDTO.getOrderId() != null) {
+				&& pushNotificationDTO.getCustomerId() != null) {
 			StringBuilder message = new StringBuilder();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();

@@ -226,7 +226,9 @@ public class CustomerController {
 		if (userName != null) {
 			revokeToken(userName.concat("!!").concat(UserType.CUSTOMER.name()));
 		}
-		customerService.sendPushNotification(NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION, customerId);
+		if (!active.booleanValue()) {
+			customerService.sendPushNotification(NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION, customerId);
+		}
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(CUSTOMER_UPDATE_MESSAGE, null))
 				.create();
 	}
