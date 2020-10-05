@@ -22,9 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 @Entity
 @Table(name = "Task")
@@ -43,8 +42,10 @@ public class Task extends CommonModel {
 	private Long id;
 
 	/**
-	 * Here nullable is made true for delivery boy, as we will be making task for the pickup order as well and in that case
-	 * no delivery boy will be assigned, this is taken so as to facilitate the payout structure for vendor, so now both
+	 * Here nullable is made true for delivery boy, as we will be making task for
+	 * the pickup order as well and in that case
+	 * no delivery boy will be assigned, this is taken so as to facilitate the
+	 * payout structure for vendor, so now both
 	 * payout will happen from task table itself(delivery boy and vendor payout)
 	 */
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
@@ -52,7 +53,8 @@ public class Task extends CommonModel {
 	private DeliveryBoy deliveryBoy;
 
 	/**
-	 * For any order vendor would always be present, delivery boy may not be present in task if it is a pickup order.
+	 * For any order vendor would always be present, delivery boy may not be present
+	 * in task if it is a pickup order.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	@JoinColumn(name = "vendor_id", nullable = false)
@@ -106,7 +108,18 @@ public class Task extends CommonModel {
 
 	@Column(name = "amount_borne_by_vendor", nullable = true)
 	private Double amountBorneByVendor;
-	
+
 	@Column(name = "admin_commission_rate")
 	private Double adminCommissionRate;
+
+	/**
+	 * This field is used to display delivery charge in vendor payout. 
+	 * Because whichever we pay to delivery boy not that vendor will bare in case of return/replace and customer pay for order.
+	 * 
+	 * Example : Order :100 +Customer Delivery charge 30 = 130 Paid by customer. but we are giving 20 to delivery boy.
+	 * Hence Delivery charge will be 20 (which will get by Delivery boy) , Customer Delivery charge(For customer and Vendor)
+	 * 
+	 */
+	@Column(name = "customer_delivery_charge")
+	private Double customerDeliveryCharge;
 }

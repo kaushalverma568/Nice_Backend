@@ -1,0 +1,1 @@
+ALTER TABLE task ADD COLUMN customer_delivery_charge numeric(10, 2);

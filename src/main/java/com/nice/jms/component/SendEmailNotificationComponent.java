@@ -52,7 +52,7 @@ import net.sf.jasperreports.engine.JRException;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Component("sendEmailNotificationComponent")
 public class SendEmailNotificationComponent {
@@ -146,7 +146,7 @@ public class SendEmailNotificationComponent {
 	private VendorPaymentService vendorPaymentService;
 
 	/**
-	 * @param notification
+	 * @param  notification
 	 * @throws NotFoundException
 	 * @throws MessagingException
 	 * @throws IOException
@@ -230,7 +230,7 @@ public class SendEmailNotificationComponent {
 	private void deliveryBoyRegistration(final Notification emailNotification)
 			throws NotFoundException, GeneralSecurityException, IOException, MessagingException {
 		final Map<String, String> emailParameterMap = new HashMap<>();
-		if (emailNotification.getVendorId() != null) {
+		if (emailNotification.getDeliveryBoyId() != null) {
 			String subject;
 			String content;
 			String applicationName;
@@ -502,7 +502,8 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -590,7 +591,8 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we choose both)
+			 * choose template according to sendingType (if sendingType is null then we
+			 * choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {

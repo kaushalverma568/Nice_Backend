@@ -238,6 +238,7 @@ public class TaskServiceImpl implements TaskService {
 			 * change task status method)
 			 */
 			task.setDeliveryCharge(0d);
+			task.setCustomerDeliveryCharge(0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
 			taskRepository.save(task);
 
@@ -378,10 +379,13 @@ public class TaskServiceImpl implements TaskService {
 			if (!DeliveryType.PICKUP.getStatusValue().equals(task.getOrderDeliveryType())) {
 				if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
 					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_ORDER).getFieldValue()));
+					task.setCustomerDeliveryCharge(task.getOrder().getDeliveryCharge());
 				} else if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType())) {
 					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_REPLACE_ORDER).getFieldValue()));
+					task.setCustomerDeliveryCharge(task.getDeliveryCharge());
 				} else {
 					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_RETURN_ORDER).getFieldValue()));
+					task.setCustomerDeliveryCharge(task.getDeliveryCharge());
 				}
 
 				if (taskList.size() >= Integer.valueOf(minOrderDelivered)) {
