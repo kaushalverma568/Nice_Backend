@@ -736,6 +736,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Order Items from cart
 		 */
 		for (CartItem cartItem : cartItemList) {
+			Double individualOrderItemTotal = 0.0d;
 			OrdersItem orderItem = new OrdersItem();
 			orderItem.setProductVariant(cartItem.getProductVariant());
 			orderItem.setUnitPrice(cartItem.getProductVariant().getRate());
@@ -748,7 +749,7 @@ public class OrdersServiceImpl implements OrdersService {
 						orderItem.getUnitPrice() * cartItem.getQuantity() - orderItem.getUnitPriceAfterDiscount() * cartItem.getQuantity());
 			}
 
-			orderItemTotal += orderItem.getTotalAmt();
+			individualOrderItemTotal += orderItem.getTotalAmt();
 			orderItemList.add(orderItem);
 
 			List<CartAddons> cartAddonsList = new ArrayList<>();
@@ -807,7 +808,7 @@ public class OrdersServiceImpl implements OrdersService {
 					orderAddons.setDiscountedAmount(cartAddons.getProductAddons().getDiscountedRate() * cartAddons.getQuantity());
 				}
 				orderAddonsList.add(orderAddons);
-				orderItemTotal += orderAddons.getAmount();
+				individualOrderItemTotal += orderAddons.getAmount();
 			}
 			orderItem.setOrderAddonsList(orderAddonsList);
 
@@ -824,7 +825,7 @@ public class OrdersServiceImpl implements OrdersService {
 				if (cartExtras.getProductExtras().getDiscountedRate() != null) {
 					orderExtras.setDiscountedAmount(cartExtras.getProductExtras().getDiscountedRate() * cartExtras.getQuantity());
 				}
-				orderItemTotal += orderExtras.getAmount();
+				individualOrderItemTotal += orderExtras.getAmount();
 				orderExtrasList.add(orderExtras);
 			}
 			orderItem.setOrderExtrasList(orderExtrasList);
@@ -843,7 +844,7 @@ public class OrdersServiceImpl implements OrdersService {
 					orderProductAttributeValue
 							.setDiscountedAmount(cartProductAttribute.getProductAttributeValue().getDiscountedRate() * cartProductAttribute.getQuantity());
 				}
-				orderItemTotal += orderProductAttributeValue.getAmount();
+				individualOrderItemTotal += orderProductAttributeValue.getAmount();
 				orderProductAttributeValuesList.add(orderProductAttributeValue);
 			}
 			orderItem.setOrderProductAttributeValuesList(orderProductAttributeValuesList);
@@ -860,15 +861,15 @@ public class OrdersServiceImpl implements OrdersService {
 				if (cartToppings.getProductToppings().getDiscountedRate() != null) {
 					orderToppings.setDiscountedAmount(cartToppings.getProductToppings().getDiscountedRate() * cartToppings.getQuantity());
 				}
-				orderItemTotal += orderToppings.getAmount();
+				individualOrderItemTotal += orderToppings.getAmount();
 				orderToppingsList.add(orderToppings);
 			}
 			orderItem.setOrderToppingsList(orderToppingsList);
-
+			orderItemTotal += individualOrderItemTotal;
 			/**
 			 * Set order Item to the total value of entire order item.
 			 */
-			orderItem.setTotalAmt(orderItemTotal);
+			orderItem.setTotalAmt(individualOrderItemTotal);
 		}
 
 		/**

@@ -160,7 +160,10 @@ public class SendPushNotificationComponent {
 			retryToSearchDeliveryBoy(pushNotificationDTO);
 		} else if (NotificationQueueConstants.DEACTIVE_CUSTOMER_NOTIFICATION.equals(pushNotificationDTO.getType())) {
 			deactivationNotificationToCustomer(pushNotificationDTO);
+		} else if (NotificationQueueConstants.CANCEL_ORDER_BY_ADMIN_PUSH_NOTIFICATION_CUSTOMER.equals(pushNotificationDTO.getType())) {
+			cancelOrderNotification(pushNotificationDTO);
 		}
+
 	}
 
 	private void retryToSearchDeliveryBoy(final PushNotificationDTO pushNotificationDTO) throws ValidationException, NotFoundException {
