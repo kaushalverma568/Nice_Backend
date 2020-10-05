@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 25, 2020
+ * @date   : Jun 25, 2020
  */
 @Data
 public class VendorResponseDTO implements Serializable {
@@ -132,4 +132,9 @@ public class VendorResponseDTO implements Serializable {
 	private Boolean manageInventory;
 
 	private Integer maxDaysForAccept;
+
+	/**
+	 * added for email verification mail
+	 */
+	private long userId;
 }

@@ -40,7 +40,7 @@ public interface VendorService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	Long addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
+	VendorResponseDTO addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
 
 	/**
 	 * get DTO object of vendor
@@ -341,4 +341,13 @@ public interface VendorService {
 	Long verifyEmailByAdmin(Long vendorId) throws ValidationException, NotFoundException;
 
 	Long getAllVendorCount();
+
+	/**
+	 * @param  userLogin
+	 * @param  vendor
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 * @throws MessagingException
+	 */
+	void sendOtpForEmailVerification(VendorResponseDTO vendorResponseDTO) throws NotFoundException, ValidationException;
 }

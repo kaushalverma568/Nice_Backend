@@ -197,7 +197,7 @@ public class VendorServiceImpl implements VendorService {
 	private UserOtpRepository userOtpRepository;
 
 	@Override
-	public Long addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
+	public VendorResponseDTO addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
 		}
@@ -209,8 +209,9 @@ public class VendorServiceImpl implements VendorService {
 		if (!vendorDTO.getIsAdmin().booleanValue() && optVendor.isPresent() && !optVendor.get().getEmailVerified().booleanValue()) {
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(optVendor.get().getEmail(), UserType.VENDOR.name());
 			if (optUserLogin.isPresent()) {
-				sendOtpForEmailVerification(optUserLogin.get(), optVendor.get());
-				return optUserLogin.get().getId();
+				VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(optVendor.get(), false);
+				vendorResponseDTO.setUserId(optUserLogin.get().getId());
+				return vendorResponseDTO;
 			}
 		}
 
@@ -257,13 +258,13 @@ public class VendorServiceImpl implements VendorService {
 		/**
 		 * Code to generate OTP and send that in email if vendor himself/herself signed up.
 		 */
-		if (!vendorDTO.getIsAdmin().booleanValue()) {
-			sendOtpForEmailVerification(userLogin, vendor);
-		} else {
+		if (vendorDTO.getIsAdmin().booleanValue()) {
 			verifyEmailByAdmin(vendor.getId());
 			changeVendorStatus(vendor.getId(), VendorStatus.APPROVED.getStatusValue());
 		}
-		return userLogin.getId();
+		VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(optVendor.get(), false);
+		vendorResponseDTO.setUserId(userLogin.getId());
+		return vendorResponseDTO;
 	}
 
 	@Override
@@ -466,27 +467,29 @@ public class VendorServiceImpl implements VendorService {
 	 * @throws ValidationException
 	 * @throws MessagingException
 	 */
-	private void sendOtpForEmailVerification(final UserLogin userLogin, final Vendor vendor) throws NotFoundException, ValidationException {
+	@Override
+	public void sendOtpForEmailVerification(final VendorResponseDTO vendorResponseDTO) throws NotFoundException, ValidationException {
 		UserOtpDto userOtpDto = new UserOtpDto();
-		userOtpDto.setEmail(vendor.getEmail());
+		userOtpDto.setEmail(vendorResponseDTO.getEmail());
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setUserId(userLogin.getId());
+		userOtpDto.setUserId(vendorResponseDTO.getUserId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
-		sendEmail(otp.getOtp(), userLogin.getId(), vendor.getEmail(), vendor.getPreferredLanguage());
+		sendEmail(otp.getOtp(), vendorResponseDTO);
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
+	private void sendEmail(final String otp, final VendorResponseDTO vendorResponseDTO) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
-		notification.setUserId(userId);
-		notification.setEmail(email);
+		notification.setUserId(vendorResponseDTO.getUserId());
+		notification.setEmail(vendorResponseDTO.getEmail());
+		notification.setVendorId(vendorResponseDTO.getId());
 		/**
 		 * we will send verification link only
 		 */
 		notification.setSendingType(SendingType.LINK.name());
 		notification.setUserType(UserType.VENDOR.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
-		notification.setLanguage(language);
+		notification.setLanguage(vendorResponseDTO.getPreferredLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 

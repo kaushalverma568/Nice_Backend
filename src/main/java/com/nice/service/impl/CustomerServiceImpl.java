@@ -61,7 +61,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Jun-2020
+ * @date   : 25-Jun-2020
  */
 @Service(value = "customerService")
 @Transactional(rollbackFor = Throwable.class)
@@ -149,7 +149,6 @@ public class CustomerServiceImpl implements CustomerService {
 				customer.setPreferredLanguage(LocaleContextHolder.getLocale().getLanguage());
 				Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(), UserType.CUSTOMER.name());
 				if (optUserLogin.isPresent()) {
-					sendOtpForEmailVerification(optUserLogin.get(), customer);
 
 					UserLogin userLogin = optUserLogin.get();
 					userLogin.setPassword(CommonUtility.generateBcrypt(customerDTO.getPassword()));
@@ -174,7 +173,6 @@ public class CustomerServiceImpl implements CustomerService {
 							Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(customer.getEmail(),
 									UserType.CUSTOMER.name());
 							if (optUserLogin.isPresent()) {
-								sendOtpForEmailVerification(optUserLogin.get(), customer);
 								customerResponseDTO = customerMapper.toDto(customer);
 								customerResponseDTO.setUserId(optUserLogin.get().getId());
 								return customerResponseDTO;
@@ -199,7 +197,6 @@ public class CustomerServiceImpl implements CustomerService {
 						userLogin.setEmail(customer.getEmail());
 						userLogin.setPassword(CommonUtility.generateBcrypt(customerDTO.getPassword()));
 						userLoginRepository.save(userLogin);
-						sendOtpForEmailVerification(userLogin, customer);
 						customerResponseDTO = customerMapper.toDto(customer);
 						customerResponseDTO.setUserId(userLogin.getId());
 						return customerResponseDTO;
@@ -250,46 +247,38 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new ValidationException(messageByLocaleService.getMessage("register.via.not.valid", null));
 		}
 		userLogin = userLoginService.addUserLogin(userLogin);
-		/**
-		 * Code to generate OTP and send that in email.
-		 */
-		if (RegisterVia.APP.getStatusValue().equals(customerDTO.getRegisteredVia())) {
-			sendOtpForEmailVerification(userLogin, resultCustomer);
-		}
 
-		/**
-		 * Code to generate Otp and send email ends.
-		 */
 		customerResponseDTO = customerMapper.toDto(customer);
 		customerResponseDTO.setUserId(userLogin.getId());
 		return customerResponseDTO;
 	}
 
 	/**
-	 * @param userLogin
-	 * @param resultCustomer
+	 * @param  userLogin
+	 * @param  resultCustomer
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
 	 */
-	private void sendOtpForEmailVerification(final UserLogin userLogin, final Customer resultCustomer) throws NotFoundException, ValidationException {
+	@Override
+	public void sendOtpForEmailVerification(final CustomerResponseDTO customerResponseDTO) throws NotFoundException, ValidationException {
 		UserOtpDto userOtpDto = new UserOtpDto();
-		userOtpDto.setEmail(resultCustomer.getEmail());
+		userOtpDto.setEmail(customerResponseDTO.getEmail());
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setUserId(userLogin.getId());
+		userOtpDto.setUserId(customerResponseDTO.getUserId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
-
-		sendEmail(otp.getOtp(), userLogin.getId(), resultCustomer.getEmail(), resultCustomer.getPreferredLanguage());
+		sendEmail(otp.getOtp(), customerResponseDTO);
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
+	private void sendEmail(final String otp, final CustomerResponseDTO customerResponseDTO) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
-		notification.setUserId(userId);
-		notification.setEmail(email);
+		notification.setUserId(customerResponseDTO.getUserId());
+		notification.setEmail(customerResponseDTO.getEmail());
+		notification.setCustomerId(customerResponseDTO.getId());
 		notification.setUserType(UserType.CUSTOMER.name());
 		notification.setSendingType(SendingType.OTP.name());
-		notification.setLanguage(language);
+		notification.setLanguage(customerResponseDTO.getPreferredLanguage());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
@@ -327,8 +316,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -355,8 +344,8 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final String sortByDirection, final String sortByField) throws ValidationException {

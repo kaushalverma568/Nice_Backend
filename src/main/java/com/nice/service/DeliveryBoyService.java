@@ -41,7 +41,8 @@ public interface DeliveryBoyService {
 	 * @throws FileOperationException
 	 * @throws MessagingException
 	 */
-	void addDeliveryBoy(DeliveryBoyDTO deliveryBoyDTO, MultipartFile profilePicture) throws ValidationException, NotFoundException, FileOperationException;
+	DeliveryBoyResponseDTO addDeliveryBoy(DeliveryBoyDTO deliveryBoyDTO, MultipartFile profilePicture)
+			throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * get DTO object of deliveryBoy
@@ -306,4 +307,12 @@ public interface DeliveryBoyService {
 	void sendEmailAfterAccountActivation(Long deliveryBoyId);
 
 	Long getAllDeliveryBoyCount();
+
+	/**
+	 * @param  userLogin
+	 * @param  deliveryBoy
+	 * @throws NotFoundException
+	 * @throws ValidationException
+	 */
+	void sendOtpForEmailVerification(DeliveryBoyResponseDTO deliveryBoyResponseDTO) throws NotFoundException, ValidationException;
 }

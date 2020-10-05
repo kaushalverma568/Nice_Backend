@@ -154,7 +154,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	private RoleService roleService;
 
 	@Override
-	public void addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture)
+	public DeliveryBoyResponseDTO addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture)
 			throws ValidationException, NotFoundException, FileOperationException {
 		DeliveryBoy deliveryBoy = deliveryBoyMapper.toEntity(deliveryBoyDTO);
 
@@ -167,8 +167,12 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			Optional<UserLogin> optUserLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(deliveryBoyDTO.getEmail().toLowerCase(),
 					UserType.DELIVERY_BOY.name());
 			if (optUserLogin.isPresent()) {
-				sendOtpForEmailVerification(optUserLogin.get(), deliveryBoy);
-				return;
+				/**
+				 * re-send email only
+				 */
+				DeliveryBoyResponseDTO deliveryBoyResponseDTO = deliveryBoyMapper.toDto(deliveryBoy);
+				deliveryBoyResponseDTO.setUserId(optUserLogin.get().getId());
+				return deliveryBoyResponseDTO;
 			}
 		}
 		/**
@@ -221,8 +225,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		/**
 		 * Code to generate OTP and send that in email.
 		 */
-		sendOtpForEmailVerification(userLogin, deliveryBoy);
-
+		DeliveryBoyResponseDTO deliveryBoyResponseDTO = deliveryBoyMapper.toDto(deliveryBoy);
+		deliveryBoyResponseDTO.setUserId(userLogin.getId());
+		return deliveryBoyResponseDTO;
 	}
 
 	@Override
@@ -501,25 +506,26 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private void sendOtpForEmailVerification(final UserLogin userLogin, final DeliveryBoy deliveryBoy) throws NotFoundException, ValidationException {
+	@Override
+	public void sendOtpForEmailVerification(final DeliveryBoyResponseDTO deliveryBoyResponseDTO) throws NotFoundException, ValidationException {
 		UserOtpDto userOtpDto = new UserOtpDto();
-		userOtpDto.setEmail(deliveryBoy.getEmail());
+		userOtpDto.setEmail(deliveryBoyResponseDTO.getEmail());
 		userOtpDto.setType(UserOtpTypeEnum.EMAIL.name());
-		userOtpDto.setUserId(userLogin.getId());
+		userOtpDto.setUserId(deliveryBoyResponseDTO.getUserId());
 		UserOtp otp = otpService.generateOtp(userOtpDto);
-
-		sendEmail(otp.getOtp(), userLogin.getId(), deliveryBoy.getEmail(), deliveryBoy.getPreferredLanguage());
+		sendEmail(otp.getOtp(), deliveryBoyResponseDTO);
 	}
 
-	private void sendEmail(final String otp, final Long userId, final String email, final String language) {
+	private void sendEmail(final String otp, final DeliveryBoyResponseDTO deliveryBoyResponseDTO) {
 		Notification notification = new Notification();
 		notification.setOtp(otp);
-		notification.setUserId(userId);
-		notification.setEmail(email);
+		notification.setUserId(deliveryBoyResponseDTO.getUserId());
+		notification.setEmail(deliveryBoyResponseDTO.getEmail());
+		notification.setDeliveryBoyId(deliveryBoyResponseDTO.getId());
 		notification.setUserType(UserType.DELIVERY_BOY.name());
 		notification.setSendingType(SendingType.OTP.name());
 		notification.setType(NotificationQueueConstants.EMAIL_VERIFICATION);
-		notification.setLanguage(language);
+		notification.setLanguage(deliveryBoyResponseDTO.getPreferredLanguage());
 		jmsQueuerService.sendEmail(NotificationQueueConstants.NON_NOTIFICATION_QUEUE, notification);
 	}
 

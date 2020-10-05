@@ -140,8 +140,12 @@ public class DeliveryBoyController {
 		if (profilePicture == null || !CommonUtility.NOT_NULL_NOT_EMPTY_NOT_BLANK_STRING.test(profilePicture.getOriginalFilename())) {
 			throw new ValidationException(messageByLocaleService.getMessage("profile.image.required", null));
 		}
-		deliveryBoyService.addDeliveryBoy(deliveryBoyDTO, profilePicture);
+		DeliveryBoyResponseDTO deliveryBoyResponseDTO = deliveryBoyService.addDeliveryBoy(deliveryBoyDTO, profilePicture);
 		LOGGER.info("Outside add DeliveryBoy ");
+		/**
+		 * send email verification mail
+		 */
+		deliveryBoyService.sendOtpForEmailVerification(deliveryBoyResponseDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("deliveryboy.create.message", null))
 				.create();
 	}
