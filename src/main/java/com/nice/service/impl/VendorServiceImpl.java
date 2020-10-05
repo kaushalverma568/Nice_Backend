@@ -262,7 +262,7 @@ public class VendorServiceImpl implements VendorService {
 			verifyEmailByAdmin(vendor.getId());
 			changeVendorStatus(vendor.getId(), VendorStatus.APPROVED.getStatusValue());
 		}
-		VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(optVendor.get(), false);
+		VendorResponseDTO vendorResponseDTO = vendorMapper.toDto(vendor, false);
 		vendorResponseDTO.setUserId(userLogin.getId());
 		return vendorResponseDTO;
 	}

@@ -18,17 +18,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
  * @date   : 09-07-2020
  */
-@SqlResultSetMapping(name = "TicketMapping", entities = {
-		@EntityResult(entityClass = Ticket.class, fields = { @FieldResult(name = "id", column = "id"), @FieldResult(name = "active", column = "active"),
-				@FieldResult(name = "createdAt", column = "created_at"), @FieldResult(name = "updatedAt", column = "updated_at"),
-				@FieldResult(name = "createdBy", column = "created_by"), @FieldResult(name = "updatedBy", column = "updated_by"),
-				@FieldResult(name = "entityId", column = "entity_id"), @FieldResult(name = "userType", column = "user_type"),
-				@FieldResult(name = "ticketReason", column = "ticket_reason_id"), @FieldResult(name = "ticketStatus", column = "ticket_status"),
-				@FieldResult(name = "description", column = "description"), @FieldResult(name = "comment", column = "comment") }) })
+@SqlResultSetMapping(name = "TicketMapping", entities = { @EntityResult(entityClass = Ticket.class, fields = { @FieldResult(name = "id", column = "id"),
+		@FieldResult(name = "active", column = "active"), @FieldResult(name = "createdAt", column = "created_at"),
+		@FieldResult(name = "updatedAt", column = "updated_at"), @FieldResult(name = "createdBy", column = "created_by"),
+		@FieldResult(name = "updatedBy", column = "updated_by"), @FieldResult(name = "entityId", column = "entity_id"),
+		@FieldResult(name = "userType", column = "user_type"), @FieldResult(name = "ticketReason", column = "ticket_reason_id"),
+		@FieldResult(name = "ticketStatus", column = "ticket_status"), @FieldResult(name = "description", column = "description"),
+		@FieldResult(name = "comment", column = "comment"), @FieldResult(name = "acknowledgeComment", column = "acknowledge_comment") }) })
 @Entity
 @Table(name = "ticket")
 @Data
@@ -61,4 +60,6 @@ public class Ticket extends CommonModel {
 	private String description;
 
 	private String comment;
+
+	private String acknowledgeComment;
 }

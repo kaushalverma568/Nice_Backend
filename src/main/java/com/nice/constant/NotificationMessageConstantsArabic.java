@@ -566,7 +566,13 @@ public final class NotificationMessageConstantsArabic {
 
 	public static String getLinkValidityMessage(final Long otpValidity) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("The password reset link is valid till next ").append(otpValidity).append(" minutes.");
+		message = message.append("This link is valid till next ").append(otpValidity).append(" minutes.");
+		return message.toString();
+	}
+
+	public static String getInsructionMessageForLink() {
+		StringBuilder message = new StringBuilder();
+		message = message.append("Do not share this link to anyone for security reasons.");
 		return message.toString();
 	}
 

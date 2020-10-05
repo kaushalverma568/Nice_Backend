@@ -564,6 +564,8 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsEnglish.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
 				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsEnglish.getInsructionMessage());
 				emailParameterMap.put(HELLO, NotificationMessageConstantsEnglish.HELLO);
+				emailParameterMap.put("instructionLink", NotificationMessageConstantsEnglish.getInsructionMessageForLink());
+
 			} else {
 				emailParameterMap.put(THANKS_REGARDS, NotificationMessageConstantsArabic.THANKS_REGARDS);
 				emailParameterMap.put(CUSTOMER_SUPPORT_TEAM, NotificationMessageConstantsArabic.CUSTOMER_SUPPORT_TEAM);
@@ -576,6 +578,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put(OTP_VALIDITY, NotificationMessageConstantsArabic.getOtpValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
 				emailParameterMap.put(LINK_VALIDITY, NotificationMessageConstantsArabic.getLinkValidityMessage(Constant.OTP_VALIDITY_TIME_IN_MIN));
 				emailParameterMap.put(INSTRUCTION, NotificationMessageConstantsArabic.getInsructionMessage());
+				emailParameterMap.put("instructionLink", NotificationMessageConstantsArabic.getInsructionMessageForLink());
 				emailParameterMap.put(HELLO, NotificationMessageConstantsArabic.HELLO);
 			}
 			/**

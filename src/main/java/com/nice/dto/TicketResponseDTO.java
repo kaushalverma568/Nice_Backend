@@ -52,4 +52,5 @@ public class TicketResponseDTO implements Serializable {
 
 	private Date createdAt;
 
+	private String acknowledgeComment;
 }
