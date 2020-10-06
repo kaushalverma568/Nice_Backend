@@ -55,7 +55,7 @@ import com.nice.util.FCMRestHelper;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Apr-2020
+ * @date   : 29-Apr-2020
  */
 @Component("sendPushNotificationComponent")
 public class SendPushNotificationComponent {
@@ -190,7 +190,7 @@ public class SendPushNotificationComponent {
 				notificationObject.addProperty(BODY, message.toString());
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
-				notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
 					PushNotificationReceiver pushNotificationReceiver = setPushNotificationReceiver(pushNotification, deviceDetail.getDeviceId(),
@@ -233,7 +233,7 @@ public class SendPushNotificationComponent {
 				notificationObject.addProperty(BODY, message.toString());
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
-				notificationPayloadDto.setModule(pushNotificationDTO.getModule());
+				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
 				LOGGER.info("Admin cancel order notification for delivery boy: {} and order: {}", deliveryBoy.getId(), pushNotificationDTO.getOrderId());
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
@@ -296,7 +296,8 @@ public class SendPushNotificationComponent {
 					notificationObject.addProperty("icon", company.getCompanyImage());
 					notificationObject.addProperty(IMAGE, company.getCompanyImage());
 					NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
-					notificationPayloadDto.setModule(Constant.PAYOUT_MODULE);
+					notificationPayloadDto.setModule(Constant.ORDER_MODULE);
+					notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 					for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 						sendPushNotificationToDeliveryBoy(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 					}
@@ -469,7 +470,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending new order notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -521,7 +522,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending push notification to admin for new ticket
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -588,7 +589,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * for sending delivery boy new profile notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -642,7 +643,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * send new vendor notification to admin
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1075,7 +1076,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * replcae request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1121,7 +1122,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * return request raised notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -1167,7 +1168,7 @@ public class SendPushNotificationComponent {
 	/**
 	 * cancel order by admin send notification to vendor
 	 *
-	 * @param pushNotificationDTO
+	 * @param  pushNotificationDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
