@@ -42,6 +42,7 @@ import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
 import com.nice.dto.DeliveryBoyFilterDTO;
+import com.nice.dto.DeliveryBoyLocationDTO;
 import com.nice.dto.DeliveryBoyPersonalDetailsDTO;
 import com.nice.dto.DeliveryBoyResponseDTO;
 import com.nice.dto.Notification;
@@ -208,6 +209,15 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		deliveryBoyCurrentStatus.setIsAvailable(false);
 		deliveryBoyCurrentStatus.setActive(true);
 		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
+
+		/**
+		 * set default location details
+		 */
+		DeliveryBoyLocationDTO deliveryBoyLocationDTO = new DeliveryBoyLocationDTO();
+		deliveryBoyLocationDTO.setDeliveryBoyId(deliveryBoy.getId());
+		deliveryBoyLocationDTO.setLatitude(Constant.LATITUDE);
+		deliveryBoyLocationDTO.setLongitude(Constant.LONGITUDE);
+		deliveryBoyLocationService.addUpdateDeliveryBoyLocation(deliveryBoyLocationDTO);
 
 		/**
 		 * set login details of delivery boy
@@ -460,10 +470,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			}
 		}
 		if (Boolean.TRUE.equals(isAvailable)) {
-			/**
-			 * can not active if delivery boy location is not present
-			 */
-			deliveryBoyLocationService.getDeliveryBoyLocationByDeliveryBoyId(deliveryBoyId);
 			/**
 			 * if delivery boy's device detail is not present then can not be available for accept order
 			 */

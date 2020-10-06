@@ -3,12 +3,13 @@
  */
 package com.nice.constant;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 17-Jun-2020
+ * @date   : 17-Jun-2020
  */
 public final class Constant {
 
@@ -63,6 +64,12 @@ public final class Constant {
 	 * a time after we have to send notification for order
 	 */
 	public static final Long NOTIFICATION_SENDING_TIME_IN_MILIS = 45000L;
+
+	/**
+	 * Default latitude and longitude
+	 */
+	public static final BigDecimal LATITUDE = BigDecimal.valueOf(29.369796);
+	public static final BigDecimal LONGITUDE = BigDecimal.valueOf(47.979370);
 
 	public static final String CAN_VIEW = "CAN_VIEW";
 	public static final String CAN_EDIT = "CAN_EDIT";
