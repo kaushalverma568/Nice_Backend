@@ -149,6 +149,10 @@ import com.nice.util.ExportCSV;
 @Transactional(rollbackFor = Throwable.class)
 public class OrdersServiceImpl implements OrdersService {
 
+	private static final String RETURN = "Return";
+
+	private static final String REPLACE = "Replace";
+
 	/**
 	 *
 	 */
@@ -1096,6 +1100,13 @@ public class OrdersServiceImpl implements OrdersService {
 		final Locale locale = LocaleContextHolder.getLocale();
 		OrdersResponseDTO orderResponseDto = new OrdersResponseDTO();
 		BeanUtils.copyProperties(orders, orderResponseDto);
+		String orderType = TaskTypeEnum.DELIVERY.getTaskValue();
+		if (orders.getOrderStatus().contains(REPLACE)) {
+			orderType = TaskTypeEnum.REPLACEMENT.getTaskValue();
+		} else if (orders.getOrderStatus().contains(RETURN)) {
+			orderType = TaskTypeEnum.RETURN.getTaskValue();
+		}
+		orderResponseDto.setOrderType(orderType);
 		orderResponseDto.setCanReturn(false);
 		orderResponseDto.setCanReplace(false);
 		/**
@@ -1537,9 +1548,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 		OrdersResponseDTO ordersResponseDTO = toDto(order, isFromAdmin, false, true);
 		String orderType = TaskTypeEnum.DELIVERY.getTaskValue();
-		if (order.getOrderStatus().contains("Replace")) {
+		if (order.getOrderStatus().contains(REPLACE)) {
 			orderType = TaskTypeEnum.REPLACEMENT.getTaskValue();
-		} else if (order.getOrderStatus().contains("Return")) {
+		} else if (order.getOrderStatus().contains(RETURN)) {
 			orderType = TaskTypeEnum.RETURN.getTaskValue();
 		}
 		ordersResponseDTO.setOrderType(orderType);
@@ -1719,7 +1730,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Cancel task if exists for the order
 		 */
-		String allocatedFor = orders.getOrderStatus().contains("Replace") ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
+		String allocatedFor = orders.getOrderStatus().contains(REPLACE) ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
 		Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 		if (task != null) {
 			taskService.changeTaskStatus(task.getId(), TaskStatusEnum.CANCELLED.getStatusValue());
@@ -1739,7 +1750,7 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Add this method to cancel order.
 		 */
-		orders.setOrderStatus(orders.getOrderStatus().contains("Replace") ? OrderStatusEnum.REPLACE_CANCELLED.getStatusValue()
+		orders.setOrderStatus(orders.getOrderStatus().contains(REPLACE) ? OrderStatusEnum.REPLACE_CANCELLED.getStatusValue()
 				: OrderStatusEnum.RETURN_CANCELLED.getStatusValue());
 		ordersRepository.save(orders);
 		saveOrderStatusHistory(orders);
