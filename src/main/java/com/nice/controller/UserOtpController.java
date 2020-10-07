@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nice.constant.Constant;
 import com.nice.dto.UserOtpDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
@@ -33,7 +34,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 25-Jun-2020
+ * @date : 25-Jun-2020
  */
 @RestController
 @RequestMapping("/otp")
@@ -48,10 +49,10 @@ public class UserOtpController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserOtpController.class);
 
 	/**
-	 * @param  userLoginId
-	 * @param  type
-	 * @param  otp
-	 * @param  email
+	 * @param userLoginId
+	 * @param type
+	 * @param otp
+	 * @param email
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -82,8 +83,8 @@ public class UserOtpController {
 	}
 
 	/**
-	 * @param  userOtpDto
-	 * @param  result
+	 * @param userOtpDto
+	 * @param result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -102,19 +103,23 @@ public class UserOtpController {
 		UserOtp otp = otpService.generateOtp(userOtpDto);
 		otpService.sendOtp(userOtpDto, otp.getUserLogin(), otp.getOtp());
 		LOGGER.info("Otp Generated Successfully, {}", userOtpDto);
-		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).setStatus(HttpStatus.OK)
-				.setData(otp.getOtp()).create();
+		return Constant.IS_SET_OTP
+				? new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).setStatus(HttpStatus.OK)
+						.setData(otp.getOtp()).create()
+				: new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("otp.generated.success", null)).setStatus(HttpStatus.OK)
+						.create();
+
 	}
 
 	/**
-	 * This method is used when we want to verify same otp again(In mobile app first time we verify otp and second time we again verify otp and update password
-	 * )
+	 * This method is used when we want to verify same otp again(In mobile app first
+	 * time we verify otp and second time we again verify otp and update password )
 	 *
-	 * @param  userLoginId
-	 * @param  type
-	 * @param  otp
-	 * @param  userName
-	 * @param  userType
+	 * @param userLoginId
+	 * @param type
+	 * @param otp
+	 * @param userName
+	 * @param userType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
