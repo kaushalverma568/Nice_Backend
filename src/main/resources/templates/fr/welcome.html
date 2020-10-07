@@ -4,38 +4,10 @@
 <head>
     <meta charset="utf-8">
     <title>{{subject}}</title>
-    <style>
-        body {
-         font-family: "Segoe UI", sans-serif;
-         direction: rtl ;
-         background: #f4f5fa;
-     }
-
-     table{
-        position: relative;
-    }
-
-    table {
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-    }
-
-    table tr{
-        line-height: 1;
-        padding: 0;
-        margin:0;
-    }
-
-    img.img-rtl{
-        -webkit-transform: scaleX(-1);
-      -moz-transform: scaleX(-1);
-      -o-transform: scaleX(-1);
-      transform: scaleX(-1);
-    }
-</style>
+    
 </head>
 
-<body>
+<body style="font-family: 'Segoe UI', sans-serif;direction: rtl ;background: #f4f5fa;padding: 20px;">
     <table width="100%" border="0" bgcolor="#ffffff" cellspacing="0" cellpadding="0" style="max-width: 600px;margin: 0 auto; box-shadow: 0px 9px 17px 4px rgba(0,0,0,0.05); text-align: right;">
         <tbody>
             <tr>
@@ -45,8 +17,8 @@
             </tr>
 
             <tr>
-                <td>
-                    <img src="{{applicationBigLogo}}" alt="Banner image" class="img-rtl">
+                <td style="-webkit-transform: scaleX(-1);-moz-transform: scaleX(-1);-o-transform: scaleX(-1);transform: scaleX(-1);">
+                    <img src="{{applicationBigLogo}}" alt="Banner image">
                 </td>
             </tr>   
             

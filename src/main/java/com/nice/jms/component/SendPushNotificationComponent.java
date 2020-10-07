@@ -205,6 +205,8 @@ public class SendPushNotificationComponent {
 	private void cancelOrderNotificationToDeliveryBoy(final PushNotificationDTO pushNotificationDTO) throws NotFoundException, ValidationException {
 		if (pushNotificationDTO.getOrderId() != null) {
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
+			String allocatedFor = orders.getOrderStatus().contains("Replace") ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 			DeliveryBoy deliveryBoy;
 			if (orders.getReplacementDeliveryBoy() != null) {
 				deliveryBoy = orders.getReplacementDeliveryBoy();
@@ -234,6 +236,7 @@ public class SendPushNotificationComponent {
 				NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 				notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
 				notificationPayloadDto.setModule(Constant.ORDER_MODULE);
+				notificationPayloadDto.setTaskId(task.getId());
 				LOGGER.info("Admin cancel order notification for delivery boy: {} and order: {}", deliveryBoy.getId(), pushNotificationDTO.getOrderId());
 				List<PushNotificationReceiver> pushNotificationReceivers = new ArrayList<>();
 				for (DeviceDetail deviceDetail : deviceDetailList.get()) {
@@ -251,6 +254,8 @@ public class SendPushNotificationComponent {
 			String messageEnglish;
 			String messageArabic;
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
+			String allocatedFor = orders.getOrderStatus().contains("Replace") ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 			DeliveryBoy deliveryBoy;
 			if (DeliveryType.DELIVERY.getStatusValue().equals(orders.getDeliveryType())) {
 				if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(orders.getOrderStatus())
@@ -268,7 +273,8 @@ public class SendPushNotificationComponent {
 							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either delivery boy
+				 * here sender will be entity will be vendor and receiver will be either
+				 * delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -298,6 +304,7 @@ public class SendPushNotificationComponent {
 					NotificationPayloadDto notificationPayloadDto = new NotificationPayloadDto();
 					notificationPayloadDto.setModule(Constant.ORDER_MODULE);
 					notificationPayloadDto.setId(pushNotificationDTO.getOrderId());
+					notificationPayloadDto.setTaskId(task.getId());
 					for (PushNotificationReceiver pushNotificationReceiver : pushNotificationReceivers) {
 						sendPushNotificationToDeliveryBoy(notificationObject, notificationPayloadDto, pushNotificationReceiver.getDeviceId());
 					}
@@ -326,7 +333,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -381,7 +389,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);

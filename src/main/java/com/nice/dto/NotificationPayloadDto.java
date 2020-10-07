@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 25-Sep-2020
+ * @date   : 25-Sep-2020
  */
 @Data
 public class NotificationPayloadDto implements Serializable {
@@ -21,5 +21,6 @@ public class NotificationPayloadDto implements Serializable {
 	private String module;
 	private Long id;
 	private String taskType = "";
+	private Long taskId;
 	private String click_action = "FLUTTER_NOTIFICATION_CLICK";
 }

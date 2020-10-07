@@ -35,4 +35,6 @@ public class DashBoardDetailDTO implements Serializable {
 	private Long onGoingOrderId;
 
 	private Long onGoingTaskId;
+
+	private String orderType;
 }
