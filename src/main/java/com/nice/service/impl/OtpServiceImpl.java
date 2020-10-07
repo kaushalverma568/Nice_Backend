@@ -34,7 +34,7 @@ import com.nice.util.SMSUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Service(value = "userOtpService")
 @Transactional(rollbackFor = Throwable.class)
@@ -93,8 +93,7 @@ public class OtpServiceImpl implements OtpService {
 		}
 		/**
 		 * Check if otp already generated in past for the user with this OTP Type, if
-		 * yes update the existing row, if not make a
-		 * new object and persist it
+		 * yes update the existing row, if not make a new object and persist it
 		 */
 		UserOtp userOtp = userOtpRepository.findByUserLoginAndTypeIgnoreCase(userlogin, userOtpDto.getType());
 		if (userOtp == null) {
@@ -130,7 +129,9 @@ public class OtpServiceImpl implements OtpService {
 			if (userOtpDto.getPhoneNumber() == null || userOtpDto.getPhoneNumber().isEmpty()) {
 				throw new ValidationException(messageByLocaleService.getMessage("user.mobile.required", null));
 			}
-			smsUtil.sendSMS(userOtpDto.getPhoneNumber(), otpMessage + otp);
+			if (!Constant.IS_SET_OTP) {
+				smsUtil.sendSMS(userOtpDto.getPhoneNumber(), otpMessage + otp);
+			}
 		} else {
 			LOGGER.error("Proper Mode not Specifed to generate OTP: Specified mode is - {}", userOtpDto.getType());
 			throw new ValidationException(messageByLocaleService.getMessage("otp.type.required", null));
