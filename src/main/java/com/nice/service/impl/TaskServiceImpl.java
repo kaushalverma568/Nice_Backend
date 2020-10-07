@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -48,6 +52,7 @@ import com.nice.mapper.TaskMapper;
 import com.nice.model.Customer;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoyCurrentStatus;
+import com.nice.model.DeliveryBoyLocation;
 import com.nice.model.Orders;
 import com.nice.model.PaymentDetails;
 import com.nice.model.Task;
@@ -58,11 +63,13 @@ import com.nice.repository.OrdersRepository;
 import com.nice.repository.TaskHistoryRepository;
 import com.nice.repository.TaskRepository;
 import com.nice.service.CashcollectionService;
+import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrderLocationService;
 import com.nice.service.OrdersService;
 import com.nice.service.PaymentDetailsService;
 import com.nice.service.SettingsService;
+import com.nice.service.SocketIOService;
 import com.nice.service.TaskService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
@@ -75,6 +82,9 @@ import com.nice.util.ExportCSV;
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
 public class TaskServiceImpl implements TaskService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
+
 	private static final String ORDER_DATE2 = "orderDate";
 
 	private static final String ORDER_ID2 = "orderId";
@@ -135,6 +145,12 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private TaskHistoryRepository taskHistoryRepository;
 
+	@Autowired
+	private DeliveryBoyLocationService deliveryBoyLocationService;
+
+	@Autowired
+	private SocketIOService socketIOService;
+
 	@Override
 	public Task createTask(final TaskDto taskDto) throws NotFoundException, ValidationException {
 
@@ -145,15 +161,17 @@ public class TaskServiceImpl implements TaskService {
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it
+		 * Valdiation to check if the order type is not pick-up the delivery boy should
+		 * be assigned to it
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.delivery.boy.for.order", null));
 		}
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
-		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor
+		 * for the task, this code is only for regular order, not for replacement or
+		 * return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
@@ -163,7 +181,8 @@ public class TaskServiceImpl implements TaskService {
 			adminCommisionRate = taskList.get(0).getAdminCommissionRate();
 		}
 		/**
-		 * Here order total amount would be the combination of wallet contribution and amount paid by the customer
+		 * Here order total amount would be the combination of wallet contribution and
+		 * amount paid by the customer
 		 */
 		Double orderTotal = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 		Double deliveryCharge = orders.getDeliveryCharge();
@@ -174,10 +193,12 @@ public class TaskServiceImpl implements TaskService {
 			vendorPayableAmt = orderTotal - deliveryCharge - adminCommissionAmt;
 		}
 		/**
-		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
-		 * value for return order as well in orders table , keeping that in mind the below lines have been coded For replacement
-		 * orders, there would only be delivery charge and that would be handled in change status method below, the vendor
-		 * payable amount and admin commission would be zero
+		 * For return and replacement orders, set the values accordingly, here it is
+		 * assumed that the orderTotal will be a +ve value for return order as well in
+		 * orders table , keeping that in mind the below lines have been coded For
+		 * replacement orders, there would only be delivery charge and that would be
+		 * handled in change status method below, the vendor payable amount and admin
+		 * commission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
@@ -186,13 +207,14 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
-		 * the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same
+		 * order for delivery donot end up have the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
 			/**
-			 * This is because, the task can be created without delivery boy for pickup orders
+			 * This is because, the task can be created without delivery boy for pickup
+			 * orders
 			 */
 			if (taskDto.getDeliveryBoyId() != null) {
 				/**
@@ -228,7 +250,8 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
+			 * Actual delivery charge will set at the time of completion of task (see:
+			 * change task status method)
 			 */
 			task.setDeliveryCharge(0d);
 			task.setCustomerDeliveryCharge(0d);
@@ -280,9 +303,11 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
-			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
-			 * status, this would be applicable only if there is replacement in place.
+			 * Change the status of order based on the task type, if the task type is
+			 * replacement, the order is being replaced and hence the order should be moved
+			 * to replaced status, else its first time delivery and order will be moved to
+			 * delivered status, this would be applicable only if there is replacement in
+			 * place.
 			 */
 			String nextOrderStatus;
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
@@ -351,8 +376,8 @@ public class TaskServiceImpl implements TaskService {
 		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
-			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered
-			 * for a day then consider that tasks
+			 * if count of today's total delivered or cancelled task for this delivery boy
+			 * is greater than minimum order delivered for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			if (task.getDeliveryBoy() != null) {
@@ -591,7 +616,8 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId, final String status) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not
+		 * accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -614,8 +640,9 @@ public class TaskServiceImpl implements TaskService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
 		}
 		/**
-		 * If Order's delivery type is Delivery then order's status should be return order pickup If Order's delivery type is
-		 * pick-up then order's status should be return processed
+		 * If Order's delivery type is Delivery then order's status should be return
+		 * order pickup If Order's delivery type is pick-up then order's status should
+		 * be return processed
 		 */
 		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
 				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
@@ -626,10 +653,13 @@ public class TaskServiceImpl implements TaskService {
 		}
 		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 		/**
-		 * set isBusy to false if delivery boy has no any other assigned orders, no changes are to be made to delivery boy in
-		 * case of pickup orders
+		 * set isBusy to false if delivery boy has no any other assigned orders, no
+		 * changes are to be made to delivery boy in case of pickup orders
 		 */
 		if (task.getDeliveryBoy() != null) {
+			/**
+			 * remove locations for order
+			 */
 			removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 		}
 
@@ -777,5 +807,32 @@ public class TaskServiceImpl implements TaskService {
 	@Override
 	public Task getLatestTaskByOrderId(final Long orderId) {
 		return taskRepository.getLatestTaskByOrderId(orderId);
+	}
+
+	@Override
+	public void sendDeliveryInfoToCustomerUsingSocket(final Task task) throws NotFoundException {
+		if (task.getDeliveryBoy() != null) {
+			LOGGER.info("inside notify customer for order delivery for task {} ", task.getId());
+			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationByDeliveryBoyId(task.getDeliveryBoy().getId());
+			/**
+			 * data to be send here some are static data by mobile team as they need this
+			 * data at their end
+			 */
+			Map<String, String> data = new HashMap<>();
+			data.put("deliveryBoyId", task.getDeliveryBoy().getId().toString());
+			data.put(ORDER_ID2, task.getOrder().getId().toString());
+			data.put("latitude", deliveryBoyLocation.getLatitude().toString());
+			data.put("longitude", deliveryBoyLocation.getLongitude().toString());
+			data.put("accuracy", "21.44499969482422");
+			data.put("heading", "175.7389678955078");
+			data.put("speed", "43.149864196777344");
+			data.put("orderStatus", task.getOrder().getOrderStatus());
+			data.put("taskStatus", task.getStatus());
+			/**
+			 * customerClient is the Id using which customer has subscribed socketIo
+			 */
+			String customerClient = task.getOrder().getId().toString().concat("_").concat(task.getOrder().getCustomer().getId().toString()).concat("_receiver");
+			socketIOService.pushMessageToUser(customerClient, data);
+		}
 	}
 }

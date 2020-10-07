@@ -28,6 +28,11 @@ import com.nice.service.SocketIOService;
 import com.nice.service.TaskService;
 import com.nice.util.JsonObjectMapper;
 
+/**
+ * 
+ * @author : Kody Technolab PVT. LTD.
+ * @date : 07-Oct-2020
+ */
 @Service(value = "socketIOService")
 public class SocketIOServiceImpl implements SocketIOService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SocketIOServiceImpl.class);

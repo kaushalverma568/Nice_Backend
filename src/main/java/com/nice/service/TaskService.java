@@ -252,4 +252,12 @@ public interface TaskService {
 	 * @return
 	 */
 	Task getLatestTaskByOrderId(Long orderId);
+
+	/**
+	 * send one manual hit to socket after delivery of order to notify customer
+	 * about delivery
+	 *
+	 * @throws NotFoundException
+	 */
+	void sendDeliveryInfoToCustomerUsingSocket(Task task) throws NotFoundException;
 }

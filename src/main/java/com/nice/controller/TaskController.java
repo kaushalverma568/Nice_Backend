@@ -46,7 +46,7 @@ import com.nice.validator.TaskValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -85,9 +85,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  taskId
+	 * @param token
+	 * @param userId
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -117,6 +117,10 @@ public class TaskController {
 		 * Send email notification for delivery of order.
 		 */
 		ordersService.sendEmailNotificationForOrder(NotificationQueueConstants.DELIVER_ORDER_EMAIL_NOTIFICATION_CUSTOMER, task.getOrder().getId());
+		/**
+		 * to notify customer about order delivery
+		 */
+		taskService.sendDeliveryInfoToCustomerUsingSocket(task);
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage(TASK_UPDATE_MESSAGE, null))
 				.setData(deliveryBoyService.getDashBoard()).setStatus(HttpStatus.OK).create();
 	}
@@ -124,8 +128,8 @@ public class TaskController {
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -142,8 +146,8 @@ public class TaskController {
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -160,9 +164,9 @@ public class TaskController {
 	/**
 	 * Update task status to reached at customer
 	 *
-	 * @param  token
-	 * @param  taskId
-	 * @param  taskType
+	 * @param token
+	 * @param taskId
+	 * @param taskType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -179,8 +183,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -197,8 +201,8 @@ public class TaskController {
 	/**
 	 * update task status to return on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -215,8 +219,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -233,8 +237,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -249,8 +253,8 @@ public class TaskController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  paymentDetailsId
+	 * @param token
+	 * @param paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -268,10 +272,10 @@ public class TaskController {
 	/**
 	 * Get task list for pay-out based on parameters
 	 *
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  taskFilterDTO
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param taskFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -294,10 +298,10 @@ public class TaskController {
 	/**
 	 * export task list for payout history
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException
