@@ -354,10 +354,11 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("user.not.found", new Object[] { userId })));
 	}
 
-	private void sendForgotPasswordLink(final String otp, final String email, final String userType, final String sendingType) {
+	private void sendForgotPasswordLink(final String otp, final String email, final String userType, final String sendingType, final Long userId) {
 		final Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setEmail(email);
+		notification.setUserId(userId);
 		notification.setUserType(userType);
 		notification.setSendingType(sendingType);
 		notification.setType(NotificationQueueConstants.FORGOT_PASS);
@@ -620,7 +621,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 				final UserOtp userOtp = otpService.generateOtp(userOtpDto);
 				if (forgotPasswordParameterDTO.getType().equals(UserOtpTypeEnum.EMAIL.name())) {
 					sendForgotPasswordLink(userOtp.getOtp(), userLogin.get().getEmail(), forgotPasswordParameterDTO.getUserType(),
-							forgotPasswordParameterDTO.getSendingType());
+							forgotPasswordParameterDTO.getSendingType(), userLogin.get().getId());
 				} else {
 					userOtpDto.setPhoneNumber(forgotPasswordParameterDTO.getPhoneNumber().toLowerCase());
 					otpService.sendOtp(userOtpDto, userOtp.getUserLogin(), userOtp.getOtp());

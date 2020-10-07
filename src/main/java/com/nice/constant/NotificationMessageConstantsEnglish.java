@@ -521,14 +521,14 @@ public final class NotificationMessageConstantsEnglish {
 
 	public static String welcome(final String applicationName) {
 		StringBuilder message = new StringBuilder();
-		message.append(applicationName).append(
-				" made shopping easy with a wide range of options in every category exclusively handpicked for you and also fastest food delivery with safe hands.");
+		message.append("Thank you for being a part of the Nice community\r\n"
+				+ "You can now order food and groceries online on Nice application from vendors that may interest you. Enjoy shopping without hassle from anywhere with Nice.");
 		return message.toString();
 	}
 
 	public static String welcomeSecondMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append("Join our online supermarket and enjoy your shopping with us!");
+		message.append("Feel our customer support beside you for any queries!");
 		return message.toString();
 	}
 
@@ -537,13 +537,6 @@ public final class NotificationMessageConstantsEnglish {
 		message.append("Welcome to ").append(applicationName).append("!\r\n").append(
 				"We are pleased to have you as a partner and looking forward to working with you as a team.\r\nKindly update your store and necessary details on the ")
 				.append(applicationName).append(" platform to let our users notice and order.\r\n For any queries, contact our customer support.");
-		return message.toString();
-	}
-
-	public static String getEmailVerificationMessage(final String applicationName) {
-		StringBuilder message = new StringBuilder();
-		message = message.append("Your email confirmation request has been received from ").append(applicationName)
-				.append(", please confirm your email here -");
 		return message.toString();
 	}
 
@@ -568,12 +561,6 @@ public final class NotificationMessageConstantsEnglish {
 	public static String subscriptionExpireSubject(final String applicationName) {
 		StringBuilder message = new StringBuilder();
 		message.append(applicationName).append(" Subscription Expire Reminder");
-		return message.toString();
-	}
-
-	public static String getResetMessage(final String applicationName) {
-		StringBuilder message = new StringBuilder();
-		message = message.append("We have received a request to reset your ").append(applicationName).append(" password.");
 		return message.toString();
 	}
 
@@ -604,8 +591,7 @@ public final class NotificationMessageConstantsEnglish {
 	public static String welcomeDeliveryBoy(final String applicationName) {
 		StringBuilder message = new StringBuilder();
 		message = message.append("You are now part of a ").append(applicationName)
-				.append(" community. Together we will deliver a pleasant experience to our customers with their order.").append("\r\n")
-				.append("For any queries, contact our customer support.");
+				.append(" community. Together we will deliver a pleasant experience to our customers with their order.");
 		return message.toString();
 	}
 }
