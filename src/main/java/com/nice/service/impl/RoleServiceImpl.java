@@ -100,8 +100,8 @@ public class RoleServiceImpl implements RoleService {
 			BeanUtils.copyProperties(moduleAndPermissionDTO, permissionDTO);
 			Permission permission = permissionMapper.toEntity(permissionDTO);
 			/**
-			 * For a special requirement by client regarding super admin and new user can
-			 * view product list we have to add some restrictions here
+			 * For a special requirement by client regarding super admin and new user can view product list we have to add some
+			 * restrictions here
 			 */
 			if (modules.getName().equals("Product List")) {
 				permission.setCanAdd(false);
@@ -194,6 +194,7 @@ public class RoleServiceImpl implements RoleService {
 				LOGGER.info("delete permissions for role, permissions:{}", permissions);
 				permissionRepository.deleteAll(permissions);
 			}
+			roleRepository.delete(role);
 		}
 	}
 }
