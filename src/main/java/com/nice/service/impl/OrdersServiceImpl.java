@@ -1731,11 +1731,11 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Cancel task if exists for the order
 		 */
 		String allocatedFor = orders.getOrderStatus().contains(REPLACE) ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
-		Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
-		if (task != null) {
-			taskService.changeTaskStatus(task.getId(), TaskStatusEnum.CANCELLED.getStatusValue());
-			if (task.getDeliveryBoy() != null) {
-				taskService.removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
+		Optional<Task> optTask = taskService.getTaskDetailForOrderIdAndAllocatedFor(orders, allocatedFor);
+		if (optTask.isPresent()) {
+			taskService.changeTaskStatus(optTask.get().getId(), TaskStatusEnum.CANCELLED.getStatusValue());
+			if (optTask.get().getDeliveryBoy() != null) {
+				taskService.removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(optTask.get());
 			}
 		}
 

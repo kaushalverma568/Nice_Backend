@@ -77,7 +77,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -489,6 +489,11 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
+	public Optional<Task> getTaskDetailForOrderIdAndAllocatedFor(final Orders order, final String allocatedFor) {
+		return taskRepository.findByOrderAndTaskTypeIgnoreCase(order, allocatedFor);
+	}
+
+	@Override
 	public void sendEmailForOrderDeliveryConfirmation(final Long orderId) throws NotFoundException {
 		Orders order = orderService.getOrderById(orderId);
 
@@ -533,7 +538,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */

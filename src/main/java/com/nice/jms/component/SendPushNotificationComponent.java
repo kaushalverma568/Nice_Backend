@@ -64,6 +64,8 @@ public class SendPushNotificationComponent {
 	/**
 	 *
 	 */
+	private static final String RETURN = "Return";
+	private static final String REPLACE = "Replace";
 	private static final String BODY = "body";
 	private static final String PUSH_NOTIFICATION_RESULT = "push notification result {}";
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendPushNotificationComponent.class);
@@ -205,7 +207,12 @@ public class SendPushNotificationComponent {
 	private void cancelOrderNotificationToDeliveryBoy(final PushNotificationDTO pushNotificationDTO) throws NotFoundException, ValidationException {
 		if (pushNotificationDTO.getOrderId() != null) {
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
-			String allocatedFor = orders.getOrderStatus().contains("Replace") ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
+			String allocatedFor = TaskTypeEnum.DELIVERY.getTaskValue();
+			if (orders.getOrderStatus().contains(REPLACE)) {
+				allocatedFor = TaskTypeEnum.REPLACEMENT.getTaskValue();
+			} else if (orders.getOrderStatus().contains(RETURN)) {
+				allocatedFor = TaskTypeEnum.RETURN.getTaskValue();
+			}
 			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 			DeliveryBoy deliveryBoy;
 			if (orders.getReplacementDeliveryBoy() != null) {
@@ -254,7 +261,12 @@ public class SendPushNotificationComponent {
 			String messageEnglish;
 			String messageArabic;
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
-			String allocatedFor = orders.getOrderStatus().contains("Replace") ? TaskTypeEnum.REPLACEMENT.getTaskValue() : TaskTypeEnum.RETURN.getTaskValue();
+			String allocatedFor = TaskTypeEnum.DELIVERY.getTaskValue();
+			if (orders.getOrderStatus().contains(REPLACE)) {
+				allocatedFor = TaskTypeEnum.REPLACEMENT.getTaskValue();
+			} else if (orders.getOrderStatus().contains(RETURN)) {
+				allocatedFor = TaskTypeEnum.RETURN.getTaskValue();
+			}
 			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 			DeliveryBoy deliveryBoy;
 			if (DeliveryType.DELIVERY.getStatusValue().equals(orders.getDeliveryType())) {
