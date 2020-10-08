@@ -1,0 +1,1 @@
+UPDATE RATING_QUESTION SET TYPE='Delivery Boy' WHERE ID in ('4','5');
