@@ -207,13 +207,7 @@ public class SendPushNotificationComponent {
 	private void cancelOrderNotificationToDeliveryBoy(final PushNotificationDTO pushNotificationDTO) throws NotFoundException, ValidationException {
 		if (pushNotificationDTO.getOrderId() != null) {
 			Orders orders = ordersService.getOrder(pushNotificationDTO.getOrderId());
-			String allocatedFor = TaskTypeEnum.DELIVERY.getTaskValue();
-			if (orders.getOrderStatus().contains(REPLACE)) {
-				allocatedFor = TaskTypeEnum.REPLACEMENT.getTaskValue();
-			} else if (orders.getOrderStatus().contains(RETURN)) {
-				allocatedFor = TaskTypeEnum.RETURN.getTaskValue();
-			}
-			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
+
 			DeliveryBoy deliveryBoy;
 			if (orders.getReplacementDeliveryBoy() != null) {
 				deliveryBoy = orders.getReplacementDeliveryBoy();
@@ -223,6 +217,13 @@ public class SendPushNotificationComponent {
 				LOGGER.info("no delivery boy assigned to order : {}", pushNotificationDTO.getOrderId());
 				return;
 			}
+			String allocatedFor = TaskTypeEnum.DELIVERY.getTaskValue();
+			if (orders.getOrderStatus().contains(REPLACE)) {
+				allocatedFor = TaskTypeEnum.REPLACEMENT.getTaskValue();
+			} else if (orders.getOrderStatus().contains(RETURN)) {
+				allocatedFor = TaskTypeEnum.RETURN.getTaskValue();
+			}
+			Task task = taskService.getTaskForOrderIdAndAllocatedFor(orders, allocatedFor);
 			StringBuilder message = new StringBuilder();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
