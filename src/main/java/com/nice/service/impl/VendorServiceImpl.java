@@ -845,7 +845,8 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public List<Long> runVendorSubscriptionExpireScheduler(final Date runDate) {
 		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
-		vendorFilterDTO.setSubscriptionEndDate(runDate);
+		vendorFilterDTO.setStatus(VendorStatus.ACTIVE.getStatusValue());
+		vendorFilterDTO.setSubscriptionEndDateLessthanEqual(runDate);
 		List<Long> vendorIds = new ArrayList<>();
 		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
 		for (Vendor vendor : vendors) {

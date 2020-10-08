@@ -10,12 +10,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.nice.exception.NotFoundException;
-import com.nice.service.SchedulerDetailsService;
 import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Jun-2020
+ * @date   : 30-Jun-2020
  */
 
 @Component
@@ -25,9 +24,6 @@ public class VendorSubscriptionScheduler {
 
 	@Autowired
 	private VendorService vendorService;
-
-	@Autowired
-	private SchedulerDetailsService schedulerDetailsService;
 
 	@Scheduled(cron = "0 30 0 * * ?")
 	public void run() {
