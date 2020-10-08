@@ -1,7 +1,6 @@
 package com.nice.controller;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @RestController
 @RequestMapping("/scheduler")
@@ -58,7 +57,7 @@ public class SchedulerController {
 	/**
 	 * Get scheduler list
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@GetMapping
@@ -73,7 +72,7 @@ public class SchedulerController {
 	/**
 	 * Run scheduler
 	 *
-	 * @param  accessToken
+	 * @param accessToken
 	 * @return
 	 */
 	@PutMapping("/run/{name}")
@@ -94,19 +93,22 @@ public class SchedulerController {
 		if (CommonUtility.convetUtilDatetoLocalDate(schedulerDetails.getUpdatedAt()).compareTo(runDate) >= 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("run.date.invalid", new Object[] { name, schedulerDetails.getUpdatedAt() }));
 		}
-		if (Constant.EXPIRE_STOCK_SCHEDULER.equals(name)) {
-			stockDetailsService.moveQtyToExpiredState(new Date());
-		}
-		if (Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name)) {
-			discountService.activateExpireDiscount(LocalDate.now());
-		}
-		if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
-			List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(new Date());
-			for (Long vendorId : vendorIds) {
-				vendorService.sendEmailForChangeVendorStatus(vendorId);
+		for (LocalDate runnableDate = new java.sql.Date(schedulerDetails.getUpdatedAt().getTime()).toLocalDate().plusDays(1); runnableDate
+				.compareTo(LocalDate.now()) <= 0; runnableDate = runnableDate.plusDays(1L)) {
+			if (Constant.EXPIRE_STOCK_SCHEDULER.equals(name)) {
+				stockDetailsService.moveQtyToExpiredState(java.sql.Date.valueOf(runnableDate));
 			}
-		} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {
-			vendorService.runVendorSubscriptionExpireReminderScheduler(new Date());
+			if (Constant.ACTIVATE_EXPIRE_DISCOUNT.equals(name)) {
+				discountService.activateExpireDiscount(runnableDate);
+			}
+			if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
+				List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(java.sql.Date.valueOf(runnableDate));
+				for (Long vendorId : vendorIds) {
+					vendorService.sendEmailForChangeVendorStatus(vendorId);
+				}
+			} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {
+				vendorService.runVendorSubscriptionExpireReminderScheduler(java.sql.Date.valueOf(runnableDate));
+			}
 		}
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("scheduler.run.successfully", new Object[] { name }))
 				.setStatus(HttpStatus.OK).create();
