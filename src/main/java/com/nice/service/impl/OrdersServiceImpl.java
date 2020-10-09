@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1248,7 +1249,7 @@ public class OrdersServiceImpl implements OrdersService {
 			Long totalOrderQty = ordersItemRepository.getTotalItemCountForOrder(orders.getId());
 			orderResponseDto.setCount(totalOrderQty);
 		}
-		List<OrderStatusHistory> orderStatusList = orderStatusRepository.findAllByOrderId(orders.getId());
+		List<OrderStatusHistory> orderStatusList = orderStatusRepository.findAllByOrderId(orders.getId(), Sort.by(Sort.Direction.ASC, "id"));
 		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusList);
 		orderResponseDto.setOrderStatusDtoList(orderStatusDtoList);
 		VendorResponseDTO vendorDto = vendorService.getVendor(orders.getVendor().getId());
@@ -1560,7 +1561,7 @@ public class OrdersServiceImpl implements OrdersService {
 			ordersResponseDTO.setCustomerName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
 			ordersResponseDTO.setPhoneNumber(customer.getPhoneNumber());
 		}
-		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusRepository.findAllByOrderId(orderId));
+		List<OrderStatusDto> orderStatusDtoList = orderStatusMapper.toDtos(orderStatusRepository.findAllByOrderId(orderId, Sort.by(Sort.Direction.ASC, "id")));
 		ordersResponseDTO.setOrderStatusDtoList(orderStatusDtoList);
 		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(ordersResponseDTO.getOrderStatus())) {
 			for (OrderStatusDto orderStatusDto : orderStatusDtoList) {
@@ -2067,9 +2068,12 @@ public class OrdersServiceImpl implements OrdersService {
 		List<Task> taskList = taskService.getTaskListForOrderId(refundAmountDto.getOrderId());
 		for (Task task : taskList) {
 			if (TaskStatusEnum.CANCELLED.getStatusValue().equals(task.getStatus())) {
-				task.setAmountBorneByAdmin(refundAmountDto.getAdminContribution());
-				task.setAmountBorneByDeliveryBoy(refundAmountDto.getDeliveryBoyContribution());
-				task.setAmountBorneByVendor(refundAmountDto.getVendorContribution());
+				/**
+				 * Here the value is multipled by -1 as whatever amount is refunded is the loss to admin or delivery boy or vendor
+				 */
+				task.setAdminProfit(refundAmountDto.getAdminContribution() * (-1));
+				task.setDeliveryBoyProfit(refundAmountDto.getDeliveryBoyContribution() * (-1));
+				task.setVendorProfit(refundAmountDto.getVendorContribution() * (-1));
 				taskRepository.save(task);
 			}
 		}
