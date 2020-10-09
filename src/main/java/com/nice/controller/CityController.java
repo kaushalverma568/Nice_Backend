@@ -166,22 +166,22 @@ public class CityController {
 	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
+	 * @throws NotFoundException
 	 */
 	@GetMapping("/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getCityListBasedOnParams(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords,
-			@RequestParam(name = "isPincodeExist", required = false) final Boolean isPincodeExist,
-			@RequestParam(name = "isDefault", required = false) final Boolean isDefault, @RequestParam(name = "stateId", required = false) final Long stateId,
-			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws ValidationException {
-		Long totalCount = cityService.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, isPincodeExist, isDefault);
+			@RequestParam(name = "isAreaExist", required = false) final Boolean isAreaExist,
+			@RequestParam(name = "stateId", required = false) final Long stateId,
+			@RequestParam(name = "searchKeyword", required = false) final String searchKeyword) throws ValidationException, NotFoundException {
+		Long totalCount = cityService.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, isAreaExist);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<City> resultStates = cityService.getCityListBasedOnParams(paginationUtilDto.getStartIndex(), pageSize, activeRecords, stateId, searchKeyword,
-				isPincodeExist, isDefault);
+				isAreaExist);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("city.list.message", null))
 				.setData(cityMapper.toDtos(resultStates)).setHasNextPage(paginationUtilDto.getHasNextPage())
 				.setHasPreviousPage(paginationUtilDto.getHasPreviousPage()).setTotalPages(paginationUtilDto.getTotalPages().intValue())
 				.setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount).create();
-
 	}
 
 	/**

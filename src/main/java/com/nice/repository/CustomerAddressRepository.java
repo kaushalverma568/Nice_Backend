@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nice.model.Area;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
-import com.nice.model.Pincode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -38,7 +38,7 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 	Page<CustomerAddress> findAllByCustomer(Customer customer, Pageable pageable);
 
 	/**
-	 * To find by streetNo, Building name and landmark and pincode ignore case
+	 * To find by streetNo, Building name and landmark ignore case
 	 *
 	 * @param  streetNo
 	 * @param  buildingName
@@ -46,22 +46,20 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 	 * @param  id
 	 * @return
 	 */
-	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomer(String streetNo, String buildingName, String area, Pincode pincode,
-			Customer customer);
+	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndCustomer(String streetNo, String buildingName, Area area, Customer customer);
 
 	/**
-	 * To find by streetNo, Building name and landmark and pincode and customer and id not
+	 * To find by streetNo, Building name and landmark,area and customer and id not
 	 *
 	 * @param  streetNo
 	 * @param  buildingName
 	 * @param  area
-	 * @param  pincode
 	 * @param  customer
 	 * @param  id
 	 * @return
 	 */
-	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomerAndIdNot(String streetNo, String buildingName, String area,
-			Pincode pincode, Customer customer, Long id);
+	Optional<CustomerAddress> findByStreetNoAndBuildingNameAndAreaAndCustomerAndIdNot(String streetNo, String buildingName, Area area, Customer customer,
+			Long id);
 
 	/**
 	 * @param  customer
@@ -76,8 +74,10 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 	void deleteAllByCustomer(Customer customer);
 
 	/**
-	 * @param pincode
+	 * delete all by area
+	 *
+	 * @param area
 	 */
-	void deleteAllByPincode(Pincode pincode);
+	void deleteAllByArea(Area area);
 
 }

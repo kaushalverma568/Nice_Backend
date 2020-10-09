@@ -37,10 +37,10 @@ import com.nice.constant.DeliveryType;
 import com.nice.constant.VendorStatus;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
+import com.nice.model.Area;
 import com.nice.model.BusinessCategory;
 import com.nice.model.City;
 import com.nice.model.Country;
-import com.nice.model.Pincode;
 import com.nice.model.SubscriptionPlan;
 import com.nice.model.Vendor;
 import com.nice.util.CommonUtility;
@@ -140,14 +140,14 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			predicates.add(criteriaBuilder.equal(country.get("id"), vendorFilterDTO.getCountryId()));
 		}
 
-		if (vendorFilterDTO.getPincodeId() != null) {
-			Join<Vendor, Pincode> pincode = vendor.join("pincode", JoinType.INNER);
-			predicates.add(criteriaBuilder.equal(pincode.get("id"), vendorFilterDTO.getPincodeId()));
-		}
-
 		if (vendorFilterDTO.getCityId() != null) {
 			Join<Vendor, City> city = vendor.join("city", JoinType.INNER);
 			predicates.add(criteriaBuilder.equal(city.get("id"), vendorFilterDTO.getCityId()));
+		}
+
+		if (vendorFilterDTO.getAreaId() != null) {
+			Join<Vendor, Area> area = vendor.join("area", JoinType.INNER);
+			predicates.add(criteriaBuilder.equal(area.get("id"), vendorFilterDTO.getAreaId()));
 		}
 
 		if (vendorFilterDTO.getSubscriptionEndDate() != null) {
@@ -354,6 +354,11 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		if (vendorListFilterDTO.getCityId() != null) {
 			sqlQuery.append(" and v.city_id = :cityId ");
 			paramMap.put("cityId", vendorListFilterDTO.getCityId());
+		}
+
+		if (vendorListFilterDTO.getAreaId() != null) {
+			sqlQuery.append(" and v.area_id = :areaId ");
+			paramMap.put("areaId", vendorListFilterDTO.getAreaId());
 		}
 	}
 

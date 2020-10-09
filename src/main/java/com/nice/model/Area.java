@@ -16,28 +16,32 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 22-Jun-2020
+ * @date   : Oct 9, 2020
  */
 @Entity
-@Table(name = "pincode")
+@Table(name = "area")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Pincode extends CommonModel {
+public class Area extends CommonModel {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 4342062917176065698L;
+	private static final long serialVersionUID = 6314964945140006582L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "code_value", nullable = false)
-	private String codeValue;
+	@Column(name = "name_english", nullable = false, unique = true, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameEnglish;
+
+	@Column(name = "name_arabic", nullable = false, unique = true, columnDefinition = "CHARACTER VARYING(255) DEFAULT ' '")
+	private String nameArabic;
 
 	@JoinColumn(name = "city_id", nullable = false)
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	private City city;
+
 }

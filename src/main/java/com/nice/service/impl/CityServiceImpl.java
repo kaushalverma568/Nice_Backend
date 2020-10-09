@@ -17,12 +17,12 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CityMapper;
+import com.nice.model.Area;
 import com.nice.model.City;
-import com.nice.model.Pincode;
 import com.nice.model.State;
 import com.nice.repository.CityRepository;
+import com.nice.service.AreaService;
 import com.nice.service.CityService;
-import com.nice.service.PincodeService;
 import com.nice.service.StateService;
 
 /**
@@ -48,13 +48,12 @@ public class CityServiceImpl implements CityService {
 	private CityMapper cityMapper;
 
 	@Autowired
-	private PincodeService pincodeService;
+	private AreaService areaService;
 
 	@Override
 	public void addCity(final CityDTO cityDTO) throws ValidationException, NotFoundException {
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		City city = cityMapper.toEntity(cityDTO);
-		city.setIsDefault(false);
 		city.setState(state);
 		cityRepository.save(city);
 	}
@@ -67,14 +66,9 @@ public class CityServiceImpl implements CityService {
 		/**
 		 * Check whether city is exists or not.
 		 */
-		City existingCity = getCityDetails(cityDTO.getId());
+		getCityDetails(cityDTO.getId());
 		State state = stateService.getStateDetails(cityDTO.getStateId());
 		City city = cityMapper.toEntity(cityDTO);
-		city.setIsDefault(existingCity.getIsDefault());
-		if (existingCity.getLatitude() != null && existingCity.getLongitude() != null) {
-			city.setLatitude(existingCity.getLatitude());
-			city.setLongitude(existingCity.getLongitude());
-		}
 		city.setState(state);
 		cityRepository.save(city);
 	}
@@ -149,13 +143,10 @@ public class CityServiceImpl implements CityService {
 	 */
 	private void changeStatusOfDependantEntity(final City existingCity, final Boolean active) throws ValidationException, NotFoundException {
 		if (Boolean.FALSE.equals(active)) {
-			if (existingCity.getIsDefault().booleanValue()) {
-				throw new ValidationException(messageByLocaleService.getMessage("default.city.cannot.deactivate", null));
-			}
-			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, existingCity.getId(), null);
-			for (Pincode pincode : pincodeList) {
-				LOGGER.info("Deactive pincode for id : {} , because of city deactive", pincode.getId());
-				pincodeService.changeStatus(pincode.getId(), active);
+			final List<Area> areaList = areaService.getAreaList(true, existingCity.getId());
+			for (Area area : areaList) {
+				LOGGER.info("Deactive area for id : {} , because of city deactive", area.getId());
+				areaService.changeStatus(area.getId(), active);
 			}
 		} else {
 			if (Boolean.FALSE.equals(existingCity.getState().getActive())) {
@@ -165,35 +156,35 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Boolean isPincodeExist,
-			final Boolean isDefault) {
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Boolean isAreaExist)
+			throws NotFoundException {
 		Set<Long> idsIn = new HashSet<>();
 		/**
-		 * For getting only those cities which has active pin codes
+		 * For getting only those cities which has active areas
 		 */
-		if (isPincodeExist != null && isPincodeExist) {
-			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, null, null);
-			for (Pincode pincode : pincodeList) {
-				idsIn.add(pincode.getCity().getId());
+		if (isAreaExist != null && isAreaExist) {
+			final List<Area> areaList = areaService.getAreaList(true, null);
+			for (Area area : areaList) {
+				idsIn.add(area.getCity().getId());
 			}
 		}
-		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, idsIn, isDefault);
+		return cityRepository.getCityCountBasedOnParams(activeRecords, stateId, searchKeyword, idsIn);
 	}
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword, final Boolean isPincodeExist, final Boolean isDefault) {
+			final String searchKeyword, final Boolean isAreaExist) throws NotFoundException {
 		Set<Long> idsIn = new HashSet<>();
 		/**
-		 * For getting only those cities which has active pin codes
+		 * For getting only those cities which has active areas
 		 */
-		if (isPincodeExist != null && isPincodeExist) {
-			final List<Pincode> pincodeList = pincodeService.getPincodeListBasedOnParams(null, null, true, null, null);
-			for (Pincode pincode : pincodeList) {
-				idsIn.add(pincode.getCity().getId());
+		if (isAreaExist != null && isAreaExist) {
+			final List<Area> areaList = areaService.getAreaList(true, null);
+			for (Area area : areaList) {
+				idsIn.add(area.getCity().getId());
 			}
 		}
-		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword, idsIn, isDefault);
+		return cityRepository.getCityListBasedOnParams(startIndex, pageSize, activeRecords, stateId, searchKeyword, idsIn);
 	}
 
 	@Override

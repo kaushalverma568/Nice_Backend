@@ -35,9 +35,8 @@ import com.nice.response.GenericResponseHandlers;
 import com.nice.service.DiscountService;
 
 /**
- *
- * @author : Kody Technolab PVT. LTD.
- * @date : 23-Mar-2020
+ * @author      : Kody Technolab PVT. LTD.
+ * @date        : 23-Mar-2020
  * @description : Discount Related APIs
  */
 @RequestMapping(path = "/discount")
@@ -57,10 +56,10 @@ public class DiscountController {
 	/**
 	 * Add Discount
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -83,10 +82,10 @@ public class DiscountController {
 	/**
 	 * Update Discount
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountDTO
-	 * @param result
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountDTO
+	 * @param  result
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -110,7 +109,7 @@ public class DiscountController {
 	/**
 	 * Get Discount Details based on id
 	 *
-	 * @param discountId
+	 * @param  discountId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -127,11 +126,10 @@ public class DiscountController {
 	/**
 	 * Get Discount list based on parameters
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param pincodeId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -154,10 +152,10 @@ public class DiscountController {
 	/**
 	 * Change status of discount (CANCELLED)
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param discountId
-	 * @param active
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  discountId
+	 * @param  active
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -177,11 +175,10 @@ public class DiscountController {
 	/**
 	 * Get product list of that discounted
 	 *
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param activeRecords
-	 * @param pincodeId
-	 * @param searchKeyword
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  activeRecords
+	 * @param  searchKeyword
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException

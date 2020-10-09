@@ -14,7 +14,7 @@ import com.nice.model.CustomerAddress;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 22-Jun-2020
+ * @date   : 22-Jun-2020
  */
 @Component
 public class CustomerAddressMapper {
@@ -46,9 +46,13 @@ public class CustomerAddressMapper {
 				customersAddressResponseDTO.setCityName(customersAddress.getCity().getNameArabic());
 			}
 		}
-		if (customersAddress.getPincode() != null) {
-			customersAddressResponseDTO.setPincodeId(customersAddress.getPincode().getId());
-			customersAddressResponseDTO.setPincodeValue(customersAddress.getPincode().getCodeValue());
+		if (customersAddress.getArea() != null) {
+			customersAddressResponseDTO.setAreaId(customersAddress.getArea().getId());
+			if (locale.getLanguage().equals("en")) {
+				customersAddressResponseDTO.setAreaName(customersAddress.getArea().getNameEnglish());
+			} else {
+				customersAddressResponseDTO.setAreaName(customersAddress.getArea().getNameArabic());
+			}
 		}
 		return customersAddressResponseDTO;
 	}

@@ -162,7 +162,11 @@ public class VendorController {
 			LOGGER.error("Vendor validation failed");
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		/**
+		 * Added to handle the country,city in this, default it will be 1
+		 */
 		vendorDTO.setCountryId(1L);
+		vendorDTO.setCityId(1L);
 		VendorResponseDTO vendorResponseDTO = vendorService.addVendor(vendorDTO);
 		if (vendorDTO.getIsAdmin().booleanValue()) {
 			userLoginService.sendWelComeEmail(vendorResponseDTO.getUserId());
@@ -193,7 +197,11 @@ public class VendorController {
 			LOGGER.error(VENDOR_VALIDATION_FAILED);
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		/**
+		 * Added to handle the country,city in this, default it will be 1
+		 */
 		vendorDTO.setCountryId(1L);
+		vendorDTO.setCityId(1L);
 		vendorService.updatePersonalDetails(vendorDTO);
 		LOGGER.info("Outside update vendor");
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_UPDATE_MESSAGE, null))

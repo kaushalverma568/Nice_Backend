@@ -23,7 +23,7 @@ import lombok.ToString;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 29-06-2020
+ * @date   : 29-06-2020
  */
 
 @Entity
@@ -73,9 +73,6 @@ public class Vendor extends CommonModel {
 	@Column(name = "street_english", nullable = false)
 	private String streetEnglish;
 
-	@Column(name = "area_english", nullable = false)
-	private String areaEnglish;
-
 	@Column(name = "first_name_arabic", nullable = false)
 	private String firstNameArabic;
 
@@ -94,8 +91,9 @@ public class Vendor extends CommonModel {
 	@Column(name = "street_arabic", nullable = false)
 	private String streetArabic;
 
-	@Column(name = "area_arabic", nullable = false)
-	private String areaArabic;
+	@JoinColumn(name = "area_id")
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	private Area area;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
@@ -147,10 +145,6 @@ public class Vendor extends CommonModel {
 	@JoinColumn(name = "city_id")
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	private City city;
-
-	@JoinColumn(name = "pincode_id")
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
-	private Pincode pincode;
 
 	@Column(name = "latitude")
 	private BigDecimal latitude;

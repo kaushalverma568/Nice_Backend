@@ -17,9 +17,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- *
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 13-07-2020
+ * @date   : 13-07-2020
  */
 @Entity
 @Table(name = "online_cart")
@@ -66,8 +65,8 @@ public class OnlineCart extends CommonModel {
 	@Column(name = "city_id", nullable = true)
 	private Long cityId;
 
-	@Column(name = "pincode_id", nullable = true)
-	private Long pincodeId;
+	@Column(name = "area_id", nullable = true)
+	private Long areaId;
 
 	@Column(name = "latitude", nullable = true)
 	private BigDecimal latitude;

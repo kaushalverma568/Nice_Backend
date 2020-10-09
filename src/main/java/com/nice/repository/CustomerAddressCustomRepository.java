@@ -20,11 +20,12 @@ public interface CustomerAddressCustomRepository {
 	 * @param  countryId
 	 * @param  stateId
 	 * @param  cityId
+	 * @param  areaId
 	 * @param  startIndex
 	 * @param  pageSize
 	 * @return
 	 */
-	List<CustomerAddress> getCustomerAddressListBasedOnParams(Boolean activeRecords, Long customerId, Long countryId, Long stateId, Long cityId, Long pincode,
+	List<CustomerAddress> getCustomerAddressListBasedOnParams(Boolean activeRecords, Long customerId, Long countryId, Long stateId, Long cityId, Long areaId,
 			Integer startIndex, Integer pageSize);
 
 }

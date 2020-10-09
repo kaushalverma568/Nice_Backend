@@ -11,9 +11,9 @@ import com.nice.dto.CustomerAddressDTO;
 import com.nice.dto.CustomerAddressResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
+import com.nice.model.Area;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
-import com.nice.model.Pincode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -115,12 +115,12 @@ public interface CustomerAddressService {
 	 * @param  countryId
 	 * @param  stateId
 	 * @param  cityId
-	 * @param  pincodeId
+	 * @param  areaId
 	 * @param  startIndex
 	 * @param  pageSize
 	 * @return
 	 */
-	List<CustomerAddress> getCustomerAddressListBasedOnParams(Boolean activeRecords, Long customerId, Long countryId, Long stateId, Long cityId, Long pincodeId,
+	List<CustomerAddress> getCustomerAddressListBasedOnParams(Boolean activeRecords, Long customerId, Long countryId, Long stateId, Long cityId, Long areaId,
 			Integer startIndex, Integer pageSize);
 
 	/**
@@ -136,7 +136,9 @@ public interface CustomerAddressService {
 	void deleteAllAddressByCustomer(Customer customer);
 
 	/**
-	 * @param pincode
+	 * Delete all customer address by area
+	 *
+	 * @param existingArea
 	 */
-	void deleteAllAddressByPincode(Pincode pincode);
+	void deleteAllAddressByArea(Area area);
 }

@@ -140,16 +140,14 @@ public class StateServiceImpl implements StateService {
 	/**
 	 * Deactivate city and customer address and validation while activate state & validate country while state is activate
 	 *
-	 * @param  stateId
 	 * @param  active
-	 * @param  userId
 	 * @param  existingState
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	private void changeStatusOfDependantEntity(final Boolean active, final State existingState) throws ValidationException, NotFoundException {
 		if (Boolean.FALSE.equals(active)) {
-			List<City> cityList = cityService.getCityListBasedOnParams(null, null, true, existingState.getId(), null, null, null);
+			List<City> cityList = cityService.getCityListBasedOnParams(null, null, true, existingState.getId(), null, null);
 			for (City city : cityList) {
 				LOGGER.info("Deactive city for id : {} , because of state deactive", city.getId());
 				cityService.changeStatus(city.getId(), active);

@@ -38,8 +38,6 @@ public class VendorDTO implements Serializable {
 	private String blockArabic;
 	@NotBlank(message = "{vendor.street.arabic.not.null}")
 	private String streetArabic;
-	@NotBlank(message = "{vendor.area.arabic.not.null}")
-	private String areaArabic;
 
 	@NotBlank(message = "{vendor.first.name.english.not.null}")
 	private String firstNameEnglish;
@@ -53,19 +51,16 @@ public class VendorDTO implements Serializable {
 	private String blockEnglish;
 	@NotBlank(message = "{vendor.street.english.not.null}")
 	private String streetEnglish;
-	@NotBlank(message = "{vendor.area.english.not.null}")
-	private String areaEnglish;
 
 	@NotBlank(message = "{phone.number.not.null}")
 	private String phoneNumber;
 
 	private Long countryId;
 
-	@NotNull(message = "{city.id.not.null}")
 	private Long cityId;
 
-	@NotNull(message = "{pincode.id.not.null}")
-	private Long pincodeId;
+	@NotNull(message = "{area.id.not.null}")
+	private Long areaId;
 
 	@NotNull(message = "{latitude.not.null}")
 	private BigDecimal latitude;

@@ -1,7 +1,5 @@
 package com.nice.model;
 
-import java.math.BigDecimal;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,12 +43,4 @@ public class City extends CommonModel {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private State state;
 
-	@Column(name = "is_default", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-	private Boolean isDefault;
-
-	@Column(name = "latitude")
-	private BigDecimal latitude;
-
-	@Column(name = "longitude")
-	private BigDecimal longitude;
 }

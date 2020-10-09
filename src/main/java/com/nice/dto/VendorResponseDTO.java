@@ -62,9 +62,7 @@ public class VendorResponseDTO implements Serializable {
 
 	private String cityName;
 
-	private Long pincodeId;
-
-	private String codeValue;
+	private Long areaId;
 
 	private BigDecimal latitude;
 
@@ -111,7 +109,7 @@ public class VendorResponseDTO implements Serializable {
 	private String buildingEnglish;
 	private String blockEnglish;
 	private String streetEnglish;
-	private String areaEnglish;
+	private String areaNameEnglish;
 
 	private String firstNameArabic;
 	private String lastNameArabic;
@@ -119,7 +117,7 @@ public class VendorResponseDTO implements Serializable {
 	private String buildingArabic;
 	private String blockArabic;
 	private String streetArabic;
-	private String areaArabic;
+	private String areaNameArabic;
 
 	private String firstName;
 	private String lastName;
@@ -127,7 +125,7 @@ public class VendorResponseDTO implements Serializable {
 	private String building;
 	private String block;
 	private String street;
-	private String area;
+	private String areaName;
 
 	private Boolean manageInventory;
 

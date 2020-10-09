@@ -75,11 +75,11 @@ public interface CityService {
 	 * @param  activeRecords
 	 * @param  stateId
 	 * @param  searchKeyword
-	 * @param  isPincodeExist
-	 * @param  isDefault
+	 * @param  isAreaExist
 	 * @return
+	 * @throws NotFoundException
 	 */
-	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword, Boolean isPincodeExist, Boolean isDefault);
+	Long getCityCountBasedOnParams(Boolean activeRecords, Long stateId, String searchKeyword, Boolean isAreaExist) throws NotFoundException;
 
 	/**
 	 * Get city list based on parameters
@@ -89,12 +89,12 @@ public interface CityService {
 	 * @param  activeRecords
 	 * @param  stateId
 	 * @param  searchKeyword
-	 * @param  isPincodeExist
-	 * @param  isDefault
+	 * @param  isAreaExist
 	 * @return
+	 * @throws NotFoundException
 	 */
-	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword, Boolean isPincodeExist,
-			Boolean isDefault);
+	List<City> getCityListBasedOnParams(Integer startIndex, Integer pageSize, Boolean activeRecords, Long stateId, String searchKeyword, Boolean isAreaExist)
+			throws NotFoundException;
 
 	/**
 	 * @param  cityDTO

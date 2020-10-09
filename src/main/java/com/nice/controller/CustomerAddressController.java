@@ -99,13 +99,13 @@ public class CustomerAddressController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		/**
-		 * Added to handle the country & state in this, default it will be 1
+		 * Added to handle the country, state,city in this, default it will be 1
 		 */
 		customerAddressDTO.setCountryId(1L);
 		customerAddressDTO.setStateId(1L);
-
+		customerAddressDTO.setCityId(1L);
 		/**
-		 * Addition for country ends
+		 * Addition code ends
 		 */
 		Long addressId = customerAddressService.addAddress(customerAddressDTO.getCustomerId(), customerAddressDTO);
 		LOGGER.info("Outside add customer address for customer id {}", customerAddressDTO.getCustomerId());
@@ -135,12 +135,13 @@ public class CustomerAddressController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 		/**
-		 * Added to handle the country in this, default it will be 1
+		 * Added to handle the country, state,city in this, default it will be 1
 		 */
 		customerAddressDTO.setCountryId(1L);
 		customerAddressDTO.setStateId(1L);
+		customerAddressDTO.setCityId(1L);
 		/**
-		 * Addition for country ends
+		 * Addition code ends
 		 */
 		Long addressId = customerAddressService.updateAddress(customerAddressDTO.getCustomerId(), customerAddressDTO);
 		LOGGER.info("Outside update customers {}", customerAddressDTO);
@@ -207,11 +208,11 @@ public class CustomerAddressController {
 	public ResponseEntity<Object> getCustomerAddressListBasedOnParams(@RequestHeader("Authorization") final String accessToken,
 			@RequestParam(name = "customerId", required = false) final Long customerId,
 			@RequestParam(name = "countryId", required = false) final Long countryId, @RequestParam(name = "stateId", required = false) final Long stateId,
-			@RequestParam(name = "cityId", required = false) final Long cityId, @RequestParam(name = "pincodeId", required = false) final Long pincodeId,
+			@RequestParam(name = "cityId", required = false) final Long cityId, @RequestParam(name = "areaId", required = false) final Long areaId,
 			@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
 			@RequestParam(name = "activeRecords", required = false) final Boolean activeRecords) {
 		final List<CustomerAddress> customerAddressList = customerAddressService.getCustomerAddressListBasedOnParams(activeRecords, customerId, countryId,
-				stateId, cityId, pincodeId, 0, pageSize);
+				stateId, cityId, areaId, 0, pageSize);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("address.list.message", null))
 				.setData(customerAddressMapper.toDtos(customerAddressList)).create();
 	}

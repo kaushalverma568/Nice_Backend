@@ -28,7 +28,6 @@ public final class Constant {
 	public static final String COUNTRY = "Country";
 	public static final String STATE = "State";
 	public static final String CITY = "City";
-	public static final String PINCODE = "Pincode";
 	public static final String CATEGORY = "Category";
 	public static final String SUB_CATEGORY = "Sub Category";
 	public static final String CUSTOMER_ADDRESS = "Customer address";
@@ -52,8 +51,7 @@ public final class Constant {
 	public static final Double MAX_DISTANCE_FROM_CUSTOMER = 20d;
 
 	/**
-	 * maximum distance of delivery boy from vendor for considering in sending order
-	 * accept notification (in km)
+	 * maximum distance of delivery boy from vendor for considering in sending order accept notification (in km)
 	 */
 	public static final Double MAX_DISTANCE_FROM_VENDOR = 20d;
 
@@ -115,9 +113,8 @@ public final class Constant {
 	public static final String PENDING = "Pending";
 	public static final String REJECTED = "Rejected";
 	/**
-	 * The below order status will be used only for display purpose, of the stock is
-	 * allocated then the order status would be Waiting for pickup for display
-	 * purpose, it has no role in the order flow of system
+	 * The below order status will be used only for display purpose, of the stock is allocated then the order status would
+	 * be Waiting for pickup for display purpose, it has no role in the order flow of system
 	 */
 	public static final String WAITING_FOR_PICKUP = "Waiting for pickup";
 
@@ -146,9 +143,8 @@ public final class Constant {
 
 	public static final String CUSTOMER_SIGNUP_REWARD = "CUSTOMER_SIGNUP_REWARD";
 	/**
-	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it
-	 * is the admin that takes the comission and not the vendor, once changed in the
-	 * settings table , replace the same name here, rest will work fine
+	 * Change this name in changeset from VENDOR_COMISSION TO ADMIN_COMISSION, as it is the admin that takes the comission
+	 * and not the vendor, once changed in the settings table , replace the same name here, rest will work fine
 	 */
 	public static final String ADMIN_COMISSION = "ADMIN_COMISSION";
 	/**

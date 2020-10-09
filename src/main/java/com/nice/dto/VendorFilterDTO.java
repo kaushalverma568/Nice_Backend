@@ -23,7 +23,7 @@ public class VendorFilterDTO implements Serializable {
 
 	private Long cityId;
 
-	private Long pincodeId;
+	private Long areaId;
 
 	private String searchKeyword;
 

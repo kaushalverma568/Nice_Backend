@@ -51,7 +51,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 
 	@Override
 	public List<City> getCityListBasedOnParams(final Integer startIndex, final Integer pageSize, final Boolean activeRecords, final Long stateId,
-			final String searchKeyword, final Set<Long> idsIn, final Boolean isDefault) {
+			final String searchKeyword, final Set<Long> idsIn) {
 		Locale locale = LocaleContextHolder.getLocale();
 		/**
 		 * Create Criteria builder instance using entity manager
@@ -91,9 +91,6 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		if (idsIn != null && !idsIn.isEmpty()) {
 			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
 		}
-		if (isDefault != null) {
-			predicates.add(criteriaBuilder.equal(city.get("isDefault"), isDefault));
-		}
 		/**
 		 * Add the clauses for the query.
 		 */
@@ -122,8 +119,7 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 	}
 
 	@Override
-	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Set<Long> idsIn,
-			final Boolean isDefault) {
+	public Long getCityCountBasedOnParams(final Boolean activeRecords, final Long stateId, final String searchKeyword, final Set<Long> idsIn) {
 		/**
 		 * Create Criteria builder instance using entity manager
 		 */
@@ -160,9 +156,6 @@ public class CityCustomRepositoryImpl implements CityCustomRepository {
 		}
 		if (idsIn != null && !idsIn.isEmpty()) {
 			predicates.add(criteriaBuilder.in(city.get("id")).value(idsIn));
-		}
-		if (isDefault != null) {
-			predicates.add(criteriaBuilder.equal(city.get("isDefault"), isDefault));
 		}
 		/**
 		 * Add the clauses for the query.

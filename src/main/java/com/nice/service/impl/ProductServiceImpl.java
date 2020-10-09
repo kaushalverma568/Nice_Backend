@@ -84,7 +84,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 29-Jun-2020
+ * @date   : 29-Jun-2020
  */
 @Service(value = "productService")
 @Transactional(rollbackFor = Throwable.class)
@@ -387,7 +387,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * validation for add or update product
 	 *
-	 * @param productRequestDTO
+	 * @param  productRequestDTO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -506,10 +506,9 @@ public class ProductServiceImpl implements ProductService {
 	 * listForAdmin==null means get product detail for admin listForAdmin==true means get product list for admin convert
 	 * entity to response dto
 	 *
-	 * @param product
-	 * @param listForAdmin
-	 * @param productParamRequestDTO
-	 * @param pincodeId
+	 * @param  product
+	 * @param  listForAdmin
+	 * @param  productParamRequestDTO
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -665,9 +664,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param active
-	 * @param existingProduct
-	 * @param productId
+	 * @param  active
+	 * @param  existingProduct
+	 * @param  productId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -697,7 +696,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * check masters for activate product
 	 *
-	 * @param existingProduct
+	 * @param  existingProduct
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -742,8 +741,8 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * upload image of product
 	 *
-	 * @param image
-	 * @param product
+	 * @param  image
+	 * @param  product
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -863,8 +862,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTOs
-	 * @param userId
+	 * @param  productImportDTOs
+	 * @param  userId
 	 * @return
 	 */
 	private List<ProductImportDTO> insertListOfProducts(final List<ProductImportDTO> productImportDTOs) {
@@ -936,10 +935,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * @param productImportDTO
-	 * @param brandId
-	 * @param vendor
-	 * @param productRequestDTO
+	 * @param  productImportDTO
+	 * @param  brandId
+	 * @param  vendor
+	 * @param  productRequestDTO
 	 * @throws ValidationException
 	 */
 	private void validateAndSetProductImport(final ProductImportDTO productImportDTO, final Long brandId, final Vendor vendor,

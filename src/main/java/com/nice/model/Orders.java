@@ -73,9 +73,9 @@ public class Orders extends CommonModel {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	private City city;
 
-	@JoinColumn(name = "pincode_id", nullable = true)
+	@JoinColumn(name = "area_id", nullable = true)
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
-	private Pincode pincode;
+	private Area area;
 
 	@Column(name = "delivery_charge", nullable = true)
 	private Double deliveryCharge;

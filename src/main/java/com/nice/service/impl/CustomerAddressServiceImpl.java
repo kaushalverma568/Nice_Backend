@@ -22,18 +22,18 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CustomerAddressMapper;
+import com.nice.model.Area;
 import com.nice.model.City;
 import com.nice.model.Country;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
-import com.nice.model.Pincode;
 import com.nice.model.State;
 import com.nice.repository.CustomerAddressRepository;
+import com.nice.service.AreaService;
 import com.nice.service.CityService;
 import com.nice.service.CountryService;
 import com.nice.service.CustomerAddressService;
 import com.nice.service.CustomerService;
-import com.nice.service.PincodeService;
 import com.nice.service.StateService;
 
 /**
@@ -68,7 +68,7 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 	private CityService cityService;
 
 	@Autowired
-	private PincodeService pincodeService;
+	private AreaService areaService;
 
 	@Override
 	public Long addAddress(final Long customerId, final CustomerAddressDTO customersAddressDTO) throws ValidationException, NotFoundException {
@@ -93,8 +93,8 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 		customerAddress.setState(state);
 		City city = cityService.getCityDetails(customersAddressDTO.getCityId());
 		customerAddress.setCity(city);
-		Pincode pincode = pincodeService.getPincodeDetails(customersAddressDTO.getPincodeId());
-		customerAddress.setPincode(pincode);
+		Area area = areaService.getAreaDetails(customersAddressDTO.getAreaId());
+		customerAddress.setArea(area);
 		customerAddressRepository.save(customerAddress);
 		return customerAddress.getId();
 	}
@@ -118,20 +118,21 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 	@Override
 	public boolean isExists(final CustomerAddressDTO customersAddressDTO) throws NotFoundException {
 		Customer customer = customerService.getCustomerDetails(customersAddressDTO.getCustomerId());
-		Pincode pincode = pincodeService.getPincodeDetails(customersAddressDTO.getPincodeId());
+		Area area = areaService.getAreaDetails(customersAddressDTO.getAreaId());
 
 		if (customersAddressDTO.getId() != null) {
 			/**
 			 * While update check whether address is exists or not
 			 */
-			return customerAddressRepository.findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomerAndIdNot(customersAddressDTO.getStreetNo(),
-					customersAddressDTO.getBuildingName(), customersAddressDTO.getArea(), pincode, customer, customersAddressDTO.getId()).isPresent();
+			return customerAddressRepository.findByStreetNoAndBuildingNameAndAreaAndCustomerAndIdNot(customersAddressDTO.getStreetNo(),
+					customersAddressDTO.getBuildingName(), area, customer, customersAddressDTO.getId()).isPresent();
 		} else {
 			/**
 			 * While create check whether address is exists or not
 			 */
-			return customerAddressRepository.findByStreetNoAndBuildingNameAndAreaAndPincodeAndCustomer(customersAddressDTO.getStreetNo(),
-					customersAddressDTO.getBuildingName(), customersAddressDTO.getArea(), pincode, customer).isPresent();
+			return customerAddressRepository
+					.findByStreetNoAndBuildingNameAndAreaAndCustomer(customersAddressDTO.getStreetNo(), customersAddressDTO.getBuildingName(), area, customer)
+					.isPresent();
 		}
 	}
 
@@ -156,8 +157,8 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 
 	@Override
 	public List<CustomerAddress> getCustomerAddressListBasedOnParams(final Boolean activeRecords, final Long customerId, final Long countryId,
-			final Long stateId, final Long cityId, final Long pincodeId, final Integer startIndex, final Integer pageSize) {
-		return customerAddressRepository.getCustomerAddressListBasedOnParams(activeRecords, customerId, countryId, stateId, cityId, pincodeId, startIndex,
+			final Long stateId, final Long cityId, final Long areaId, final Integer startIndex, final Integer pageSize) {
+		return customerAddressRepository.getCustomerAddressListBasedOnParams(activeRecords, customerId, countryId, stateId, cityId, areaId, startIndex,
 				pageSize);
 	}
 
@@ -219,7 +220,7 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 	}
 
 	@Override
-	public void deleteAllAddressByPincode(final Pincode pincode) {
-		customerAddressRepository.deleteAllByPincode(pincode);
+	public void deleteAllAddressByArea(final Area area) {
+		customerAddressRepository.deleteAllByArea(area);
 	}
 }

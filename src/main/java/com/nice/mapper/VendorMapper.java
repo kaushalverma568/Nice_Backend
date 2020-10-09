@@ -31,7 +31,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : Jun 18, 2020
+ * @date   : Jun 18, 2020
  */
 @Component
 public class VendorMapper {
@@ -52,7 +52,7 @@ public class VendorMapper {
 			vendorResponseDTO.setBlock(vendor.getBlockEnglish());
 			vendorResponseDTO.setBuilding(vendor.getBuildingEnglish());
 			vendorResponseDTO.setStreet(vendor.getStreetEnglish());
-			vendorResponseDTO.setArea(vendor.getAreaEnglish());
+			vendorResponseDTO.setAreaName(vendor.getArea().getNameEnglish());
 			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameEnglish());
 			vendorResponseDTO.setStoreName(vendor.getStoreNameEnglish());
 		} else {
@@ -61,7 +61,7 @@ public class VendorMapper {
 			vendorResponseDTO.setBlock(vendor.getBlockArabic());
 			vendorResponseDTO.setBuilding(vendor.getBuildingArabic());
 			vendorResponseDTO.setStreet(vendor.getStreetArabic());
-			vendorResponseDTO.setArea(vendor.getAreaArabic());
+			vendorResponseDTO.setAreaName(vendor.getArea().getNameArabic());
 			vendorResponseDTO.setBusinessCategoryName(vendor.getBusinessCategory().getNameArabic());
 			vendorResponseDTO.setStoreName(vendor.getStoreNameArabic());
 		}
@@ -72,8 +72,9 @@ public class VendorMapper {
 		}
 		vendorResponseDTO.setBusinessCategoryId(vendor.getBusinessCategory().getId());
 		vendorResponseDTO.setManageInventory(vendor.getBusinessCategory().getManageInventory());
-		vendorResponseDTO.setPincodeId(vendor.getPincode().getId());
-		vendorResponseDTO.setCodeValue(vendor.getPincode().getCodeValue());
+		vendorResponseDTO.setAreaId(vendor.getArea().getId());
+		vendorResponseDTO.setAreaNameEnglish(vendor.getArea().getNameEnglish());
+		vendorResponseDTO.setAreaNameArabic(vendor.getArea().getNameArabic());
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendor.getStoreImageName())) {
 			vendorResponseDTO.setStoreImageUrl(assetService.getGeneratedUrl(vendor.getStoreImageName(), AssetConstant.VENDOR));
 		}

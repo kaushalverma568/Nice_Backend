@@ -15,7 +15,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Data
 public class VendorListFilterDTO implements Serializable {
@@ -55,8 +55,9 @@ public class VendorListFilterDTO implements Serializable {
 
 	private Double distance;
 
-	@NotNull(message = "{city.id.not.null}")
 	private Long cityId;
+
+	private Long areaId;
 
 	private Boolean isPopular;
 

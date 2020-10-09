@@ -33,7 +33,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 18-Feb-2020
+ * @date   : 18-Feb-2020
  */
 @Service(value = "paymentService")
 @Transactional(rollbackFor = Throwable.class)
@@ -81,7 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
 			cartItemList.add(cartItem);
 			orderRequestDTO.setCityId(onlineCart.getCityId());
 			orderRequestDTO.setStateId(onlineCart.getStateId());
-			orderRequestDTO.setPincodeId(onlineCart.getPincodeId());
+			orderRequestDTO.setAreaId(onlineCart.getAreaId());
 			orderRequestDTO.setAddressEnglish(onlineCart.getAddressEnglish());
 			orderRequestDTO.setAddressArabic(onlineCart.getAddressArabic());
 			orderRequestDTO.setLatitude(onlineCart.getLatitude());

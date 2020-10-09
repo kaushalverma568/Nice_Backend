@@ -19,11 +19,11 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
+import com.nice.model.Area;
 import com.nice.model.City;
 import com.nice.model.Country;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
-import com.nice.model.Pincode;
 import com.nice.model.State;
 
 /**
@@ -38,7 +38,7 @@ public class CustomerAddressCustomRepositoryImpl implements CustomerAddressCusto
 
 	@Override
 	public List<CustomerAddress> getCustomerAddressListBasedOnParams(final Boolean activeRecords, final Long customerId, final Long countryId,
-			final Long stateId, final Long cityId, final Long pincodeId, final Integer startIndex, final Integer pageSize) {
+			final Long stateId, final Long cityId, final Long areaId, final Integer startIndex, final Integer pageSize) {
 
 		/**
 		 * Create Criteria builder instance using entity manager
@@ -82,11 +82,10 @@ public class CustomerAddressCustomRepositoryImpl implements CustomerAddressCusto
 			predicates.add(criteriaBuilder.equal(cityRoot.get("id"), cityId));
 		}
 
-		if (pincodeId != null) {
-			Join<CustomerAddress, Pincode> pincodeRoot = customerAddressRoot.join("pincode", JoinType.INNER);
-			predicates.add(criteriaBuilder.equal(pincodeRoot.get("id"), pincodeId));
+		if (areaId != null) {
+			Join<CustomerAddress, Area> areaRoot = customerAddressRoot.join("area", JoinType.INNER);
+			predicates.add(criteriaBuilder.equal(areaRoot.get("id"), areaId));
 		}
-
 		/**
 		 * Add the clauses for the query.
 		 */

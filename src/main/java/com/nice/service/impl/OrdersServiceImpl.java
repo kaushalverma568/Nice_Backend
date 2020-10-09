@@ -69,6 +69,7 @@ import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.OrderRatingMapper;
 import com.nice.mapper.OrderStatusHistoryMapper;
 import com.nice.mapper.RatingQuestionMapper;
+import com.nice.model.Area;
 import com.nice.model.BusinessCategory;
 import com.nice.model.CartAddons;
 import com.nice.model.CartExtras;
@@ -91,7 +92,6 @@ import com.nice.model.OrdersExtras;
 import com.nice.model.OrdersItem;
 import com.nice.model.OrdersProductAttributeValue;
 import com.nice.model.OrdersToppings;
-import com.nice.model.Pincode;
 import com.nice.model.ProductVariant;
 import com.nice.model.RatingQuestion;
 import com.nice.model.State;
@@ -115,6 +115,7 @@ import com.nice.repository.OrderStatusHistoryRepository;
 import com.nice.repository.OrderToppingsRepository;
 import com.nice.repository.OrdersRepository;
 import com.nice.repository.TaskRepository;
+import com.nice.service.AreaService;
 import com.nice.service.BusinessCategoryService;
 import com.nice.service.CartAddonsService;
 import com.nice.service.CartExtrasService;
@@ -127,7 +128,6 @@ import com.nice.service.CustomerService;
 import com.nice.service.HesabePaymentService;
 import com.nice.service.OrderItemService;
 import com.nice.service.OrdersService;
-import com.nice.service.PincodeService;
 import com.nice.service.ProductVariantService;
 import com.nice.service.RatingQuestionService;
 import com.nice.service.StateService;
@@ -206,9 +206,6 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private OrderStatusHistoryMapper orderStatusMapper;
-
-	@Autowired
-	private PincodeService pincodeService;
 
 	@Autowired
 	private CityService cityService;
@@ -300,6 +297,9 @@ public class OrdersServiceImpl implements OrdersService {
 	@Autowired
 	private TaskRepository taskRepository;
 
+	@Autowired
+	private AreaService areaService;
+
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
 
@@ -384,8 +384,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check if the products in cart are active or not active then throw error also
-		 * check for the available quantity.
+		 * check if the products in cart are active or not active then throw error also check for the available quantity.
 		 */
 		for (CartItem cartItem : cartItemList) {
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItem.getProductVariant().getId());
@@ -400,8 +399,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 			} else {
 				/**
-				 * Stock related check for product while placing order by customer for Grocery
-				 * business category in which the inventory
+				 * Stock related check for product while placing order by customer for Grocery business category in which the inventory
 				 * is managed
 				 */
 				BusinessCategory businessCategory = vendor.getBusinessCategory();
@@ -423,15 +421,13 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * This amount includes amount with charge, the wallet contribution would be
-		 * calculated after that and subtracted from
+		 * This amount includes amount with charge, the wallet contribution would be calculated after that and subtracted from
 		 * the actual order amount.
 		 */
 		Double calculatedOrderAmtWithOutDelCharge = calculateTotalOrderAmt(cartItemList);
 
 		/**
-		 * Check if the order amount is greater than the minimum order amount of vendor,
-		 * else throw an exception
+		 * Check if the order amount is greater than the minimum order amount of vendor, else throw an exception
 		 */
 		if (calculatedOrderAmtWithOutDelCharge.compareTo(vendor.getMinimumOrderAmt()) < 0) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.minimum.order.amount", new Object[] { vendor.getMinimumOrderAmt() }));
@@ -487,7 +483,7 @@ public class OrdersServiceImpl implements OrdersService {
 				if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())) {
 					onlineCart.setCityId(customerAddress.getCity().getId());
 					onlineCart.setStateId(customerAddress.getState().getId());
-					onlineCart.setPincodeId(customerAddress.getPincode().getId());
+					onlineCart.setAreaId(customerAddress.getArea().getId());
 					onlineCart.setAddressEnglish(makeCustomerAddressEnglish(customerAddress));
 					onlineCart.setAddressArabic(makeCustomerAddressArabic(customerAddress));
 					onlineCart.setLatitude(customerAddress.getLatitude());
@@ -604,14 +600,12 @@ public class OrdersServiceImpl implements OrdersService {
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
 		return customerAddress.getBuildingName().concat(", ").concat(customerAddress.getBlock()).concat(", ").concat(customerAddress.getStreetNo()).concat(", ")
-				.concat(customerAddress.getArea()).concat(", ").concat(customerAddress.getCity().getNameEnglish()).concat(", ")
-				.concat(customerAddress.getPincode().getCodeValue()).concat(", ").concat(customerAddress.getState().getNameEnglish());
+				.concat(customerAddress.getArea().getNameEnglish()).concat(", ").concat(customerAddress.getCity().getNameEnglish());
 	}
 
 	private String makeCustomerAddressArabic(final CustomerAddress customerAddress) {
 		return customerAddress.getBuildingName().concat(", ").concat(customerAddress.getBlock()).concat(", ").concat(customerAddress.getStreetNo())
-				.concat(customerAddress.getArea()).concat(", ").concat(customerAddress.getCity().getNameArabic()).concat(", ")
-				.concat(customerAddress.getPincode().getCodeValue()).concat(", ").concat(customerAddress.getState().getNameArabic());
+				.concat(customerAddress.getArea().getNameArabic()).concat(", ").concat(customerAddress.getCity().getNameArabic());
 	}
 
 	@Override
@@ -674,23 +668,22 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setLastName(customerAddress.getLastName());
 			order.setPhoneNumber(customerAddress.getPhoneNumber());
 			order.setState(customerAddress.getState());
-			order.setPincode(customerAddress.getPincode());
+			order.setArea(customerAddress.getArea());
 			order.setCity(customerAddress.getCity());
 			/**
-			 * Set Store based on Pincode
+			 * Set vendor
 			 */
 			order.setVendor(vendor);
 		} else if (DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())) {
 			order.setVendor(vendor);
 		}
 		/**
-		 * else we will get the address details from razor pay cart with values set in
-		 * orderRequestDto
+		 * else we will get the address details from razor pay cart with values set in orderRequestDto
 		 */
 		else {
-			Pincode pincode = pincodeService.getPincodeDetails(orderRequestDto.getPincodeId());
 			State state = stateService.getStateDetails(orderRequestDto.getStateId());
 			City city = cityService.getCityDetails(orderRequestDto.getCityId());
+			Area area = areaService.getAreaDetails(orderRequestDto.getAreaId());
 
 			order.setAddressEnglish(orderRequestDto.getAddressEnglish());
 			order.setAddressArabic(orderRequestDto.getAddressArabic());
@@ -700,7 +693,7 @@ public class OrdersServiceImpl implements OrdersService {
 			order.setLastName(orderRequestDto.getLastName());
 			order.setPhoneNumber(orderRequestDto.getPhoneNumber());
 			order.setState(state);
-			order.setPincode(pincode);
+			order.setArea(area);
 			order.setCity(city);
 			order.setVendor(vendor);
 
@@ -724,8 +717,7 @@ public class OrdersServiceImpl implements OrdersService {
 		if (calculatedOrderAmt == 0.0d) {
 			order.setPaymentMode(PaymentMode.WALLET.name());
 			/**
-			 * This is done so that while placing order details are picked up from normal
-			 * cart table and not online cart.
+			 * This is done so that while placing order details are picked up from normal cart table and not online cart.
 			 */
 			orderRequestDto.setPaymentMode(PaymentMode.WALLET.name());
 		}
@@ -889,8 +881,7 @@ public class OrdersServiceImpl implements OrdersService {
 		Double Charge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the
-		 * configuration for the same. If charge is
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If charge is
 		 * to be taken for all order set the value to any negative value
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(orderRequestDto.getDeliveryType())
@@ -913,8 +904,7 @@ public class OrdersServiceImpl implements OrdersService {
 			addWalletTxn(orderRequestDto.getWalletContribution() * -1, orderRequestDto.getCustomerId(), order.getId(), null,
 					WalletTransactionTypeEnum.PAYMENT.name());
 			/**
-			 * Set updated wallet balance, the amount should be deducated from wallet and
-			 * hence the contribution is multiplied with
+			 * Set updated wallet balance, the amount should be deducated from wallet and hence the contribution is multiplied with
 			 * -1 and sent to update customer wallet balance
 			 */
 			customerService.updateWalletBalance(orderRequestDto.getWalletContribution() * -1, customer.getId());
@@ -996,8 +986,7 @@ public class OrdersServiceImpl implements OrdersService {
 					? cartItem.getProductVariant().getRate()
 					: cartItem.getProductVariant().getDiscountedRate();
 			/**
-			 * Add the addons , extras, product attribute values, toppings amount for
-			 * calculation
+			 * Add the addons , extras, product attribute values, toppings amount for calculation
 			 */
 			List<CartAddons> cartAddonsList = cartAddonsService.getCartAddonsListForCartItem(cartItem.getId());
 			Double totalAddonsAmount = 0d;
@@ -1054,8 +1043,7 @@ public class OrdersServiceImpl implements OrdersService {
 		Double Charge = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_DELIVERY_CHARGE);
 		Double orderAmountForFreeDelivery = (Double) SettingsConstant.getSettingsValue(Constant.ORDER_AMOUNT_FOR_FREE_DELIVERY);
 		/**
-		 * If there is any configuration related to minimum order amount, this is the
-		 * configuration for the same. If charge is
+		 * If there is any configuration related to minimum order amount, this is the configuration for the same. If charge is
 		 * to be taken for all order set the value to any negative value
 		 */
 		if (applyDeliveryCharge && (orderAmountForFreeDelivery < 0 || orderAmt < orderAmountForFreeDelivery)) {
@@ -1118,7 +1106,7 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!DeliveryType.PICKUP.getStatusValue().equals(orderResponseDto.getDeliveryType())) {
 				orderResponseDto.setCity(orders.getCity().getNameEnglish());
 				orderResponseDto.setAddress(orders.getAddressEnglish());
-				orderResponseDto.setPincode(orders.getPincode().getCodeValue());
+				orderResponseDto.setArea(orders.getArea().getNameEnglish());
 			}
 
 			orderResponseDto.setVendorName(vendor.getStoreNameEnglish());
@@ -1127,7 +1115,7 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!DeliveryType.PICKUP.getStatusValue().equals(orderResponseDto.getDeliveryType())) {
 				orderResponseDto.setCity(orders.getCity().getNameArabic());
 				orderResponseDto.setAddress(orders.getAddressArabic());
-				orderResponseDto.setPincode(orders.getPincode().getCodeValue());
+				orderResponseDto.setArea(orders.getArea().getNameArabic());
 			}
 			orderResponseDto.setVendorName(vendor.getStoreNameArabic());
 		}
@@ -1166,7 +1154,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * set pincode field for email and push notification
+		 * set area field for email and push notification
 		 */
 
 		Customer customer = orders.getCustomer();
@@ -1299,8 +1287,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 
 		/**
-		 * Validation for allowing vendor only to mark status as "Order Pick Up" and
-		 * that too only for PickUp Order, else
+		 * Validation for allowing vendor only to mark status as "Order Pick Up" and that too only for PickUp Order, else
 		 * placing a validation allowing only boy to do the same
 		 */
 		if (newStatus.equals(OrderStatusEnum.ORDER_PICKED_UP.getStatusValue()) && (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
@@ -1315,10 +1302,8 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
 		}
 		/**
-		 * Check manage inventory flag for order, if its true then need to place a check
-		 * that once the order is in "Order Is
-		 * Prepared" status it is not directly moved to Order Pickup before allocating
-		 * stock
+		 * Check manage inventory flag for order, if its true then need to place a check that once the order is in "Order Is
+		 * Prepared" status it is not directly moved to Order Pickup before allocating stock
 		 */
 		OrdersResponseDTO ordersResponseDto = getOrderDetails(order.getId());
 		if (ordersResponseDto.getManageInventory().booleanValue()
@@ -1330,8 +1315,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED
-		 * and task status is REACHED_CUSTOMER
+		 * Order Status REPLACE_ORDER_PREPARED is allowed only after REPLACE_PROCESSED and task status is REACHED_CUSTOMER
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())
 				&& OrderStatusEnum.REPLACE_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
@@ -1349,11 +1333,9 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 
 		/**
-		 * Check if the vendor confirms the order and its type is Pick Up, then make the
-		 * status as in Process for the order.
+		 * Check if the vendor confirms the order and its type is Pick Up, then make the status as in Process for the order.
 		 * </br>
-		 * if the order is pickuped in case of Pickup orders, it will be marked as
-		 * delivered
+		 * if the order is pickuped in case of Pickup orders, it will be marked as delivered
 		 */
 		if (DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
 			String taskType = null;
@@ -1384,8 +1366,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		/**
-		 * check for manage inventory flag, if that is true then stock needs to be
-		 * allocated for the order, else move the order
+		 * check for manage inventory flag, if that is true then stock needs to be allocated for the order, else move the order
 		 * from Order_Prepared Status to Stock_Allocated status
 		 */
 		if (!ordersResponseDto.getManageInventory().booleanValue() && OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(newStatus)) {
@@ -1405,8 +1386,7 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * This method is used only to change the status of the order and respective
-	 * status of the inventory if managed
+	 * This method is used only to change the status of the order and respective status of the inventory if managed
 	 *
 	 * @param  newStatus
 	 * @param  order
@@ -1439,16 +1419,13 @@ public class OrdersServiceImpl implements OrdersService {
 		 * Change inventory based on status
 		 */
 		/**
-		 * Here if the existing stock status is delivered then we dont need to transfer
-		 * the inventory, that will be a typical
+		 * Here if the existing stock status is delivered then we dont need to transfer the inventory, that will be a typical
 		 * case of replacement of orders that will be handled in a different way </br>
-		 * If inventory needs to be managed then only make changes in inventory status
-		 * else no need to make stock changes
+		 * If inventory needs to be managed then only make changes in inventory status else no need to make stock changes
 		 */
 		if (isInventoryManaged) {
 			/**
-			 * If the order status is related to replacement then set allocatedFor as
-			 * Replacement
+			 * If the order status is related to replacement then set allocatedFor as Replacement
 			 */
 			if (newStatus.equalsIgnoreCase(Constant.REPLACE_REQUESTED) || newStatus.equalsIgnoreCase(Constant.REPLACE_PROCESSED)
 					|| newStatus.equalsIgnoreCase(Constant.REPLACED) || newStatus.equalsIgnoreCase(Constant.REPLACE_WAITING_FOR_PICKUP)) {
@@ -1458,8 +1435,7 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!Constant.DELIVERED.equalsIgnoreCase(existingStockStatus)
 					&& !existingStockStatus.equalsIgnoreCase(OrderStatusEnum.getByValue(order.getOrderStatus()).getStockValue())) {
 				/**
-				 * Fetch list of all allocated stock based on lot and move one by one for the
-				 * order.
+				 * Fetch list of all allocated stock based on lot and move one by one for the order.
 				 */
 				List<StockAllocation> stockAllocationList = stockAllocationService.getAllocatedStockForOrder(order.getId(), allocatedFor);
 				for (StockAllocation stockAllocation : stockAllocationList) {
@@ -1479,8 +1455,7 @@ public class OrdersServiceImpl implements OrdersService {
 				}
 			}
 			/**
-			 * This handles the Replacement of stock, the stock already delivered for a
-			 * order will be moved from delivered to
+			 * This handles the Replacement of stock, the stock already delivered for a order will be moved from delivered to
 			 * replaced status
 			 */
 			if (newStatus.equalsIgnoreCase(Constant.REPLACED)) {
@@ -1540,8 +1515,7 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders order = getOrder(orderId);
 
 		/**
-		 * If the user is Vendor or customer, check if the order actually belongs to
-		 * him.
+		 * If the user is Vendor or customer, check if the order actually belongs to him.
 		 */
 		if (!isFromAdmin && !order.getCustomer().getId().equals(customerId) || isFromAdmin && vendorId != null && !order.getVendor().getId().equals(vendorId)) {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
@@ -1696,8 +1670,7 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		if (!PaymentMode.COD.name().equals(orders.getPaymentMode()) && autoRefund) {
 			/**
-			 * this means the refund is to be made to customer wallet without deducting the
-			 * charges
+			 * this means the refund is to be made to customer wallet without deducting the charges
 			 */
 			Double amountToBeCredited = orders.getTotalOrderAmount() + orders.getWalletContribution();
 			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
@@ -1707,8 +1680,7 @@ public class OrdersServiceImpl implements OrdersService {
 			addWalletTxn(amountToBeCredited, orders.getCustomer().getId(), orders.getId(), null, WalletTransactionTypeEnum.REFUND.name());
 		} else if (orders.getWalletContribution() != 0 && autoRefund) {
 			/**
-			 * this means the refund is to be made to customer wallet without deducting the
-			 * charges
+			 * this means the refund is to be made to customer wallet without deducting the charges
 			 */
 			Double amountToBeCredited = orders.getWalletContribution();
 			customerService.updateWalletBalance(amountToBeCredited, orders.getCustomer().getId());
@@ -1774,8 +1746,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the replacement request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the replacement request has come after a maximum days for which vendor can accepts then throw error.
 			 */
 			if (CommonUtility.convertDateToLocalDateTime(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDateTime.now())) {
@@ -1791,8 +1762,7 @@ public class OrdersServiceImpl implements OrdersService {
 			changeStatus(Constant.REPLACE_REQUESTED, orders);
 
 			/**
-			 * Set the replace_requested flag to true and set the replacement quantity same
-			 * as that of the order for all order
+			 * Set the replace_requested flag to true and set the replacement quantity same as that of the order for all order
 			 * items, as currently there is functionality only to replace the entire order
 			 */
 			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
@@ -1827,8 +1797,7 @@ public class OrdersServiceImpl implements OrdersService {
 				OrderStatusEnum.DELIVERED.getStatusValue());
 		if (orderStatusHistory.isPresent()) {
 			/**
-			 * If the return request has come after a maximum days for which vendor can
-			 * accepts then throw error.
+			 * If the return request has come after a maximum days for which vendor can accepts then throw error.
 			 */
 			if (CommonUtility.convertDateToLocalDateTime(orderStatusHistory.get().getCreatedAt()).plusDays(orders.getVendor().getMaxDaysForAccept())
 					.isBefore(LocalDateTime.now())) {
@@ -1844,8 +1813,7 @@ public class OrdersServiceImpl implements OrdersService {
 			changeStatus(Constant.RETURN_REQUESTED, orders);
 
 			/**
-			 * Set the return_requested flag to true and set the return quantity same as
-			 * that of the order for all order items, as
+			 * Set the return_requested flag to true and set the return quantity same as that of the order for all order items, as
 			 * currently there is functionality only to return the entire order
 			 */
 			List<OrdersItem> ordersItemList = ordersItemRepository.findAllByOrderId(orders.getId());
@@ -1877,8 +1845,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());
 		/**
-		 * If the reject/replace request is rejected store the description and reason in
-		 * a different field.
+		 * If the reject/replace request is rejected store the description and reason in a different field.
 		 */
 		if (OrderStatusEnum.RETURN_REQUESTED.getStatusValue().equals(orders.getOrderStatus())) {
 			orders.setOrderStatus(Constant.RETURN_REJECTED);
@@ -1947,8 +1914,7 @@ public class OrdersServiceImpl implements OrdersService {
 			statusListInWhichVendorCannotMoveOrder.add(OrderStatusEnum.REPLACE_CANCELLED.getStatusValue());
 
 			/**
-			 * If the order type is not pick-up then the order cannot be moved into
-			 * order_pickup status by vendor, that will be done
+			 * If the order type is not pick-up then the order cannot be moved into order_pickup status by vendor, that will be done
 			 * by boy when he picks up the order from the restaurant.
 			 */
 			if (!DeliveryType.PICKUP.getStatusValue().equals(order.getDeliveryType())) {
@@ -1978,14 +1944,12 @@ public class OrdersServiceImpl implements OrdersService {
 		 */
 		else if (UserType.CUSTOMER.name().equals(userLogin.getEntityType())) {
 			/**
-			 * If required then add code here for customer. Currently its not required as it
-			 * should be handled from front end.
+			 * If required then add code here for customer. Currently its not required as it should be handled from front end.
 			 */
 			return nextStatus;
 		}
 		/**
-		 * if user is Admin, then he can only cancel order, if the order is not in the
-		 * below mentioned status. If the order is
+		 * if user is Admin, then he can only cancel order, if the order is not in the below mentioned status. If the order is
 		 * in below mentioned status he cannot do the cancellation as well.
 		 */
 		else {
@@ -2022,11 +1986,9 @@ public class OrdersServiceImpl implements OrdersService {
 		Orders orders = getOrderById(refundAmountDto.getOrderId());
 
 		/**
-		 * Currently copying the amount into amount borne by admin field and then
-		 * proceeding further as currently all the amount
+		 * Currently copying the amount into amount borne by admin field and then proceeding further as currently all the amount
 		 * would be borne by admin</br>
-		 * If in future there is any differentiation between contirbution of admin ,
-		 * vendor and boy for cancel order, then
+		 * If in future there is any differentiation between contirbution of admin , vendor and boy for cancel order, then
 		 * ignore the amount field and use their respective fields
 		 */
 		Double amount = Double.sum(Double.sum(refundAmountDto.getAdminContribution(), refundAmountDto.getVendorContribution()),
@@ -2050,8 +2012,7 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("cancelled.orders.refunded", null));
 		}
 		/**
-		 * this means the refund is to be made to customer wallet after deducting the
-		 * charges from the order
+		 * this means the refund is to be made to customer wallet after deducting the charges from the order
 		 */
 		customerService.updateWalletBalance(amount, orders.getCustomer().getId());
 		/**
@@ -2062,8 +2023,7 @@ public class OrdersServiceImpl implements OrdersService {
 		orders.setRefunded(true);
 		ordersRepository.save(orders);
 		/**
-		 * Get the created task for the order and make entry related to who will be
-		 * bearing the refunded amount.
+		 * Get the created task for the order and make entry related to who will be bearing the refunded amount.
 		 */
 		List<Task> taskList = taskService.getTaskListForOrderId(refundAmountDto.getOrderId());
 		for (Task task : taskList) {
@@ -2095,10 +2055,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 		List<Task> taskList = taskService.getTaskListForOrderId(orderId);
 		/**
-		 * Here the first non delivered task will be marked as delivered, this is
-		 * because, there will be 2 tasks for an order
-		 * only in case of Return/REplace request received, at that time the task would
-		 * already be delivered
+		 * Here the first non delivered task will be marked as delivered, this is because, there will be 2 tasks for an order
+		 * only in case of Return/REplace request received, at that time the task would already be delivered
 		 */
 		for (Task task : taskList) {
 			if (!TaskStatusEnum.DELIVERED.getStatusValue().equals(task.getStatus())) {
