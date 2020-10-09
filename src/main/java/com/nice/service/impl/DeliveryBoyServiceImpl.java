@@ -750,10 +750,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		StringBuilder address = new StringBuilder();
 		if (locale.getLanguage().equals("en")) {
 			address.append(vendor.getBlockEnglish()).append(",").append(vendor.getBuildingEnglish()).append(",").append(vendor.getStreetEnglish()).append(",")
-					.append(vendor.getArea().getNameEnglish()).append(",").append(vendor.getCity().getNameEnglish());
+					.append(vendor.getArea().getNameEnglish()).append(",").append(vendor.getCountry().getNameEnglish());
 		} else {
 			address.append(vendor.getBlockArabic()).append(",").append(vendor.getBuildingArabic()).append(",").append(vendor.getStreetArabic()).append(",")
-					.append(vendor.getArea().getNameArabic()).append(",").append(vendor.getCity().getNameArabic());
+					.append(vendor.getArea().getNameArabic()).append(",").append(vendor.getCountry().getNameArabic());
 		}
 		return address.toString();
 	}

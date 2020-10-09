@@ -79,6 +79,7 @@ import com.nice.model.CartToppings;
 import com.nice.model.City;
 import com.nice.model.Customer;
 import com.nice.model.CustomerAddress;
+import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.OnlineAddons;
 import com.nice.model.OnlineCart;
 import com.nice.model.OnlineExtras;
@@ -101,6 +102,7 @@ import com.nice.model.TicketReason;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
 import com.nice.repository.CartItemRepository;
+import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.repository.OnlineAddonsRepository;
 import com.nice.repository.OnlineCartRepository;
 import com.nice.repository.OnlineExtrasRepository;
@@ -192,6 +194,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private OnlineToppingsRepository onlineToppingsRepository;
+
 	@Autowired
 	private OnlineProductAttributeValueRepository onlineProductAttributeValueRepository;
 
@@ -299,6 +302,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 	@Autowired
 	private AreaService areaService;
+
+	@Autowired
+	private DeliveryBoySendNotificationHistoryRepository deliveryBoySendNotificationHistoryRepository;
 
 	@Override
 	public String validateOrder(final OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException {
@@ -600,12 +606,12 @@ public class OrdersServiceImpl implements OrdersService {
 
 	private String makeCustomerAddressEnglish(final CustomerAddress customerAddress) {
 		return customerAddress.getBuildingName().concat(", ").concat(customerAddress.getBlock()).concat(", ").concat(customerAddress.getStreetNo()).concat(", ")
-				.concat(customerAddress.getArea().getNameEnglish()).concat(", ").concat(customerAddress.getCity().getNameEnglish());
+				.concat(customerAddress.getArea().getNameEnglish()).concat(", ").concat(customerAddress.getState().getNameEnglish());
 	}
 
 	private String makeCustomerAddressArabic(final CustomerAddress customerAddress) {
 		return customerAddress.getBuildingName().concat(", ").concat(customerAddress.getBlock()).concat(", ").concat(customerAddress.getStreetNo())
-				.concat(customerAddress.getArea().getNameArabic()).concat(", ").concat(customerAddress.getCity().getNameArabic());
+				.concat(customerAddress.getArea().getNameArabic()).concat(", ").concat(customerAddress.getState().getNameArabic());
 	}
 
 	@Override
@@ -1968,13 +1974,23 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	@Override
-	public void retryForSearchingDeliveryBoys(final Long orderId) throws ValidationException, NotFoundException {
+	public void retryForSearchingDeliveryBoys(final Long orderId, final Boolean repeatDeliveryBoy) throws ValidationException, NotFoundException {
 		Orders orders = getOrderById(orderId);
 		if (!OrderStatusEnum.CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
 				&& !OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())
 				&& !OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue().equals(orders.getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.already.accepted", null));
 		} else {
+			if (repeatDeliveryBoy.booleanValue()) {
+				/**
+				 * remove delivery boy notification history for this order
+				 */
+				List<DeliveryBoySendNotificationHistory> deliveryBoySendNotificationHistoryList = deliveryBoySendNotificationHistoryRepository
+						.findAllByOrderId(orderId);
+				if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(deliveryBoySendNotificationHistoryList)) {
+					deliveryBoySendNotificationHistoryRepository.deleteAll(deliveryBoySendNotificationHistoryList);
+				}
+			}
 			orders.setAssignmentTryCount(0);
 			ordersRepository.save(orders);
 		}
