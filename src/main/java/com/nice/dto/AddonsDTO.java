@@ -28,10 +28,8 @@ public class AddonsDTO implements Serializable {
 	@NotNull(message = "{arabic.name.not.null}")
 	private String nameArabic;
 
-	@NotNull(message = "{english.description.not.null}")
 	private String descriptionEnglish;
 
-	@NotNull(message = "{arabic.description.not.null}")
 	private String descriptionArabic;
 
 	@NotNull(message = "{vendor.not.null}")

@@ -31,10 +31,8 @@ public class ToppingDTO implements Serializable {
 	@NotBlank(message = "{english.name.not.null}")
 	private String nameEnglish;
 
-	@NotBlank(message = "{english.description.not.null}")
 	private String descriptionEnglish;
 
-	@NotBlank(message = "{arabic.name.not.null}")
 	private String nameArabic;
 
 	@NotBlank(message = "{arabic.description.not.null}")
