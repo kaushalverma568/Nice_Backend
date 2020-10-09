@@ -33,9 +33,9 @@ public class ToppingDTO implements Serializable {
 
 	private String descriptionEnglish;
 
+	@NotBlank(message = "{arabic.name.not.null}")
 	private String nameArabic;
 
-	@NotBlank(message = "{arabic.description.not.null}")
 	private String descriptionArabic;
 
 	@NotNull(message = "{vendor.id.not.null}")
