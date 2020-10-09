@@ -201,11 +201,11 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	public boolean isExistsEnglish(final ProductExtrasMasterDTO productExtrasMasterDTO) {
 		LOGGER.info("Inside isExists method, with productExtrasMasterDTO : {} ", productExtrasMasterDTO);
 		if (productExtrasMasterDTO.getId() != null) {
-			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndIdNot(productExtrasMasterDTO.getName(), productExtrasMasterDTO.getId())
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(productExtrasMasterDTO.getNameEnglish(), productExtrasMasterDTO.getVendorId(), productExtrasMasterDTO.getId())
 					.isPresent();
 
 		} else {
-			return productExtrasMasterRepository.findByNameEnglishIgnoreCase(productExtrasMasterDTO.getName()).isPresent();
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorId(productExtrasMasterDTO.getNameEnglish(), productExtrasMasterDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -213,11 +213,11 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 	public boolean isExistsArabic(final ProductExtrasMasterDTO productExtrasMasterDTO) {
 		LOGGER.info("Inside isExists method, with productExtrasMasterDTO : {} ", productExtrasMasterDTO);
 		if (productExtrasMasterDTO.getId() != null) {
-			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndIdNot(productExtrasMasterDTO.getName(), productExtrasMasterDTO.getId())
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(productExtrasMasterDTO.getNameArabic(), productExtrasMasterDTO.getVendorId(), productExtrasMasterDTO.getId())
 					.isPresent();
 
 		} else {
-			return productExtrasMasterRepository.findByNameEnglishIgnoreCase(productExtrasMasterDTO.getName()).isPresent();
+			return productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorId(productExtrasMasterDTO.getNameArabic(), productExtrasMasterDTO.getVendorId()).isPresent();
 		}
 	}
 
@@ -296,10 +296,10 @@ public class ProductExtrasMasterServiceImpl implements ProductExtrasMasterServic
 				}
 				Vendor vendor = vendorService.getVendorDetail(userLogin.getEntityId());
 				if (!productExtrasMasterRepository.findByNameEnglishIgnoreCaseAndVendorId(productExtrasMasterImport.getNameEnglish(), vendor.getId())
-						.isEmpty()) {
+						.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("productExtrasMaster.not.unique", null));
 				} else if (!productExtrasMasterRepository.findByNameArabicIgnoreCaseAndVendorId(productExtrasMasterImport.getNameArabic(), vendor.getId())
-						.isEmpty()) {
+						.isPresent()) {
 					throw new ValidationException(messageByLocaleService.getMessage("productExtrasMaster.not.unique", null));
 				} else {
 					final ProductExtrasMasterDTO productExtrasMasterDTO = new ProductExtrasMasterDTO();

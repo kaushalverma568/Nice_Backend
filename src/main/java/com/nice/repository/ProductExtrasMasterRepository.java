@@ -1,6 +1,5 @@
 package com.nice.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -41,7 +40,7 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param id
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	Optional<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 *
@@ -50,7 +49,7 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param id
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
+	Optional<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorIdAndIdNot(String name, Long vendorId, Long id);
 
 	/**
 	 *
@@ -72,7 +71,7 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param vendorId
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
+	Optional<ProductExtrasMaster> findByNameEnglishIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 *
@@ -80,7 +79,7 @@ public interface ProductExtrasMasterRepository extends JpaRepository<ProductExtr
 	 * @param vendorId
 	 * @return
 	 */
-	List<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
+	Optional<ProductExtrasMaster> findByNameArabicIgnoreCaseAndVendorId(String name, Long vendorId);
 
 	/**
 	 * @param vendorId
