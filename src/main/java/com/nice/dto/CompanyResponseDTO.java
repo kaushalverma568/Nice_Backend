@@ -4,6 +4,7 @@
 package com.nice.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import lombok.Data;
 
@@ -44,4 +45,8 @@ public class CompanyResponseDTO implements Serializable {
 	private String companyImage;
 
 	private Boolean active;
+
+	private BigDecimal latitude;
+
+	private BigDecimal longitude;
 }

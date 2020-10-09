@@ -1,5 +1,7 @@
 package com.nice.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,7 +14,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Entity
 @Table(name = "company")
@@ -59,5 +61,11 @@ public class Company extends CommonModel {
 
 	@Column(name = "company_image_original_name")
 	private String companyImageOriginalName;
+
+	@Column(name = "latitude")
+	private BigDecimal latitude;
+
+	@Column(name = "longitude")
+	private BigDecimal longitude;
 
 }
