@@ -619,10 +619,7 @@ public class TaskServiceImpl implements TaskService {
 		 * pick-up then order's status should be return processed
 		 */
 		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
-				&& (DeliveryType.DELIVERY.getStatusValue().equals(task.getOrder().getDeliveryType())
-						&& !OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())
-						|| DeliveryType.PICKUP.getStatusValue().equals(task.getOrder().getDeliveryType())
-								&& !OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus()))) {
+				&& !OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
 		}
 		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
