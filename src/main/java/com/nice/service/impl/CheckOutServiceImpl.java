@@ -18,9 +18,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.model.CartItem;
-import com.nice.model.CustomerAddress;
 import com.nice.model.UserLogin;
-import com.nice.model.Vendor;
 import com.nice.service.CartItemService;
 import com.nice.service.CheckOutService;
 import com.nice.service.CustomerAddressService;
@@ -30,7 +28,7 @@ import com.nice.service.VendorService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Sep-2020
+ * @date   : 16-Sep-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("checkOutService")
@@ -67,14 +65,19 @@ public class CheckOutServiceImpl implements CheckOutService {
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(userLogin.getEntityId());
 		/**
 		 * Check if vendor delivery to this city, if not throw an error.
-		 */
-		if (shippingAddressId != null) {
-			CustomerAddress customerAddress = customerAddressService.getAddressDetails(shippingAddressId);
-			Vendor vendor = vendorService.getVendorDetail(cartItemResponseDTOList.get(0).getVendorId());
-			if (customerAddress.getCity().getId().compareTo(vendor.getCity().getId()) != 0) {
-				throw new ValidationException(messageByLocaleService.getMessage("donot.deliver.address", null));
-			}
-		}
+		 *//*
+			 * if (shippingAddressId != null) {
+			 * CustomerAddress customerAddress =
+			 * customerAddressService.getAddressDetails(shippingAddressId);
+			 * Vendor vendor =
+			 * vendorService.getVendorDetail(cartItemResponseDTOList.get(0).getVendorId());
+			 * if (customerAddress.getCity().getId().compareTo(vendor.getCity().getId()) !=
+			 * 0) {
+			 * throw new ValidationException(messageByLocaleService.getMessage(
+			 * "donot.deliver.address", null));
+			 * }
+			 * }
+			 */
 
 		/**
 		 * Calculate the total order amount for checkout
@@ -84,7 +87,7 @@ public class CheckOutServiceImpl implements CheckOutService {
 		checkOutDto.setGrossOrderAmount(orderAmount);
 		if (DeliveryType.DELIVERY.getStatusValue().equals(deliveryType)) {
 			Double orderAmountWithDeliveryCharge = ordersService.addDeliveryCharge(true, orderAmount);
-			checkOutDto.setDeliveryCharge(Double.sum(orderAmountWithDeliveryCharge, orderAmount * (-1)));
+			checkOutDto.setDeliveryCharge(Double.sum(orderAmountWithDeliveryCharge, orderAmount * -1));
 			totalOrderAmount = orderAmountWithDeliveryCharge;
 		}
 		Double walletBalance = customerService.getWalletBalance();
@@ -95,7 +98,7 @@ public class CheckOutServiceImpl implements CheckOutService {
 				totalOrderAmount = 0.0d;
 			} else {
 				checkOutDto.setWalletContribution(walletBalance);
-				totalOrderAmount = Double.sum(totalOrderAmount, walletBalance * (-1));
+				totalOrderAmount = Double.sum(totalOrderAmount, walletBalance * -1);
 			}
 		}
 		checkOutDto.setTotalOrderAmount(totalOrderAmount);

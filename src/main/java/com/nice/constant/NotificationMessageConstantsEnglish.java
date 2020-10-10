@@ -536,7 +536,7 @@ public final class NotificationMessageConstantsEnglish {
 		StringBuilder message = new StringBuilder();
 		message.append("Welcome to ").append(applicationName).append("!\r\n").append(
 				"We are pleased to have you as a partner and looking forward to working with you as a team.\r\nKindly update your store and necessary details on the ")
-				.append(applicationName).append(" platform to let our users notice and order.\r\n For any queries, contact our customer support.");
+				.append(applicationName).append(" platform to let our users notice and order.");
 		return message.toString();
 	}
 
