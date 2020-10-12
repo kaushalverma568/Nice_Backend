@@ -77,10 +77,12 @@ import com.nice.model.UserOtp;
 import com.nice.model.Vendor;
 import com.nice.model.VendorBankDetails;
 import com.nice.model.VendorCuisine;
+import com.nice.model.VendorHistory;
 import com.nice.model.VendorPayment;
 import com.nice.repository.UserOtpRepository;
 import com.nice.repository.VendorBankDetailsRepository;
 import com.nice.repository.VendorCuisineRepository;
+import com.nice.repository.VendorHistoryRepository;
 import com.nice.repository.VendorRepository;
 import com.nice.service.AddonsService;
 import com.nice.service.AreaService;
@@ -105,7 +107,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -196,6 +198,9 @@ public class VendorServiceImpl implements VendorService {
 	@Autowired
 	private UserOtpRepository userOtpRepository;
 
+	@Autowired
+	private VendorHistoryRepository vendorHistoryRepository;
+
 	@Override
 	public VendorResponseDTO addVendor(final VendorDTO vendorDTO) throws ValidationException, NotFoundException {
 		if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(vendorDTO.getPassword())) {
@@ -242,6 +247,7 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setNoOfRating(0L);
 		vendor.setRating(0D);
 		vendor = vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 		/**
 		 * set login details of vendor
 		 */
@@ -284,6 +290,7 @@ public class VendorServiceImpl implements VendorService {
 				vendorBankDetailsRepository.save(vendorBankDetails);
 				vendor.setProfileCompleted(true);
 				vendorRepository.save(vendor);
+				addVendorHistory(vendor.getId());
 			} else {
 				throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 			}
@@ -392,6 +399,7 @@ public class VendorServiceImpl implements VendorService {
 			userLoginService.updateUserLogin(userLogin.get());
 			vendor.setActive(active);
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 			userName = userLogin.get().getEmail();
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists.email", new Object[] { vendor.getEmail() }));
@@ -415,8 +423,8 @@ public class VendorServiceImpl implements VendorService {
 			if (vendor.isPresent()) {
 				/**
 				 * If the vendor is present and his email not verified, then we will be sending
-				 * the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * the verification link for him again, if the email is verified then we will be
+				 * returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -431,8 +439,8 @@ public class VendorServiceImpl implements VendorService {
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
 			 * If the vendor is present and his email not verified, then we will be sending
-			 * the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * the verification link for him again, if the email is verified then we will be
+			 * returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -463,11 +471,12 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setEmailVerified(true);
 		vendor.setActive(true);
 		vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -562,6 +571,7 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setProfileCompleted(existingVendor.getProfileCompleted());
 			vendor.setIsFeatured(existingVendor.getIsFeatured());
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
@@ -651,6 +661,7 @@ public class VendorServiceImpl implements VendorService {
 				vendor.setFeaturedImageOriginalName(featuredImage.getOriginalFilename());
 			}
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 			/**
 			 * set vendor cuisine
 			 */
@@ -709,6 +720,7 @@ public class VendorServiceImpl implements VendorService {
 		}
 		vendor.setIsOrderServiceEnable(isOrderServiceEnable);
 		vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 	}
 
 	@Override
@@ -728,8 +740,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -753,8 +765,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final VendorFilterDTO vendorFilterDTO) throws ValidationException {
@@ -864,6 +876,7 @@ public class VendorServiceImpl implements VendorService {
 			vendor.setStatus(VendorStatus.EXPIRED.getStatusValue());
 			vendor.setIsOrderServiceEnable(false);
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 			vendorIds.add(vendor.getId());
 		}
 		try {
@@ -911,6 +924,7 @@ public class VendorServiceImpl implements VendorService {
 		}
 		vendor.setStatus(newStatus);
 		vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 		Optional<UserLogin> userLogin = userLoginService.getUserLoginBasedOnEmailAndEntityType(vendor.getEmail(), UserType.VENDOR.name());
 		if (userLogin.isPresent()) {
 			return userLogin.get().getEmail();
@@ -952,6 +966,7 @@ public class VendorServiceImpl implements VendorService {
 			otpService.verifyOtp(userLogin.getId(), UserOtpTypeEnum.SMS.name(), otp, false);
 			vendor.setPhoneVerified(true);
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(VENDOR_ACTIVE_FIRST, null));
 		}
@@ -980,6 +995,7 @@ public class VendorServiceImpl implements VendorService {
 			assetService.deleteFile(imageName, AssetConstant.VENDOR);
 		}
 		vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 	}
 
 	@Override
@@ -993,6 +1009,7 @@ public class VendorServiceImpl implements VendorService {
 		} else {
 			vendor.setIsFeatured(active);
 			vendorRepository.save(vendor);
+			addVendorHistory(vendor.getId());
 		}
 	}
 
@@ -1014,7 +1031,7 @@ public class VendorServiceImpl implements VendorService {
 	/**
 	 * for failed transaction
 	 *
-	 * @param  vendorOrderId
+	 * @param vendorOrderId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1052,7 +1069,7 @@ public class VendorServiceImpl implements VendorService {
 	/**
 	 * for add vendor subscription
 	 *
-	 * @param  vendorPayment
+	 * @param vendorPayment
 	 * @throws ValidationException
 	 */
 	private void addSubscriptionPlan(final VendorPayment vendorPayment) throws ValidationException {
@@ -1076,6 +1093,7 @@ public class VendorServiceImpl implements VendorService {
 		vendor.setStatus(VendorStatus.ACTIVE.getStatusValue());
 
 		vendorRepository.save(vendor);
+		addVendorHistory(vendor.getId());
 	}
 
 	private UserLogin getUserLoginFromToken() {
@@ -1132,5 +1150,21 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public Long getAllVendorCount() {
 		return vendorRepository.count();
+	}
+
+	@Override
+	public void addVendorHistory(final Long vendorId) {
+		Vendor vendor;
+		try {
+			vendor = getVendorDetail(vendorId);
+			VendorHistory vendorHistory = new VendorHistory();
+			BeanUtils.copyProperties(vendor, vendorHistory);
+			vendorHistory.setId(null);
+			vendorHistory.setVendor(vendor);
+			vendorHistoryRepository.save(vendorHistory);
+		} catch (NotFoundException e) {
+			LOGGER.info("Error while adding vendor history : {}", e.getMessage());
+		}
+
 	}
 }
