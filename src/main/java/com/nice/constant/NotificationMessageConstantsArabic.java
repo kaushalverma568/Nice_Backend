@@ -33,7 +33,7 @@ public final class NotificationMessageConstantsArabic {
 
 	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.DELIVERED.getStatusValue(), "Delivered",
 			OrderStatusEnum.REJECTED.getStatusValue(), "Rejected", OrderStatusEnum.REPLACED.getStatusValue(), "Replaced", "RETURN", "Return", "Replace",
-			"Repalce");
+			"Replace");
 
 	/**
 	 * @param  name
