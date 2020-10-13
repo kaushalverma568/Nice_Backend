@@ -42,8 +42,6 @@ import com.nice.service.VendorService;
 @Transactional(rollbackFor = Throwable.class)
 public class DashboardServiceImpl implements DashboardService {
 
-	private Date today = new Date();
-
 	@Autowired
 	private CustomerService customerService;
 
@@ -70,7 +68,7 @@ public class DashboardServiceImpl implements DashboardService {
 	public DashboardCountDTO getDashboardCount() throws NotFoundException, ValidationException {
 		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		DashboardCountDTO dashboardCountDTO = new DashboardCountDTO();
-
+		Date today = new Date();
 		/**
 		 * Get count of orders
 		 */
