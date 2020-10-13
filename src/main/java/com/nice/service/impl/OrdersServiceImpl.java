@@ -54,6 +54,7 @@ import com.nice.dto.OrderStatusDto;
 import com.nice.dto.OrdersResponseDTO;
 import com.nice.dto.ProductVariantResponseDTO;
 import com.nice.dto.PushNotificationDTO;
+import com.nice.dto.RefundAmountDisplayDto;
 import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.StockTransferDto;
@@ -146,7 +147,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -597,7 +598,7 @@ public class OrdersServiceImpl implements OrdersService {
 	/**
 	 * This method is used to check if the customer has any ongoing orders
 	 *
-	 * @param  customerId
+	 * @param customerId
 	 * @return
 	 */
 	private Long ongoingOrderCount(final Long customerId) {
@@ -624,9 +625,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -953,10 +954,10 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  description
-	 * @param  transactionType
-	 * @param  orderRequestDto
-	 * @param  order
+	 * @param description
+	 * @param transactionType
+	 * @param orderRequestDto
+	 * @param order
 	 * @throws NotFoundException
 	 */
 	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description, final String transactionType)
@@ -1037,8 +1038,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  applyDeliveryCharge
-	 * @param  orderAmt
+	 * @param applyDeliveryCharge
+	 * @param orderAmt
 	 * @return
 	 */
 	@Override
@@ -1257,8 +1258,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param  orders
-	 * @param  orderResponseDto
+	 * @param orders
+	 * @param orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -1394,8 +1395,8 @@ public class OrdersServiceImpl implements OrdersService {
 	/**
 	 * This method is used only to change the status of the order and respective status of the inventory if managed
 	 *
-	 * @param  newStatus
-	 * @param  order
+	 * @param newStatus
+	 * @param order
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -2010,10 +2011,20 @@ public class OrdersServiceImpl implements OrdersService {
 		Double amount = Double.sum(Double.sum(refundAmountDto.getAdminContribution(), refundAmountDto.getVendorContribution()),
 				refundAmountDto.getDeliveryBoyContribution());
 		Double totalOrderAmount;
-		if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
-			totalOrderAmount = orders.getWalletContribution();
-		} else {
+		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(orders.getOrderStatus())) {
+			if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+				totalOrderAmount = orders.getWalletContribution();
+			} else {
+				totalOrderAmount = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
+			}
+		} else if (OrderStatusEnum.RETURNED.getStatusValue().equals(orders.getOrderStatus())) {
 			totalOrderAmount = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
+			/**
+			 * Deduct the delivery charge from the totalOrderAmount that can be returned as that will be beared by the customer.
+			 */
+			totalOrderAmount = Double.sum(totalOrderAmount, orders.getDeliveryCharge() * (-1));
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("cannot.refund.order", null));
 		}
 
 		if (amount.compareTo(0.0d) == 0) {
@@ -2024,8 +2035,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 		if (orders.getRefunded().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.already.refunded", null));
-		} else if (!orders.getOrderStatus().equals(OrderStatusEnum.CANCELLED.getStatusValue())) {
-			throw new ValidationException(messageByLocaleService.getMessage("cancelled.orders.refunded", null));
+		} else if (!(orders.getOrderStatus().equals(OrderStatusEnum.CANCELLED.getStatusValue())
+				|| orders.getOrderStatus().equals(OrderStatusEnum.RETURNED.getStatusValue()))) {
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.order.status.refund", null));
 		}
 		/**
 		 * this means the refund is to be made to customer wallet after deducting the charges from the order
@@ -2161,4 +2173,31 @@ public class OrdersServiceImpl implements OrdersService {
 		return ordersRepository.countByStatusAndCreatedAtAndVendorId(status, createdAt, vendorId);
 	}
 
+	@Override
+	public RefundAmountDisplayDto displayRefundAmount(final Long orderId) throws ValidationException, NotFoundException {
+
+		Orders orders = getOrder(orderId);
+		if (orders.getRefunded().booleanValue()) {
+			throw new ValidationException(messageByLocaleService.getMessage("order.already.refunded", null));
+		}
+		RefundAmountDisplayDto refundAmountDisplayDto = new RefundAmountDisplayDto();
+		if (OrderStatusEnum.CANCELLED.getStatusValue().equals(orders.getOrderStatus())) {
+			if (PaymentMode.COD.name().equals(orders.getPaymentMode())) {
+				refundAmountDisplayDto.setMaxRefundAmt(orders.getWalletContribution());
+				refundAmountDisplayDto.setOrderAmount(Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution()));
+			} else {
+				refundAmountDisplayDto.setOrderAmount(Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution()));
+				refundAmountDisplayDto.setMaxRefundAmt(Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution()));
+			}
+		} else if (OrderStatusEnum.RETURNED.getStatusValue().equals(orders.getOrderStatus())) {
+			refundAmountDisplayDto.setOrderAmount(Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution()));
+			/**
+			 * Deduct the delivery charge from the totalOrderAmount that can be returned as that will be beared by the customer.
+			 */
+			refundAmountDisplayDto.setMaxRefundAmt(Double.sum(refundAmountDisplayDto.getOrderAmount(), orders.getDeliveryCharge() * (-1)));
+		} else {
+			throw new ValidationException(messageByLocaleService.getMessage("cannot.refund.order", null));
+		}
+		return refundAmountDisplayDto;
+	}
 }

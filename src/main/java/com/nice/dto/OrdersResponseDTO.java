@@ -12,7 +12,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Data
 public class OrdersResponseDTO implements Serializable {
@@ -118,6 +118,9 @@ public class OrdersResponseDTO implements Serializable {
 	private Boolean canReplace;
 	private Boolean canReturn;
 
+	/**
+	 * This flag determines if the order is refunded
+	 */
 	private Boolean refunded;
 
 	private Double walletContribution;

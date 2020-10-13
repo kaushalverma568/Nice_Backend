@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nice.dto.OrderListFilterDto;
 import com.nice.dto.OrderRequestDTO;
 import com.nice.dto.OrdersResponseDTO;
+import com.nice.dto.RefundAmountDisplayDto;
 import com.nice.dto.RefundAmountDto;
 import com.nice.dto.ReplaceCancelOrderDto;
 import com.nice.dto.WalletTrxDTO;
@@ -24,19 +25,19 @@ import com.nice.model.Orders;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 08-Jul-2020
+ * @date : 08-Jul-2020
  */
 public interface OrdersService {
 
 	/**
-	 * @param  orderRequestDto
+	 * @param orderRequestDto
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	String validateOrder(OrderRequestDTO orderRequestDto) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -44,8 +45,8 @@ public interface OrdersService {
 	Orders getOrderById(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param  orderId
-	 * @param  isFromAdmin
+	 * @param orderId
+	 * @param isFromAdmin
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -53,9 +54,9 @@ public interface OrdersService {
 	OrdersResponseDTO getOrderDetails(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  startIndex
-	 * @param  pageSize
-	 * @param  orderListFilterDto
+	 * @param startIndex
+	 * @param pageSize
+	 * @param orderListFilterDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -64,9 +65,9 @@ public interface OrdersService {
 			throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  cartItemList
-	 * @param  orderRequestDto
-	 * @param  calculatedOrderAmt
+	 * @param cartItemList
+	 * @param orderRequestDto
+	 * @param calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -74,15 +75,15 @@ public interface OrdersService {
 	Orders createOrder(List<CartItem> cartItemList, OrderRequestDTO orderRequestDto, Double calculatedOrderAmt) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  razorpayOrderId
+	 * @param razorpayOrderId
 	 * @return
 	 */
 	Optional<Orders> getOrderDetailsByOnlineOrderId(String razorpayOrderId);
 
 	/**
-	 * @param  userId
-	 * @param  customerId
-	 * @param  userType
+	 * @param userId
+	 * @param customerId
+	 * @param userType
 	 * @throws NotFoundException
 	 * @throws AuthorizationException
 	 * @throws ValidationException
@@ -92,7 +93,7 @@ public interface OrdersService {
 	/**
 	 * get order count (set userId if you want to check user role also)
 	 *
-	 * @param  orderListFilterDto
+	 * @param orderListFilterDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -100,23 +101,23 @@ public interface OrdersService {
 	Long getOrderCountBasedOnParams(OrderListFilterDto orderListFilterDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  replaceCancelOrderDto
+	 * @param replaceCancelOrderDto
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void cancelOrder(ReplaceCancelOrderDto replaceCancelOrderDto, boolean autoRefund) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  newStatus
-	 * @param  order
+	 * @param newStatus
+	 * @param order
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void changeStatus(String newStatus, Orders order) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  httpServletResponse
-	 * @param  orderListFilterDto
+	 * @param httpServletResponse
+	 * @param orderListFilterDto
 	 * @throws NotFoundException
 	 * @throws FileNotFoundException
 	 * @throws ValidationException
@@ -127,9 +128,9 @@ public interface OrdersService {
 	/**
 	 * get all qualified orders for sending accept order notification
 	 *
-	 * @param  statusList
-	 * @param  assignmentTryCount
-	 * @param  notificationTimer
+	 * @param statusList
+	 * @param assignmentTryCount
+	 * @param notificationTimer
 	 * @return
 	 */
 	List<Orders> getAllQualifiedDeliveryOrdersForSendingNotification(List<String> statusList, String deliveryType, Integer assignmentTryCount,
@@ -138,7 +139,7 @@ public interface OrdersService {
 	/**
 	 * replace order
 	 *
-	 * @param  replaceCancelOrderDto
+	 * @param replaceCancelOrderDto
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -147,7 +148,7 @@ public interface OrdersService {
 	/**
 	 * return order
 	 *
-	 * @param  replaceCancelOrderDto
+	 * @param replaceCancelOrderDto
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
@@ -156,22 +157,22 @@ public interface OrdersService {
 	/**
 	 * this method is used for change status to ready
 	 *
-	 * @param  ordersId
-	 * @param  status
+	 * @param ordersId
+	 * @param status
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void changeStatus(Long ordersId, String status) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  replaceCancelOrderDto
+	 * @param replaceCancelOrderDto
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void rejectOrder(ReplaceCancelOrderDto replaceCancelOrderDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @throws NotFoundException
 	 */
 	List<String> getNextStatus(Long orderId) throws NotFoundException;
@@ -179,37 +180,37 @@ public interface OrdersService {
 	/**
 	 * Retry to searching delivery boys for assignment of order
 	 *
-	 * @param  orderId
-	 * @param  repeatDeliveryBoy
+	 * @param orderId
+	 * @param repeatDeliveryBoy
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	void retryForSearchingDeliveryBoys(Long orderId, Boolean repeatDeliveryBoy) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  refundAmountDto     TODO
+	 * @param refundAmountDto TODO
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void refundAmount(RefundAmountDto refundAmountDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	void deliverPickUpOrder(Long orderId) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  cartItemList
+	 * @param cartItemList
 	 * @return
 	 * @throws NotFoundException
 	 */
 	Double calculateTotalOrderAmt(List<CartItem> cartItemList) throws NotFoundException;
 
 	/**
-	 * @param  applyDeliveryCharge
-	 * @param  orderAmt
+	 * @param applyDeliveryCharge
+	 * @param orderAmt
 	 * @return
 	 */
 	Double addDeliveryCharge(boolean applyDeliveryCharge, Double orderAmt);
@@ -223,8 +224,8 @@ public interface OrdersService {
 	Orders getOrder(Long orderId) throws NotFoundException;
 
 	/**
-	 * @param  orderPushNotificationCustomer
-	 * @param  orderId
+	 * @param orderPushNotificationCustomer
+	 * @param orderId
 	 * @throws NotFoundException
 	 */
 	void sendPushNotificationForOrder(String orderPushNotificationCustomer, Long orderId) throws NotFoundException;
@@ -232,7 +233,7 @@ public interface OrdersService {
 	/**
 	 * send push notification to vendor for new order
 	 *
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -248,16 +249,16 @@ public interface OrdersService {
 	void sendEmailNotificationForOrder(String emailNotificationType, Long id);
 
 	/**
-	 * @param  status
-	 * @param  createdAt
+	 * @param status
+	 * @param createdAt
 	 * @return
 	 */
 	Long countByStatusAndCreatedAt(String status, Date createdAt);
 
 	/**
-	 * @param  status
-	 * @param  createdAt
-	 * @param  vendorId
+	 * @param status
+	 * @param createdAt
+	 * @param vendorId
 	 * @return
 	 */
 	Long countByStatusAndCreatedAtAndVendorId(String status, Date createdAt, Long vendorId);
@@ -265,16 +266,24 @@ public interface OrdersService {
 	/**
 	 * send push notification to vendor or delivery boy
 	 *
-	 * @param  orderPushNotificationCustomer
-	 * @param  orderId
+	 * @param orderPushNotificationCustomer
+	 * @param orderId
 	 * @throws NotFoundException
 	 */
 	void sendPushNotificationToVendorOrDeliveryBoy(String orderPushNotificationType, Long orderId) throws NotFoundException;
 
 	/**
-	 * @param  replaceCancelOrderDto
+	 * @param replaceCancelOrderDto
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
 	void cancelReturnReplaceOrder(ReplaceCancelOrderDto replaceCancelOrderDto, String orderStatus) throws NotFoundException, ValidationException;
+
+	/**
+	 * @param orderId
+	 * @return
+	 * @throws ValidationException
+	 * @throws NotFoundException
+	 */
+	RefundAmountDisplayDto displayRefundAmount(Long orderId) throws ValidationException, NotFoundException;
 }

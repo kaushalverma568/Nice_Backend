@@ -273,6 +273,7 @@ public class TaskServiceImpl implements TaskService {
 	private void saveTaskHistory(final Task task) {
 		TaskHistory taskHistory = new TaskHistory();
 		BeanUtils.copyProperties(task, taskHistory);
+		taskHistory.setId(null);
 		taskHistory.setOrderId(task.getOrder().getId());
 		if (task.getDeliveryBoy() != null) {
 			taskHistory.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -410,6 +411,7 @@ public class TaskServiceImpl implements TaskService {
 				} else {
 					task.setDeliveryCharge(Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.COMMISION_PER_RETURN_ORDER).getFieldValue()));
 					task.setCustomerDeliveryCharge(task.getDeliveryCharge());
+					task.setVendorProfit(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 				}
 
 				if (taskList.size() >= Integer.valueOf(minOrderDelivered)) {
@@ -418,6 +420,7 @@ public class TaskServiceImpl implements TaskService {
 				}
 				if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
 					task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
+					task.setDeliveryBoyProfit(task.getDeliveryCharge());
 				}
 			}
 		}
