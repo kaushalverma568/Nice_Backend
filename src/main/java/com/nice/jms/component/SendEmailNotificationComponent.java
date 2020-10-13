@@ -369,7 +369,7 @@ public class SendEmailNotificationComponent {
 					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
 					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameEnglish().concat(" ").concat(vendor.getLastNameEnglish());
-					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaymentAmount(), paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
@@ -380,7 +380,7 @@ public class SendEmailNotificationComponent {
 					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
 					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = vendor.getFirstNameArabic().concat(" ").concat(vendor.getLastNameArabic());
-					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
+					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaymentAmount(), paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.VENDOR_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
@@ -396,7 +396,7 @@ public class SendEmailNotificationComponent {
 					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsEnglish.CUSTOMER_CARE_NO);
 					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsEnglish.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameEnglish().concat(" ").concat(deliveryBoy.getLastNameEnglish());
-					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaidOn());
+					content = NotificationMessageConstantsEnglish.getPayoutMessage(paymentDetails.getPaymentAmount(), paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsEnglish.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsEnglish.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameEn;
@@ -407,7 +407,7 @@ public class SendEmailNotificationComponent {
 					emailParameterMap.put(CUSTOMER_CARE_NO, NotificationMessageConstantsArabic.CUSTOMER_CARE_NO);
 					emailParameterMap.put(EMAIL_ADDRESS, NotificationMessageConstantsArabic.EMAIL_ADDRESS);
 					userName = deliveryBoy.getFirstNameArabic().concat(" ").concat(deliveryBoy.getLastNameArabic());
-					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaidOn());
+					content = NotificationMessageConstantsArabic.getPayoutMessage(paymentDetails.getPaymentAmount(), paymentDetails.getPaidOn());
 					secondLineContent = NotificationMessageConstantsArabic.getPayoutSecondMessage();
 					subject = NotificationMessageConstantsArabic.DELIVERY_BOY_PAYOUT_SUBJECT;
 					applicationName = applicationNameFr;
@@ -545,8 +545,7 @@ public class SendEmailNotificationComponent {
 			}
 			emailParameterMap.put(USER_TYPE, userType);
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {
@@ -621,8 +620,7 @@ public class SendEmailNotificationComponent {
 				emailParameterMap.put("instructionLink", NotificationMessageConstantsArabic.getInsructionMessageForLink());
 			}
 			/**
-			 * choose template according to sendingType (if sendingType is null then we
-			 * choose both)
+			 * choose template according to sendingType (if sendingType is null then we choose both)
 			 */
 			if (!CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(emailNotification.getSendingType())
 					|| SendingType.BOTH.name().equalsIgnoreCase(emailNotification.getSendingType())) {

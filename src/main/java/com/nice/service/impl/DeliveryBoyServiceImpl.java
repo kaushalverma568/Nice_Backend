@@ -38,6 +38,7 @@ import com.nice.constant.TaskStatusEnum;
 import com.nice.constant.TaskTypeEnum;
 import com.nice.constant.UserOtpTypeEnum;
 import com.nice.constant.UserType;
+import com.nice.dto.CompanyResponseDTO;
 import com.nice.dto.DashBoardDetailDTO;
 import com.nice.dto.DeliveryBoyAccountDetailsDTO;
 import com.nice.dto.DeliveryBoyDTO;
@@ -77,6 +78,7 @@ import com.nice.repository.DeliveryBoyRepository;
 import com.nice.repository.DeliveryBoySendNotificationHistoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CashcollectionService;
+import com.nice.service.CompanyService;
 import com.nice.service.DeliveryBoyLocationService;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.DeviceDetailService;
@@ -154,6 +156,9 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	@Autowired
 	private RoleService roleService;
 
+	@Autowired
+	private CompanyService companyService;
+
 	@Override
 	public DeliveryBoyResponseDTO addDeliveryBoy(final DeliveryBoyDTO deliveryBoyDTO, final MultipartFile profilePicture)
 			throws ValidationException, NotFoundException, FileOperationException {
@@ -210,13 +215,14 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		deliveryBoyCurrentStatus.setActive(true);
 		deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
 
+		CompanyResponseDTO company = companyService.getCompany(false);
 		/**
 		 * set default location details
 		 */
 		DeliveryBoyLocationDTO deliveryBoyLocationDTO = new DeliveryBoyLocationDTO();
 		deliveryBoyLocationDTO.setDeliveryBoyId(deliveryBoy.getId());
-		deliveryBoyLocationDTO.setLatitude(Constant.LATITUDE);
-		deliveryBoyLocationDTO.setLongitude(Constant.LONGITUDE);
+		deliveryBoyLocationDTO.setLatitude(company.getLatitude());
+		deliveryBoyLocationDTO.setLongitude(company.getLongitude());
 		deliveryBoyLocationService.addUpdateDeliveryBoyLocation(deliveryBoyLocationDTO);
 
 		/**

@@ -105,16 +105,17 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String getPayoutMessage(final Date paidOn) {
+	public static String getPayoutMessage(final Double amount, final Date paidOn) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Admin has confirmed the payment date ").append(paidOn.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString())
-				.append(".");
+		message = message.append("Your payment for KD ").append(amount).append(" has been processed on ")
+				.append(paidOn.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString())
+				.append(". Kindly check your registered bank account for the same");
 		return message.toString();
 	}
 
 	public static String getPayoutSecondMessage() {
 		StringBuilder message = new StringBuilder();
-		message = message.append("Kindly check your registered bank account for more details.");
+		message = message.append("Kindly check your registered bank account for the same.");
 		return message.toString();
 	}
 

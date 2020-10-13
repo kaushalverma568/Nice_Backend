@@ -19,7 +19,6 @@ import com.nice.dto.PushNotificationDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.jms.queue.JMSQueuerService;
-import com.nice.locale.MessageByLocaleService;
 import com.nice.model.DeliveryBoy;
 import com.nice.model.DeliveryBoySendNotificationHistory;
 import com.nice.model.Orders;
@@ -53,9 +52,6 @@ public class AcceptingOrderNotificationScheduler {
 
 	@Autowired
 	private JMSQueuerService jmsQueuerService;
-
-	@Autowired
-	private MessageByLocaleService messageByLocaleService;
 
 	@Scheduled(fixedRate = 10000)
 	public void acceptingOrderNotification() throws NotFoundException, ValidationException {
