@@ -367,6 +367,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 				}
 				deliveryBoy.setStatus(DeliveryBoyStatus.DE_ACTIVE.getStatusValue());
 				deliveryBoyCurrentStatus.setIsLogin(false);
+				userName = userLogin.get().getEmail();
 			} else {
 				if (!deliveryBoy.getEmailVerified().booleanValue()) {
 					throw new ValidationException(messageByLocaleService.getMessage("email.not.verified", null));
@@ -379,7 +380,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			deliveryBoy = deliveryBoyRepository.save(deliveryBoy);
 			deliveryBoyCurrentStatus.setDeliveryBoy(deliveryBoy);
 			deliveryBoyCurrentStatusRepository.save(deliveryBoyCurrentStatus);
-			userName = userLogin.get().getEmail();
 		} else {
 			throw new NotFoundException(messageByLocaleService.getMessage("user.not.exists.email", new Object[] { deliveryBoy.getEmail() }));
 		}
@@ -749,10 +749,10 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		Locale locale = LocaleContextHolder.getLocale();
 		StringBuilder address = new StringBuilder();
 		if (locale.getLanguage().equals("en")) {
-			address.append(vendor.getBlockEnglish()).append(",").append(vendor.getBuildingEnglish()).append(",").append(vendor.getStreetEnglish()).append(",")
+			address.append(vendor.getBuildingEnglish()).append(",").append(vendor.getBlockEnglish()).append(",").append(vendor.getStreetEnglish()).append(",")
 					.append(vendor.getArea().getNameEnglish()).append(",").append(vendor.getCountry().getNameEnglish());
 		} else {
-			address.append(vendor.getBlockArabic()).append(",").append(vendor.getBuildingArabic()).append(",").append(vendor.getStreetArabic()).append(",")
+			address.append(vendor.getBuildingArabic()).append(",").append(vendor.getBlockArabic()).append(",").append(vendor.getStreetArabic()).append(",")
 					.append(vendor.getArea().getNameArabic()).append(",").append(vendor.getCountry().getNameArabic());
 		}
 		return address.toString();
@@ -953,7 +953,6 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			ordersDetailDTOForDeliveryBoy.setPickupLatitude(orders.getLatitude());
 			ordersDetailDTOForDeliveryBoy.setPickupLongitude(orders.getLongitude());
 			ordersDetailDTOForDeliveryBoy.setPickupContactNo(orders.getPhoneNumber());
-			ordersDetailDTOForDeliveryBoy.setPickUpAddress(getVendorAddress(orders.getVendor()));
 			ordersDetailDTOForDeliveryBoy.setDropAddress(getVendorAddress(orders.getVendor()));
 			ordersDetailDTOForDeliveryBoy.setPickupContactName(orders.getFirstName() + " " + orders.getLastName());
 			if (locale.getLanguage().equals("en")) {

@@ -444,7 +444,14 @@ public class VendorController {
 	public ResponseEntity<Object> changeVendorStatus(@RequestHeader("Authorization") final String accessToken, @PathVariable("vendorId") final Long vendorId,
 			@PathVariable("newStatus") final String newStatus) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside change status of Vendor of id {} and status {}", vendorId, newStatus);
-		vendorService.changeVendorStatus(vendorId, newStatus);
+		String userName = vendorService.changeVendorStatus(vendorId, newStatus);
+		/**
+		 * revoke token
+		 */
+		if (userName != null && (VendorStatus.SUSPENDED.getStatusValue().equals(newStatus) || VendorStatus.EXPIRED.getStatusValue().equals(newStatus))) {
+			revokeToken(userName.concat("!!").concat(UserType.VENDOR.name()));
+		}
+
 		if (VendorStatus.ACTIVE.getStatusValue().equals(newStatus) || VendorStatus.APPROVED.getStatusValue().equals(newStatus)
 				|| VendorStatus.REJECTED.getStatusValue().equals(newStatus) || VendorStatus.SUSPENDED.getStatusValue().equals(newStatus)
 				|| VendorStatus.EXPIRED.getStatusValue().equals(newStatus)) {
