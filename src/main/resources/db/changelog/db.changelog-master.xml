@@ -403,5 +403,13 @@
 			path="sql-files/1.0/vendor_history.sql"
 			relativeToChangelogFile="true" splitStatements="true"
 			stripComments="true" />
+	</changeSet>
+	
+	<changeSet id="58" author="ronit.macwan"
+		context="post-process-db-changes">
+		<sqlFile dbms="postgresql" encoding="utf8" endDelimiter="\nGO"
+			path="sql-files/1.0/company_area.sql"
+			relativeToChangelogFile="true" splitStatements="true"
+			stripComments="true" />
 	</changeSet>	
 </databaseChangeLog>

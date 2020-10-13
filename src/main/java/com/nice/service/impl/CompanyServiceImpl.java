@@ -17,8 +17,10 @@ import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.CompanyMapper;
+import com.nice.model.Area;
 import com.nice.model.Company;
 import com.nice.repository.CompanyRepository;
+import com.nice.service.AreaService;
 import com.nice.service.AssetService;
 import com.nice.service.CompanyService;
 
@@ -46,6 +48,9 @@ public class CompanyServiceImpl implements CompanyService {
 	@Autowired
 	private AssetService assetService;
 
+	@Autowired
+	private AreaService areaService;
+
 	@Override
 	public void addCompany(final CompanyDTO companyDTO, final MultipartFile logo) throws ValidationException, NotFoundException, FileOperationException {
 		if (companyRepository.count() >= 1) {
@@ -53,6 +58,8 @@ public class CompanyServiceImpl implements CompanyService {
 			throw new ValidationException(messageByLocaleService.getMessage("company.count.exhausted", null));
 		} else {
 			Company company = companyMapper.toEntity(companyDTO);
+			Area area = areaService.getAreaDetails(companyDTO.getAreaId());
+			company.setArea(area);
 			company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0, 0, 0));
 			company.setCompanyImageOriginalName(logo.getOriginalFilename());
 			companyRepository.save(company);
@@ -68,6 +75,8 @@ public class CompanyServiceImpl implements CompanyService {
 			String oldImageName = company.getCompanyImageName();
 			String oldOriginalName = company.getCompanyImageOriginalName();
 			company = companyMapper.toEntity(companyDTO);
+			Area area = areaService.getAreaDetails(companyDTO.getAreaId());
+			company.setArea(area);
 			if (logo != null) {
 				assetService.deleteFile(oldImageName, AssetConstant.COMPANY_DIR);
 				company.setCompanyImageName(assetService.saveAsset(logo, AssetConstant.COMPANY_DIR, 0, 0, 0));

@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Data
 public class CompanyDTO implements Serializable {
@@ -58,4 +58,7 @@ public class CompanyDTO implements Serializable {
 
 	@NotNull(message = "{longitude.not.null}")
 	private BigDecimal longitude;
+
+	@NotNull(message = "{area.not.null}")
+	private Long areaId;
 }

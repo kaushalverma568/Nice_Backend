@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.dto.AreaDTO;
 import com.nice.dto.AreaResponseDTO;
+import com.nice.dto.CompanyResponseDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
@@ -25,11 +26,12 @@ import com.nice.model.City;
 import com.nice.repository.AreaRepository;
 import com.nice.service.AreaService;
 import com.nice.service.CityService;
+import com.nice.service.CompanyService;
 import com.nice.service.CustomerAddressService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : Oct 9, 2020
+ * @date : Oct 9, 2020
  */
 @Service(value = "areaService")
 @Transactional(rollbackFor = Throwable.class)
@@ -51,6 +53,9 @@ public class AreaServiceImpl implements AreaService {
 
 	@Autowired
 	private CityService cityService;
+
+	@Autowired
+	private CompanyService companyService;
 
 	@Override
 	public void addArea(final AreaDTO areaDTO) throws ValidationException, NotFoundException {
@@ -149,12 +154,20 @@ public class AreaServiceImpl implements AreaService {
 	/**
 	 * Deactivate customer address while deactivating area
 	 *
-	 * @param  existingArea
-	 * @param  active
+	 * @param existingArea
+	 * @param active
+	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
-	private void changeStatusOfDependantEntity(final Area existingArea, final Boolean active) {
+	private void changeStatusOfDependantEntity(final Area existingArea, final Boolean active) throws NotFoundException, ValidationException {
 		if (Boolean.FALSE.equals(active)) {
+			/**
+			 * check if area is used in company if yes then can not deactivate area
+			 */
+			CompanyResponseDTO company = companyService.getCompany(false);
+			if (company.getAreaId().equals(existingArea.getId())) {
+				throw new ValidationException(messageByLocaleService.getMessage("area.company.involve", null));
+			}
 			/**
 			 * Delete all the customer address for the area
 			 */
@@ -167,7 +180,8 @@ public class AreaServiceImpl implements AreaService {
 		City city = cityService.getCityDetails(areaDTO.getCityId());
 		if (areaDTO.getId() != null) {
 			/**
-			 * At the time of update is area with same English exist or not except it's own id
+			 * At the time of update is area with same English exist or not except it's own
+			 * id
 			 */
 			return areaRepository.findByNameEnglishIgnoreCaseAndCityAndIdNot(areaDTO.getNameEnglish(), city, areaDTO.getId()).isPresent();
 		} else {
@@ -183,7 +197,8 @@ public class AreaServiceImpl implements AreaService {
 		City city = cityService.getCityDetails(areaDTO.getCityId());
 		if (areaDTO.getId() != null) {
 			/**
-			 * At the time of update is area with same arabic name exist or not except it's own id
+			 * At the time of update is area with same arabic name exist or not except it's
+			 * own id
 			 */
 			return areaRepository.findByNameArabicIgnoreCaseAndCityAndIdNot(areaDTO.getNameArabic(), city, areaDTO.getId()).isPresent();
 		} else {

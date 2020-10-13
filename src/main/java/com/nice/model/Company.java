@@ -2,11 +2,15 @@ package com.nice.model;
 
 import java.math.BigDecimal;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -14,7 +18,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 26-Jun-2020
+ * @date : 26-Jun-2020
  */
 @Entity
 @Table(name = "company")
@@ -67,5 +71,9 @@ public class Company extends CommonModel {
 
 	@Column(name = "longitude")
 	private BigDecimal longitude;
+
+	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area_id", referencedColumnName = "id", nullable = false)
+	private Area area;
 
 }

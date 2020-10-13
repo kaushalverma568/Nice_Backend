@@ -29,9 +29,18 @@ public class CompanyMapper {
 		if (locale.getLanguage().equals("en")) {
 			companyResponseDTO.setName(company.getNameEnglish());
 			companyResponseDTO.setCompanyAddress(company.getCompanyAddressEnglish());
+			if (company.getArea() != null) {
+				companyResponseDTO.setAreaName(company.getArea().getNameEnglish());
+			}
 		} else {
 			companyResponseDTO.setName(company.getNameArabic());
 			companyResponseDTO.setCompanyAddress(company.getCompanyAddressArabic());
+			if (company.getArea() != null) {
+				companyResponseDTO.setAreaName(company.getArea().getNameArabic());
+			}
+		}
+		if (company.getArea() != null) {
+			companyResponseDTO.setAreaId(company.getArea().getId());
 		}
 		return companyResponseDTO;
 	}
