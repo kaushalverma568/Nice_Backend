@@ -147,7 +147,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Service(value = "orderService")
 @Transactional(rollbackFor = Throwable.class)
@@ -457,6 +457,7 @@ public class OrdersServiceImpl implements OrdersService {
 			orderRequestDto.setWalletContribution(0.0d);
 		}
 
+		amountAfterWalletDeduction = CommonUtility.round(amountAfterWalletDeduction);
 		/**
 		 * Validate order amount
 		 */
@@ -598,7 +599,7 @@ public class OrdersServiceImpl implements OrdersService {
 	/**
 	 * This method is used to check if the customer has any ongoing orders
 	 *
-	 * @param customerId
+	 * @param  customerId
 	 * @return
 	 */
 	private Long ongoingOrderCount(final Long customerId) {
@@ -625,9 +626,9 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param cartItemList
-	 * @param orderRequestDto
-	 * @param calculatedOrderAmt
+	 * @param  cartItemList
+	 * @param  orderRequestDto
+	 * @param  calculatedOrderAmt
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -954,10 +955,10 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param description
-	 * @param transactionType
-	 * @param orderRequestDto
-	 * @param order
+	 * @param  description
+	 * @param  transactionType
+	 * @param  orderRequestDto
+	 * @param  order
 	 * @throws NotFoundException
 	 */
 	private void addWalletTxn(final Double transactionAmount, final Long customerId, final Long orderId, final String description, final String transactionType)
@@ -1038,8 +1039,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param applyDeliveryCharge
-	 * @param orderAmt
+	 * @param  applyDeliveryCharge
+	 * @param  orderAmt
 	 * @return
 	 */
 	@Override
@@ -1258,8 +1259,8 @@ public class OrdersServiceImpl implements OrdersService {
 	}
 
 	/**
-	 * @param orders
-	 * @param orderResponseDto
+	 * @param  orders
+	 * @param  orderResponseDto
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -1395,8 +1396,8 @@ public class OrdersServiceImpl implements OrdersService {
 	/**
 	 * This method is used only to change the status of the order and respective status of the inventory if managed
 	 *
-	 * @param newStatus
-	 * @param order
+	 * @param  newStatus
+	 * @param  order
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
