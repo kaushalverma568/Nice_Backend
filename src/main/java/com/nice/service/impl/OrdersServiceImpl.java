@@ -461,6 +461,7 @@ public class OrdersServiceImpl implements OrdersService {
 			orderRequestDto.setWalletContribution(0.0d);
 		}
 
+		amountAfterWalletDeduction = CommonUtility.round(amountAfterWalletDeduction);
 		/**
 		 * Validate order amount
 		 */
