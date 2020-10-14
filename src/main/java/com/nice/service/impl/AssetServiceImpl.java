@@ -4,6 +4,7 @@
 package com.nice.service.impl;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import com.nice.constant.AssetConstant;
 import com.nice.exception.FileOperationException;
@@ -29,7 +31,7 @@ import com.nice.util.MediaFileUtil;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 26-Jun-2020
+ * @date   : 26-Jun-2020
  */
 @Service(value = "assetService")
 public class AssetServiceImpl implements AssetService {
@@ -67,12 +69,14 @@ public class AssetServiceImpl implements AssetService {
 	}
 
 	/**
-	 *
-	 * @param image
-	 * @param subDirectory
-	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
-	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
-	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
+	 * @param  image
+	 * @param  subDirectory
+	 * @param  count                  : if value is not 0 then it will append number
+	 *                                to imageName to avoid conflict
+	 * @param  width                  : if width 0 then image will not be resized,
+	 *                                pass the image dimension to resize image
+	 * @param  height                 : if height 0 then image will not be resized,
+	 *                                pass the image dimension to resize image
 	 * @return
 	 * @throws FileOperationException
 	 * @throws ValidationException
@@ -100,12 +104,14 @@ public class AssetServiceImpl implements AssetService {
 	}
 
 	/**
-	 *
-	 * @param image
-	 * @param subDirectory
-	 * @param count        : if value is not 0 then it will append number to imageName to avoid conflict
-	 * @param width        : if width 0 then image will not be resized, pass the image dimension to resize image
-	 * @param height       : if height 0 then image will not be resized, pass the image dimension to resize image
+	 * @param  image
+	 * @param  subDirectory
+	 * @param  count                  : if value is not 0 then it will append number
+	 *                                to imageName to avoid conflict
+	 * @param  width                  : if width 0 then image will not be resized,
+	 *                                pass the image dimension to resize image
+	 * @param  height                 : if height 0 then image will not be resized,
+	 *                                pass the image dimension to resize image
 	 * @return
 	 * @throws FileOperationException
 	 * @throws ValidationException
@@ -115,7 +121,7 @@ public class AssetServiceImpl implements AssetService {
 		String newFileName = null;
 		if (image != null) {
 			final Map<String, String> imageProperties = CommonUtility.getDistinctFileProperties(image);
-			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION)) && (width != 0 && height != 0)) {
+			if (MediaFileUtil.getSupportedImageFileExtensions().contains(imageProperties.get(EXTENSION)) && width != 0 && height != 0) {
 				image = imageUtility.resizeImage(image, width, height);
 			}
 			if (count != 0) {
@@ -160,7 +166,7 @@ public class AssetServiceImpl implements AssetService {
 	private String getGeneratedUrlLocal(final String newFileName, final String subDirPath) {
 		if (newFileName != null) {
 			final StringBuilder imgUrl = new StringBuilder();
-			imgUrl.append(serviceUrl).append(AssetConstant.DIGITAL_ASSET_DOWNLOAD).append(newFileName);
+			imgUrl.append(serviceUrl).append(AssetConstant.DIGITAL_ASSET_DOWNLOAD).append(UriUtils.encode(newFileName, StandardCharsets.UTF_8.toString()));
 			if (subDirPath != null) {
 				imgUrl.append("?subDir=/" + subDirPath);
 			}
@@ -172,7 +178,7 @@ public class AssetServiceImpl implements AssetService {
 	private String getGeneratedUrlAws(final String newFileName, final String subDirPath) {
 		if (newFileName != null) {
 			final StringBuilder imgUrl = new StringBuilder(s3Url);
-			imgUrl.append(subDirPath).append("/").append(newFileName);
+			imgUrl.append(subDirPath).append("/").append(UriUtils.encode(newFileName, StandardCharsets.UTF_8.toString()));
 			return imgUrl.toString();
 		} else {
 			return null;
