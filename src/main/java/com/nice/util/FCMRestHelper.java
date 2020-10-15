@@ -46,11 +46,6 @@ public class FCMRestHelper {
 	public static final String TYPE_CONDITION = "condition"; // Use for Conditions
 	public static final String TYPE_REGISTRATION = "registration_ids";
 
-	/**
-	 * Your SECRET server key
-	 */
-	private static final String FCM_SERVER_KEY = "AAAAEiwibnM:APA91bHS_u56P09zaBLTbhAVVGSnoLkc9wpkqGQxNHh5xWLCvZot1ZxdcYgS8fPtbhtnji5GCWMwZMhG91J1IOllM3JhOyKpkiSrBxS_bIsz66qf4IGdB0veIF2d1WyV-xjNt_i21LiL";
-
 	public static FCMRestHelper getInstance(final String fcmKey) {
 
 		if (instanceMap.get(fcmKey) == null) {
@@ -190,7 +185,7 @@ public class FCMRestHelper {
 		HttpHeaders httpHeaders = new HttpHeaders();
 
 		httpHeaders.set("Content-Type", "application/json");
-		httpHeaders.set("Authorization", "key=" + FCM_SERVER_KEY);
+		httpHeaders.set("Authorization", "key=" + fcmKey);
 
 		if (notificationObject != null) {
 			sendObject.add("notification", notificationObject);

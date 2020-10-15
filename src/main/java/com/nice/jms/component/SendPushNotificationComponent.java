@@ -74,7 +74,7 @@ public class SendPushNotificationComponent {
 	private static final String IMAGE = "image";
 	private static final String DELIVERY_BOY_KEY = "AAAA3whS1Sc:APA91bHgG8IwQ1Vxvt4K-bot5pgT0NH68cXIpIbt8NtTBmCNFo4V2iO0kImfw-Q0OWuUNm0dmQhBOZcDNj0QQ-BY3qgB9B2q1oCFMt4sIgB4s__qDUBZc15LGV_E65zccWPCMAAv6vHW";
 	private static final String CUSTOMER_KEY = "AAAAnEI3SCU:APA91bEDEXwP1bi1hwf6JN2jnMhloGQ06gU5fnsMsbTYsJUKueY8IR9wlEdq-DX9f3KJr5-yyoHLCSTwkinhJm3z1PTFzrfQiyrDdS-qw-CsVIx9I9pg-3NvLZfsxs0u8dlj5r6nTX5k";
-	private static final String WEB_KEY = "AAAAGiFgaEY:APA91bFMLBoCm4dH8EMKu5dZ8mogU87S0Nh_fXWIn0w1xt03rCS-Q7KDHvzLKvoUDAiBZq-nb9DLufdeFc0qpBizALDfxPwh8UbuVQLf7D3euIdAbtD3AGjPynnIiPcUBrYV5RciCZ5k";
+	private static final String WEB_KEY = "AAAAEiwibnM:APA91bHS_u56P09zaBLTbhAVVGSnoLkc9wpkqGQxNHh5xWLCvZot1ZxdcYgS8fPtbhtnji5GCWMwZMhG91J1IOllM3JhOyKpkiSrBxS_bIsz66qf4IGdB0veIF2d1WyV-xjNt_i21LiL";
 
 	@Autowired
 	private UserLoginService userLoginService;
@@ -286,7 +286,8 @@ public class SendPushNotificationComponent {
 							pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either delivery boy
+				 * here sender will be entity will be vendor and receiver will be either
+				 * delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -345,7 +346,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -400,7 +402,8 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery
+			 * boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -925,8 +928,7 @@ public class SendPushNotificationComponent {
 						messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
 								order.getOrderStatus());
 					} else {
-						if (!(OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus())
-								&& OrderStatusEnum.RETURNED.getStatusValue().equals(order.getOrderStatus()))) {
+						if ((!OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus()) || !OrderStatusEnum.RETURNED.getStatusValue().equals(order.getOrderStatus()))) {
 							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
 							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
