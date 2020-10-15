@@ -147,7 +147,6 @@ public class OrderRatingController {
 	 */
 	@GetMapping(value = "/vendor/{vendorId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getByVendorId(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("vendorId") final Long vendorId)
 			throws NotFoundException {
 		Page<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByVendorId(pageNumber, pageSize, vendorId);
@@ -160,7 +159,6 @@ public class OrderRatingController {
 	
 	@GetMapping(value = "/deliveryBoy/{deliveryBoyId}/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getBydeliveryBoyId(@PathVariable final Integer pageNumber, @PathVariable final Integer pageSize,
-			@RequestHeader("Authorization") final String accessToken, 
 			@PathVariable("deliveryBoyId") final Long deliveryBoyId)
 			throws NotFoundException {
 		Page<OrderRating> resultOrderRating = orderRatingService.getOrderRatingByDeliveryBoyId(pageNumber, pageSize, deliveryBoyId);
