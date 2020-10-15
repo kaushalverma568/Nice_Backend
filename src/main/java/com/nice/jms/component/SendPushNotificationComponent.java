@@ -933,9 +933,8 @@ public class SendPushNotificationComponent {
 									order.getOrderStatus());
 						} else if (OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
 							messageEnglish = NotificationMessageConstantsEnglish
-									.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId(), order.getOrderStatus());
-							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId(),
-									order.getOrderStatus());
+									.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId());
+							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId());
 						} else {
 							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupReturn(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
