@@ -1,5 +1,7 @@
 package com.nice.service;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.Page;
 
 import com.nice.dto.OrderRatingDTO;
@@ -10,78 +12,80 @@ import com.nice.model.OrderRating;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Jul-2020
+ * @date : 24-Jul-2020
  */
 public interface OrderRatingService {
 
 	/**
-	 * @param  orderRatingDto
+	 * @param orderRatingDto
 	 * @return
 	 */
 	boolean isExists(OrderRatingDTO orderRatingDto);
 
 	/**
-	 * @param  orderRatingDto
+	 * @param orderRatingDto
 	 * @return
 	 * @throws NotFoundException
-	 * @throws ValidationException 
+	 * @throws ValidationException
 	 */
 	OrderRatingResponseDTO addOrderRating(OrderRatingDTO orderRatingDto) throws NotFoundException, ValidationException;
 
 	/**
-	 * @param  orderRatingId
+	 * @param orderRatingId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	OrderRatingResponseDTO getOrderRating(Long orderRatingId) throws NotFoundException;
 
 	/**
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  activeRecords
-	 * @param  searchKeyWord
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param activeRecords
+	 * @param searchKeyWord
 	 * @return
 	 */
 	Page<OrderRating> getList(Integer pageNumber, Integer pageSize, Boolean activeRecords, String searchKeyWord);
 
 	/**
-	 * @param  orderRatingId
-	 * @param  active
+	 * @param orderRatingId
+	 * @param active
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
 	void changeStatus(Long orderRatingId, Boolean active) throws ValidationException, NotFoundException;
 
 	/**
-	 * @param  orderRatingId
+	 * @param orderRatingId
 	 * @return
 	 * @throws NotFoundException
 	 */
 	OrderRating getOrderRatingDetail(Long orderRatingId) throws NotFoundException;
 
 	/**
-	 * @param pageSize 
-	 * @param pageNumber 
-	 * @param  deliveryBoyId
+	 * @param pageSize
+	 * @param pageNumber
+	 * @param deliveryBoyId
 	 * @return
 	 */
 	Page<OrderRating> getOrderRatingByDeliveryBoyId(Integer pageNumber, Integer pageSize, Long deliveryBoyId);
 
 	/**
-	 * @param pageSize 
-	 * @param pageNumber 
-	 * @param  vendorId
+	 * @param pageSize
+	 * @param pageNumber
+	 * @param vendorId
 	 * @return
 	 */
 	Page<OrderRating> getOrderRatingByVendorId(Integer pageNumber, Integer pageSize, Long vendorId);
 
 	/**
+	 *
+	 * @param runDate
 	 * @throws NotFoundException
 	 */
-	void calculateRating() throws NotFoundException;
+	void calculateRating(LocalDate runDate) throws NotFoundException;
 
 	/**
-	 * @param  orderId
+	 * @param orderId
 	 * @return
 	 * @throws NotFoundException
 	 */

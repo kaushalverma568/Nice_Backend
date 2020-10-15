@@ -13,6 +13,7 @@ import com.nice.exception.NotFoundException;
 import com.nice.service.DiscountService;
 import com.nice.service.OrderRatingService;
 import com.nice.service.StockDetailsService;
+import com.nice.util.CommonUtility;
 
 /**
  *
@@ -25,28 +26,27 @@ public class Scheduler {
 
 	@Autowired
 	private OrderRatingService orderRatingService;
-	
+
 	@Autowired
 	private StockDetailsService stockDetailsService;
-	
+
 	@Autowired
 	private DiscountService discountService;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
 
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void run() throws NotFoundException {
 		LOGGER.info("Rating Scheduler -- Start: The time is now {}", new Date(System.currentTimeMillis()));
-		runRatingScheduler();
+		runRatingScheduler(new Date());
 		runDiscountScheduler(LocalDate.now());
 		runStockExpiryScheduler(new Date());
 	}
 
-	
-	private void runRatingScheduler() throws NotFoundException {
-		orderRatingService.calculateRating();
+	private void runRatingScheduler(final Date date) throws NotFoundException {
+		orderRatingService.calculateRating(CommonUtility.convetUtilDatetoLocalDate(date));
 	}
-	
+
 	/**
 	 * @param runDate
 	 */
@@ -62,5 +62,4 @@ public class Scheduler {
 		discountService.activateExpireDiscount(runDate);
 	}
 
-	
 }

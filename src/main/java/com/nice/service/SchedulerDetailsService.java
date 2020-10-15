@@ -1,5 +1,6 @@
 package com.nice.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.nice.dto.SchedulerDetailDTO;
@@ -8,15 +9,15 @@ import com.nice.model.SchedulerDetails;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 public interface SchedulerDetailsService {
 
 	/**
-	 * @param  name
+	 * @param name
 	 * @throws NotFoundException
 	 */
-	void updateSchedulerDate(String name) throws NotFoundException;
+	void updateSchedulerDate(String name, Date date) throws NotFoundException;
 
 	/**
 	 * @return
@@ -24,7 +25,7 @@ public interface SchedulerDetailsService {
 	List<SchedulerDetailDTO> getSchedulerList();
 
 	/**
-	 * @param  name
+	 * @param name
 	 * @return
 	 * @throws NotFoundException
 	 */

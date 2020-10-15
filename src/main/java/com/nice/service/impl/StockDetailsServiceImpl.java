@@ -97,18 +97,15 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	private SchedulerDetailsService schedulerDetailsService;
 
 	@Override
-	public StockDetailsDTO addStockDetails(final AddStockDto addStockDto)
-			throws ValidationException, NotFoundException {
+	public StockDetailsDTO addStockDetails(final AddStockDto addStockDto) throws ValidationException, NotFoundException {
 
 		validateAddStock(addStockDto);
 		/**
 		 * method which find varient id from product id and UOM id
 		 */
-		ProductVariant productVariant = getproductVariantFromProductIdAndUomId(addStockDto.getProductId(),
-				addStockDto.getUomId());
+		ProductVariant productVariant = getproductVariantFromProductIdAndUomId(addStockDto.getProductId(), addStockDto.getUomId());
 
-		StockDetails stockDetails = getStockDetailsForProductVarientAndLot(productVariant, addStockDto.getVendorId(),
-				addStockDto.getLotNo());
+		StockDetails stockDetails = getStockDetailsForProductVarientAndLot(productVariant, addStockDto.getVendorId(), addStockDto.getLotNo());
 
 		stockDetails.setAvailable(stockDetails.getAvailable() + addStockDto.getTotalQty());
 
@@ -138,16 +135,13 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public StockDetails updateStockDetails(final StockTransferDto stockTransferDto)
-			throws NotFoundException, ValidationException {
+	public StockDetails updateStockDetails(final StockTransferDto stockTransferDto) throws NotFoundException, ValidationException {
 		/**
 		 * Validate the stockTransferDto
 		 */
 		validateStockTransfer(stockTransferDto);
-		ProductVariant productVariant = getproductVariantFromProductIdAndUomId(stockTransferDto.getProductId(),
-				stockTransferDto.getUomId());
-		StockDetails stockDetails = getStockDetailsForProductVarientAndLot(productVariant,
-				stockTransferDto.getVendorId(), stockTransferDto.getLotNo());
+		ProductVariant productVariant = getproductVariantFromProductIdAndUomId(stockTransferDto.getProductId(), stockTransferDto.getUomId());
+		StockDetails stockDetails = getStockDetailsForProductVarientAndLot(productVariant, stockTransferDto.getVendorId(), stockTransferDto.getLotNo());
 		/**
 		 * Decide from where to subtract the qty
 		 */
@@ -161,8 +155,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		return stockDetailsRepository.save(stockDetails);
 	}
 
-	private StockDetails addQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails)
-			throws ValidationException {
+	private StockDetails addQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails) throws ValidationException {
 		if (Constant.AVAILABLE.equals(stockTransferDto.getTransferedTo())) {
 			stockDetails.setAvailable(stockDetails.getAvailable() + stockTransferDto.getQuantity());
 		} else if (Constant.RESERVED.equals(stockTransferDto.getTransferedTo())) {
@@ -174,48 +167,41 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		} else if (Constant.RETURNED.equals(stockTransferDto.getTransferedTo())) {
 			stockDetails.setReturned(stockDetails.getReturned() + stockTransferDto.getQuantity());
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("stock.status.to.not.exists",
-					new Object[] { stockTransferDto.getTransferedTo() }));
+			throw new ValidationException(messageByLocaleService.getMessage("stock.status.to.not.exists", new Object[] { stockTransferDto.getTransferedTo() }));
 		}
 
 		return stockDetails;
 	}
 
-	private StockDetails substractQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails)
-			throws ValidationException {
+	private StockDetails substractQty(final StockTransferDto stockTransferDto, final StockDetails stockDetails) throws ValidationException {
 		if (Constant.AVAILABLE.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getAvailable() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("insufficient.stock.available.for.product", null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.available.for.product", null));
 			}
 			stockDetails.setAvailable(stockDetails.getAvailable() - stockTransferDto.getQuantity());
 		} else if (Constant.RESERVED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReserved() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("insufficient.stock.reserved.for.product", null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.reserved.for.product", null));
 			}
 			stockDetails.setReserved(stockDetails.getReserved() - stockTransferDto.getQuantity());
 		} else if (Constant.DELIVERED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getDelivered() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("insufficient.stock.delivered.for.product", null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.delivered.for.product", null));
 			}
 			stockDetails.setDelivered(stockDetails.getDelivered() - stockTransferDto.getQuantity());
 		} else if (Constant.REPLACED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReplaced() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("insufficient.stock.replaced.for.product", null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.replaced.for.product", null));
 			}
 			stockDetails.setReplaced(stockDetails.getReplaced() - stockTransferDto.getQuantity());
 		} else if (Constant.RETURNED.equals(stockTransferDto.getTransferedFrom())) {
 			if (stockDetails.getReturned() < stockTransferDto.getQuantity()) {
-				throw new ValidationException(
-						messageByLocaleService.getMessage("insufficient.stock.returned.for.product", null));
+				throw new ValidationException(messageByLocaleService.getMessage("insufficient.stock.returned.for.product", null));
 			}
 			stockDetails.setReturned(stockDetails.getReturned() - stockTransferDto.getQuantity());
 		} else {
-			throw new ValidationException(messageByLocaleService.getMessage("stock.status.from.not.exists",
-					new Object[] { stockTransferDto.getTransferedFrom() }));
+			throw new ValidationException(
+					messageByLocaleService.getMessage("stock.status.from.not.exists", new Object[] { stockTransferDto.getTransferedFrom() }));
 		}
 		return stockDetails;
 
@@ -229,8 +215,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		LOGGER.info("Validating stockTransfer, details are : {}", stockTransferDto);
 		if (stockTransferDto.getQuantity() == 0 && stockTransferDto.getQuantity() < 0) {
 			LOGGER.error("Error Validating Stock Transfer");
-			throw new ValidationException(
-					messageByLocaleService.getMessage("update.stock.value.non.zero", new Object[] {}));
+			throw new ValidationException(messageByLocaleService.getMessage("update.stock.value.non.zero", new Object[] {}));
 		} else if (stockTransferDto.getTransferedTo().equalsIgnoreCase(stockTransferDto.getTransferedFrom())) {
 			LOGGER.error("Error Validating Stock Transfer as To and From are same");
 			throw new ValidationException(messageByLocaleService.getMessage("moveTo.moveFrom.same", new Object[] {}));
@@ -255,8 +240,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		LocalDate expiryDate = addStockDto.getExpiryDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 		if (addStockDto.getTotalQty() == 0 && addStockDto.getTotalQty() < 0) {
 			LOGGER.error("Error Validating Stock Transfer");
-			throw new ValidationException(
-					messageByLocaleService.getMessage("update.stock.value.non.zero", new Object[] {}));
+			throw new ValidationException(messageByLocaleService.getMessage("update.stock.value.non.zero", new Object[] {}));
 		} else if (expiryDate.compareTo(todayDate) < 0) {
 			LOGGER.error("Error Validating Stock Transfer as To and From are same");
 			throw new ValidationException(messageByLocaleService.getMessage("expiryDate.futuredata", new Object[] {}));
@@ -277,8 +261,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 
 	@Override
 	public StockDetails getStockDetailsDetails(final Long stockDetailsId) throws NotFoundException {
-		return stockDetailsRepository.findById(stockDetailsId).orElseThrow(() -> new NotFoundException(
-				messageByLocaleService.getMessage("stock.detail.not.found", new Object[] { stockDetailsId })));
+		return stockDetailsRepository.findById(stockDetailsId)
+				.orElseThrow(() -> new NotFoundException(messageByLocaleService.getMessage("stock.detail.not.found", new Object[] { stockDetailsId })));
 	}
 
 	@Override
@@ -292,8 +276,8 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 		StockDetailFilterDTO stockDetailFilterDTO = new StockDetailFilterDTO();
 		stockDetailFilterDTO.setSku(sku);
 		stockDetailFilterDTO.setActive(true);
-		return stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO)
-				.stream().map(StockDetails::getLotNo).collect(Collectors.toList());
+		return stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO).stream().map(StockDetails::getLotNo)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -302,8 +286,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	 * @param readmadeProductVariant
 	 * @return
 	 */
-	private StockDetails createDefaultStockDetailObject(final ProductVariant productvariant, final Long lotNo,
-			final Long vendorId) {
+	private StockDetails createDefaultStockDetailObject(final ProductVariant productvariant, final Long lotNo, final Long vendorId) {
 		StockDetails stockDetail = new StockDetails();
 		stockDetail.setProductVariant(productvariant);
 		stockDetail.setLotNo(lotNo);
@@ -358,20 +341,18 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public void exportStockDetailsList(final HttpServletResponse httpServletResponse,
-			final StockDetailFilterDTO stockDetailFilterDTO) throws NotFoundException, FileNotFoundException {
+	public void exportStockDetailsList(final HttpServletResponse httpServletResponse, final StockDetailFilterDTO stockDetailFilterDTO)
+			throws NotFoundException, FileNotFoundException {
 		List<StockDetailsDTO> stockDetailsDtoList;
 		if (stockDetailFilterDTO != null) {
 			stockDetailFilterDTO.setActive(true);
-			stockDetailsDtoList = toDtos(
-					stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO));
+			stockDetailsDtoList = toDtos(stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO));
 		} else {
 			stockDetailsDtoList = toDtos(stockDetailsRepository.findAll());
 		}
-		final Object[] stockHeaderField = new Object[] { "Name", "uom", "Current Stock", "SKU", "Reserved", "delivered",
-				"replaced", "expiryDate", "lotDate" };
-		final Object[] stockDataField = new Object[] { "productName", "uomLabel", "available", "sku", "reserved",
-				"delivered", "replaced", "expiryDate", "lotDate" };
+		final Object[] stockHeaderField = new Object[] { "Name", "uom", "Current Stock", "SKU", "Reserved", "delivered", "replaced", "expiryDate", "lotDate" };
+		final Object[] stockDataField = new Object[] { "productName", "uomLabel", "available", "sku", "reserved", "delivered", "replaced", "expiryDate",
+				"lotDate" };
 		try {
 			exportCSV.writeCSVFile(stockDetailsDtoList, stockDataField, stockHeaderField, httpServletResponse);
 		} catch (IOException e) {
@@ -381,13 +362,13 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Page<StockDetailsDTO> getStockDetailsList(final Integer pageNumber, final Integer pageSize,
-			final StockDetailFilterDTO stockDetailFilterDTO) throws NotFoundException, ValidationException {
+	public Page<StockDetailsDTO> getStockDetailsList(final Integer pageNumber, final Integer pageSize, final StockDetailFilterDTO stockDetailFilterDTO)
+			throws NotFoundException, ValidationException {
 
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("id"));
 		stockDetailFilterDTO.setActive(true);
-		List<StockDetails> stockDetailsList = stockDetailsCustomRepository
-				.getStockDetailsListForSerachString((int) pageable.getOffset(), pageSize, stockDetailFilterDTO);
+		List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getStockDetailsListForSerachString((int) pageable.getOffset(), pageSize,
+				stockDetailFilterDTO);
 		Long totalCount = stockDetailsCustomRepository.getStockDetailsListForSerachStringCount(stockDetailFilterDTO);
 		List<StockDetailsDTO> dtos = toDtos(stockDetailsList);
 		return new PageImpl<>(dtos, pageable, totalCount);
@@ -415,52 +396,45 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public ProductVariant getproductVariantFromProductIdAndUomId(final Long productId, final Long uomId)
-			throws NotFoundException {
+	public ProductVariant getproductVariantFromProductIdAndUomId(final Long productId, final Long uomId) throws NotFoundException {
 		Product product = productService.getProductDetail(productId);
 		UOM uom = uomService.getUOMDetail(uomId);
-		Optional<ProductVariant> productVariant = productVariantService
-				.getProductVariantDetailByProductAndUOMOptional(product, uom);
+		Optional<ProductVariant> productVariant = productVariantService.getProductVariantDetailByProductAndUOMOptional(product, uom);
 		if (productVariant.isPresent()) {
 			return productVariant.get();
 		} else {
-			throw new NotFoundException(
-					messageByLocaleService.getMessage("product.not.found", new Object[] { productId }));
+			throw new NotFoundException(messageByLocaleService.getMessage("product.not.found", new Object[] { productId }));
 		}
 
 	}
 
 	@Override
-	public void addStockDetails(final AddStockRequestDTO addStockRequestDTO)
-			throws NotFoundException, ValidationException {
-		ProductVariant productVariant = productVariantService.getProductVariantDetailBySku(addStockRequestDTO.getSku(),
-				addStockRequestDTO.getVendorId());
+	public void addStockDetails(final AddStockRequestDTO addStockRequestDTO) throws NotFoundException, ValidationException {
+		ProductVariant productVariant = productVariantService.getProductVariantDetailBySku(addStockRequestDTO.getSku(), addStockRequestDTO.getVendorId());
 		for (LotwiseStockRequestDTO lotwiseStockRequestDTO : addStockRequestDTO.getStockRequestDTOs()) {
-			AddStockDto addStockDto = convertLotWiseStockToAddStockDTO(lotwiseStockRequestDTO,
-					addStockRequestDTO.getVendorId(), productVariant);
+			AddStockDto addStockDto = convertLotWiseStockToAddStockDTO(lotwiseStockRequestDTO, addStockRequestDTO.getVendorId(), productVariant);
 			addStockDetails(addStockDto);
 		}
 	}
 
 	@Override
-	public boolean validateAddStockDetails(final List<LotwiseStockRequestDTO> stockRequestDTOs, final Vendor vendor,
-			final ProductVariant productVariant) throws ValidationException {
+	public boolean validateAddStockDetails(final List<LotwiseStockRequestDTO> stockRequestDTOs, final Vendor vendor, final ProductVariant productVariant)
+			throws ValidationException {
 		Set<LotwiseStockRequestDTO> lotwiseStockRequestDTOs = new HashSet<>();
 		lotwiseStockRequestDTOs.addAll(stockRequestDTOs);
 		if (stockRequestDTOs.size() != lotwiseStockRequestDTOs.size()) {
 			return true;
 		}
 		for (LotwiseStockRequestDTO lotwiseStockRequestDTO : stockRequestDTOs) {
-			if (stockDetailsRepository.findByProductVariantAndVendorIdAndLotNo(productVariant, vendor.getId(),
-					lotwiseStockRequestDTO.getLotNo()).isPresent()) {
+			if (stockDetailsRepository.findByProductVariantAndVendorIdAndLotNo(productVariant, vendor.getId(), lotwiseStockRequestDTO.getLotNo()).isPresent()) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private AddStockDto convertLotWiseStockToAddStockDTO(final LotwiseStockRequestDTO lotwiseStockRequestDTO,
-			final Long vendorId, final ProductVariant productVariant) {
+	private AddStockDto convertLotWiseStockToAddStockDTO(final LotwiseStockRequestDTO lotwiseStockRequestDTO, final Long vendorId,
+			final ProductVariant productVariant) {
 		AddStockDto addStockDto = new AddStockDto();
 		addStockDto.setProductId(productVariant.getProduct().getId());
 		addStockDto.setUomId(productVariant.getUom().getId());
@@ -473,19 +447,16 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public StockDetails getStockDetailsForProductVarientAndLotAndVendor(final ProductVariant productVariant,
-			final Long vendorId, final Long lotNo) throws NotFoundException {
-		return stockDetailsRepository.findByProductVariantAndVendorIdAndLotNo(productVariant, vendorId, lotNo)
-				.orElseThrow(() -> new NotFoundException(
-						messageByLocaleService.getMessage("stock.detail.not.found.product.lotNo.vendor",
-								new Object[] { productVariant.getId(), lotNo, vendorId })));
+	public StockDetails getStockDetailsForProductVarientAndLotAndVendor(final ProductVariant productVariant, final Long vendorId, final Long lotNo)
+			throws NotFoundException {
+		return stockDetailsRepository.findByProductVariantAndVendorIdAndLotNo(productVariant, vendorId, lotNo).orElseThrow(() -> new NotFoundException(
+				messageByLocaleService.getMessage("stock.detail.not.found.product.lotNo.vendor", new Object[] { productVariant.getId(), lotNo, vendorId })));
 	}
 
 	@Override
-	public StockDetails getStockDetailsForProductVarientAndLot(final ProductVariant productvariant, final Long vendorId,
-			final Long lotNo) throws NotFoundException, ValidationException {
-		Optional<StockDetails> stockDetails = stockDetailsRepository.findByProductVariantAndLotNo(productvariant,
-				lotNo);
+	public StockDetails getStockDetailsForProductVarientAndLot(final ProductVariant productvariant, final Long vendorId, final Long lotNo)
+			throws NotFoundException, ValidationException {
+		Optional<StockDetails> stockDetails = stockDetailsRepository.findByProductVariantAndLotNo(productvariant, lotNo);
 		if (stockDetails.isPresent()) {
 			return stockDetails.get();
 		}
@@ -500,16 +471,15 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public List<Long> getLotNoListByVendorAndProductVariant(final Long vendorId, final Long productVariantId)
-			throws NotFoundException, ValidationException {
+	public List<Long> getLotNoListByVendorAndProductVariant(final Long vendorId, final Long productVariantId) throws NotFoundException, ValidationException {
 		ProductVariantResponseDTO variantResponseDTO = productVariantService.getProductVariant(productVariantId);
 		StockDetailFilterDTO stockDetailFilterDTO = new StockDetailFilterDTO();
 		stockDetailFilterDTO.setProductId(variantResponseDTO.getProductId());
 		stockDetailFilterDTO.setVendorId(vendorId);
 		stockDetailFilterDTO.setUomId(variantResponseDTO.getUomId());
 		stockDetailFilterDTO.setActive(true);
-		return stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO)
-				.stream().map(StockDetails::getLotNo).collect(Collectors.toList());
+		return stockDetailsCustomRepository.getStockDetailsListForSerachString(null, null, stockDetailFilterDTO).stream().map(StockDetails::getLotNo)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -519,15 +489,14 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 
 	@Override
 	public void moveQtyToExpiredState(final Date runDate) {
-		List<StockDetails> stockDetailsList = stockDetailsRepository
-				.findByExpiryDateLessThanAndAvailableGreaterThan(runDate, 0D);
+		List<StockDetails> stockDetailsList = stockDetailsRepository.findByExpiryDateLessThanAndAvailableGreaterThan(runDate, 0D);
 		for (StockDetails stockDetails : stockDetailsList) {
 			stockDetails.setExpired(stockDetails.getAvailable());
 			stockDetails.setAvailable(0D);
 			stockDetailsRepository.save(stockDetails);
 		}
 		try {
-			schedulerDetailsService.updateSchedulerDate(Constant.EXPIRE_STOCK_SCHEDULER);
+			schedulerDetailsService.updateSchedulerDate(Constant.EXPIRE_STOCK_SCHEDULER, runDate);
 		} catch (NotFoundException e) {
 			LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
 		}
@@ -540,8 +509,7 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public void deleteStock(final Long productId, final Long uomId, final Long vendorId, final Long lotNo)
-			throws NotFoundException, ValidationException {
+	public void deleteStock(final Long productId, final Long uomId, final Long vendorId, final Long lotNo) throws NotFoundException, ValidationException {
 		ProductVariant productVariant = getproductVariantFromProductIdAndUomId(productId, uomId);
 		StockDetails stockDetail = getStockDetailsForProductVarientAndLot(productVariant, vendorId, lotNo);
 		if (stockDetail.getReserved() > 0) {
@@ -569,24 +537,20 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public StockDetails getStockDetailsByProductVariantAndLotNo(final Long productVariantId, final Long lotNo)
-			throws NotFoundException, ValidationException {
+	public StockDetails getStockDetailsByProductVariantAndLotNo(final Long productVariantId, final Long lotNo) throws NotFoundException, ValidationException {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		ProductVariantResponseDTO productVariantResponse = productVariantService.getProductVariant(productVariantId);
-		return stockDetailsRepository.findByProductVariantAndLotNo(productVariant, lotNo).orElseThrow(
-				() -> new NotFoundException(messageByLocaleService.getMessage("stock.not.avaliable", new Object[] {
-						productVariantResponse.getProductName(), productVariantResponse.getMeasurement(), lotNo })));
+		return stockDetailsRepository.findByProductVariantAndLotNo(productVariant, lotNo).orElseThrow(() -> new NotFoundException(messageByLocaleService
+				.getMessage("stock.not.avaliable", new Object[] { productVariantResponse.getProductName(), productVariantResponse.getMeasurement(), lotNo })));
 	}
 
 	@Override
-	public Page<ProductVariantResponseDTO> getLowStockProduct(Integer pageNumber, Integer pageSize)
-			throws ValidationException, NotFoundException {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal()).getUser();
+	public Page<ProductVariantResponseDTO> getLowStockProduct(final Integer pageNumber, final Integer pageSize) throws ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-			List<BigInteger> productVariantIdList = stockDetailsCustomRepository.getLowStockProductDetails(userLogin.getEntityId(),
-					(int) pageable.getOffset(), pageSize);
+			List<BigInteger> productVariantIdList = stockDetailsCustomRepository.getLowStockProductDetails(userLogin.getEntityId(), (int) pageable.getOffset(),
+					pageSize);
 			List<ProductVariantResponseDTO> productVariantResponseDTOs = new ArrayList<>();
 			for (BigInteger productVariantId : productVariantIdList) {
 				productVariantResponseDTOs.add(productVariantService.getProductVariant(productVariantId.longValue()));
@@ -599,15 +563,13 @@ public class StockDetailsServiceImpl implements StockDetailsService {
 	}
 
 	@Override
-	public Page<StockDetailsDTO> getExpireStockDetails( Integer pageNumber, Integer pageSize)
-			throws ValidationException, NotFoundException {
-		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal()).getUser();
+	public Page<StockDetailsDTO> getExpireStockDetails(final Integer pageNumber, final Integer pageSize) throws ValidationException, NotFoundException {
+		UserLogin userLogin = ((UserAwareUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 		if (UserType.VENDOR.name().equals(userLogin.getEntityType())) {
 			Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
 			List<StockDetailsDTO> stockDetailsDTOs = new ArrayList<>();
-			List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getExpiredStockDetails(userLogin.getEntityId(),
-					(int) pageable.getOffset(), pageSize);
+			List<StockDetails> stockDetailsList = stockDetailsCustomRepository.getExpiredStockDetails(userLogin.getEntityId(), (int) pageable.getOffset(),
+					pageSize);
 			Long totalCount = stockDetailsCustomRepository.getExpiredStockDetailsCount(userLogin.getEntityId());
 			for (StockDetails stockDetails : stockDetailsList) {
 				stockDetailsDTOs.add(fetchStockInfo(stockDetails));

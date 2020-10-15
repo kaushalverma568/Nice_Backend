@@ -54,7 +54,7 @@ public class SchedulerController {
 
 	@Autowired
 	private DiscountService discountService;
-	
+
 	@Autowired
 	private OrderRatingService orderRatingService;
 
@@ -106,15 +106,15 @@ public class SchedulerController {
 				discountService.activateExpireDiscount(runnableDate);
 			}
 			if (Constant.ORDER_RATING_SCHEDULER.equals(name)) {
-				orderRatingService.calculateRating();
+				orderRatingService.calculateRating(runnableDate);
 			}
 			if (Constant.VENDOR_SUBSCRIPTION_EXPIRE.equals(name)) {
-				List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(java.sql.Date.valueOf(runnableDate));
+				List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(runnableDate);
 				for (Long vendorId : vendorIds) {
 					vendorService.sendEmailForChangeVendorStatus(vendorId);
 				}
 			} else if (Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER.equals(name)) {
-				vendorService.runVendorSubscriptionExpireReminderScheduler(java.sql.Date.valueOf(runnableDate));
+				vendorService.runVendorSubscriptionExpireReminderScheduler(runnableDate);
 			}
 		}
 		return new GenericResponseHandlers.Builder().setMessage(messageByLocaleService.getMessage("scheduler.run.successfully", new Object[] { name }))

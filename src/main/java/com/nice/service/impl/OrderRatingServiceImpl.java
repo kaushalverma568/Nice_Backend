@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nice.constant.Constant;
 import com.nice.constant.DeliveryType;
 import com.nice.dto.OrderRatingDTO;
 import com.nice.dto.OrderRatingResponseDTO;
@@ -32,12 +33,13 @@ import com.nice.repository.VendorRepository;
 import com.nice.service.DeliveryBoyService;
 import com.nice.service.OrderRatingService;
 import com.nice.service.OrdersService;
+import com.nice.service.SchedulerDetailsService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Dec-2019
+ * @date : 30-Dec-2019
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -69,6 +71,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
 
+	@Autowired
+	private SchedulerDetailsService schedulerDetailsService;
+
 	@Override
 	public OrderRatingResponseDTO addOrderRating(final OrderRatingDTO orderRatingDTO) throws NotFoundException, ValidationException {
 		validateOrderRating(orderRatingDTO);
@@ -80,18 +85,17 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		}
 
 		/**
-		 * first 3 rating for vendor
-		 * for vendor rating, we total question1 rating, question2 rating and question3
-		 * rating
-		 * divide by 3 because its total of 3 types of rating so we get average
+		 * first 3 rating for vendor for vendor rating, we total question1 rating,
+		 * question2 rating and question3 rating divide by 3 because its total of 3
+		 * types of rating so we get average
 		 */
 		orderRating.setVendorRating(
 				Math.round((orderRating.getQuestion1Rating() + orderRating.getQuestion2Rating() + orderRating.getQuestion3Rating()) / 3.0 * 100.0) / 100.0);
 
 		/**
-		 * 4th and 5th rating is for delivery boy
-		 * for delivery boy rating, we total question4 rating and question5 rating
-		 * divide by 2 because its total of 2 types of rating so we get average
+		 * 4th and 5th rating is for delivery boy for delivery boy rating, we total
+		 * question4 rating and question5 rating divide by 2 because its total of 2
+		 * types of rating so we get average
 		 */
 		if (orderRating.getQuestion4Rating() != null && orderRating.getQuestion5Rating() != null) {
 			orderRating.setDeliveryBoyRating(Math.round((orderRating.getQuestion4Rating() + orderRating.getQuestion5Rating()) / 2.0 * 100.0) / 100.0);
@@ -100,8 +104,7 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		}
 
 		/**
-		 * over all average of order
-		 * for average rating, we total all 5 question rating
+		 * over all average of order for average rating, we total all 5 question rating
 		 * divide by 5 because its total of 5 types of rating so we get average
 		 */
 		if (orderRating.getQuestion4Rating() != null && orderRating.getQuestion5Rating() != null) {
@@ -130,7 +133,6 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 
 	@Override
 	public OrderRatingResponseDTO getOrderRating(final Long orderRatingId) throws NotFoundException {
-		calculateRating();
 		return orderRatingMapper.toResponseDto(getOrderRatingDetail(orderRatingId));
 	}
 
@@ -200,30 +202,34 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	}
 
 	@Override
-	public void calculateRating() throws NotFoundException {
+	public void calculateRating(final LocalDate runDate) throws NotFoundException {
 		/**
 		 * we are going to display rating till yesterday so every day at day ending
-		 * schedular runs and calculate till today
-		 * from yester day starting to today starting
+		 * schedular runs and calculate till today from yester day starting to today
+		 * starting
 		 */
-		LocalDate today = LocalDate.now();
-		LocalDate yesterday = today.minusDays(1);
+		LocalDate yesterday = runDate.minusDays(1);
 		/**
 		 * fetch all record which has createdAt Date between yesterday to today with
 		 * starting time
 		 */
 		List<OrderRating> orderRatingList = getOrderRatingByCreatedAt(CommonUtility.convertLocalDateToUtilDate(yesterday),
-				CommonUtility.convertLocalDateToUtilDate(today));
+				CommonUtility.convertLocalDateToUtilDate(runDate));
 		for (OrderRating orderRating : orderRatingList) {
 			// Restaurant rating calculation
 			vendorRatingVCalculation(orderRating);
 			// Delivery boy rating calculation same as restaurant
 			deliveryBoyRatingCalculation(orderRating);
 			/**
-			 * TO do enable flag to complete the calculation
+			 * to enable flag to complete the calculation
 			 */
 			orderRating.setIsRatingCalculated(true);
 			orderRatingRepository.save(orderRating);
+		}
+		try {
+			schedulerDetailsService.updateSchedulerDate(Constant.ORDER_RATING_SCHEDULER, CommonUtility.convertLocalDateToUtilDate(runDate));
+		} catch (NotFoundException e) {
+			LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
 		}
 	}
 
