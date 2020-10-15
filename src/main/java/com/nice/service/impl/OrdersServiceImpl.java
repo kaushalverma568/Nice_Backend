@@ -380,16 +380,6 @@ public class OrdersServiceImpl implements OrdersService {
 			if (customerId.compareTo(customerAddress.getCustomer().getId()) != 0) {
 				throw new ValidationException(messageByLocaleService.getMessage("address.doesnot.belong.to.you", null));
 			}
-			City city = customerAddress.getCity();
-			if (LocaleContextHolder.getLocale().getLanguage().equals("en")) {
-				if (!vendor.getCity().getId().equals(city.getId())) {
-					throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameEnglish() }));
-				}
-			} else {
-				if (!vendor.getCity().getId().equals(city.getId())) {
-					throw new ValidationException(messageByLocaleService.getMessage("vendor.deliver.city", new Object[] { vendor.getCity().getNameArabic() }));
-				}
-			}
 		}
 
 		/**
