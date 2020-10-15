@@ -184,7 +184,7 @@ public final class NotificationMessageConstantsEnglish {
 		if (cancelByCustomer) {
 			message.append("You have cancelled an order no. ").append(orderId).append(". If it is cancelled by mistake please place the order again.");
 		} else {
-			message.append("Your order no. ").append(orderId).append("is cancelled by admin, sorry for disappointment.");
+			message.append("Your order no. ").append(orderId).append(" is cancelled by admin, sorry for disappointment.");
 		}
 
 		return message.toString();
@@ -196,7 +196,7 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, final String currentStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("Your order no. ").append(orderId).append(" is ").append(currentStatus).append(". We will delivery it shortly.");
+		message.append("Your order no. ").append(orderId).append(" is ").append(currentStatus).append(". We will deliver it shortly.");
 		return message.toString();
 	}
 
@@ -601,6 +601,24 @@ public final class NotificationMessageConstantsEnglish {
 		StringBuilder message = new StringBuilder();
 		message = message.append("You are now part of a ").append(applicationName)
 				.append(" community. Together we will deliver a pleasant experience to our customers with their order.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickupOrder(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up shortly.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickup(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up now.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can return now.");
 		return message.toString();
 	}
 }

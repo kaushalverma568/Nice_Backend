@@ -607,4 +607,22 @@ public final class NotificationMessageConstantsArabic {
 				.append(" community. Together we will deliver a pleasant experience to our customers with their order.");
 		return message.toString();
 	}
+
+	public static String getOrderStatusUpdateMessagePickupOrder(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up shortly.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickup(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up now.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can return now.");
+		return message.toString();
+	}
 }

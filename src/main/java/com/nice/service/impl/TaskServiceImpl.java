@@ -77,7 +77,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -364,6 +364,10 @@ public class TaskServiceImpl implements TaskService {
 			if (task.getDeliveryBoy() != null) {
 				removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 			}
+			/**
+			 * set delivered date for getting cancelled order along with delivered order in delivery boy
+			 */
+			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			task.setStatus(taskStatus);
 		} else {
 			throw new ValidationException(messageByLocaleService.getMessage(INVALID_TASK_STATUS, null));
@@ -512,7 +516,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */

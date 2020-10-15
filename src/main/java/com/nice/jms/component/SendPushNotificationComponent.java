@@ -274,20 +274,19 @@ public class SendPushNotificationComponent {
 				if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(orders.getOrderStatus())
 						|| OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(orders.getOrderStatus())) {
 					deliveryBoy = orders.getDeliveryBoy();
-					messageEnglish = NotificationMessageConstantsEnglish.regularOrderIsPreparedMessageToDeliveryBoy(
-							orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish(), pushNotificationDTO.getOrderId());
-					messageArabic = NotificationMessageConstantsArabic.regularOrderIsPreparedMessageToDeliveryBoy(
-							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
+					messageEnglish = NotificationMessageConstantsEnglish.regularOrderIsPreparedMessageToDeliveryBoy(orders.getVendor().getStoreNameEnglish(),
+							pushNotificationDTO.getOrderId());
+					messageArabic = NotificationMessageConstantsArabic.regularOrderIsPreparedMessageToDeliveryBoy(orders.getVendor().getStoreNameArabic(),
+							pushNotificationDTO.getOrderId());
 				} else {
 					deliveryBoy = orders.getReplacementDeliveryBoy();
-					messageEnglish = NotificationMessageConstantsEnglish.replaceOrderIsPreparedMessageToDeliveryBoy(
-							orders.getVendor().getFirstNameEnglish() + " " + orders.getVendor().getLastNameEnglish(), pushNotificationDTO.getOrderId());
-					messageArabic = NotificationMessageConstantsArabic.replaceOrderIsPreparedMessageToDeliveryBoy(
-							orders.getVendor().getFirstNameArabic() + " " + orders.getVendor().getLastNameArabic(), pushNotificationDTO.getOrderId());
+					messageEnglish = NotificationMessageConstantsEnglish.replaceOrderIsPreparedMessageToDeliveryBoy(orders.getVendor().getStoreNameEnglish(),
+							pushNotificationDTO.getOrderId());
+					messageArabic = NotificationMessageConstantsArabic.replaceOrderIsPreparedMessageToDeliveryBoy(orders.getVendor().getStoreNameArabic(),
+							pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either
-				 * delivery boy
+				 * here sender will be entity will be vendor and receiver will be either delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -346,8 +345,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -402,8 +400,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -913,10 +910,34 @@ public class SendPushNotificationComponent {
 			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
 			if (deviceDetailList.isPresent()) {
 				Orders order = ordersService.getOrder(pushNotificationDTO.getOrderId());
-				String messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
-						order.getOrderStatus());
-				String messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
-						order.getOrderStatus());
+				String messageEnglish;
+				String messageArabic;
+				if (DeliveryType.DELIVERY.getStatusValue().equals(order.getDeliveryType())) {
+					messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
+							order.getOrderStatus());
+					messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
+							order.getOrderStatus());
+				} else {
+					if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(order.getOrderStatus())
+							|| OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(order.getOrderStatus())) {
+						messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
+								order.getOrderStatus());
+						messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
+								order.getOrderStatus());
+					} else {
+						if (!OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(order.getOrderStatus())) {
+							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
+									order.getOrderStatus());
+							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
+									order.getOrderStatus());
+						} else {
+							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupReturn(pushNotificationDTO.getOrderId(),
+									order.getOrderStatus());
+							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupReturn(pushNotificationDTO.getOrderId(),
+									order.getOrderStatus());
+						}
+					}
+				}
 				PushNotification pushNotification = setPushNotification(pushNotificationDTO.getCustomerId(), UserType.CUSTOMER.name(), messageEnglish,
 						messageArabic, Constant.ORDER_MODULE);
 				pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
