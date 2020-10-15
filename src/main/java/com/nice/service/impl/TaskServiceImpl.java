@@ -247,8 +247,8 @@ public class TaskServiceImpl implements TaskService {
 			/**
 			 * Actual delivery charge will set updated at the time of completion of task (see: change task status method)
 			 */
-			task.setDeliveryCharge(deliveryCharge == null ? 0.0d : deliveryCharge);
-			task.setCustomerDeliveryCharge(task.getDeliveryCharge());
+			task.setDeliveryCharge(0.0d);
+			task.setCustomerDeliveryCharge(0.0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
 			/**
 			 * Set admin and vendor profit here, if changed after delivery they will be updated during task delivery
