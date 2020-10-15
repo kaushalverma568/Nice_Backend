@@ -1994,6 +1994,8 @@ public class OrdersServiceImpl implements OrdersService {
 			if (!Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
 					OrderStatusEnum.RETURN_REQUESTED.getStatusValue()).contains(order.getOrderStatus())) {
 				nextStatus.retainAll(statusListInWhichAdminCanMoveOrder);
+			} else {
+				nextStatus = new ArrayList<>();
 			}
 
 			return nextStatus;
