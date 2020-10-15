@@ -85,7 +85,7 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACE_REQUESTED, RETURN_REQUESTED };
 			break;
 		case REPLACE_REQUESTED:
-			nextStatus = new OrderStatusEnum[] { REPLACE_CONFIRMED, REPLACE_REJECTED };
+			nextStatus = new OrderStatusEnum[] { REPLACE_CONFIRMED, REPLACE_REJECTED, REPLACE_CANCELLED };
 			break;
 		case REPLACE_CONFIRMED:
 			nextStatus = new OrderStatusEnum[] { REPLACE_PROCESSED, REPLACE_CANCELLED };
@@ -103,7 +103,7 @@ public enum OrderStatusEnum implements BasicStatus<OrderStatusEnum> {
 			nextStatus = new OrderStatusEnum[] { REPLACED, REPLACE_CANCELLED };
 			break;
 		case RETURN_REQUESTED:
-			nextStatus = new OrderStatusEnum[] { RETURN_CONFIRMED, RETURN_REJECTED };
+			nextStatus = new OrderStatusEnum[] { RETURN_CONFIRMED, RETURN_REJECTED, RETURN_CANCELLED };
 			break;
 		case RETURN_CONFIRMED:
 			nextStatus = new OrderStatusEnum[] { RETURN_PROCESSED, RETURN_CANCELLED };

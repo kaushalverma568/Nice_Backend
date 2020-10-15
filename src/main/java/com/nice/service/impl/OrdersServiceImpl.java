@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -359,7 +360,8 @@ public class OrdersServiceImpl implements OrdersService {
 		/**
 		 * Check if the vendor servicable and customer belong to same city
 		 */
-		if (!vendor.getActive() || !VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus()) || !vendor.getIsOrderServiceEnable()) {
+		if (!vendor.getActive().booleanValue() || !VendorStatus.ACTIVE.getStatusValue().equals(vendor.getStatus())
+				|| !vendor.getIsOrderServiceEnable().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("vendor.unavailable.for.order", null));
 		} else if (!PaymentMethod.BOTH.getStatusValue().equalsIgnoreCase(vendor.getPaymentMethod())
 				&& !orderRequestDto.getPaymentMode().equalsIgnoreCase(vendor.getPaymentMethod())) {
@@ -1330,7 +1332,11 @@ public class OrdersServiceImpl implements OrdersService {
 		OrderStatusEnum existingOrderStatus = OrderStatusEnum.getByValue(order.getOrderStatus());
 
 		if (!existingOrderStatus.contains(newStatus)) {
-			throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
+			if (OrderStatusEnum.ORDER_PICKED_UP.getStatusValue().equals(newStatus)) {
+				throw new ValidationException(messageByLocaleService.getMessage("vendor.prepare.order", null));
+			} else {
+				throw new ValidationException(messageByLocaleService.getMessage(STATUS_NOT_ALLOWED, new Object[] { newStatus, order.getOrderStatus() }));
+			}
 		}
 		/**
 		 * Check manage inventory flag for order, if its true then need to place a check
@@ -2015,7 +2021,11 @@ public class OrdersServiceImpl implements OrdersService {
 			for (BasicStatus<OrderStatusEnum> status : nextOrderStatus) {
 				nextStatus.add(status.getStatusValue());
 			}
-			nextStatus.retainAll(statusListInWhichAdminCanMoveOrder);
+			if (!Arrays.asList(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
+					OrderStatusEnum.RETURN_REQUESTED.getStatusValue()).contains(order.getOrderStatus())) {
+				nextStatus.retainAll(statusListInWhichAdminCanMoveOrder);
+			}
+
 			return nextStatus;
 		}
 

@@ -120,9 +120,10 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				List<Long> existingProductAddonsList = tempCartAddonsList.isEmpty() ? null
 						: tempCartAddonsList.stream().map(ProductAddonsDTO::getId).collect(Collectors.toList());
 				boolean allAddonsSame = false;
-				if ((existingProductAddonsList == null && tempCartItemDTO.getProductAddonsId() == null) || (tempCartItemDTO.getProductAddonsId() != null
-						&& existingProductAddonsList != null && existingProductAddonsList.size() == tempCartItemDTO.getProductAddonsId().size()
-						&& existingProductAddonsList.containsAll(tempCartItemDTO.getProductAddonsId()))) {
+				if ((existingProductAddonsList == null && (tempCartItemDTO.getProductAddonsId() == null || tempCartItemDTO.getProductAddonsId().isEmpty()))
+						|| (tempCartItemDTO.getProductAddonsId() != null && existingProductAddonsList != null
+								&& existingProductAddonsList.size() == tempCartItemDTO.getProductAddonsId().size()
+								&& existingProductAddonsList.containsAll(tempCartItemDTO.getProductAddonsId()))) {
 					allAddonsSame = true;
 				}
 
@@ -133,9 +134,11 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				List<Long> existingProductToppingsList = tempCartToppingsList.isEmpty() ? null
 						: tempCartToppingsList.stream().map(ProductToppingResponseDTO::getId).collect(Collectors.toList());
 				boolean allToppingsSame = false;
-				if ((existingProductToppingsList == null && tempCartItemDTO.getProductToppingsIds() == null) || (tempCartItemDTO.getProductToppingsIds() != null
-						&& existingProductToppingsList != null && existingProductToppingsList.size() == tempCartItemDTO.getProductToppingsIds().size()
-						&& existingProductToppingsList.containsAll(tempCartItemDTO.getProductToppingsIds()))) {
+				if ((existingProductToppingsList == null
+						&& (tempCartItemDTO.getProductToppingsIds() == null || tempCartItemDTO.getProductToppingsIds().isEmpty()))
+						|| (tempCartItemDTO.getProductToppingsIds() != null && existingProductToppingsList != null
+								&& existingProductToppingsList.size() == tempCartItemDTO.getProductToppingsIds().size()
+								&& existingProductToppingsList.containsAll(tempCartItemDTO.getProductToppingsIds()))) {
 					allToppingsSame = true;
 				}
 
@@ -147,7 +150,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				List<Long> existingProductAttributeValueDtoList = productAttributeValueDtoList.isEmpty() ? null
 						: productAttributeValueDtoList.stream().map(ProductAttributeValueDTO::getId).collect(Collectors.toList());
 				boolean allProductAttributeValuesSame = false;
-				if ((existingProductAttributeValueDtoList == null && tempCartItemDTO.getAttributeValueIds() == null)
+				if ((existingProductAttributeValueDtoList == null
+						&& (tempCartItemDTO.getAttributeValueIds() == null || tempCartItemDTO.getAttributeValueIds().isEmpty()))
 						|| (tempCartItemDTO.getAttributeValueIds() != null && existingProductAttributeValueDtoList != null
 								&& existingProductAttributeValueDtoList.size() == tempCartItemDTO.getAttributeValueIds().size()
 								&& existingProductAttributeValueDtoList.containsAll(tempCartItemDTO.getAttributeValueIds()))) {
@@ -161,9 +165,10 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 				List<Long> existingProductExtrasList = tempCartExtrasList.isEmpty() ? null
 						: tempCartExtrasList.stream().map(ProductExtrasDTO::getId).collect(Collectors.toList());
 				boolean allExtrasSame = false;
-				if ((existingProductExtrasList == null && tempCartItemDTO.getProductExtrasId() == null) || (tempCartItemDTO.getProductExtrasId() != null
-						&& existingProductExtrasList != null && existingProductExtrasList.size() == tempCartItemDTO.getProductExtrasId().size()
-						&& existingProductExtrasList.containsAll(tempCartItemDTO.getProductExtrasId()))) {
+				if ((existingProductExtrasList == null && (tempCartItemDTO.getProductExtrasId() == null || tempCartItemDTO.getProductExtrasId().isEmpty()))
+						|| (tempCartItemDTO.getProductExtrasId() != null && existingProductExtrasList != null
+								&& existingProductExtrasList.size() == tempCartItemDTO.getProductExtrasId().size()
+								&& existingProductExtrasList.containsAll(tempCartItemDTO.getProductExtrasId()))) {
 					allExtrasSame = true;
 				}
 

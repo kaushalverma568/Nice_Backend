@@ -94,7 +94,8 @@ public class OrdersController {
 		/**
 		 * send email to customer when he/she place order and payment type is cod
 		 */
-		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())) {
+		if (orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.COD.name())
+				|| orderRequestDto.getPaymentMode().equalsIgnoreCase(PaymentMode.WALLET.name())) {
 			/**
 			 * Send Place order email
 			 */
@@ -477,6 +478,7 @@ public class OrdersController {
 	 * @throws ValidationException
 	 */
 	@PostMapping("/refund/amount")
+	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken,
 			@Valid @RequestBody final RefundAmountDto refundAmountDto, final BindingResult bindingResult) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", refundAmountDto.getOrderId(), refundAmountDto.getAdminContribution());
