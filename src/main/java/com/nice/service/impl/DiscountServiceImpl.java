@@ -194,8 +194,9 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * in discount updation if we are removing some product for this discount then remove them from product history (all the
-		 * other things are same as we written for category specific discount)
+		 * in discount updation if we are removing some product for this discount then
+		 * remove them from product history (all the other things are same as we written
+		 * for category specific discount)
 		 */
 		if (!isCreation.booleanValue()) {
 			/**
@@ -211,8 +212,9 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		}
 		/**
-		 * if product have an upcoming/active discount then throw exception (if old discount start date is between new start
-		 * date & end date or end date is between new start date & end date)
+		 * if product have an upcoming/active discount then throw exception (if old
+		 * discount start date is between new start date & end date or end date is
+		 * between new start date & end date)
 		 */
 		for (Long productId : discountDTO.getProductIds()) {
 			Optional<DiscountAppliedProductHistory> existingHistory = discountAppliedProductHistoryRepository.isDiscountExist(productId, discount.getId(),
@@ -278,7 +280,8 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 		} else {
 			/**
-			 * there is the case that product does not exist with discount if we directly cancel from upcoming status
+			 * there is the case that product does not exist with discount if we directly
+			 * cancel from upcoming status
 			 */
 			LOGGER.info("product not exist with this discount");
 		}
@@ -483,8 +486,8 @@ public class DiscountServiceImpl implements DiscountService {
 				}
 			}
 			/**
-			 * cancel discount if run date is after end date and still in upcoming state (this could be happend if scheduler will
-			 * not run for some day )
+			 * cancel discount if run date is after end date and still in upcoming state
+			 * (this could be happend if scheduler will not run for some day )
 			 */
 			if (runDate.isAfter(endDate) && discount.getStatus().equals(DiscountStatusEnum.UPCOMING.getStatusValue())) {
 				try {
@@ -497,12 +500,12 @@ public class DiscountServiceImpl implements DiscountService {
 			}
 
 		});
-		updateRunDate();
+		updateRunDate(runDate);
 	}
 
-	private void updateRunDate() {
+	private void updateRunDate(final LocalDate runDate) {
 		try {
-			schedulerDetailsService.updateSchedulerDate(Constant.ACTIVATE_EXPIRE_DISCOUNT);
+			schedulerDetailsService.updateSchedulerDate(Constant.ACTIVATE_EXPIRE_DISCOUNT, CommonUtility.convertLocalDateToUtilDate(runDate));
 		} catch (NotFoundException e) {
 			LOGGER.error("Error while updating date of scheduler {} ", e.getMessage());
 		}

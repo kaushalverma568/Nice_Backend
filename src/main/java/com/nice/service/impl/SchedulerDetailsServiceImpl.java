@@ -1,6 +1,6 @@
 package com.nice.service.impl;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +20,7 @@ import com.nice.service.SchedulerDetailsService;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("schedulerDetailsService")
@@ -37,15 +37,15 @@ public class SchedulerDetailsServiceImpl implements SchedulerDetailsService {
 	private MessageByLocaleService messageByLocaleService;
 
 	@Override
-	public void updateSchedulerDate(final String name) throws NotFoundException {
-		LOGGER.info("Updating scheduler for {}", new Date(System.currentTimeMillis()));
+	public void updateSchedulerDate(final String name, final Date date) throws NotFoundException {
+		LOGGER.info("Updating scheduler for {}", date);
 		Optional<SchedulerDetails> optionalSchedulerDetails = schedulerDetailsRepository.findByName(name);
 		if (!optionalSchedulerDetails.isPresent()) {
 			LOGGER.error("No Scheduler present with name : {}", name);
 			throw new NotFoundException(messageByLocaleService.getMessage("scheduler.not.found", new Object[] { name }));
 		}
 		SchedulerDetails schedulerDetails = optionalSchedulerDetails.get();
-		schedulerDetails.setUpdatedAt(new Date(System.currentTimeMillis()));
+		schedulerDetails.setUpdatedAt(date);
 		schedulerDetailsRepository.save(schedulerDetails);
 	}
 

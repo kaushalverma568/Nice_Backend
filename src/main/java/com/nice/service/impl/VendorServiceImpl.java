@@ -107,7 +107,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 24-Mar-2020
+ * @date : 24-Mar-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("vendorService")
@@ -262,7 +262,8 @@ public class VendorServiceImpl implements VendorService {
 		LOGGER.info("Inside add Vendor service vendor:{}", vendor);
 
 		/**
-		 * Code to generate OTP and send that in email if vendor himself/herself signed up.
+		 * Code to generate OTP and send that in email if vendor himself/herself signed
+		 * up.
 		 */
 		if (vendorDTO.getIsAdmin().booleanValue()) {
 			verifyEmailByAdmin(vendor.getId());
@@ -410,7 +411,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same email exist or not except it's own id
+			 * At the time of update is vendor with same email exist or not except it's own
+			 * id
 			 */
 			return vendorRepository.findByEmailAndIdNot(vendorDTO.getEmail().toLowerCase(), vendorDTO.getId()).isPresent();
 		} else {
@@ -420,8 +422,9 @@ public class VendorServiceImpl implements VendorService {
 			Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 			if (vendor.isPresent()) {
 				/**
-				 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-				 * the email is verified then we will be returning true.
+				 * If the vendor is present and his email not verified, then we will be sending
+				 * the verification link for him again, if the email is verified then we will be
+				 * returning true.
 				 */
 				return vendor.get().getEmailVerified();
 			} else {
@@ -435,8 +438,9 @@ public class VendorServiceImpl implements VendorService {
 		Optional<Vendor> vendor = vendorRepository.findByEmail(vendorDTO.getEmail().toLowerCase());
 		if (vendorDTO.getId() == null && vendor.isPresent()) {
 			/**
-			 * If the vendor is present and his email not verified, then we will be sending the verification link for him again, if
-			 * the email is verified then we will be returning true.
+			 * If the vendor is present and his email not verified, then we will be sending
+			 * the verification link for him again, if the email is verified then we will be
+			 * returning true.
 			 */
 			return vendor.get().getEmailVerified();
 		}
@@ -458,7 +462,8 @@ public class VendorServiceImpl implements VendorService {
 	public void verifyEmail(final Long vendorId) throws NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if vendor is verifying his email for first time then his old status will verification pending
+		 * if vendor is verifying his email for first time then his old status will
+		 * verification pending
 		 */
 		if (VendorStatus.VERIFICATION_PENDING.getStatusValue().equals(vendor.getStatus())) {
 			vendor.setStatus(VendorStatus.NEW.getStatusValue());
@@ -470,8 +475,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  vendor
+	 * @param userLogin
+	 * @param vendor
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 * @throws MessagingException
@@ -621,7 +626,8 @@ public class VendorServiceImpl implements VendorService {
 				throw new ValidationException(messageByLocaleService.getMessage("cod.pickup.both.not.allowed", null));
 			}
 			/**
-			 * if order service is enable by vendor then check he has active subscription plan or not
+			 * if order service is enable by vendor then check he has active subscription
+			 * plan or not
 			 */
 			else if (vendor.getIsOrderServiceEnable().booleanValue()
 					&& (vendor.getSubscriptionPlan() == null || VendorStatus.EXPIRED.getStatusValue().equals(vendor.getStatus()))) {
@@ -734,8 +740,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -759,8 +765,8 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final VendorFilterDTO vendorFilterDTO) throws ValidationException {
@@ -792,7 +798,8 @@ public class VendorServiceImpl implements VendorService {
 	public List<VendorAppResponseDTO> getVendorListForApp(final VendorListFilterDTO vendorListFilterDTO, final Integer startIndex, final Integer pageSize)
 			throws ValidationException, NotFoundException {
 		/**
-		 * if customer address is not there then lat long should be there for calculating distance.
+		 * if customer address is not there then lat long should be there for
+		 * calculating distance.
 		 */
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
@@ -806,7 +813,8 @@ public class VendorServiceImpl implements VendorService {
 			vendorListFilterDTO.setAreaId(customerAddress.getArea().getId());
 		}
 		/**
-		 * for sorting for popular and new arrival only one of them is allowed at time if both then will throw exception.
+		 * for sorting for popular and new arrival only one of them is allowed at time
+		 * if both then will throw exception.
 		 */
 		if (vendorListFilterDTO.getIsPopular() != null && vendorListFilterDTO.getIsPopular().booleanValue() && vendorListFilterDTO.getIsNewArrival() != null
 				&& vendorListFilterDTO.getIsNewArrival().booleanValue()) {
@@ -840,7 +848,8 @@ public class VendorServiceImpl implements VendorService {
 	public Boolean isVendorContactExists(final VendorDTO vendorDTO) {
 		if (vendorDTO.getId() != null) {
 			/**
-			 * At the time of update is vendor with same contact exist or not except it's own id
+			 * At the time of update is vendor with same contact exist or not except it's
+			 * own id
 			 */
 			return vendorRepository.findByPhoneNumberAndIdNot(vendorDTO.getPhoneNumber(), vendorDTO.getId()).isPresent();
 		} else {
@@ -857,9 +866,9 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public List<Long> runVendorSubscriptionExpireScheduler(final Date runDate) {
+	public List<Long> runVendorSubscriptionExpireScheduler(final LocalDate runDate) {
 		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
-		vendorFilterDTO.setSubscriptionEndDate(runDate);
+		vendorFilterDTO.setSubscriptionEndDate(CommonUtility.convertLocalDateToUtilDate(runDate));
 		List<Long> vendorIds = new ArrayList<>();
 		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
 		for (Vendor vendor : vendors) {
@@ -871,7 +880,7 @@ public class VendorServiceImpl implements VendorService {
 			vendorIds.add(vendor.getId());
 		}
 		try {
-			schedulerDetailsService.updateSchedulerDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE);
+			schedulerDetailsService.updateSchedulerDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE, CommonUtility.convertLocalDateToUtilDate(runDate));
 		} catch (NotFoundException e) {
 			LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
 		}
@@ -879,11 +888,10 @@ public class VendorServiceImpl implements VendorService {
 	}
 
 	@Override
-	public void runVendorSubscriptionExpireReminderScheduler(final Date runDate) {
+	public void runVendorSubscriptionExpireReminderScheduler(final LocalDate runDate) {
 		VendorFilterDTO vendorFilterDTO = new VendorFilterDTO();
-		LocalDate localDate = CommonUtility.convetUtilDatetoLocalDate(runDate);
-		localDate = localDate.plusDays(7L);
-		vendorFilterDTO.setSubscriptionEndDate(CommonUtility.convertLocalDateToUtilDate(localDate));
+		LocalDate expireDate = runDate.plusDays(7L);
+		vendorFilterDTO.setSubscriptionEndDate(CommonUtility.convertLocalDateToUtilDate(expireDate));
 		List<Vendor> vendors = vendorRepository.getVendorListBasedOnParams(null, null, vendorFilterDTO);
 		for (Vendor vendor : vendors) {
 			Notification notification = new Notification();
@@ -895,7 +903,7 @@ public class VendorServiceImpl implements VendorService {
 			jmsQueuerService.sendEmail(NotificationQueueConstants.GENERAL_QUEUE, notification);
 		}
 		try {
-			schedulerDetailsService.updateSchedulerDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER);
+			schedulerDetailsService.updateSchedulerDate(Constant.VENDOR_SUBSCRIPTION_EXPIRE_REMINDER, CommonUtility.convertLocalDateToUtilDate(runDate));
 		} catch (NotFoundException e) {
 			LOGGER.info("Error while executing scheduler ,{}", e.getMessage());
 		}
@@ -1022,7 +1030,7 @@ public class VendorServiceImpl implements VendorService {
 	/**
 	 * for failed transaction
 	 *
-	 * @param  vendorOrderId
+	 * @param vendorOrderId
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -1060,7 +1068,7 @@ public class VendorServiceImpl implements VendorService {
 	/**
 	 * for add vendor subscription
 	 *
-	 * @param  vendorPayment
+	 * @param vendorPayment
 	 * @throws ValidationException
 	 */
 	private void addSubscriptionPlan(final VendorPayment vendorPayment) throws ValidationException {
@@ -1100,7 +1108,8 @@ public class VendorServiceImpl implements VendorService {
 			throws ValidationException, NotFoundException {
 		Vendor vendor = getVendorDetail(vendorId);
 		/**
-		 * if customer address is not there then lat long should be there for calculating distance.
+		 * if customer address is not there then lat long should be there for
+		 * calculating distance.
 		 */
 		if (vendorListFilterDTO.getCustomerAddressId() == null) {
 			if (vendorListFilterDTO.getLatitude() == null || vendorListFilterDTO.getLongitude() == null) {
@@ -1124,7 +1133,8 @@ public class VendorServiceImpl implements VendorService {
 	@Override
 	public Long verifyEmailByAdmin(final Long vendorId) throws ValidationException, NotFoundException {
 		/**
-		 * check if vendor is signed up by himself/herself then the OTP sent in email should be expired.
+		 * check if vendor is signed up by himself/herself then the OTP sent in email
+		 * should be expired.
 		 */
 		UserLogin userLogin = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(vendorId, UserType.VENDOR.name());
 		Optional<UserOtp> userOtp = userOtpRepository.findAllByTypeIgnoreCaseAndUserLoginAndActive(UserOtpTypeEnum.EMAIL.name(), userLogin, true);

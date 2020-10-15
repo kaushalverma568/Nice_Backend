@@ -1,9 +1,10 @@
 package com.nice.service;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
@@ -219,14 +220,14 @@ public interface VendorService {
 	 *
 	 * @param runDate
 	 */
-	List<Long> runVendorSubscriptionExpireScheduler(Date runDate);
+	List<Long> runVendorSubscriptionExpireScheduler(LocalDate runDate);
 
 	/**
 	 * scheduler method to send email regarding subscription expire
 	 *
 	 * @param runDate
 	 */
-	void runVendorSubscriptionExpireReminderScheduler(Date runDate);
+	void runVendorSubscriptionExpireReminderScheduler(LocalDate runDate);
 
 	/**
 	 * change vendor status

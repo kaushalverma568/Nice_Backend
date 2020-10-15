@@ -11,10 +11,11 @@ import org.springframework.stereotype.Component;
 
 import com.nice.exception.NotFoundException;
 import com.nice.service.VendorService;
+import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 30-Jun-2020
+ * @date : 30-Jun-2020
  */
 
 @Component
@@ -33,7 +34,7 @@ public class VendorSubscriptionScheduler {
 	}
 
 	public void expiredSubscription(final Date runDate) {
-		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(runDate);
+		List<Long> vendorIds = vendorService.runVendorSubscriptionExpireScheduler(CommonUtility.convetUtilDatetoLocalDate(runDate));
 		for (Long vendorId : vendorIds) {
 			try {
 				vendorService.sendEmailForChangeVendorStatus(vendorId);
@@ -44,6 +45,6 @@ public class VendorSubscriptionScheduler {
 	}
 
 	public void subscriptionExpireReminder(final Date runDate) {
-		vendorService.runVendorSubscriptionExpireReminderScheduler(runDate);
+		vendorService.runVendorSubscriptionExpireReminderScheduler(CommonUtility.convetUtilDatetoLocalDate(runDate));
 	}
 }
