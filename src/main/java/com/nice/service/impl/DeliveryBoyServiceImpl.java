@@ -94,7 +94,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 20-Jul-2020
+ * @date : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -272,8 +272,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -297,8 +297,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  sortByDirection
-	 * @param  sortByField
+	 * @param sortByDirection
+	 * @param sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -430,8 +430,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param  profilePicture
-	 * @param  deliveryBoy
+	 * @param profilePicture
+	 * @param deliveryBoy
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -513,8 +513,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param  userLogin
-	 * @param  deliveryBoy
+	 * @param userLogin
+	 * @param deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -694,7 +694,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		taskDto.setDeliveryBoyId(deliveryBoy.getId());
 		taskDto.setOrderId(orders.getId());
 		taskDto.setTaskType(taskType);
-
+		taskDto.setStatus(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue());
 		taskService.createTask(taskDto);
 
 		/**

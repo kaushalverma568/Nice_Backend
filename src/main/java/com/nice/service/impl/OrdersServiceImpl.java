@@ -1381,6 +1381,7 @@ public class OrdersServiceImpl implements OrdersService {
 				TaskDto taskDto = new TaskDto();
 				taskDto.setOrderId(order.getId());
 				taskDto.setTaskType(taskType);
+				taskDto.setStatus(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue());
 				taskService.createTask(taskDto);
 			}
 		}
@@ -1666,6 +1667,20 @@ public class OrdersServiceImpl implements OrdersService {
 			if (taskList.get(0).getDeliveryBoy() != null) {
 				taskService.removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(taskList.get(0));
 			}
+		}
+		/**
+		 * If admin has cancelled the order and delivery boy is not assigned then create a new task in cancelled status, for
+		 * managing payout.
+		 */
+		else if (taskList.isEmpty() && !autoRefund) {
+			/**
+			 * Create task for the order
+			 */
+			TaskDto taskDto = new TaskDto();
+			taskDto.setOrderId(orders.getId());
+			taskDto.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
+			taskDto.setStatus(TaskStatusEnum.CANCELLED.getStatusValue());
+			taskService.createTask(taskDto);
 		}
 
 		TicketReason ticketReason = ticketReasonService.getTicketReasonDetails(replaceCancelOrderDto.getReasonId());

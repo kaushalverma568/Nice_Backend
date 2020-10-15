@@ -161,9 +161,14 @@ public class TaskServiceImpl implements TaskService {
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it
+		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it,
+		 *
+		 * Here if the taskStatus in taskDto is Cancelled then there should not be any delivery boy related validation
+		 * trigerred. Because if the task status is cancelled then it is just a task that is createdd to manage payout for
+		 * confirmed orders for which delivery boys are yet to be asssigned
 		 */
-		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null) {
+		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null
+				&& !TaskStatusEnum.CANCELLED.getStatusValue().equals(taskDto.getStatus())) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.delivery.boy.for.order", null));
 		}
 
@@ -236,11 +241,12 @@ public class TaskServiceImpl implements TaskService {
 			 */
 
 			task.setOrder(orders);
-			task.setStatus(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue());
+			task.setStatus(taskDto.getStatus());
 			task.setTaskType(taskDto.getTaskType());
 			task.setActive(true);
 			task.setVendorPayableAmt(vendorPayableAmt);
 			task.setAdminCommission(adminCommissionAmt);
+
 			task.setAdminCommissionRate(adminCommisionRate);
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
@@ -251,9 +257,17 @@ public class TaskServiceImpl implements TaskService {
 			task.setCustomerDeliveryCharge(0.0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
 			/**
-			 * Set admin and vendor profit here, if changed after delivery they will be updated during task delivery
+			 * Set admin and vendor profit here, if changed after delivery they will be updated during task delivery,
+			 *
+			 * Here if the order status is cancelled while creating order, it means that the order is cancelled by admin without
+			 * delivery boy accepting it, and hence the admin earning would be the sum of admin comission + delivery charge that the
+			 * customer has paid as the admin doesn't have to pay anything to the delivery boy here.
 			 */
-			task.setAdminProfit(adminCommissionAmt);
+			if (TaskStatusEnum.CANCELLED.getStatusValue().equals(task.getStatus())) {
+				task.setAdminProfit(Double.sum(adminCommissionAmt, deliveryCharge));
+			} else {
+				task.setAdminProfit(adminCommissionAmt);
+			}
 			task.setVendorProfit(vendorPayableAmt);
 
 			taskRepository.save(task);
