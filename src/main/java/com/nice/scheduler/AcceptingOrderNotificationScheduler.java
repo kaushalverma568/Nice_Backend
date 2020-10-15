@@ -91,6 +91,7 @@ public class AcceptingOrderNotificationScheduler {
 						pushNotification.setTaskType(TaskTypeEnum.RETURN.getTaskValue());
 					}
 					pushNotification.setType(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION);
+					LOGGER.info("Sended accept notification for order, order no : {} to delivery boys : {}", orders.getId(), nextNearestDeliveryBoys);
 					jmsQueuerService.sendPushNotification(NotificationQueueConstants.ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE, pushNotification);
 					/**
 					 * add entry in delivery boy notification history for this order
