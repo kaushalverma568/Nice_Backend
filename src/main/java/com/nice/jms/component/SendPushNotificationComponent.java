@@ -918,23 +918,30 @@ public class SendPushNotificationComponent {
 					messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessageExceptDelivery(pushNotificationDTO.getOrderId(),
 							order.getOrderStatus());
 				} else {
-					if (OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue().equals(order.getOrderStatus())
+					if (OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue().equals(order.getOrderStatus())
 							|| OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue().equals(order.getOrderStatus())) {
 						messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
 								order.getOrderStatus());
 						messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
 								order.getOrderStatus());
 					} else {
-						if (!OrderStatusEnum.RETURN_CONFIRMED.getStatusValue().equals(order.getOrderStatus())) {
+						if (!(OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus())
+								&& OrderStatusEnum.RETURNED.getStatusValue().equals(order.getOrderStatus()))) {
 							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
 							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
+									order.getOrderStatus());
+						} else if (OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus())) {
+							messageEnglish = NotificationMessageConstantsEnglish
+									.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId(), order.getOrderStatus());
+							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupReturnConfirm(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
 						} else {
 							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupReturn(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
 							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupReturn(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
+
 						}
 					}
 				}

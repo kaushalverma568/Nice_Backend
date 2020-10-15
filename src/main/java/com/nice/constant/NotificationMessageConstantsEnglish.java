@@ -616,9 +616,15 @@ public final class NotificationMessageConstantsEnglish {
 		return message.toString();
 	}
 
-	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, final String orderStatus) {
+	public static String getOrderStatusUpdateMessagePickupReturnConfirm(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
 		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can return now.");
+		return message.toString();
+	}
+
+	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, final String orderStatus) {
+		StringBuilder message = new StringBuilder();
+		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(".");
 		return message.toString();
 	}
 }
