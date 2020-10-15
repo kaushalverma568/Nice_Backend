@@ -478,7 +478,7 @@ public class OrdersController {
 	 * @throws ValidationException
 	 */
 	@PostMapping("/refund/amount")
-	@PreAuthorize("hasPermission('Orders','CAN_EDIT')")
+	@PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission('Orders','CAN_EDIT')")
 	public ResponseEntity<Object> refundAmountForCancelOrders(@RequestHeader("Authorization") final String accessToken,
 			@Valid @RequestBody final RefundAmountDto refundAmountDto, final BindingResult bindingResult) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside refund amount for orderId:{}, amount :{} ", refundAmountDto.getOrderId(), refundAmountDto.getAdminContribution());

@@ -25,6 +25,10 @@ public class OrdersResponseDTO implements Serializable {
 	private Long customerId;
 	private String customerName;
 	private String phoneNumber;
+
+	/**
+	 * This field contains the amount paid by the customer (payable amount)
+	 */
 	private Double totalOrderAmount;
 	/**
 	 * This field contains the amount of order after discount, not including delivery charge
@@ -141,4 +145,9 @@ public class OrdersResponseDTO implements Serializable {
 	private BigDecimal longitude;
 
 	private String orderType;
+
+	/**
+	 * This contains the order amount for the customer : grossOrderAmount + delivery charge
+	 */
+	private Double customerTotalOrderAmount;
 }

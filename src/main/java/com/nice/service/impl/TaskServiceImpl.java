@@ -77,7 +77,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -245,10 +245,10 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set at the time of completion of task (see: change task status method)
+			 * Actual delivery charge will set updated at the time of completion of task (see: change task status method)
 			 */
-			task.setDeliveryCharge(0d);
-			task.setCustomerDeliveryCharge(0d);
+			task.setDeliveryCharge(deliveryCharge == null ? 0.0d : deliveryCharge);
+			task.setCustomerDeliveryCharge(task.getDeliveryCharge());
 			task.setOrderDeliveryType(orders.getDeliveryType());
 			/**
 			 * Set admin and vendor profit here, if changed after delivery they will be updated during task delivery
@@ -516,7 +516,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
