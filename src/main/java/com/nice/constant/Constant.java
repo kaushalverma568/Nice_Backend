@@ -44,6 +44,7 @@ public final class Constant {
 	public static final String VENDOR_SUBSCRIPTION_EXPIRE_REMINDER = "VENDOR_SUBSCRIPTION_EXPIRE_REMINDER";
 
 	public static final String EXPIRE_STOCK_SCHEDULER = "EXPIRE_STOCK_SCHEDULER";
+	public static final String ORDER_RATING_SCHEDULER = "ORDER_RATING_SCHEDULER";
 	/**
 	 * maximum distance of vendor from customer to fetch in customer app (in km)
 	 */
