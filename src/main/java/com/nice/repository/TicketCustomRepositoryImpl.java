@@ -22,7 +22,6 @@ import com.nice.model.UserLogin;
 import com.nice.util.CommonUtility;
 
 /**
- *
  * @author : Kody Technolab PVT. LTD.
  * @date   : Aug 6, 2020
  */
@@ -51,6 +50,8 @@ public class TicketCustomRepositoryImpl implements TicketCustomRepository {
 				"select t.* as tic from ticket t left join customer ct on t.entity_id=ct.id and t.user_type = 'CUSTOMER' left join delivery_boy db on t.entity_id=db.id and t.user_type = 'DELIVERY_BOY' left join vendor vd on t.entity_id=vd.id and t.user_type = 'VENDOR' where 1=1 ");
 
 		addConditions(entityId, userType, name, sqlQuery, paramMap);
+
+		sqlQuery.append(" ORDER BY t.id desc ");
 
 		if (startIndex != null && pageSize != null) {
 			sqlQuery.append(" offset :startIndex  limit :pageSize ");
