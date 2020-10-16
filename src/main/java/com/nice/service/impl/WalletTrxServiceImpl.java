@@ -58,9 +58,9 @@ public class WalletTrxServiceImpl implements WalletTrxService {
 	public Page<WalletTrx> getWalletTrxList(final Integer pageNumber, final Integer pageSize, final Long customerId) throws NotFoundException {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
 		if (customerId != null) {
-			return walletTrxRepository.findAllByCustomer(customerService.getCustomerDetails(customerId), pageable);
+			return walletTrxRepository.findByCustomerAndAmountNot(customerService.getCustomerDetails(customerId), 0.0d, pageable);
 		} else {
-			return walletTrxRepository.findAll(pageable);
+			return walletTrxRepository.findAllByAmountNot(0.0d, pageable);
 		}
 	}
 

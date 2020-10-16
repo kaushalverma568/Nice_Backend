@@ -27,4 +27,19 @@ public interface WalletTrxRepository extends JpaRepository<WalletTrx, Long> {
 	 */
 	Optional<WalletTrx> findByOrderAndTransactionType(Orders order, String transactionType);
 
+	/**
+	 * @param customerDetails
+	 * @param i
+	 * @param pageable
+	 * @return
+	 */
+	Page<WalletTrx> findByCustomerAndAmountNot(Customer customerDetails, Double i, Pageable pageable);
+
+	/**
+	 * @param i
+	 * @param pageable
+	 * @return
+	 */
+	Page<WalletTrx> findAllByAmountNot(Double i, Pageable pageable);
+
 }

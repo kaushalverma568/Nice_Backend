@@ -2061,9 +2061,7 @@ public class OrdersServiceImpl implements OrdersService {
 			throw new ValidationException(messageByLocaleService.getMessage("cannot.refund.order", null));
 		}
 
-		if (amount.compareTo(0.0d) == 0) {
-			throw new ValidationException(messageByLocaleService.getMessage("refund.amount.non.zero", new Object[] { totalOrderAmount }));
-		} else if (amount > totalOrderAmount.doubleValue()) {
+		if (amount > totalOrderAmount.doubleValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("max.refund.amount", new Object[] { totalOrderAmount }));
 		}
 
