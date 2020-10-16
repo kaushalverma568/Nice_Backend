@@ -50,6 +50,16 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 		if (!userLogin.isPresent()) {
 			throw new NotFoundException(messageByLocaleService.getMessage(USER_NOT_FOUND, new Object[] { deviceDetailDTO.getUserId() }));
 		}
+
+		/**
+		 * Delete same device Id for other Users of same userType
+		 */
+		Optional<DeviceDetail> otherUserDeviceDetails = deviceDetailRepository.findByDeviceIdAndUserTypeAndUserLoginNot(deviceDetailDTO.getDeviceId(),
+				deviceDetailDTO.getUserType(), userLogin.get());
+		if (otherUserDeviceDetails.isPresent()) {
+			deleteDeviceDetailByDeviceId(deviceDetailDTO.getDeviceId());
+		}
+
 		/**
 		 * Check same deviceId for same user then no need to change anything and return
 		 */

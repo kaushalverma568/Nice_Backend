@@ -26,6 +26,8 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceDetail, Long
 
 	Optional<DeviceDetail> findByDeviceIdAndUserLogin(String deviceId, UserLogin userLogin);
 
+	Optional<DeviceDetail> findByDeviceIdAndUserTypeAndUserLoginNot(String deviceId, String userType, UserLogin userLogin);
+
 	Optional<DeviceDetail> findByUniqueDeviceIdAndUserLogin(String uniqueDeviceId, UserLogin userLogin);
 
 	/**
