@@ -21,13 +21,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nice.constant.TaskTypeEnum;
 import com.nice.dto.StockAllocationDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.response.GenericResponseHandlers;
-import com.nice.service.OrdersService;
-import com.nice.service.StockAllocationService;
 import com.nice.validator.StockAllocationValidator;
 
 /**
@@ -42,12 +39,6 @@ public class StockAllocationController {
 	@Autowired
 	private StockAllocationValidator stockAllocationValidator;
 
-	@Autowired
-	private StockAllocationService stockAllocationService;
-
-	@Autowired
-	private OrdersService ordersService;
-
 	@InitBinder
 	public void initialiseBinder(final WebDataBinder binder) {
 		binder.addValidators(stockAllocationValidator);
@@ -60,28 +51,7 @@ public class StockAllocationController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
-		Long orderId = stockAllocationService.allocateStock(stockAllocationDto);
-		/**
-		 * send email code start here
-		 */
-		if (TaskTypeEnum.DELIVERY.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
-			/**
-			 * send email to admin when manager allocate stock
-			 */
-			// stockAllocationService.sendEmailOnOrderStatusChange(orderId, NotificationQueueConstants.IN_PROCESS_ORDER);
-			// ordersService.sendPushNotificationOnStatus(orderId, NotificationQueueConstants.IN_PROCESS_ORDER);
-			/**
-			 * send push notification to delivery boy
-			 */
-			// ordersService.sendPushNotificationOnStatus(orderId, NotificationQueueConstants.PLACE_ORDER_FOR_DELIVERY_BOY);
 
-		} else if (TaskTypeEnum.REPLACEMENT.name().equalsIgnoreCase(stockAllocationDto.getAllocatedFor())) {
-			// ordersService.sendPushNotificationOnStatus(orderId, NotificationQueueConstants.REPLACE_ORDER_FOR_DELIVERY_BOY);
-		}
-
-		/**
-		 * send email code ends here
-		 */
 		return new GenericResponseHandlers.Builder().setMessage("Stock Allocated Successfully").setStatus(HttpStatus.OK).create();
 	}
 }
