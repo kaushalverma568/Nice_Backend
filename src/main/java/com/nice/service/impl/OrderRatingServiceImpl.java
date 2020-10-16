@@ -39,7 +39,7 @@ import com.nice.util.CommonUtility;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 30-Dec-2019
+ * @date   : 30-Dec-2019
  */
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -238,6 +238,8 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(orderRating.getDeliveryBoyId());
 			Double boyRating = deliveryBoy.getRating();
 			Long noOfBoyRating = deliveryBoy.getNoOfRating();
+
+			Double existingRating = boyRating * noOfBoyRating;
 			/**
 			 * Goes one more rating to this boy so plus 1
 			 */
@@ -251,10 +253,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 * to boy record
 			 */
 			if (boyRating > 0) {
-				boyRating = (boyRating + orderRating.getDeliveryBoyRating()) / 2;
-			} else {
-				boyRating = orderRating.getDeliveryBoyRating();
+				boyRating = (existingRating + orderRating.getDeliveryBoyRating()) / noOfBoyRating;
 			}
+
 			deliveryBoy.setRating(boyRating);
 			deliveryBoy.setNoOfRating(noOfBoyRating);
 			deliveryBoyRepository.save(deliveryBoy);
@@ -266,6 +267,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			Vendor vendor = vendorService.getVendorDetail(orderRating.getVendorId());
 			Double vendorRating = vendor.getRating();
 			Long noOfVendorRating = vendor.getNoOfRating();
+
+			Double existingRating = vendorRating * noOfVendorRating;
+
 			// goes one more rating to this vendor so plus 1
 			if (noOfVendorRating > 0) {
 				noOfVendorRating = noOfVendorRating + 1;
@@ -275,10 +279,9 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			// now current rating and previous rating total divide by 2 for average and set
 			// to vendor record
 			if (vendorRating > 0) {
-				vendorRating = (vendorRating + orderRating.getVendorRating()) / 2;
-			} else {
-				vendorRating = orderRating.getVendorRating();
+				vendorRating = (existingRating + orderRating.getVendorRating()) / noOfVendorRating;
 			}
+
 			vendor.setRating(vendorRating);
 			vendor.setNoOfRating(noOfVendorRating);
 			vendorRepository.save(vendor);
