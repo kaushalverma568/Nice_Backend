@@ -42,16 +42,19 @@ public class Task extends CommonModel {
 	private Long id;
 
 	/**
-	 * Here nullable is made true for delivery boy, as we will be making task for the pickup order as well and in that case
-	 * no delivery boy will be assigned, this is taken so as to facilitate the payout structure for vendor, so now both
-	 * payout will happen from task table itself(delivery boy and vendor payout)
+	 * Here nullable is made true for delivery boy, as we will be making task for
+	 * the pickup order as well and in that case no delivery boy will be assigned,
+	 * this is taken so as to facilitate the payout structure for vendor, so now
+	 * both payout will happen from task table itself(delivery boy and vendor
+	 * payout)
 	 */
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	@JoinColumn(name = "delivery_boy_id", nullable = true)
 	private DeliveryBoy deliveryBoy;
 
 	/**
-	 * For any order vendor would always be present, delivery boy may not be present in task if it is a pickup order.
+	 * For any order vendor would always be present, delivery boy may not be present
+	 * in task if it is a pickup order.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	@JoinColumn(name = "vendor_id", nullable = false)
@@ -90,6 +93,9 @@ public class Task extends CommonModel {
 	@Column(name = "vendor_payable_amt", nullable = false, columnDefinition = "double default 0.0")
 	private Double vendorPayableAmt;
 
+	/**
+	 * it may be delivered date or cancelled date
+	 */
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "delivered_date")
 	private Date deliveredDate;
@@ -110,11 +116,13 @@ public class Task extends CommonModel {
 	private Double adminCommissionRate;
 
 	/**
-	 * This field is used to display delivery charge in vendor payout. Because whichever we pay to delivery boy not that
-	 * vendor will bare in case of return/replace and customer pay for order.
+	 * This field is used to display delivery charge in vendor payout. Because
+	 * whichever we pay to delivery boy not that vendor will bare in case of
+	 * return/replace and customer pay for order.
 	 *
-	 * Example : Order :100 +Customer Delivery charge 30 = 130 Paid by customer. but we are giving 20 to delivery boy. Hence
-	 * Delivery charge will be 20 (which will get by Delivery boy) , Customer Delivery charge(For customer and Vendor)
+	 * Example : Order :100 +Customer Delivery charge 30 = 130 Paid by customer. but
+	 * we are giving 20 to delivery boy. Hence Delivery charge will be 20 (which
+	 * will get by Delivery boy) , Customer Delivery charge(For customer and Vendor)
 	 *
 	 */
 	@Column(name = "customer_delivery_charge")

@@ -25,6 +25,7 @@ public class DeliveryLogDTO implements Serializable {
 	private Long deliveryBoyId;
 	private String deliveryBoyEmail;
 	private Date assignedDate;
+	private Date deliveredDate;
 	private String vendorName;
 	private String vendorStoreName;
 	private Long vendorId;

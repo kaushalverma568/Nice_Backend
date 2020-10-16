@@ -21,6 +21,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
+import com.nice.constant.TaskStatusEnum;
 import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.model.Customer;
@@ -177,8 +178,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -239,8 +240,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
-		 * the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -254,7 +255,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 	private void addConditionForDeliveryLog(final DeliveryLogFilterDTO deliveryLogFilterDTO, final CriteriaBuilder criteriaBuilder, final Root<Task> task,
 			final List<Predicate> predicates, final Join<Task, Orders> orders) {
-
+		predicates.add(criteriaBuilder.or(criteriaBuilder.equal(task.get("status"), TaskStatusEnum.CANCELLED.getStatusValue()),
+				criteriaBuilder.equal(task.get("status"), TaskStatusEnum.DELIVERED.getStatusValue())));
 		predicates.add(criteriaBuilder.isNotNull(task.get(DELIVERY_BOY)));
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_STRING.test(deliveryLogFilterDTO.getTaskType())) {
 			predicates.add(criteriaBuilder.equal(task.get("taskType"), deliveryLogFilterDTO.getTaskType()));
@@ -285,16 +287,20 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 				predicates.add(predicateForSearch);
 			}
 		}
+		/**
+		 * delivery log filter will be applied on task delivered date in case of cancel
+		 * will also apply on delivered date
+		 */
 		if (deliveryLogFilterDTO.getFromDate() != null) {
 			if (deliveryLogFilterDTO.getToDate() != null) {
-				predicates.add(
-						criteriaBuilder.between(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate(), deliveryLogFilterDTO.getToDate()));
+				predicates.add(criteriaBuilder.between(task.get("deliveredDate").as(Date.class), deliveryLogFilterDTO.getFromDate(),
+						deliveryLogFilterDTO.getToDate()));
 			} else {
-				predicates.add(criteriaBuilder.equal(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate()));
+				predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), deliveryLogFilterDTO.getFromDate()));
 			}
 		} else {
 			deliveryLogFilterDTO.setFromDate(new java.util.Date());
-			predicates.add(criteriaBuilder.equal(task.get(CREATED_AT).as(Date.class), deliveryLogFilterDTO.getFromDate()));
+			predicates.add(criteriaBuilder.equal(task.get("deliveredDate").as(Date.class), deliveryLogFilterDTO.getFromDate()));
 		}
 	}
 
