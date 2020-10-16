@@ -67,4 +67,5 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 	 */
 	List<CartItem> findAllByOnlineOrderId(String onlineOrderId);
 
+	List<CartItem> findAllByProductVariantId(Long productVariantId);
 }

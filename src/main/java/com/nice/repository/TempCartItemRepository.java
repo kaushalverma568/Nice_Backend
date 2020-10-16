@@ -50,4 +50,6 @@ public interface TempCartItemRepository extends JpaRepository<TempCartItem, Long
 	@Modifying
 	@Query("delete from TempCartItem tci where tci.productVariant.id = :productVariantId")
 	void deleteAllByProductVariantId(Long productVariantId);
+
+	List<TempCartItem> findAllByProductVariantId(Long productVariantId);
 }

@@ -107,14 +107,15 @@ public class CartItemServiceImpl implements CartItemService {
 		List<CartItem> cartItemList = getCartListBasedOnCustomer(cartItemDTO.getCustomerId());
 		Customer customer = customerService.getCustomerDetails(cartItemDTO.getCustomerId());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
-		 * one
+		 * If the vendor For existing cartItem is different from the new product vendor
+		 * delete the old cart and populate the new one
 		 */
 		if (!cartItemList.isEmpty()) {
 			CartItem cartItem = cartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(cartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new
+			 * products are different
 			 */
 			if (!cartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				LOGGER.info("Deleting cart for customer :{} as products for different vendor exists", customerId);
@@ -201,8 +202,8 @@ public class CartItemServiceImpl implements CartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
-					 * , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if
+					 * total of existing and new is greater then 15 , then set quantity as 15
 					 **/
 					LOGGER.info("All Extras, Toppings, ProductAttributeValues, Addons same for cartItem :{} , hence updating the qty of existing product",
 							cartItem.getId());
@@ -269,10 +270,12 @@ public class CartItemServiceImpl implements CartItemService {
 		}
 
 		/**
-		 * Here distinct productAttributeIds associated with a product are taken. This is done so as to check if the
-		 * productAttributeValues associated with product are given values or not, if the values corresponding to all of them is
-		 * not defined then we need to throw an exception. E.g. : If for Pizza there are two different attributes defined i.e.
-		 * Base & Bread, then one value each for both Base & Bread should be defined
+		 * Here distinct productAttributeIds associated with a product are taken. This
+		 * is done so as to check if the productAttributeValues associated with product
+		 * are given values or not, if the values corresponding to all of them is not
+		 * defined then we need to throw an exception. E.g. : If for Pizza there are two
+		 * different attributes defined i.e. Base & Bread, then one value each for both
+		 * Base & Bread should be defined
 		 */
 		List<Long> addedProductAttributes = new ArrayList<>();
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(cartItemDTO.getProductVariantId(), true);
@@ -292,7 +295,8 @@ public class CartItemServiceImpl implements CartItemService {
 			}
 		}
 		/**
-		 * If values for all the attributes mapped to product are not specified then throw exception
+		 * If values for all the attributes mapped to product are not specified then
+		 * throw exception
 		 */
 		if (!addedProductAttributes.containsAll(distinctProductAttributes)) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.product.attribute.values", null));
@@ -552,7 +556,10 @@ public class CartItemServiceImpl implements CartItemService {
 	@Override
 	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
 		LOGGER.info("Inside deleteCartItemsForProductVariant for productVariantId :{} ", productVariantId);
-		cartItemRepository.deleteAllByProductVariantId(productVariantId);
+		List<CartItem> cartItems = cartItemRepository.findAllByProductVariantId(productVariantId);
+		for (CartItem cartItem : cartItems) {
+			deleteCartItem(cartItem.getId());
+		}
 		LOGGER.info("After deleteCartItemsForProductVariant for productVariantId :{} ", productVariantId);
 	}
 

@@ -89,14 +89,15 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 		List<TempCartItem> tempCartItemList = getCartListBasedOnUuid(tempCartItemDTO.getUuid());
 		/**
-		 * If the vendor For existing cartItem is different from the new product vendor delete the old cart and populate the new
-		 * one
+		 * If the vendor For existing cartItem is different from the new product vendor
+		 * delete the old cart and populate the new one
 		 */
 		if (!tempCartItemList.isEmpty()) {
 			TempCartItem tempCartItem = tempCartItemList.get(0);
 			ProductVariant productVariant = productVariantService.getProductVariantDetail(tempCartItemDTO.getProductVariantId());
 			/**
-			 * Delete existing cart if the vendor for the existing products in cart and new products are different
+			 * Delete existing cart if the vendor for the existing products in cart and new
+			 * products are different
 			 */
 			if (!tempCartItem.getProductVariant().getVendorId().equals(productVariant.getVendorId())) {
 				deleteTempCartItemForUuid(tempCartItemDTO.getUuid());
@@ -174,8 +175,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 				if (allAddonsSame && allToppingsSame && allProductAttributeValuesSame && allExtrasSame) {
 					/**
-					 * update cart item quantity by adding new quantity in previous quantity if total of existing and new is greater then 15
-					 * , then set quantity as 15
+					 * update cart item quantity by adding new quantity in previous quantity if
+					 * total of existing and new is greater then 15 , then set quantity as 15
 					 **/
 					updateTempCartItemQty(tempCartItem.getId(), tempCartItem.getQuantity() + tempCartItemEntity.getQuantity() > 15 ? 15
 							: tempCartItem.getQuantity() + tempCartItemEntity.getQuantity());
@@ -227,11 +228,12 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 		/**
 		 * Here distinct productAttributeIds associated with a product are taken.
 		 *
-		 * This is done so as to check if the productAttributeValues associated with product are given values or not, if the
-		 * values corresponding to all of them is not defined then we need to throw an exception.
+		 * This is done so as to check if the productAttributeValues associated with
+		 * product are given values or not, if the values corresponding to all of them
+		 * is not defined then we need to throw an exception.
 		 *
-		 * E.g. : If for Pizza there are two different attributes defined i.e. Base & Bread, then one value each for both Base &
-		 * Bread should be defined
+		 * E.g. : If for Pizza there are two different attributes defined i.e. Base &
+		 * Bread, then one value each for both Base & Bread should be defined
 		 */
 		List<Long> addedProductAttributes = new ArrayList<>();
 		List<ProductAttributeValueDTO> productAttributeValueDtoList = productAttributeValueService.getList(tempCartItemDTO.getProductVariantId(), true);
@@ -252,7 +254,8 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 		}
 
 		/**
-		 * If values for all the attributes mapped to product are not specified then throw exception
+		 * If values for all the attributes mapped to product are not specified then
+		 * throw exception
 		 */
 		if (!addedProductAttributes.containsAll(distinctProductAttributes)) {
 			throw new ValidationException(messageByLocaleService.getMessage("specify.product.attribute.values", null));
@@ -405,7 +408,10 @@ public class TempCartItemServiceImpl implements TempCartItemService {
 
 	@Override
 	public void deleteCartItemsForProductVariant(final Long productVariantId) throws NotFoundException {
-		cartItemRepository.deleteAllByProductVariantId(productVariantId);
+		List<TempCartItem> tempCartItems = cartItemRepository.findAllByProductVariantId(productVariantId);
+		for (TempCartItem tempCartItem : tempCartItems) {
+			deleteTempCartItem(tempCartItem.getId());
+		}
 	}
 
 	@Override
