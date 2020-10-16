@@ -20,7 +20,7 @@ public final class NotificationQueueConstants {
 	public static final String SEND_OTP = "Send OTP";
 	public static final String SMS_QUEUE = "Nice SMS Queue";
 	public static final String VENDOR_SUBSCRIPTION_EXPIRY_REMINDER = "Vendor Subscription Expiry Reminder Queue";
-	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE = "Accept Order Push Notification Queue";
+	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE = "Nice Accept Order Push Notification Queue";
 	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION = "Accept Order Push Notification";
 	public static final String PUSH_NOTIFICATION_QUEUE = "Push Notification Queue";
 	public static final String PLACE_ORDER = "Place Order Queue";

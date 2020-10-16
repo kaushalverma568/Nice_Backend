@@ -718,6 +718,8 @@ public class SendPushNotificationComponent {
 			StringBuilder message = new StringBuilder();
 			JsonObject notificationObject = new JsonObject();
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
+			LOGGER.info("accept notification deque method , order no : {} to delivery boys : {}", pushNotificationDTO.getOrderId(),
+					pushNotificationDTO.getDeliveryBoyIds());
 			for (Long deliveryBoyId : pushNotificationDTO.getDeliveryBoyIds()) {
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoyId, UserType.DELIVERY_BOY.name());
 				Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
