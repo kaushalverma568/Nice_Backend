@@ -94,7 +94,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 20-Jul-2020
+ * @date   : 20-Jul-2020
  */
 @Transactional(rollbackFor = Throwable.class)
 @Service("deliveryBoyService")
@@ -272,8 +272,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -297,8 +297,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param sortByDirection
-	 * @param sortByField
+	 * @param  sortByDirection
+	 * @param  sortByField
 	 * @throws ValidationException
 	 */
 	private void validationForSortByFieldAndDirection(final DeliveryBoyFilterDTO deliveryBoyFilterDTO) throws ValidationException {
@@ -430,8 +430,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	/**
 	 * upload profile picture of delivery boy
 	 *
-	 * @param profilePicture
-	 * @param deliveryBoy
+	 * @param  profilePicture
+	 * @param  deliveryBoy
 	 * @throws ValidationException
 	 * @throws FileOperationException
 	 */
@@ -491,7 +491,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.ORDER_ACCEPTED.getStatusValue(), TaskStatusEnum.DELIVERED.getStatusValue(),
 					TaskStatusEnum.CANCELLED.getStatusValue()));
-			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 			if (count > 0) {
 				throw new ValidationException(messageByLocaleService.getMessage("deliver.order.first", null));
 			}
@@ -513,8 +513,8 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	/**
-	 * @param userLogin
-	 * @param deliveryBoy
+	 * @param  userLogin
+	 * @param  deliveryBoy
 	 * @throws NotFoundException
 	 * @throws ValidationException
 	 */
@@ -575,7 +575,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			taskFilterDTO.setDeliveryBoyId(deliveryBoy.getId());
 			taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
-			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+			Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO, true);
 			if (count > 1) {
 				removeDeliveryBoys.add(deliveryBoy);
 			}
@@ -776,19 +776,19 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 		taskFilterDTO.setTaskType(TaskTypeEnum.DELIVERY.getTaskValue());
-		Long regularOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long regularOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		assignedOrdersCountMap.put("Regular Orders", regularOrders.intValue());
 		/**
 		 * set return order count
 		 */
 		taskFilterDTO.setTaskType(TaskTypeEnum.RETURN.getTaskValue());
-		Long returnOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long returnOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		assignedOrdersCountMap.put("Return Orders", returnOrders.intValue());
 		/**
 		 * set replace order count
 		 */
 		taskFilterDTO.setTaskType(TaskTypeEnum.REPLACEMENT.getTaskValue());
-		Long replaceOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long replaceOrders = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		assignedOrdersCountMap.put("Replace Orders", replaceOrders.intValue());
 
 		ordersCountDTO.setDeliveryBoyId(deliveryBoyId);
@@ -814,7 +814,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
-		Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long count = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		dashBoardDetailDTO.setAssignedOrdersCount(count.intValue());
 		/**
 		 * today's delivered orders count
@@ -823,7 +823,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 		taskFilterDTO.setTaskType(null);
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveredDate(new Date(System.currentTimeMillis()));
-		count = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		count = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		dashBoardDetailDTO.setDeliveredOrdersCount(count.intValue());
 		/**
 		 * for on going order

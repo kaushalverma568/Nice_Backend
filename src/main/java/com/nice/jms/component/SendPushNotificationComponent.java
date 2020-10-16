@@ -286,8 +286,7 @@ public class SendPushNotificationComponent {
 							pushNotificationDTO.getOrderId());
 				}
 				/**
-				 * here sender will be entity will be vendor and receiver will be either
-				 * delivery boy
+				 * here sender will be entity will be vendor and receiver will be either delivery boy
 				 */
 				UserLogin userLoginSender = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(orders.getVendor().getId(), UserType.VENDOR.name());
 				UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(deliveryBoy.getId(), UserType.DELIVERY_BOY.name());
@@ -346,8 +345,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -402,8 +400,7 @@ public class SendPushNotificationComponent {
 			PushNotification pushNotification = setPushNotification(entityId, entityType, messageEnglish, messageArabic, Constant.PAYOUT_MODULE);
 			pushNotification = pushNotificationService.addUpdatePushNotification(pushNotification);
 			/**
-			 * here sender will be entity will be admin and receiver will be either delivery
-			 * boy or vendor
+			 * here sender will be entity will be admin and receiver will be either delivery boy or vendor
 			 */
 			UserLogin userLoginSender = userLoginService.getSuperAdminLoginDetail();
 			UserLogin userLoginReceiver = userLoginService.getUserLoginBasedOnEntityIdAndEntityType(entityId, entityType);
@@ -928,7 +925,8 @@ public class SendPushNotificationComponent {
 						messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickup(pushNotificationDTO.getOrderId(),
 								order.getOrderStatus());
 					} else {
-						if ((!OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus()) || !OrderStatusEnum.RETURNED.getStatusValue().equals(order.getOrderStatus()))) {
+						if ((!OrderStatusEnum.RETURN_PROCESSED.getStatusValue().equals(order.getOrderStatus())
+								|| !OrderStatusEnum.RETURNED.getStatusValue().equals(order.getOrderStatus()))) {
 							messageEnglish = NotificationMessageConstantsEnglish.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
 									order.getOrderStatus());
 							messageArabic = NotificationMessageConstantsArabic.getOrderStatusUpdateMessagePickupOrder(pushNotificationDTO.getOrderId(),
@@ -1312,11 +1310,11 @@ public class SendPushNotificationComponent {
 					UserType.CUSTOMER.name());
 			Optional<List<DeviceDetail>> deviceDetailList = deviceDetailService.getDeviceDetailListByUserId(userLoginReceiver.getId());
 			Orders orders = ordersService.getOrderById(pushNotificationDTO.getOrderId());
-			String orderStatus = "DELIVERY";
+			String orderStatus = "Delivery";
 			if (orders.getOrderStatus().contains("Replace")) {
-				orderStatus = "REPLACE";
+				orderStatus = "Replace";
 			} else if (orders.getOrderStatus().contains("Return")) {
-				orderStatus = "RETURN";
+				orderStatus = "Return";
 			}
 			if (deviceDetailList.isPresent()) {
 				DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(pushNotificationDTO.getDeliveryBoyId());

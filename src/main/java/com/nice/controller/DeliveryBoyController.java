@@ -506,7 +506,7 @@ public class DeliveryBoyController {
 		taskFilterDTO.setStatusListNotIn(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 		taskFilterDTO.setTaskType(taskType);
-		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,
 				taskFilterDTO);
@@ -538,7 +538,7 @@ public class DeliveryBoyController {
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
 		taskFilterDTO.setDeliveryBoyId(deliveryBoyId);
 		taskFilterDTO.setTaskType(taskType);
-		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<OrdersListDTOForDeliveryBoy> orderList = deliveryBoyService.getOrdersList(deliveryBoyId, paginationUtilDto.getStartIndex(), pageSize,
 				taskFilterDTO);

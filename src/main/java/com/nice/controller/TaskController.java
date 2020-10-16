@@ -46,7 +46,7 @@ import com.nice.validator.TaskValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 15-Jul-2020
+ * @date   : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -85,9 +85,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param token
-	 * @param userId
-	 * @param taskId
+	 * @param  token
+	 * @param  userId
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -128,8 +128,8 @@ public class TaskController {
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -146,8 +146,8 @@ public class TaskController {
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -164,9 +164,9 @@ public class TaskController {
 	/**
 	 * Update task status to reached at customer
 	 *
-	 * @param token
-	 * @param taskId
-	 * @param taskType
+	 * @param  token
+	 * @param  taskId
+	 * @param  taskType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -183,8 +183,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -201,8 +201,8 @@ public class TaskController {
 	/**
 	 * update task status to return on the way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -219,8 +219,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -237,8 +237,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param token
-	 * @param taskId
+	 * @param  token
+	 * @param  taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -253,8 +253,8 @@ public class TaskController {
 	}
 
 	/**
-	 * @param token
-	 * @param paymentDetailsId
+	 * @param  token
+	 * @param  paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -272,17 +272,17 @@ public class TaskController {
 	/**
 	 * Get task list for pay-out based on parameters
 	 *
-	 * @param token
-	 * @param pageNumber
-	 * @param pageSize
-	 * @param taskFilterDTO
+	 * @param  token
+	 * @param  pageNumber
+	 * @param  pageSize
+	 * @param  taskFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
 	@PostMapping("/payout/pageNumber/{pageNumber}/pageSize/{pageSize}")
 	public ResponseEntity<Object> getTaskListForPayoutBasedOnParams(@RequestHeader("Authorization") final String token, @PathVariable final Integer pageNumber,
 			@PathVariable final Integer pageSize, @RequestBody final TaskFilterDTO taskFilterDTO) throws ValidationException {
-		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO);
+		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		/**
 		 * Get Only those tasks which is completed..not in process
@@ -298,10 +298,10 @@ public class TaskController {
 	/**
 	 * export task list for payout history
 	 *
-	 * @param accessToken
-	 * @param userId
-	 * @param httpServletResponse
-	 * @param activeRecords
+	 * @param  accessToken
+	 * @param  userId
+	 * @param  httpServletResponse
+	 * @param  activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException

@@ -2,7 +2,6 @@ package com.nice.constant;
 
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -30,10 +29,6 @@ public final class NotificationMessageConstantsEnglish {
 	public static final String DEAR = "Dear";
 	public static final String WELCOME = "Welcome";
 	public static final String OR = "OR";
-
-	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.DELIVERED.getStatusValue(), "Delivered",
-			OrderStatusEnum.REJECTED.getStatusValue(), "Rejected", OrderStatusEnum.REPLACED.getStatusValue(), "Replaced", "RETURN", "Return", "Replace",
-			"Replace");
 
 	/**
 	 * @param  name
@@ -483,11 +478,10 @@ public final class NotificationMessageConstantsEnglish {
 	 */
 	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		if (orderStatus.equals("DELIVERY")) {
+		if (orderStatus.equals("Delivery")) {
 			message.append("Your").append(" order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
 		} else {
-			message.append("Your ").append(orderStatusMap.get(orderStatus)).append(" order no. ").append(orderId).append(" is Accepted by delivery boy ")
-					.append(deliveryBoyName);
+			message.append("Your ").append(orderStatus).append(" order no. ").append(orderId).append(" is Accepted by delivery boy ").append(deliveryBoyName);
 		}
 
 		return message.toString();

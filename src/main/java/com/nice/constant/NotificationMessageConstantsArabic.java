@@ -2,7 +2,6 @@ package com.nice.constant;
 
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -30,10 +29,6 @@ public final class NotificationMessageConstantsArabic {
 	public static final String DEAR = "Dear";
 	public static final String WELCOME = "Welcome";
 	public static final String OR = "OR";
-
-	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.DELIVERED.getStatusValue(), "Delivered",
-			OrderStatusEnum.REJECTED.getStatusValue(), "Rejected", OrderStatusEnum.REPLACED.getStatusValue(), "Replaced", "RETURN", "Return", "Replace",
-			"Replace");
 
 	/**
 	 * @param  name
@@ -309,10 +304,10 @@ public final class NotificationMessageConstantsArabic {
 	 */
 	public static String getOrderAcceptedMessageToCustomer(final Long orderId, final String deliveryBoyName, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		if (orderStatus.equals("DELIVERY")) {
+		if (orderStatus.equals("Delivery")) {
 			message.append("طلبك ").append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
 		} else {
-			message.append("طلبك ").append(orderStatusMap.get(orderStatus)).append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
+			message.append("طلبك ").append(orderStatus).append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
 		}
 
 		return message.toString();
@@ -325,7 +320,10 @@ public final class NotificationMessageConstantsArabic {
 	 */
 	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
 		StringBuilder message = new StringBuilder();
-		message.append("طلبك ").append(orderId).append(" كان ").append(orderStatusMap.get(orderStatus)).append(" .بنجاح");
+		message.append("Your order no. ").append(orderId).append(" has been sucessfully ").append(orderStatus).append(".");
+		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(orderStatus)) {
+			message.append(" Kindly help us to improve our service by giving your feedback!");
+		}
 		return message.toString();
 	}
 
