@@ -20,9 +20,9 @@ import com.nice.model.UOM;
 @Repository("productVariantRepository")
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
 
-	List<ProductVariant> findAllByProduct(Product product);
+	List<ProductVariant> findAllByProductOrderByRateAsc(Product product);
 
-	List<ProductVariant> findAllByProductAndActive(Product product, Boolean active);
+	List<ProductVariant> findAllByProductAndActiveOrderByRateAsc(Product product, Boolean active);
 
 	Optional<ProductVariant> findByProductAndUom(Product product, UOM uom);
 

@@ -25,7 +25,7 @@ public interface ProductToppingRepository extends JpaRepository<ProductTopping, 
 	 * @param active
 	 * @return
 	 */
-	List<ProductTopping> findAllByProductVariantIdAndActive(Long productVariantId, Boolean active);
+	List<ProductTopping> findAllByProductVariantIdAndActiveOrderByRateAsc(Long productVariantId, Boolean active);
 
 	/**
 	 *
@@ -39,7 +39,7 @@ public interface ProductToppingRepository extends JpaRepository<ProductTopping, 
 	 * @param productVariantId
 	 * @return
 	 */
-	List<ProductTopping> findAllByProductVariantId(Long productVariantId);
+	List<ProductTopping> findAllByProductVariantIdOrderByRateAsc(Long productVariantId);
 
 	/**
 	 * @param topping

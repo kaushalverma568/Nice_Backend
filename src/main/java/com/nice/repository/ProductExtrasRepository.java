@@ -26,15 +26,14 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	 * @param active
 	 * @return
 	 */
-	List<ProductExtras> findAllByProductAndActive(Product product, Boolean active);
+	List<ProductExtras> findAllByProductAndActiveOrderByRateAsc(Product product, Boolean active);
 
 	/**
 	 *
 	 * @param product
 	 * @return
 	 */
-	List<ProductExtras> findAllByProduct(Product product);
-
+	List<ProductExtras> findAllByProductOrderByRateAsc(Product product);
 
 	/**
 	 * @param vendorId
@@ -44,17 +43,16 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	Page<ProductExtras> findAllByVendorId(Long vendorId, Pageable pageable);
 
 	/**
-	 * 
+	 *
 	 * @param product
 	 * @param extrasMaster
 	 * @param id
 	 * @return
 	 */
-	Optional<ProductExtras> findByProductAndProductExtrasMasterAndIdNot(Product product,
-			ProductExtrasMaster extrasMaster, Long id);
+	Optional<ProductExtras> findByProductAndProductExtrasMasterAndIdNot(Product product, ProductExtrasMaster extrasMaster, Long id);
 
 	/**
-	 * 
+	 *
 	 * @param product
 	 * @param extrasMaster
 	 * @return
@@ -62,16 +60,15 @@ public interface ProductExtrasRepository extends JpaRepository<ProductExtras, Lo
 	Optional<ProductExtras> findByProductAndProductExtrasMaster(Product product, ProductExtrasMaster extrasMaster);
 
 	/**
-	 * 
+	 *
 	 * @param productExtrasMaster
 	 * @param activeRecords
 	 * @return
 	 */
-	List<ProductExtras> findAllByProductExtrasMasterAndActive(ProductExtrasMaster productExtrasMaster,
-			Boolean activeRecords);
+	List<ProductExtras> findAllByProductExtrasMasterAndActive(ProductExtrasMaster productExtrasMaster, Boolean activeRecords);
 
 	/**
-	 * 
+	 *
 	 * @param productExtrasMaster
 	 * @return
 	 */

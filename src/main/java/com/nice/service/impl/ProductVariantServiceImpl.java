@@ -192,9 +192,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 	@Override
 	public List<ProductVariant> getProductVariantByProduct(final Product product, final Boolean active) {
 		if (active != null) {
-			return productVariantRepository.findAllByProductAndActive(product, active);
+			return productVariantRepository.findAllByProductAndActiveOrderByRateAsc(product, active);
 		} else {
-			return productVariantRepository.findAllByProduct(product);
+			return productVariantRepository.findAllByProductOrderByRateAsc(product);
 		}
 	}
 

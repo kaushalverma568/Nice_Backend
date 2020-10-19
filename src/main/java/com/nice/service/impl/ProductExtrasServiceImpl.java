@@ -178,9 +178,9 @@ public class ProductExtrasServiceImpl implements ProductExtrasService {
 		Product product = productService.getProductDetail(productId);
 		List<ProductExtras> productExtraList;
 		if (activeRecords != null) {
-			productExtraList = productExtrasRepository.findAllByProductAndActive(product, activeRecords);
+			productExtraList = productExtrasRepository.findAllByProductAndActiveOrderByRateAsc(product, activeRecords);
 		} else {
-			productExtraList = productExtrasRepository.findAllByProduct(product);
+			productExtraList = productExtrasRepository.findAllByProductOrderByRateAsc(product);
 		}
 		LOGGER.info("After getList method, with productId : {} and active :{}", productId, activeRecords);
 		return productExtrasMapper.toDtos(productExtraList);

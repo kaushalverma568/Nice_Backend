@@ -25,13 +25,13 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
 	 * @param activeRecords
 	 * @return
 	 */
-	List<ProductAttributeValue> findAllByProductVariantAndActive(ProductVariant productVariant, Boolean activeRecords);
+	List<ProductAttributeValue> findAllByProductVariantAndActiveOrderByRateAsc(ProductVariant productVariant, Boolean activeRecords);
 
 	/**
 	 * @param productVariant
 	 * @return
 	 */
-	List<ProductAttributeValue> findAllByProductVariant(ProductVariant productVariant);
+	List<ProductAttributeValue> findAllByProductVariantOrderByRateAsc(ProductVariant productVariant);
 
 	/**
 	 * get attribute value list by product attribute and active

@@ -107,12 +107,12 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
 		}
 	}
-	
+
 	@Override
 	public ProductToppingResponseDTO getProductToppingWithOutUserCheck(final Long productToppingId) throws NotFoundException, ValidationException {
 		LOGGER.info("Inside getProductTopping method, with productToppingId : {}", productToppingId);
 		ProductTopping productTopping = getProductToppingDetails(productToppingId);
-			return convertFromEntityToDto(productTopping);
+		return convertFromEntityToDto(productTopping);
 	}
 
 	@Override
@@ -157,9 +157,9 @@ public class ProductToppingServiceImpl implements ProductToppingService {
 		LOGGER.info("Inside getToppingForProductVariant , active :{}, productVariantId : {}", active, productVariantId);
 		List<ProductTopping> productToppingList = null;
 		if (active == null) {
-			productToppingList = productToppingRepository.findAllByProductVariantId(productVariantId);
+			productToppingList = productToppingRepository.findAllByProductVariantIdOrderByRateAsc(productVariantId);
 		} else {
-			productToppingList = productToppingRepository.findAllByProductVariantIdAndActive(productVariantId, active);
+			productToppingList = productToppingRepository.findAllByProductVariantIdAndActiveOrderByRateAsc(productVariantId, active);
 		}
 		return convertEntityListToDtos(productToppingList);
 	}

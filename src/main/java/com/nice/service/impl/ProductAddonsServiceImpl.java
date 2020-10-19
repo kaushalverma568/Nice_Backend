@@ -161,9 +161,9 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		List<ProductAddons> productAddonsList = null;
 		if (activeRecords != null) {
-			productAddonsList = productAddonsRepository.findAllByProductVariantAndActive(productVariant, activeRecords);
+			productAddonsList = productAddonsRepository.findAllByProductVariantAndActiveOrderByRateAsc(productVariant, activeRecords);
 		} else {
-			productAddonsList = productAddonsRepository.findAllByProductVariant(productVariant);
+			productAddonsList = productAddonsRepository.findAllByProductVariantOrderByRateAsc(productVariant);
 		}
 		return productAddonsList;
 	}
@@ -244,7 +244,7 @@ public class ProductAddonsServiceImpl implements ProductAddonsService {
 
 	@Override
 	public List<ProductAddons> getListByAddonsId(final Long addonsId) throws NotFoundException {
-		return productAddonsRepository.findAllByAddons(addonsService.getAddonsById(addonsId));
+		return productAddonsRepository.findAllByAddonsOrderByRateAsc(addonsService.getAddonsById(addonsId));
 	}
 
 }

@@ -167,9 +167,9 @@ public class ProductAttributeValueServiceImpl implements ProductAttributeValueSe
 		List<ProductAttributeValue> productAttributeValuesList = null;
 		ProductVariant productVariant = productVariantService.getProductVariantDetail(productVariantId);
 		if (activeRecords != null) {
-			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariantAndActive(productVariant, activeRecords);
+			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariantAndActiveOrderByRateAsc(productVariant, activeRecords);
 		} else {
-			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariant(productVariant);
+			productAttributeValuesList = productAttributeValueRepository.findAllByProductVariantOrderByRateAsc(productVariant);
 		}
 		LOGGER.info("After ProductAttributeValue getList, active : {} and productVariantId :{} ", activeRecords, productVariantId);
 		return productAttributeValueMapper.toDtos(productAttributeValuesList);
