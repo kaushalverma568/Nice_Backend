@@ -10,17 +10,18 @@ public final class NotificationQueueConstants {
 		super();
 	}
 
-	public static final String GENERAL_QUEUE = "Nice General Queue";
+	public static final String APPLICATION_NAME = "Nice";
+	public static final String GENERAL_QUEUE = APPLICATION_NAME + " General Queue";
 	public static final String CUSTOMER_REGISTRATION = "Customer Registration";
 	public static final String VENDOR_REGISTRATION = "Vendor Registration";
 	public static final String DELIVERY_BOY_REGISTRATION = "Delivery Boy Registration";
 	public static final String EMAIL_VERIFICATION = "Email Verification";
 	public static final String FORGOT_PASS = "Forgot Password";
-	public static final String NON_NOTIFICATION_QUEUE = "Nice Non Notification Queue";
+	public static final String NON_NOTIFICATION_QUEUE = APPLICATION_NAME + " Non Notification Queue";
 	public static final String SEND_OTP = "Send OTP";
-	public static final String SMS_QUEUE = "Nice SMS Queue";
+	public static final String SMS_QUEUE = APPLICATION_NAME + " SMS Queue";
 	public static final String VENDOR_SUBSCRIPTION_EXPIRY_REMINDER = "Vendor Subscription Expiry Reminder Queue";
-	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE = "Nice Accept Order Push Notification Queue";
+	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION_QUEUE = APPLICATION_NAME + " Accept Order Push Notification Queue";
 	public static final String ACCEPT_ORDER_PUSH_NOTIFICATION = "Accept Order Push Notification";
 	public static final String PUSH_NOTIFICATION_QUEUE = "Push Notification Queue";
 	public static final String PLACE_ORDER = "Place Order Queue";
@@ -31,7 +32,7 @@ public final class NotificationQueueConstants {
 	public static final String RESOLVE_TICKET_PUSH_NOTIFICATION = "Resolve Ticket Push Notification";
 	public static final String NEW_ORDER_PUSH_NOTIFICATION = "New Order Push Notification";
 	public static final String ORDER_DELIVERY_PUSH_NOTIFICATION = "Order Delivery Push Notification";
-	public static final String GENERAL_PUSH_NOTIFICATION_QUEUE = "Nice General Push Notification Queue";
+	public static final String GENERAL_PUSH_NOTIFICATION_QUEUE = APPLICATION_NAME + " General Push Notification Queue";
 	public static final String DELIVERY_BOY_ACCOUNT_ACTIVATION = "Delivery Boy Account Activation";
 	public static final String ORDER_PREPARED = "Order Is Prepared Notification To Delivery Boy";
 	public static final String CANCEL_ORDER_PUSH_NOTIFICATION_DELIVERY_BOY = "Cancel Order Push Notification Delivery Boy";
