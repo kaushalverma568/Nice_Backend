@@ -545,7 +545,7 @@ public final class NotificationMessageConstantsEnglish {
 
 	public static String getOtpValidityMessage(final Long otpValidity) {
 		StringBuilder message = new StringBuilder();
-		message = message.append("You can use below OTP which is valid only for the next ").append(otpValidity).append(" minutes.");
+		message = message.append("You can use this OTP which is valid only for the next ").append(otpValidity).append(" minutes.");
 		return message.toString();
 	}
 

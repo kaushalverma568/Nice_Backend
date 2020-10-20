@@ -2,6 +2,7 @@ package com.nice.constant;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author : Kody Technolab PVT. LTD.
@@ -29,6 +30,31 @@ public final class NotificationMessageConstantsArabic {
 	public static final String DEAR = "Dear";
 	public static final String WELCOME = "Welcome";
 	public static final String OR = "OR";
+
+	public static final Map<String, String> orderStatusMap = Map.of(OrderStatusEnum.PENDING.getStatusValue(), OrderStatusEnum.PENDING.getStatusValue(),
+			OrderStatusEnum.CONFIRMED.getStatusValue(), OrderStatusEnum.CONFIRMED.getStatusValue(), OrderStatusEnum.IN_PROCESS.getStatusValue(),
+			OrderStatusEnum.IN_PROCESS.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(), OrderStatusEnum.ORDER_IS_PREPARED.getStatusValue(),
+			OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.REJECTED.getStatusValue(), OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(),
+			OrderStatusEnum.WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(),
+			OrderStatusEnum.ORDER_PICKED_UP.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(), OrderStatusEnum.DELIVERED.getStatusValue(), "Return",
+			"Return", "Replace", "Replace");
+
+	public static final Map<String, String> returnOrderStatusMap = Map.of(OrderStatusEnum.RETURN_REQUESTED.getStatusValue(),
+			OrderStatusEnum.RETURN_REQUESTED.getStatusValue(), OrderStatusEnum.RETURN_CONFIRMED.getStatusValue(),
+			OrderStatusEnum.RETURN_CONFIRMED.getStatusValue(), OrderStatusEnum.RETURN_PROCESSED.getStatusValue(),
+			OrderStatusEnum.RETURN_PROCESSED.getStatusValue(), OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue(),
+			OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(), OrderStatusEnum.RETURNED.getStatusValue(),
+			OrderStatusEnum.RETURN_REJECTED.getStatusValue(), OrderStatusEnum.RETURN_REJECTED.getStatusValue());
+
+	public static final Map<String, String> replaceOrderStatusMap = Map.of(OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(),
+			OrderStatusEnum.REPLACE_REQUESTED.getStatusValue(), OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(),
+			OrderStatusEnum.REPLACE_CONFIRMED.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue(),
+			OrderStatusEnum.REPLACE_ORDER_PREPARED.getStatusValue(), OrderStatusEnum.REPLACE_REJECTED.getStatusValue(),
+			OrderStatusEnum.REPLACE_REJECTED.getStatusValue(), OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(),
+			OrderStatusEnum.REPLACE_PROCESSED.getStatusValue(), OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(),
+			OrderStatusEnum.REPLACE_WAITING_FOR_PICKUP.getStatusValue(), OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue(),
+			OrderStatusEnum.REPLACE_ORDER_PICKUP.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue(), OrderStatusEnum.REPLACED.getStatusValue(),
+			OrderStatusEnum.CANCELLED.getStatusValue(), OrderStatusEnum.CANCELLED.getStatusValue());
 
 	/**
 	 * @param  name
@@ -165,8 +191,15 @@ public final class NotificationMessageConstantsArabic {
 	 * @param  orderId
 	 * @return
 	 */
-	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, final String currentStatus) {
+	public static String getOrderStatusUpdateMessageExceptDelivery(final Long orderId, String currentStatus) {
 		StringBuilder message = new StringBuilder();
+		if (orderStatusMap.get(currentStatus) != null) {
+			currentStatus = orderStatusMap.get(currentStatus);
+		} else if (returnOrderStatusMap.get(currentStatus) != null) {
+			currentStatus = returnOrderStatusMap.get(currentStatus);
+		} else {
+			currentStatus = replaceOrderStatusMap.get(currentStatus);
+		}
 		message.append("طلبك لا.").append(orderId).append("يكون").append(currentStatus).append(". سنقوم بتسليمه قريبا.");
 		return message.toString();
 	}
@@ -307,7 +340,7 @@ public final class NotificationMessageConstantsArabic {
 		if (orderStatus.equals("Delivery")) {
 			message.append("طلبك ").append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
 		} else {
-			message.append("طلبك ").append(orderStatus).append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
+			message.append("طلبك ").append(orderStatusMap.get(orderStatus)).append(orderId).append("تم قبوله من قبل فتى التوصيل").append(deliveryBoyName);
 		}
 
 		return message.toString();
@@ -318,8 +351,15 @@ public final class NotificationMessageConstantsArabic {
 	 * @param  orderStatus
 	 * @return
 	 */
-	public static String orderDeliverySuccessful(final Long orderId, final String orderStatus) {
+	public static String orderDeliverySuccessful(final Long orderId, String orderStatus) {
 		StringBuilder message = new StringBuilder();
+		if (orderStatusMap.get(orderStatus) != null) {
+			orderStatus = orderStatusMap.get(orderStatus);
+		} else if (returnOrderStatusMap.get(orderStatus) != null) {
+			orderStatus = returnOrderStatusMap.get(orderStatus);
+		} else {
+			orderStatus = replaceOrderStatusMap.get(orderStatus);
+		}
 		message.append("Your order no. ").append(orderId).append(" has been sucessfully ").append(orderStatus).append(".");
 		if (OrderStatusEnum.DELIVERED.getStatusValue().equals(orderStatus)) {
 			message.append(" Kindly help us to improve our service by giving your feedback!");
@@ -606,14 +646,28 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String getOrderStatusUpdateMessagePickupOrder(final Long orderId, final String orderStatus) {
+	public static String getOrderStatusUpdateMessagePickupOrder(final Long orderId, String orderStatus) {
 		StringBuilder message = new StringBuilder();
+		if (orderStatusMap.get(orderStatus) != null) {
+			orderStatus = orderStatusMap.get(orderStatus);
+		} else if (returnOrderStatusMap.get(orderStatus) != null) {
+			orderStatus = returnOrderStatusMap.get(orderStatus);
+		} else {
+			orderStatus = replaceOrderStatusMap.get(orderStatus);
+		}
 		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up shortly.");
 		return message.toString();
 	}
 
-	public static String getOrderStatusUpdateMessagePickup(final Long orderId, final String orderStatus) {
+	public static String getOrderStatusUpdateMessagePickup(final Long orderId, String orderStatus) {
 		StringBuilder message = new StringBuilder();
+		if (orderStatusMap.get(orderStatus) != null) {
+			orderStatus = orderStatusMap.get(orderStatus);
+		} else if (returnOrderStatusMap.get(orderStatus) != null) {
+			orderStatus = returnOrderStatusMap.get(orderStatus);
+		} else {
+			orderStatus = replaceOrderStatusMap.get(orderStatus);
+		}
 		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(". You can pick-up now.");
 		return message.toString();
 	}
@@ -624,8 +678,15 @@ public final class NotificationMessageConstantsArabic {
 		return message.toString();
 	}
 
-	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, final String orderStatus) {
+	public static String getOrderStatusUpdateMessagePickupReturn(final Long orderId, String orderStatus) {
 		StringBuilder message = new StringBuilder();
+		if (orderStatusMap.get(orderStatus) != null) {
+			orderStatus = orderStatusMap.get(orderStatus);
+		} else if (returnOrderStatusMap.get(orderStatus) != null) {
+			orderStatus = returnOrderStatusMap.get(orderStatus);
+		} else {
+			orderStatus = replaceOrderStatusMap.get(orderStatus);
+		}
 		message.append("Your order no. ").append(orderId).append(" is ").append(orderStatus).append(".");
 		return message.toString();
 	}
