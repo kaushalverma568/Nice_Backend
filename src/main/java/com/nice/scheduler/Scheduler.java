@@ -35,7 +35,7 @@ public class Scheduler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
 
-	@Scheduled(cron = "0 0 0 * * ?")
+	@Scheduled(cron = "0 5 0 * * *")
 	public void run() throws NotFoundException {
 		LOGGER.info("Rating Scheduler -- Start: The time is now {}", new Date(System.currentTimeMillis()));
 		runRatingScheduler(new Date());
