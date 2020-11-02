@@ -70,4 +70,5 @@ public class ProductResponseDTO implements Serializable {
 	private String storeNameEnglish;
 	private String storeNameArabic;
 	private String storeContactNumber;
+	private Boolean manageInventory;
 }

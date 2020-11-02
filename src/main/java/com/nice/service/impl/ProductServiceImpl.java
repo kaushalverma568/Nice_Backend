@@ -527,6 +527,7 @@ public class ProductServiceImpl implements ProductService {
 		productResponseDTO.setBusinessCategoryNameEnglish(businessCategoryDto.getNameEnglish());
 		productResponseDTO.setBusinessCategoryNameArabic(businessCategoryDto.getNameArabic());
 		Category category = categoryService.getCategoryDetail(productResponseDTO.getCategoryId());
+		productResponseDTO.setManageInventory(businessCategoryDto.getManageInventory());
 
 		/**
 		 * Get Vendor details
