@@ -117,6 +117,7 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 		/**
 		 * order rating save
 		 */
+		orderRating.setIsRatingCalculated(false);
 		return orderRatingMapper.toResponseDto(orderRatingRepository.save(orderRating));
 	}
 
@@ -188,13 +189,13 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 	@Override
 	public Page<OrderRating> getOrderRatingByDeliveryBoyId(final Integer pageNumber, final Integer pageSize, final Long deliveryBoyId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
-		return orderRatingRepository.findByDeliveryBoyIdAndIsRatingCalculated(deliveryBoyId, true, pageable);
+		return orderRatingRepository.findAllByDeliveryBoyIdAndIsRatingCalculated(deliveryBoyId, true, pageable);
 	}
 
 	@Override
 	public Page<OrderRating> getOrderRatingByVendorId(final Integer pageNumber, final Integer pageSize, final Long vendorId) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Direction.DESC, "id"));
-		return orderRatingRepository.findByVendorIdAndIsRatingCalculated(vendorId, true, pageable);
+		return orderRatingRepository.findAllByVendorIdAndIsRatingCalculated(vendorId, true, pageable);
 	}
 
 	public List<OrderRating> getOrderRatingByCreatedAt(final Date startDate, final Date endDate) {

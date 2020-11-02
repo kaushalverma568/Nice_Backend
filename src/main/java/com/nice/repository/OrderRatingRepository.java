@@ -92,7 +92,7 @@ public interface OrderRatingRepository extends JpaRepository<OrderRating, Long> 
 	 * @param pageable
 	 * @return
 	 */
-	Page<OrderRating> findByDeliveryBoyIdAndIsRatingCalculated(Long deliveryBoyId, boolean isRatingCalculated, Pageable pageable);
+	Page<OrderRating> findAllByDeliveryBoyIdAndIsRatingCalculated(Long deliveryBoyId, Boolean isRatingCalculated, Pageable pageable);
 
 	/**
 	 * 
@@ -101,6 +101,6 @@ public interface OrderRatingRepository extends JpaRepository<OrderRating, Long> 
 	 * @param pageable
 	 * @return
 	 */
-	Page<OrderRating> findByVendorIdAndIsRatingCalculated(Long vendorId, boolean isRatingCalculated, Pageable pageable);
+	Page<OrderRating> findAllByVendorIdAndIsRatingCalculated(Long vendorId, Boolean isRatingCalculated, Pageable pageable);
 
 }
