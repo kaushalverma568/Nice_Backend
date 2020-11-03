@@ -255,6 +255,8 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			 */
 			if (boyRating > 0) {
 				boyRating = (existingRating + orderRating.getDeliveryBoyRating()) / noOfBoyRating;
+			} else {
+				boyRating = orderRating.getDeliveryBoyRating();
 			}
 
 			deliveryBoy.setRating(boyRating);
@@ -281,6 +283,8 @@ public class OrderRatingServiceImpl implements OrderRatingService {
 			// to vendor record
 			if (vendorRating > 0) {
 				vendorRating = (existingRating + orderRating.getVendorRating()) / noOfVendorRating;
+			} else {
+				vendorRating = orderRating.getVendorRating();
 			}
 
 			vendor.setRating(vendorRating);
