@@ -67,20 +67,36 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				" as delivery_boy_name,d.phone_number as delivery_boy_phone_number,d.created_at as registered_on ,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(que.paid_on) as last_payment_on,sum(que.payment_amount) as total_paid from delivery_boy d join (\r\n"
 						+ "select dboy.id as delivery_boy_id, count(t.id)as cart_orders, \r\n"
-						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
-						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Delivery' \r\n"
+						+ "0 as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id \r\n" + " where t.task_type='Delivery' \r\n"
 						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id union\r\n"
+						+ "\r\n"
+
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, \r\n"
-						+ "count(t.id) as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
+						+ "count(t.id) as replace_orders, 0 as return_orders,NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
 						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Replacement' \r\n"
 						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id union\r\n"
+						+ "\r\n"
+
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, \r\n"
-						+ "0 as replace_orders, count(t.id) as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
+						+ "0 as replace_orders, count(t.id) as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
 						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Return' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by dboy.id\r\n" + " )as que\r\n" + "on d.id=que.delivery_boy_id where 1=1 ");
+						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id \r\n"
+						+ "\r\n" + " )as que\r\n" + "on d.id=que.delivery_boy_id where 1=1 ");
 
 		addDeliveryBoyPayoutConditions(deliveryBoyId, registeredOn, sqlQuery, paramMap);
 
@@ -115,20 +131,36 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				" as delivery_boy_name,d.phone_number as delivery_boy_phone_number,d.created_at as registered_on ,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(que.paid_on) as last_payment_on,sum(que.payment_amount) as total_paid from delivery_boy d join (\r\n"
 						+ "select dboy.id as delivery_boy_id, count(t.id)as cart_orders, \r\n"
-						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
-						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Delivery' \r\n"
+						+ "0 as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id \r\n" + " where t.task_type='Delivery' \r\n"
 						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id union\r\n"
+						+ "\r\n"
+
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, \r\n"
-						+ "count(t.id) as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
+						+ "count(t.id) as replace_orders, 0 as return_orders,NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
 						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Replacement' \r\n"
 						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id union\r\n"
+						+ "\r\n"
+
 						+ "select dboy.id as delivery_boy_id, 0 as cart_orders, \r\n"
-						+ "0 as replace_orders, count(t.id) as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from delivery_boy dboy \r\n" + "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
+						+ "0 as replace_orders, count(t.id) as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from delivery_boy dboy \r\n"
+						+ "join task t on dboy.id=t.delivery_boy_id left join payment_details pd\r\n"
 						+ "on t.delivery_boy_payment_details_id =pd.id where t.task_type='Return' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by dboy.id\r\n" + " )as que\r\n" + "on d.id=que.delivery_boy_id where 1=1 ");
+						+ "and t.status in('Delivered','Cancelled') group by dboy.id union\r\n" + "\r\n"
+
+						+ "select pd.delivery_boy_id as delivery_boy_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct delivery_boy_payment_details_id from task where delivery_boy_id=pd.delivery_boy_id) group by pd.delivery_boy_id \r\n"
+						+ "\r\n" + " )as que\r\n" + "on d.id=que.delivery_boy_id where 1=1 ");
 
 		addDeliveryBoyPayoutConditions(deliveryBoyId, registeredOn, sqlQuery, paramMap);
 		sqlQuery.append(" group by(d.id)) as abc");
@@ -154,18 +186,39 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				"v.phone_number as vendor_phone_number,v.store_phone_number as store_phone_number,v.created_at as registered_on ,bc.id as business_category_id,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(que.paid_on) as last_payment_on,sum(que.payment_amount) as total_paid from vendor v join (\r\n"
 						+ "select v.id as vendor_id, count(t.id)as cart_orders, \r\n"
-						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v \r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "0 as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v \r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Delivery' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n" + "select v.id as vendor_id, 0 as cart_orders, \r\n"
-						+ "count(t.id) as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v \r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id union\r\n"
+						+ "\r\n"
+
+						+ "select v.id as vendor_id, 0 as cart_orders, \r\n"
+						+ "count(t.id) as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v \r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Replacement' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n" + "select v.id as vendor_id, 0 as cart_orders, \r\n"
-						+ "0 as replace_orders, count(t.id) as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v\r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id union\r\n"
+						+ "\r\n"
+
+						+ "select v.id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, count(t.id) as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v\r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Return' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id)as que\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id \r\n"
+						+ "\r\n"
+
+						+ ")as que\r\n"
 						+ "on v.id=que.vendor_id join business_category bc on bc.id=v.business_category_id where v.profile_completed='true' and 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
@@ -205,18 +258,39 @@ public class PaymentDetailsCustomRepositoryImpl implements PaymentDetailsCustomR
 		sqlQuery.append(
 				"v.phone_number as vendor_phone_number,v.store_phone_number as store_phone_number,v.created_at as registered_on ,bc.id as business_category_id,sum(que.cart_orders) as cart_orders,sum(que.replace_orders) as replace_orders,sum(que.return_orders) as return_orders,sum(cart_orders+replace_orders+return_orders) as total_attened,max(que.paid_on) as last_payment_on,sum(que.payment_amount) as total_paid from vendor v join (\r\n"
 						+ "select v.id as vendor_id, count(t.id)as cart_orders, \r\n"
-						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v \r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "0 as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v \r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Delivery' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n" + "select v.id as vendor_id, 0 as cart_orders, \r\n"
-						+ "count(t.id) as replace_orders, 0 as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v \r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id union\r\n"
+						+ "\r\n"
+
+						+ "select v.id as vendor_id, 0 as cart_orders, \r\n"
+						+ "count(t.id) as replace_orders, 0 as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v \r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Replacement' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n" + "select v.id as vendor_id, 0 as cart_orders, \r\n"
-						+ "0 as replace_orders, count(t.id) as return_orders, max(pd.paid_on)as paid_on,sum(pd.payment_amount) as payment_amount\r\n"
-						+ "from vendor v\r\n" + "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id union\r\n"
+						+ "\r\n"
+
+						+ "select v.id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, count(t.id) as return_orders, NULL as paid_on, 0 as payment_amount\r\n" + "from vendor v\r\n"
+						+ "join task t on v.id=t.vendor_id left join payment_details pd\r\n"
 						+ "on t.vendor_payment_details_id =pd.id where t.task_type='Return' \r\n"
-						+ "and t.status in('Delivered','Cancelled') group by v.id )as que\r\n"
+						+ "and t.status in('Delivered','Cancelled') group by v.id union\r\n" + "\r\n"
+
+						+ "select pd.vendor_id as vendor_id, 0 as cart_orders, \r\n"
+						+ "0 as replace_orders, 0 as return_orders, max(pd.paid_on) as paid_on,sum(pd.payment_amount) from payment_details pd \r\n"
+						+ "where pd.id in (select distinct vendor_payment_details_id from task where vendor_id=pd.vendor_id) group by pd.vendor_id \r\n"
+						+ "\r\n"
+
+						+ ")as que\r\n"
 						+ "on v.id=que.vendor_id join business_category bc on bc.id=v.business_category_id where v.profile_completed='true' and 1=1 ");
 
 		addVendorPayoutConditions(vendorId, businessCategoryId, sqlQuery, paramMap);
