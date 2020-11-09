@@ -47,13 +47,15 @@ public class CorsConfig implements Filter {
 
 	/*
 	 * (non-Javadoc)
-	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
+	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
+	 * javax.servlet.ServletResponse,
 	 * javax.servlet.FilterChain)
 	 */
 	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpServletRequest request = (HttpServletRequest) req;
+		logger.info("Filter request : {} ", request.getProtocol());
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.setHeader("Access-Control-Max-Age", "36000");

@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -344,12 +345,14 @@ public class UserLoginController {
 	 * @throws UnAuthorizationException
 	 */
 	@PostMapping("/admin/login")
-	public ResponseEntity<Object> adminLogin(@RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
+	public ResponseEntity<Object> adminLogin(final HttpServletRequest request, @RequestBody @Valid final UserLoginDto userLoginDto, final BindingResult result)
 			throws ValidationException, NotFoundException, UnAuthorizationException {
+		LOGGER.info("Admin request : {} ", request.getProtocol());
 		final List<FieldError> fieldErrors = result.getFieldErrors();
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+
 		LoginResponse loginResponse = userLoginService.adminLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();

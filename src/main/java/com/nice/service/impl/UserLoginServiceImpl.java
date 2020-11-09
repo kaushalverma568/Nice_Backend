@@ -529,6 +529,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Override
 	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
 		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
+		LOGGER.info("checkUserLogin : {} ", url);
 		LoginResponse loginResponse = generateAuthToken(url, userLoginDto);
 		/**
 		 * Invalidate the OTP once token generated
