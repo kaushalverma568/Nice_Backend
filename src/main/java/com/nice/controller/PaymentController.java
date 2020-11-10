@@ -3,7 +3,6 @@
  */
 package com.nice.controller;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ import com.nice.service.PaymentService;
 
 /**
  * @author : Kody Technolab Pvt. Ltd.
- * @date : 13-07-2020
+ * @date   : 13-07-2020
  */
 
 @RequestMapping(path = "/payment")
@@ -58,7 +57,7 @@ public class PaymentController {
 
 	@GetMapping(path = "/check")
 	public ModelAndView checkPayment(@RequestParam(name = "language", required = true) final String langauge, @RequestParam(name = "data") final String data)
-			throws NotFoundException, UnsupportedEncodingException {
+			throws NotFoundException {
 		Locale locale = new Locale(langauge);
 		LocaleContextHolder.setLocale(locale);
 		String result = hesabePaymentService.decrypt(data);
@@ -83,7 +82,6 @@ public class PaymentController {
 				 */
 				msg = messageByLocaleService.getMessage("payment.error", null);
 			}
-			// TODO send email
 		} catch (NotFoundException | ValidationException e) {
 			orderId = 0l;
 			msg = e.getMessage();

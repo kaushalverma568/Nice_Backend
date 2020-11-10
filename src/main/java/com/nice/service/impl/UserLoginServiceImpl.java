@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.Constant;
@@ -161,7 +161,9 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	@Autowired
 	private RoleService roleService;
 
-	@SuppressWarnings("unused")
+	@Value("${local.service.url}")
+	private String localServiceUrl;
+
 	@Override
 	public UserDetails loadUserByUsername(final String username) {
 		String actualUser = null;
@@ -528,9 +530,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 
 	@Override
 	public LoginResponse checkUserLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
-		String url = ServletUriComponentsBuilder.fromCurrentContextPath().path("/").toUriString();
-		LOGGER.info("checkUserLogin : {} ", url);
-		LoginResponse loginResponse = generateAuthToken(url, userLoginDto);
+		LoginResponse loginResponse = generateAuthToken(localServiceUrl, userLoginDto);
 		/**
 		 * Invalidate the OTP once token generated
 		 */
