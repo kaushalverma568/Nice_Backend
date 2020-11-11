@@ -73,7 +73,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Vendor> criteriaQuery = criteriaBuilder.createQuery(Vendor.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -105,7 +106,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		}
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * It allows defining a template by grouping the related persistence fields
+		 * which we want to retrieve and lets us choose
 		 * the graph type at runtime.
 		 */
 		EntityGraph<Vendor> fetchGraph = entityManager.createEntityGraph(Vendor.class);
@@ -200,7 +202,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 		 */
 		CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
 		/**
-		 * Create and add a query root corresponding to the vendor.It is similar to the FROM clause in a JPQL query.
+		 * Create and add a query root corresponding to the vendor.It is similar to the
+		 * FROM clause in a JPQL query.
 		 */
 		Root<Vendor> vendor = criteriaQuery.from(Vendor.class);
 		/**
@@ -341,7 +344,8 @@ public class VendorCustomRepositoryImpl implements VendorCustomRepository {
 			paramMap.put("searchKeyword", vendorListFilterDTO.getSearchKeyword().toLowerCase());
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getCuisineIds())) {
-			sqlQuery.append(" and cuisine.id in (" + vendorListFilterDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ");
+			sqlQuery.append(" and cuisine.id in (" + vendorListFilterDTO.getCuisineIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ")
+					.append(" and vc.active=true");
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(vendorListFilterDTO.getVendorIds())) {
 			sqlQuery.append(" and v.id in (" + vendorListFilterDTO.getVendorIds().stream().map(String::valueOf).collect(Collectors.joining(",")) + ") ");
