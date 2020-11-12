@@ -313,7 +313,7 @@ public class OrdersServiceImpl implements OrdersService {
 
 		if (!orderRequestDto.getDeliveryType().equals(DeliveryType.PICKUP.getStatusValue())
 				&& !orderRequestDto.getDeliveryType().equals(DeliveryType.DELIVERY.getStatusValue())) {
-			throw new ValidationException(messageByLocaleService.getMessage("invalid..type", null));
+			throw new ValidationException(messageByLocaleService.getMessage("invalid.type", null));
 		}
 		if (!orderRequestDto.getPaymentMode().equals(PaymentMode.COD.name()) && !orderRequestDto.getPaymentMode().equals(PaymentMode.ONLINE.name())) {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.payment.mode", null));
