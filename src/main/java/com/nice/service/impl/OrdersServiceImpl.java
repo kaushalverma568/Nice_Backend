@@ -344,9 +344,7 @@ public class OrdersServiceImpl implements OrdersService {
 		}
 
 		Customer customer = customerService.getCustomerDetails(customerId);
-		if (!customer.getPhoneVerified().booleanValue()) {
-			throw new ValidationException(messageByLocaleService.getMessage("phone.verify.before.place.order", null));
-		}
+
 		List<CartItem> cartItemList = cartItemService.getCartListBasedOnCustomer(orderRequestDto.getCustomerId());
 		if (cartItemList.isEmpty()) {
 			throw new ValidationException(messageByLocaleService.getMessage("order.unavailable", null));
