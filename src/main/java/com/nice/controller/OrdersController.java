@@ -89,6 +89,15 @@ public class OrdersController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+
+		/**
+		 * If the payment mode is WALLET, then make payment mode as ONLINE: This is done as for wallet only orders WALLET would
+		 * be passed and internal code is written considering the payment mode ONLINE.
+		 */
+		if (PaymentMode.WALLET.name().equals(orderRequestDto.getPaymentMode())) {
+			orderRequestDto.setPaymentMode(PaymentMode.ONLINE.name());
+		}
+
 		String orderId = orderService.validateOrder(orderRequestDto);
 		LOGGER.info("Inside the validate order method OrderRequestDTO:{}", orderRequestDto);
 		/**
