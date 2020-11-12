@@ -24,7 +24,6 @@ import com.nice.dto.StockAllocationDto;
 import com.nice.dto.StockDetailsWiseQuantityDTO;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
-import com.nice.jms.queue.JMSQueuerService;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.StockAllocationMapper;
 import com.nice.model.DeliveryBoy;
@@ -78,9 +77,6 @@ public class StockAllocationServiceImpl implements StockAllocationService {
 
 	@Autowired
 	private OrderItemService orderItemService;
-
-	@Autowired
-	private JMSQueuerService jmsQueuerService;
 
 	@Override
 	public Long allocateStock(final StockAllocationDto stockAllocationDto) throws NotFoundException, ValidationException {
