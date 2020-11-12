@@ -25,6 +25,7 @@ import com.nice.dto.StockAllocationDto;
 import com.nice.exception.NotFoundException;
 import com.nice.exception.ValidationException;
 import com.nice.response.GenericResponseHandlers;
+import com.nice.service.StockAllocationService;
 import com.nice.validator.StockAllocationValidator;
 
 /**
@@ -39,6 +40,9 @@ public class StockAllocationController {
 	@Autowired
 	private StockAllocationValidator stockAllocationValidator;
 
+	@Autowired
+	private StockAllocationService stockAllocationService;
+
 	@InitBinder
 	public void initialiseBinder(final WebDataBinder binder) {
 		binder.addValidators(stockAllocationValidator);
@@ -51,6 +55,7 @@ public class StockAllocationController {
 		if (!fieldErrors.isEmpty()) {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
+		stockAllocationService.allocateStock(stockAllocationDto);
 
 		return new GenericResponseHandlers.Builder().setMessage("Stock Allocated Successfully").setStatus(HttpStatus.OK).create();
 	}
