@@ -77,7 +77,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date : 16-Jul-2020
+ * @date   : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -161,11 +161,10 @@ public class TaskServiceImpl implements TaskService {
 
 		Orders orders = orderService.getOrderById(taskDto.getOrderId());
 		/**
-		 * Valdiation to check if the order type is not pick-up the delivery boy should
-		 * be assigned to it, Here if the taskStatus in taskDto is Cancelled then there
-		 * should not be any delivery boy related validation trigerred. Because if the
-		 * task status is cancelled then it is just a task that is createdd to manage
-		 * payout for confirmed orders for which delivery boys are yet to be asssigned
+		 * Valdiation to check if the order type is not pick-up the delivery boy should be assigned to it, Here if the
+		 * taskStatus in taskDto is Cancelled then there should not be any delivery boy related validation trigerred. Because if
+		 * the task status is cancelled then it is just a task that is createdd to manage payout for confirmed orders for which
+		 * delivery boys are yet to be asssigned
 		 */
 		if (!DeliveryType.PICKUP.getStatusValue().equalsIgnoreCase(orders.getDeliveryType()) && taskDto.getDeliveryBoyId() == null
 				&& !TaskStatusEnum.CANCELLED.getStatusValue().equals(taskDto.getStatus())) {
@@ -173,9 +172,8 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * Calculate the admin comission here and also the net amount payable to vendor
-		 * for the task, this code is only for regular order, not for replacement or
-		 * return, for replacement and return the calculation for the same will be
+		 * Calculate the admin comission here and also the net amount payable to vendor for the task, this code is only for
+		 * regular order, not for replacement or return, for replacement and return the calculation for the same will be
 		 * different.
 		 */
 		Double adminCommisionRate = (Double) SettingsConstant.getSettingsValue(Constant.ADMIN_COMISSION);
@@ -185,8 +183,7 @@ public class TaskServiceImpl implements TaskService {
 			adminCommisionRate = taskList.get(0).getAdminCommissionRate();
 		}
 		/**
-		 * Here order total amount would be the combination of wallet contribution and
-		 * amount paid by the customer
+		 * Here order total amount would be the combination of wallet contribution and amount paid by the customer
 		 */
 		Double orderTotal = Double.sum(orders.getTotalOrderAmount(), orders.getWalletContribution());
 		Double deliveryCharge = orders.getDeliveryCharge();
@@ -198,12 +195,10 @@ public class TaskServiceImpl implements TaskService {
 
 		}
 		/**
-		 * For return and replacement orders, set the values accordingly, here it is
-		 * assumed that the orderTotal will be a +ve value for return order as well in
-		 * orders table , keeping that in mind the below lines have been coded For
-		 * replacement orders, there would only be delivery charge and that would be
-		 * handled in change status method below, the vendor payable amount and admin
-		 * commission would be zero
+		 * For return and replacement orders, set the values accordingly, here it is assumed that the orderTotal will be a +ve
+		 * value for return order as well in orders table , keeping that in mind the below lines have been coded For replacement
+		 * orders, there would only be delivery charge and that would be handled in change status method below, the vendor
+		 * payable amount and admin commission would be zero
 		 */
 		else if (TaskTypeEnum.RETURN.getTaskValue().equals(taskDto.getTaskType())) {
 			adminCommissionAmt = (orderTotal - deliveryCharge) * adminCommisionRate / 100;
@@ -212,14 +207,13 @@ public class TaskServiceImpl implements TaskService {
 		}
 
 		/**
-		 * This code is synchronized as multiple delivery boys trying to accept the same
-		 * order for delivery donot end up have the same order.
+		 * This code is synchronized as multiple delivery boys trying to accept the same order for delivery donot end up have
+		 * the same order.
 		 */
 		synchronized (this) {
 			Task task = taskMapper.toEntity(taskDto);
 			/**
-			 * This is because, the task can be created without delivery boy for pickup
-			 * orders
+			 * This is because, the task can be created without delivery boy for pickup orders
 			 */
 			if (taskDto.getDeliveryBoyId() != null) {
 				/**
@@ -256,19 +250,16 @@ public class TaskServiceImpl implements TaskService {
 			task.setTotalOrderAmount(orderTotal);
 			task.setVendor(orders.getVendor());
 			/**
-			 * Actual delivery charge will set updated at the time of completion of task
-			 * (see: change task status method)
+			 * Actual delivery charge will set updated at the time of completion of task (see: change task status method)
 			 */
 			task.setDeliveryCharge(0.0d);
 			task.setCustomerDeliveryCharge(0.0d);
 			task.setOrderDeliveryType(orders.getDeliveryType());
 			/**
-			 * Set admin and vendor profit here, if changed after delivery they will be
-			 * updated during task delivery, Here if the order status is cancelled while
-			 * creating order, it means that the order is cancelled by admin without
-			 * delivery boy accepting it, and hence the admin earning would be the sum of
-			 * admin comission + delivery charge that the customer has paid as the admin
-			 * doesn't have to pay anything to the delivery boy here.
+			 * Set admin and vendor profit here, if changed after delivery they will be updated during task delivery, Here if the
+			 * order status is cancelled while creating order, it means that the order is cancelled by admin without delivery boy
+			 * accepting it, and hence the admin earning would be the sum of admin comission + delivery charge that the customer has
+			 * paid as the admin doesn't have to pay anything to the delivery boy here.
 			 */
 			if (TaskStatusEnum.CANCELLED.getStatusValue().equals(task.getStatus())) {
 				task.setAdminProfit(Double.sum(adminCommissionAmt, deliveryCharge));
@@ -325,11 +316,9 @@ public class TaskServiceImpl implements TaskService {
 			task.setStatus(TaskStatusEnum.DELIVERED.getStatusValue());
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			/**
-			 * Change the status of order based on the task type, if the task type is
-			 * replacement, the order is being replaced and hence the order should be moved
-			 * to replaced status, else its first time delivery and order will be moved to
-			 * delivered status, this would be applicable only if there is replacement in
-			 * place.
+			 * Change the status of order based on the task type, if the task type is replacement, the order is being replaced and
+			 * hence the order should be moved to replaced status, else its first time delivery and order will be moved to delivered
+			 * status, this would be applicable only if there is replacement in place.
 			 */
 			String nextOrderStatus;
 			if (TaskTypeEnum.DELIVERY.getTaskValue().equals(task.getTaskType())) {
@@ -388,8 +377,7 @@ public class TaskServiceImpl implements TaskService {
 				removeLocationDetailsAndUpdateDeliveryBoyAfterCompleteTask(task);
 			}
 			/**
-			 * set delivered date for getting cancelled order along with delivered order in
-			 * delivery boy
+			 * set delivered date for getting cancelled order along with delivered order in delivery boy
 			 */
 			task.setDeliveredDate(new Date(System.currentTimeMillis()));
 			task.setStatus(taskStatus);
@@ -403,8 +391,8 @@ public class TaskServiceImpl implements TaskService {
 		if (taskStatus.equals(TaskStatusEnum.DELIVERED.getStatusValue()) || taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
 			String minOrderDelivered = settingsService.getSettingsDetailsByFieldName(Constant.DAY_MIN_ORDER_DELIVERED).getFieldValue();
 			/**
-			 * if count of today's total delivered or cancelled task for this delivery boy
-			 * is greater than minimum order delivered for a day then consider that tasks
+			 * if count of today's total delivered or cancelled task for this delivery boy is greater than minimum order delivered
+			 * for a day then consider that tasks
 			 */
 			TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 			if (task.getDeliveryBoy() != null) {
@@ -426,8 +414,8 @@ public class TaskServiceImpl implements TaskService {
 					task.setDeliveryBoyProfit(task.getDeliveryCharge());
 					task.setVendorProfit(task.getVendorPayableAmt());
 					/**
-					 * Net Admin profit will be : Admin Comission + delivery charge taken from
-					 * customer - delivery charge paid to delivery boy
+					 * Net Admin profit will be : Admin Comission + delivery charge taken from customer - delivery charge paid to delivery
+					 * boy
 					 */
 					Double netDeliveryChargeProfitForAdmin = Double.sum(task.getCustomerDeliveryCharge(), task.getDeliveryCharge() * (-1));
 					task.setAdminProfit(Double.sum(task.getAdminCommission(), netDeliveryChargeProfitForAdmin));
@@ -442,7 +430,7 @@ public class TaskServiceImpl implements TaskService {
 					task.setVendorProfit(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 				}
 
-				if (taskList.size() >= Integer.valueOf(minOrderDelivered)) {
+				if (taskList.size() > Integer.valueOf(minOrderDelivered)) {
 					Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
 					task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 				}
@@ -542,7 +530,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param optTask
+	 * @param  optTask
 	 * @return
 	 * @throws NotFoundException
 	 */
@@ -625,8 +613,7 @@ public class TaskServiceImpl implements TaskService {
 	public void updateStatusToPickOnWay(final Long taskId, final String status) throws NotFoundException, ValidationException {
 		Task task = getTaskDetail(taskId);
 		/**
-		 * if delivery boy has on going order which is not delivered yet then can not
-		 * accept new one
+		 * if delivery boy has on going order which is not delivered yet then can not accept new one
 		 */
 		TaskFilterDTO taskFilterDTO = new TaskFilterDTO();
 		taskFilterDTO.setDeliveryBoyId(task.getDeliveryBoy().getId());
@@ -649,9 +636,8 @@ public class TaskServiceImpl implements TaskService {
 			throw new ValidationException(messageByLocaleService.getMessage("invalid.status.for.delivery", null));
 		}
 		/**
-		 * If Order's delivery type is Delivery then order's status should be return
-		 * order pickup If Order's delivery type is pick-up then order's status should
-		 * be return processed
+		 * If Order's delivery type is Delivery then order's status should be return order pickup If Order's delivery type is
+		 * pick-up then order's status should be return processed
 		 */
 		if (TaskTypeEnum.RETURN.getTaskValue().equalsIgnoreCase(task.getTaskType())
 				&& !OrderStatusEnum.RETURN_ORDER_PICKUP.getStatusValue().equalsIgnoreCase(task.getOrder().getOrderStatus())) {
@@ -659,8 +645,8 @@ public class TaskServiceImpl implements TaskService {
 		}
 		changeTaskStatus(task.getId(), TaskStatusEnum.DELIVERED.getStatusValue());
 		/**
-		 * set isBusy to false if delivery boy has no any other assigned orders, no
-		 * changes are to be made to delivery boy in case of pickup orders
+		 * set isBusy to false if delivery boy has no any other assigned orders, no changes are to be made to delivery boy in
+		 * case of pickup orders
 		 */
 		if (task.getDeliveryBoy() != null) {
 			/**
@@ -828,8 +814,7 @@ public class TaskServiceImpl implements TaskService {
 			LOGGER.info("inside notify customer for order delivery for task {} ", task.getId());
 			DeliveryBoyLocation deliveryBoyLocation = deliveryBoyLocationService.getDeliveryBoyLocationByDeliveryBoyId(task.getDeliveryBoy().getId());
 			/**
-			 * data to be send here some are static data by mobile team as they need this
-			 * data at their end
+			 * data to be send here some are static data by mobile team as they need this data at their end
 			 */
 			Map<String, String> data = new HashMap<>();
 			data.put("deliveryBoyId", task.getDeliveryBoy().getId().toString());
