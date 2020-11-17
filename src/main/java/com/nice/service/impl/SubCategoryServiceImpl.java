@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.AssetConstant;
 import com.nice.constant.Constant;
 import com.nice.constant.UserType;
+import com.nice.dto.ProductParamRequestDTO;
 import com.nice.dto.SubCategoryDTO;
 import com.nice.dto.SubCategoryImport;
 import com.nice.dto.SubCategoryResponseDTO;
@@ -37,6 +39,7 @@ import com.nice.exception.ValidationException;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.mapper.SubCategoryMapper;
 import com.nice.model.Category;
+import com.nice.model.Product;
 import com.nice.model.SubCategory;
 import com.nice.model.UserLogin;
 import com.nice.model.Vendor;
@@ -45,6 +48,7 @@ import com.nice.repository.SubCategoryRepository;
 import com.nice.service.AssetService;
 import com.nice.service.CategoryService;
 import com.nice.service.FileStorageService;
+import com.nice.service.ProductService;
 import com.nice.service.SubCategoryService;
 import com.nice.service.VendorService;
 import com.nice.util.CSVProcessor;
@@ -89,6 +93,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
 	@Autowired
 	private VendorService vendorService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	public void addSubCategory(final SubCategoryDTO resultSubCategoryDTO, final MultipartFile image)
@@ -211,8 +218,15 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 		} else {
 			if (Boolean.FALSE.equals(active)) {
 				/**
-				 * deactive dependent entities here like product
+				 * De-active products
 				 */
+				ProductParamRequestDTO productParamRequestDTO = new ProductParamRequestDTO();
+				productParamRequestDTO.setSubcategoryIds(Arrays.asList(subCategoryId));
+				productParamRequestDTO.setActiveRecords(true);
+				List<Product> productList = productService.getProductListBasedOnParamsWithoutPagination(productParamRequestDTO);
+				for (Product product : productList) {
+					productService.changeStatus(product.getId(), active);
+				}
 			}
 			existingSubCategory.setActive(active);
 			subCategoryRepository.save(existingSubCategory);
