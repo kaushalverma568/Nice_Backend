@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nice.config.UserAwareUserDetails;
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.UserType;
 import com.nice.dto.DeliveryBoyPayoutDTO;
 import com.nice.dto.Notification;
@@ -59,6 +60,8 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 	private static final String PAYMENT_ALREADY_DONE_ORDER = "payment.already.done.order";
 
 	private static final String EXPORT_FILE_CREATE_ERROR = "export.file.create.error";
+
+	private static final String REFUND_PENDING = "refund.pending";
 
 	@Autowired
 	private MessageByLocaleService messageByLocaleService;
@@ -115,6 +118,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			for (Task task : taskList) {
 				if (task.getDeliveryBoyPaymentDetails() != null) {
 					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
+				} else if (OrderStatusEnum.CANCELLED.getStatusValue().equals(task.getOrder().getOrderStatus())
+						&& !task.getOrder().getRefunded().booleanValue()) {
+					throw new ValidationException(messageByLocaleService.getMessage(REFUND_PENDING, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getDeliveryCharge();
 			}
@@ -134,6 +140,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			for (Task task : taskList) {
 				if (task.getVendorPaymentDetails() != null) {
 					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
+				} else if (OrderStatusEnum.CANCELLED.getStatusValue().equals(task.getOrder().getOrderStatus())
+						&& !task.getOrder().getRefunded().booleanValue()) {
+					throw new ValidationException(messageByLocaleService.getMessage(REFUND_PENDING, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getVendorPayableAmt();
 			}
@@ -288,6 +297,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			for (Task task : taskList) {
 				if (task.getDeliveryBoyPaymentDetails() != null) {
 					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
+				} else if (OrderStatusEnum.CANCELLED.getStatusValue().equals(task.getOrder().getOrderStatus())
+						&& !task.getOrder().getRefunded().booleanValue()) {
+					throw new ValidationException(messageByLocaleService.getMessage(REFUND_PENDING, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getDeliveryCharge();
 			}
@@ -299,6 +311,9 @@ public class PaymentDetailsServiceImpl implements PaymentDetailsService {
 			for (Task task : taskList) {
 				if (task.getVendorPaymentDetails() != null) {
 					throw new ValidationException(messageByLocaleService.getMessage(PAYMENT_ALREADY_DONE_ORDER, new Object[] { task.getOrder().getId() }));
+				} else if (OrderStatusEnum.CANCELLED.getStatusValue().equals(task.getOrder().getOrderStatus())
+						&& !task.getOrder().getRefunded().booleanValue()) {
+					throw new ValidationException(messageByLocaleService.getMessage(REFUND_PENDING, new Object[] { task.getOrder().getId() }));
 				}
 				sum += task.getVendorPayableAmt();
 			}
