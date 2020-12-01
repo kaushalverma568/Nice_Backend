@@ -77,7 +77,7 @@ import com.nice.util.ExportCSV;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 16-Jul-2020
+ * @date : 16-Jul-2020
  */
 @Service(value = "taskService")
 @Transactional(rollbackFor = Throwable.class)
@@ -429,14 +429,39 @@ public class TaskServiceImpl implements TaskService {
 					task.setCustomerDeliveryCharge(task.getDeliveryCharge());
 					task.setVendorProfit(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 				}
-
+				Double incentiveAmount = 0.0d;
 				if (taskList.size() > Integer.valueOf(minOrderDelivered)) {
-					Double incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
+					incentiveAmount = Double.valueOf(settingsService.getSettingsDetailsByFieldName(Constant.INCENTIVE_AMOUNT_FOR_DAY).getFieldValue());
 					task.setDeliveryCharge(Double.sum(task.getDeliveryCharge(), incentiveAmount));
 				}
 				if (TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType())) {
 					task.setVendorPayableAmt(Double.sum(task.getVendorPayableAmt(), task.getDeliveryCharge() * -1));
 					task.setDeliveryBoyProfit(task.getDeliveryCharge());
+					/**
+					 * If there is incentive for delivery person then deduct it from admmin profit
+					 */
+					task.setAdminProfit(Double.sum(task.getAdminProfit(), incentiveAmount * (-1)));
+
+					/**
+					 * If the return and replace tasks are cancelled then there should be no impact in vendor profit and the admin profit
+					 * should be set in a way that it reflects the deliver charge
+					 */
+					if (taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
+						task.setAdminProfit(task.getDeliveryBoyProfit() != null ? task.getDeliveryBoyProfit() * -1 : 0.0d);
+						task.setVendorPayableAmt(0.0d);
+						task.setVendorProfit(0.0d);
+					}
+				}
+			}
+			/**
+			 * This is for payout only, if the replace or retrun orders are cancelled then set admin and vendor profit as 0 for
+			 * incase of pickup orders.
+			 */
+			else {
+				if ((TaskTypeEnum.REPLACEMENT.getTaskValue().equals(task.getTaskType()) || TaskTypeEnum.RETURN.getTaskValue().equals(task.getTaskType()))
+						&& taskStatus.equals(TaskStatusEnum.CANCELLED.getStatusValue())) {
+					task.setAdminProfit(0.0d);
+					task.setVendorProfit(0.0d);
 				}
 			}
 		}
@@ -530,7 +555,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	/**
-	 * @param  optTask
+	 * @param optTask
 	 * @return
 	 * @throws NotFoundException
 	 */

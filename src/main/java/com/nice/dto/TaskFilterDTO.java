@@ -11,7 +11,7 @@ import lombok.Data;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 @Data
 public class TaskFilterDTO implements Serializable {
@@ -50,5 +50,7 @@ public class TaskFilterDTO implements Serializable {
 	private Date orderDateFrom;
 
 	private Date orderDateTo;
+
+	private List<String> orderStatusNotIn;
 
 }

@@ -22,6 +22,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import com.nice.constant.TaskStatusEnum;
+import com.nice.constant.TaskTypeEnum;
 import com.nice.dto.DeliveryLogFilterDTO;
 import com.nice.dto.TaskFilterDTO;
 import com.nice.model.Customer;
@@ -86,6 +87,17 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		if (parameterObject.getOrderId() != null) {
 			predicates.add(criteriaBuilder.equal(orders.get("id"), parameterObject.getOrderId()));
+		}
+
+		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(parameterObject.getOrderStatusNotIn())) {
+			// predicates.add(criteriaBuilder.not(orders.get("orderStatus").in(parameterObject.getOrderStatusNotIn())));
+
+			Predicate predicateForOrderStatusNotIn = criteriaBuilder.not(orders.get("orderStatus").in(parameterObject.getOrderStatusNotIn()));
+			Predicate predicateForTaskTypeNotIn = criteriaBuilder.equal(task.get("taskType"), TaskTypeEnum.DELIVERY.getTaskValue());
+
+			Predicate predicateForSearch = criteriaBuilder.or(predicateForOrderStatusNotIn, predicateForTaskTypeNotIn);
+			predicates.add(predicateForSearch);
+
 		}
 		if (CommonUtility.NOT_NULL_NOT_EMPTY_LIST.test(parameterObject.getStatusListNotIn())) {
 			predicates.add(criteriaBuilder.not(task.get("status").in(parameterObject.getStatusListNotIn())));
@@ -178,8 +190,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -240,8 +252,8 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 
 		/**
 		 * Reducing multiple queries into single queries using graph </br>
-		 * It allows defining a template by grouping the related persistence fields
-		 * which we want to retrieve and lets us choose the graph type at runtime.
+		 * It allows defining a template by grouping the related persistence fields which we want to retrieve and lets us choose
+		 * the graph type at runtime.
 		 */
 		EntityGraph<Task> fetchGraph = entityManager.createEntityGraph(Task.class);
 		fetchGraph.addSubgraph(ORDER);
@@ -288,8 +300,7 @@ public class TaskCustomRepositoryImpl implements TaskCustomRepository {
 			}
 		}
 		/**
-		 * delivery log filter will be applied on task delivered date in case of cancel
-		 * will also apply on delivered date
+		 * delivery log filter will be applied on task delivered date in case of cancel will also apply on delivered date
 		 */
 		if (deliveryLogFilterDTO.getFromDate() != null) {
 			if (deliveryLogFilterDTO.getToDate() != null) {

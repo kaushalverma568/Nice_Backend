@@ -1435,6 +1435,24 @@ public class OrdersServiceImpl implements OrdersService {
 		saveOrderStatusHistory(order);
 
 		/**
+		 * If the order is returned successfully credit the amount in the customer wallet and create a transaction for same.
+		 */
+		if (OrderStatusEnum.RETURNED.getStatusValue().equals(newStatus)) {
+			/**
+			 * this means the refund is to be made to customer wallet after deducting the charges from the order
+			 */
+			RefundAmountDisplayDto refundAmountDisplayDto = displayRefundAmount(order.getId());
+			customerService.updateWalletBalance(refundAmountDisplayDto.getMaxRefundAmt(), order.getCustomer().getId());
+			/**
+			 * make an entry in wallet txn
+			 */
+			addWalletTxn(refundAmountDisplayDto.getMaxRefundAmt(), order.getCustomer().getId(), order.getId(),
+					messageByLocaleService.getMessage("auto.refund.system", null), WalletTransactionTypeEnum.REFUND.name());
+
+			order.setRefunded(true);
+		}
+
+		/**
 		 * Change inventory based on status
 		 */
 		/**

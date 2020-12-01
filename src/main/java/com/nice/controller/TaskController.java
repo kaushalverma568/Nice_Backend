@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nice.constant.NotificationQueueConstants;
+import com.nice.constant.OrderStatusEnum;
 import com.nice.constant.TaskStatusEnum;
 import com.nice.dto.PaginationUtilDto;
 import com.nice.dto.TaskFilterDTO;
@@ -46,7 +47,7 @@ import com.nice.validator.TaskValidator;
 
 /**
  * @author : Kody Technolab PVT. LTD.
- * @date   : 15-Jul-2020
+ * @date : 15-Jul-2020
  */
 @RestController
 @RequestMapping("/order")
@@ -85,9 +86,9 @@ public class TaskController {
 	/**
 	 * complete task:(Used for deliver order)
 	 *
-	 * @param  token
-	 * @param  userId
-	 * @param  taskId
+	 * @param token
+	 * @param userId
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -128,8 +129,8 @@ public class TaskController {
 	/**
 	 * update task status to pickup on way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -146,8 +147,8 @@ public class TaskController {
 	/**
 	 * update task status to reached at vendor
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -164,9 +165,9 @@ public class TaskController {
 	/**
 	 * Update task status to reached at customer
 	 *
-	 * @param  token
-	 * @param  taskId
-	 * @param  taskType
+	 * @param token
+	 * @param taskId
+	 * @param taskType
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -183,8 +184,8 @@ public class TaskController {
 	/**
 	 * update task status to on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -201,8 +202,8 @@ public class TaskController {
 	/**
 	 * update task status to return on the way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -219,8 +220,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -237,8 +238,8 @@ public class TaskController {
 	/**
 	 * update task status to Replace Customer Pickup On The Way
 	 *
-	 * @param  token
-	 * @param  taskId
+	 * @param token
+	 * @param taskId
 	 * @return
 	 * @throws ValidationException
 	 * @throws NotFoundException
@@ -253,8 +254,8 @@ public class TaskController {
 	}
 
 	/**
-	 * @param  token
-	 * @param  paymentDetailsId
+	 * @param token
+	 * @param paymentDetailsId
 	 * @return
 	 * @throws NotFoundException
 	 * @throws ValidationException
@@ -272,10 +273,10 @@ public class TaskController {
 	/**
 	 * Get task list for pay-out based on parameters
 	 *
-	 * @param  token
-	 * @param  pageNumber
-	 * @param  pageSize
-	 * @param  taskFilterDTO
+	 * @param token
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param taskFilterDTO
 	 * @return
 	 * @throws ValidationException
 	 */
@@ -286,6 +287,16 @@ public class TaskController {
 		 * Get Only those tasks which is completed..not in process
 		 */
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+
+		/**
+		 * If the payout is for vendor then no point showing the tasks with order status returncancelled and replacecancelled,
+		 * as there wont be any deductions from vendor for such orders and the task status would be cancelled for them
+		 */
+		if (taskFilterDTO.getVendorId() != null) {
+			taskFilterDTO
+					.setOrderStatusNotIn(Arrays.asList(OrderStatusEnum.RETURN_CANCELLED.getStatusValue(), OrderStatusEnum.REPLACE_CANCELLED.getStatusValue()));
+		}
+
 		Long totalCount = taskService.getTaskCountBasedOnParams(taskFilterDTO, false);
 		PaginationUtilDto paginationUtilDto = PaginationUtil.calculatePagination(pageNumber, pageSize, totalCount);
 		final List<Task> resulttasks = taskService.getTaskListBasedOnParams(taskFilterDTO, paginationUtilDto.getStartIndex(), pageSize);
@@ -298,10 +309,10 @@ public class TaskController {
 	/**
 	 * export task list for payout history
 	 *
-	 * @param  accessToken
-	 * @param  userId
-	 * @param  httpServletResponse
-	 * @param  activeRecords
+	 * @param accessToken
+	 * @param userId
+	 * @param httpServletResponse
+	 * @param activeRecords
 	 * @return
 	 * @throws FileOperationException
 	 * @throws NotFoundException
@@ -315,6 +326,16 @@ public class TaskController {
 		 * Get Only those tasks which is completed..not in process
 		 */
 		taskFilterDTO.setStatusList(Arrays.asList(TaskStatusEnum.DELIVERED.getStatusValue(), TaskStatusEnum.CANCELLED.getStatusValue()));
+
+		/**
+		 * If the payout is for vendor then no point showing the tasks with order status returncancelled and replacecancelled,
+		 * as there wont be any deductions from vendor for such orders.
+		 */
+		if (taskFilterDTO.getVendorId() != null) {
+			taskFilterDTO
+					.setOrderStatusNotIn(Arrays.asList(OrderStatusEnum.RETURN_CANCELLED.getStatusValue(), OrderStatusEnum.REPLACE_CANCELLED.getStatusValue()));
+		}
+
 		taskService.exportTaskListForPayout(httpServletResponse, taskFilterDTO);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage("task.list.display.message", null))
 				.create();
