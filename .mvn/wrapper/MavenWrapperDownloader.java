@@ -85,10 +85,8 @@ public class MavenWrapperDownloader {
         System.out.println("- Downloading to: " + outputFile.getAbsolutePath());
         try {
             downloadFileFromURL(url, outputFile);
-            System.out.println("Done");
             System.exit(0);
         } catch (Throwable e) {
-            System.out.println("- Error downloading");
             e.printStackTrace();
             System.exit(1);
         }

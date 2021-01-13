@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.amazonaws.services.pinpoint.model.GPSCoordinates;
+import com.nice.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,18 +47,6 @@ import com.nice.constant.Constant;
 import com.nice.constant.SuccessErrorType;
 import com.nice.constant.UserType;
 import com.nice.constant.VendorStatus;
-import com.nice.dto.HesabeDecryptPaymentDTO;
-import com.nice.dto.HesabePaymentResponseDTO;
-import com.nice.dto.PaginationUtilDto;
-import com.nice.dto.VendorAppResponseDTO;
-import com.nice.dto.VendorBankDetailsDTO;
-import com.nice.dto.VendorBasicDetailDTO;
-import com.nice.dto.VendorDTO;
-import com.nice.dto.VendorFilterDTO;
-import com.nice.dto.VendorListFilterDTO;
-import com.nice.dto.VendorPaymentResponseDTO;
-import com.nice.dto.VendorResponseDTO;
-import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
@@ -122,6 +113,7 @@ public class VendorController {
 	@Autowired
 	private VendorPaymentService vendorPaymentService;
 
+
 	/**
 	 * to bind validator with object using 'BindingResult' in method
 	 *
@@ -155,19 +147,23 @@ public class VendorController {
 	 * @throws MessagingException
 	 */
 	@PostMapping
-	public ResponseEntity<Object> addVendor(@RequestBody @Valid final VendorDTO vendorDTO, final BindingResult result)
-			throws ValidationException, NotFoundException {
-		final List<FieldError> fieldErrors = result.getFieldErrors();
-		if (!fieldErrors.isEmpty()) {
-			LOGGER.error("Vendor validation failed");
-			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
-		}
-		/**
-		 * Added to handle the country,city in this, default it will be 1
-		 */
-		vendorDTO.setCountryId(1L);
-		vendorDTO.setCityId(1L);
-		VendorResponseDTO vendorResponseDTO = vendorService.addVendor(vendorDTO);
+	public ResponseEntity<Object> addVendor(@RequestParam("id") Long id, @RequestParam("businessCategoryId") Long businessCategoryId, @RequestParam("email") String email, @RequestParam("password") String password,
+											@RequestParam("firstNameArabic") String firstNameArabic, @RequestParam("lastNameArabic") String lastNameArabic,
+											@RequestParam("storeNameArabic") String storeNameArabic, @RequestParam("buildingArabic") String buildingArabic,
+											@RequestParam("blockArabic") String blockArabic, @RequestParam("streetArabic") String streetArabic,
+											@RequestParam("firstNameEnglish") String firstNameEnglish, @RequestParam("lastNameEnglish") String lastNameEnglish,
+											@RequestParam("storeNameEnglish") String storeNameEnglish, @RequestParam("buildingEnglish") String buildingEnglish,
+											@RequestParam("blockEnglish") String blockEnglish, @RequestParam("streetEnglish") String streetEnglish,@RequestParam("phoneNumber") String phoneNumber,
+											@RequestParam("countryId") Long countryId, @RequestParam("cityId") Long cityId, @RequestParam("areaId") Long areaId,
+											@RequestParam("latitude") BigDecimal latitude, @RequestParam("longitude") BigDecimal longitude, @RequestParam("preferredLanguage") String preferredLanguage,
+											@RequestParam("isAdmin") Boolean isAdmin, @RequestParam("storeImage") MultipartFile storeImage, @RequestParam("featuredImage") MultipartFile featuredImage,
+											@RequestParam("storeDetailImage") MultipartFile storeDetailImage) throws ValidationException, NotFoundException, FileOperationException {
+		VendorDTO vendorDTO = VendorDTO.builder().id(id).areaId(areaId).blockArabic(blockArabic).blockEnglish(blockEnglish)
+				.buildingArabic(buildingArabic).buildingEnglish(buildingEnglish).businessCategoryId(businessCategoryId).cityId(cityId)
+				.countryId(countryId).email(email).firstNameArabic(firstNameArabic).firstNameEnglish(firstNameEnglish).isAdmin(isAdmin).lastNameArabic(lastNameArabic)
+				.lastNameEnglish(lastNameEnglish).latitude(latitude).longitude(longitude).password(password).phoneNumber(phoneNumber).preferredLanguage(preferredLanguage)
+				.storeNameArabic(storeNameArabic).storeNameEnglish(storeNameEnglish).streetArabic(streetArabic).streetEnglish(streetEnglish).build();
+		VendorResponseDTO vendorResponseDTO = vendorService.addVendor(vendorDTO, storeImage, featuredImage, storeDetailImage);
 		if (vendorDTO.getIsAdmin().booleanValue()) {
 			userLoginService.sendWelComeEmail(vendorResponseDTO.getUserId());
 		} else {
@@ -426,7 +422,6 @@ public class VendorController {
 				.setData(vendorList).setHasNextPage(paginationUtilDto.getHasNextPage()).setHasPreviousPage(paginationUtilDto.getHasPreviousPage())
 				.setTotalPages(paginationUtilDto.getTotalPages().intValue()).setPageNumber(paginationUtilDto.getPageNumber()).setTotalCount(totalCount)
 				.create();
-
 	}
 
 	/**
@@ -642,4 +637,20 @@ public class VendorController {
 				.setData(vendorService.getAllVendorCount()).create();
 	}
 
+	/**
+	 * Get all the featured vendors
+	 *
+	 * @param accessToken
+	 * @param latitude
+	 * @param longitude
+	 * @return
+	 */
+	@PostMapping("/app/list/featured")
+	public ResponseEntity<Object> getAllFeaturedVendors(@RequestHeader("Authorization") final String accessToken,
+														@RequestBody final CoordinatesDTO coordinatesDTO) throws ValidationException {
+		LOGGER.info("Inside get all featured vendors");
+		List<VendorAppResponseDTO> vendorList = vendorService.getAllFeaturedVendors(coordinatesDTO);
+		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setMessage(messageByLocaleService.getMessage(VENDOR_LIST_MESSAGE, null))
+				.setData(vendorList).create();
+	}
 }

@@ -7,18 +7,10 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nice.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nice.dto.HesabePaymentDTO;
-import com.nice.dto.VendorAppResponseDTO;
-import com.nice.dto.VendorBankDetailsDTO;
-import com.nice.dto.VendorBasicDetailDTO;
-import com.nice.dto.VendorDTO;
-import com.nice.dto.VendorFilterDTO;
-import com.nice.dto.VendorListFilterDTO;
-import com.nice.dto.VendorResponseDTO;
-import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.exception.FileNotFoundException;
 import com.nice.exception.FileOperationException;
 import com.nice.exception.NotFoundException;
@@ -41,7 +33,7 @@ public interface VendorService {
 	 * @throws ValidationException
 	 * @throws NotFoundException
 	 */
-	VendorResponseDTO addVendor(VendorDTO vendorDTO) throws ValidationException, NotFoundException;
+	VendorResponseDTO addVendor(VendorDTO vendorDTO, MultipartFile storeImage,  MultipartFile featuredImage, MultipartFile storeDetailImage) throws ValidationException, NotFoundException, FileOperationException;
 
 	/**
 	 * get DTO object of vendor
@@ -359,4 +351,12 @@ public interface VendorService {
 	 * @param vendor
 	 */
 	void addVendorHistory(Long vendorId);
+
+
+	/**
+	 *
+	 * @param coordinatesDTO
+	 * @return
+	 */
+	List<VendorAppResponseDTO> getAllFeaturedVendors(CoordinatesDTO coordinatesDTO);
 }

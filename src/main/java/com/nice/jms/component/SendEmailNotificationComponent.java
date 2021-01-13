@@ -264,7 +264,7 @@ public class SendEmailNotificationComponent {
 			emailParameterMap.put(CUSTOMER_CARE_EMAIL, company.getCustomerCareEmail());
 			emailParameterMap.put(CUSTOMER_CARE_CONTACT, company.getPhoneNumber());
 			emailParameterMap.put(COMPANY_EMAIL, company.getCompanyEmail());
-
+			System.out.println(company.getCompanyEmail());
 			DeliveryBoy deliveryBoy = deliveryBoyService.getDeliveryBoyDetail(emailNotification.getDeliveryBoyId());
 
 			if (emailNotification.getLanguage().equals("en")) {

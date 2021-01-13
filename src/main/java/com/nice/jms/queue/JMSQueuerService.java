@@ -1,5 +1,8 @@
 package com.nice.jms.queue;
 
+import com.nice.service.impl.DeliveryBoyServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,9 @@ import com.nice.dto.PushNotificationDTO;
 @Service
 public class JMSQueuerService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(JMSQueuerService.class);
+
+
 	@Autowired
 	private JMSQueuer jmsQueuer;
 
@@ -23,6 +29,7 @@ public class JMSQueuerService {
 		/**
 		 * if sendEmail in settings is true then only send the email
 		 */
+		LOGGER.info("Inside sendEmail of JMS"+ emailNotification.getEmail());
 		if (((emailNotification != null) && "true".equals(SettingsConstant.getSettingsValue("SEND_EMAIL")))
 				|| NotificationQueueConstants.NON_NOTIFICATION_QUEUE.equals(queueName)) {
 			if ((emailNotification != null) && emailNotification.getLanguage() == null) {

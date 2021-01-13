@@ -827,6 +827,7 @@ public class UserLoginServiceImpl implements UserLoginService, UserDetailsServic
 	public LoginResponse adminLogin(final UserLoginDto userLoginDto) throws ValidationException, NotFoundException, UnAuthorizationException {
 		Optional<UserLogin> optUserLogin = userLoginRepository.getAdminPanelUserBasedOnUserNameAndEntityType(userLoginDto.getUserName().toLowerCase(),
 				UserType.ADMIN_PANEL_USER_LIST);
+		System.out.println("Hi");
 		if (optUserLogin.isPresent()) {
 			String entityType = optUserLogin.get().getEntityType() == null ? UserType.USER.name() : optUserLogin.get().getEntityType();
 			userLoginDto.setUserType(entityType);

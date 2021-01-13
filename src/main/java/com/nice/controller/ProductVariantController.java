@@ -64,7 +64,7 @@ public class ProductVariantController {
 	 * @throws NotFoundException
 	 */
 	@PostMapping("/{productId}/variant")
-	// @PreAuthorize("hasPermission('Product List','CAN_ADD')")
+	 @PreAuthorize("hasPermission('Product List','CAN_ADD')")
 	public ResponseEntity<Object> addUpdateProductVariantList(@RequestHeader("Authorization") final String accessToken,
 			@PathVariable("productId") final Long productId, @RequestBody @Valid final ProductVariantRequestDTO productVariantRequestDTO,
 			final BindingResult result) throws ValidationException, NotFoundException {

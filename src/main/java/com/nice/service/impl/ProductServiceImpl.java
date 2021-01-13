@@ -396,13 +396,13 @@ public class ProductServiceImpl implements ProductService {
 		/**
 		 * If the login user is not a vendor then throw an exception
 		 */
-		UserLogin userLogin = checkForUserLogin();
-		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
-		if (productRequestDTO.getId() != null && !productRequestDTO.getVendorId().equals(userLogin.getEntityId())) {
-			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
-		}
+//		UserLogin userLogin = checkForUserLogin();
+//		if (!UserType.VENDOR.name().equals(userLogin.getEntityType())) {
+//			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+//		}
+//		if (productRequestDTO.getId() != null && !productRequestDTO.getVendorId().equals(userLogin.getEntityId())) {
+//			throw new ValidationException(messageByLocaleService.getMessage(Constant.UNAUTHORIZED, null));
+//		}
 		/**
 		 * vendor's profile is not completed yet then throw an exception
 		 */

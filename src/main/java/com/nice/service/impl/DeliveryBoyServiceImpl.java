@@ -529,6 +529,7 @@ public class DeliveryBoyServiceImpl implements DeliveryBoyService {
 	}
 
 	private void sendEmail(final String otp, final DeliveryBoyResponseDTO deliveryBoyResponseDTO) {
+		LOGGER.info("Inside sendEmail "+ deliveryBoyResponseDTO.getEmail());
 		Notification notification = new Notification();
 		notification.setOtp(otp);
 		notification.setUserId(deliveryBoyResponseDTO.getUserId());

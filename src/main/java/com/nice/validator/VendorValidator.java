@@ -1,5 +1,6 @@
 package com.nice.validator;
 
+import com.nice.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.nice.dto.VendorBankDetailsDTO;
-import com.nice.dto.VendorDTO;
-import com.nice.dto.VendorFilterDTO;
-import com.nice.dto.VendorListFilterDTO;
-import com.nice.dto.VendorRestaurantDetailsDTO;
 import com.nice.locale.MessageByLocaleService;
 import com.nice.service.VendorService;
 import com.nice.util.CommonUtility;
@@ -52,7 +48,7 @@ public class VendorValidator implements Validator {
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return VendorDTO.class.equals(clazz) || VendorRestaurantDetailsDTO.class.equals(clazz) || VendorBankDetailsDTO.class.equals(clazz)
-				|| VendorFilterDTO.class.equals(clazz) || VendorListFilterDTO.class.equals(clazz);
+				|| VendorFilterDTO.class.equals(clazz) || VendorListFilterDTO.class.equals(clazz) || CoordinatesDTO.class.equals(clazz);
 	}
 
 	/**
@@ -61,6 +57,7 @@ public class VendorValidator implements Validator {
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
+		System.out.println("test1");
 		if (target instanceof VendorDTO) {
 			final VendorDTO vendorDTO = (VendorDTO) target;
 			// to check vendor duplication

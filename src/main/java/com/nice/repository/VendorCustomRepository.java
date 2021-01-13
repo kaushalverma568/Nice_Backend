@@ -6,6 +6,7 @@ package com.nice.repository;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.nice.dto.CoordinatesDTO;
 import com.nice.dto.VendorFilterDTO;
 import com.nice.dto.VendorListFilterDTO;
 import com.nice.model.Vendor;
@@ -59,5 +60,13 @@ public interface VendorCustomRepository {
 	 * @return
 	 */
 	Double getVendorDistanceForCustomerBasedOnParams(final Long vendorId, final BigDecimal latitude, BigDecimal longitude);
+
+	/**
+	 * get featured vendor based on the latitude and longitude
+	 *
+	 * @param coordinatesDTO
+	 * @return
+	 */
+	List<Vendor> getFeaturedVendorList(CoordinatesDTO coordinatesDTO, int featuredVendorDistance);
 
 }

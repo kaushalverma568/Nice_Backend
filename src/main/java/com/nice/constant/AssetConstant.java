@@ -34,6 +34,6 @@ public final class AssetConstant {
 	public static final String TOPPING = MAIN_DIR + "/topping";
 	public static final String EXTRAS = MAIN_DIR + "/extras";
 	public static final String ATTRIBUTE = MAIN_DIR + "/attribute";
-	public static final boolean IS_AWS = false;
+	public static final boolean IS_AWS = true;
 
 }

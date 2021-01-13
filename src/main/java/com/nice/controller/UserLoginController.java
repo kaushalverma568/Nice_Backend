@@ -353,6 +353,7 @@ public class UserLoginController {
 			throw new ValidationException(fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(",")));
 		}
 
+		System.out.println("hi");
 		LoginResponse loginResponse = userLoginService.adminLogin(userLoginDto);
 		return new GenericResponseHandlers.Builder().setStatus(HttpStatus.OK).setData(loginResponse)
 				.setMessage(messageByLocaleService.getMessage(LOGIN_SUCCESS, null)).create();

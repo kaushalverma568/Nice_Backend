@@ -1,5 +1,7 @@
 package com.nice.jms.queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,14 @@ import com.nice.dto.PushNotificationDTO;
 @Service
 public class JMSQueuer {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(JMSQueuer.class);
+
+
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
 	public void sendEmail(final String queueName, final Notification emailNotification) {
+		LOGGER.info("Inside sendEmail of JMS Queuer"+ emailNotification.getEmail());
 		jmsTemplate.convertAndSend(queueName, emailNotification);
 	}
 

@@ -62,7 +62,8 @@ public class UsersServiceImpl implements UsersService {
 		Role role = roleService.getRoleDetail(usersDTO.getRoleId());
 		if (usersDTO.getPassword() == null) {
 			throw new ValidationException(messageByLocaleService.getMessage("password.required", null));
-		} else if (role.getIsDefault().booleanValue()) {
+		}
+		else if (role.getIsDefault().booleanValue()) {
 			throw new ValidationException(messageByLocaleService.getMessage("default.user.not.creatable", null));
 		}
 		Users users = usersMapper.toEntity(usersDTO);
